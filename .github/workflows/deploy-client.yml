@@ -23,6 +23,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check for GCP_SA_KEY
+        run: |
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            echo "❌ ERROR: secrets.GCP_SA_KEY is missing or empty in this repository."
+            echo "Go to Settings > Secrets and variables > Actions and add it."
+            exit 1
+          fi
+
       - name: Google Auth
         uses: google-github-actions/auth@v2
         with:
