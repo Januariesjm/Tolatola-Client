@@ -1,0 +1,17 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# Environment variables
+.env
+.env.*
+.env.local
+
+# OS
+.DS_Store
