@@ -26,20 +26,28 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
 
     // Case 1: Traditional Customer-Shop/Vendor conversation
     if (shopId) {
-      // Get shop vendor_id
-      const { data: shop, error: shopError } = await (supabase as any).from("shops").select("vendor_id").eq("id", shopId).single()
+      console.log("[Messaging] Fetching shop and vendor details for shopId:", shopId)
+      // Get shop and its vendor's user_id
+      // @ts-ignore
+      const { data: shop, error: shopError } = await (supabase as any)
+        .from("shops")
+        .select("vendor_id, vendors(user_id)")
+        .eq("id", shopId)
+        .single()
 
       if (shopError) {
         console.error("[Messaging] Error fetching shop:", shopError)
         return { error: `Could not find shop: ${shopError.message}` }
       }
 
-      if (!shop) {
-        console.error("[Messaging] Shop not found for ID:", shopId)
-        return { error: "Shop no longer exists" }
+      const vendorUserId = shop?.vendors?.user_id
+
+      if (!vendorUserId) {
+        console.error("[Messaging] Vendor user not found for shop ID:", shopId)
+        return { error: "Shop owner not found" }
       }
 
-      console.log("[Messaging] Shop found, vendor_id:", (shop as any).vendor_id)
+      console.log("[Messaging] Shop and vendor user found:", vendorUserId)
 
       // Check if conversation already exists
       const { data: existingConversation } = await (supabase as any)
@@ -55,12 +63,13 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       }
 
       // Create new conversation
-      console.log("[Messaging] Creating new shop conversation...")
+      console.log("[Messaging] Creating new shop conversation with vendorUserId:", vendorUserId)
+      // @ts-ignore
       const { data: newConversation, error } = await (supabase as any)
         .from("conversations")
         .insert({
           customer_id: user.id,
-          vendor_id: (shop as any).vendor_id,
+          vendor_id: vendorUserId,
           shop_id: shopId,
           product_id: productId,
         })
@@ -78,6 +87,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
 
     // Case 2: Transporter-Customer conversation (based on receiverId and orderId)
     if (receiverId) {
+      console.log("[Messaging] Handling direct conversation for receiverId:", receiverId)
       // Check if conversation already exists between these two users
       const { data: existingConversation } = await (supabase as any)
         .from("conversations")
@@ -92,6 +102,8 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       }
 
       // Create new conversation
+      console.log("[Messaging] Creating new direct conversation...")
+      // @ts-ignore
       const { data: newConversation, error } = await (supabase as any)
         .from("conversations")
         .insert({
@@ -104,7 +116,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
 
       if (error) {
         console.error("[Messaging] Error creating direct conversation:", error)
-        return { error: error.message }
+        return { error: `Failed to create direct conversation: ${error.message}` }
       }
 
       console.log("[Messaging] Created new direct conversation:", newConversation.id)
@@ -129,6 +141,7 @@ export async function sendMessage(conversationId: string, message: string, attac
     return { error: "Not authenticated" }
   }
 
+  // @ts-ignore
   const { data, error } = await (supabase as any)
     .from("messages")
     .insert({
@@ -184,6 +197,7 @@ export async function uploadChatFile(formData: FormData) {
 export async function getConversationMessages(conversationId: string) {
   const supabase = await createClient()
 
+  // @ts-ignore
   const { data, error } = await (supabase as any)
     .from("messages")
     .select(`
@@ -211,6 +225,7 @@ export async function getUserConversations() {
     return { error: "Not authenticated" }
   }
 
+  // @ts-ignore
   const { data, error } = await (supabase as any)
     .from("conversations")
     .select(`
@@ -241,6 +256,7 @@ export async function markMessagesAsRead(conversationId: string) {
     return { error: "Not authenticated" }
   }
 
+  // @ts-ignore
   const { error } = await (supabase as any)
     .from("messages")
     .update({ is_read: true })
