@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Search, X, Store } from "lucide-react"
+import { Search, X, Store, ShoppingBag, ArrowRight, Loader2, Sparkles, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 interface Product {
   id: string
@@ -54,7 +55,7 @@ export function ProductSearch() {
           .eq("is_active", true)
           .eq("status", "approved")
           .ilike("name", `%${query}%`)
-          .limit(4)
+          .limit(5)
 
         const { data: shops, error: shopsError } = await supabase
           .from("shops")
@@ -102,144 +103,153 @@ export function ProductSearch() {
   }
 
   return (
-    <div ref={searchRef} className="relative w-full max-w-md">
+    <div ref={searchRef} className="relative w-full max-w-2xl group">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className={cn(
+          "absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300",
+          isLoading ? "text-primary animate-pulse" : "text-stone-400 group-focus-within:text-primary"
+        )}>
+          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
+        </div>
+
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Search products and vendors..."
+          placeholder="Search for perfection..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
             if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
           }}
-          className="pl-9 pr-9 h-10 bg-muted/50 border-muted-foreground/20 focus-visible:ring-primary"
+          className="pl-12 pr-12 h-14 md:h-16 rounded-[2rem] bg-stone-50/50 border-stone-200/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-lg font-medium placeholder:text-stone-300 border-2"
         />
+
         {query && (
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-stone-100 rounded-full transition-colors"
             onClick={handleClear}
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5 text-stone-400" />
           </Button>
         )}
       </div>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 w-full bg-background border rounded-lg shadow-lg overflow-hidden z-50 max-h-[500px] overflow-y-auto">
-          {isLoading ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
-          ) : (
-            <>
-              {shopResults.length > 0 && (
-                <div className="border-b">
-                  <div className="px-3 py-2 bg-muted/30 text-xs font-semibold text-muted-foreground uppercase">
-                    Vendors
+        <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto scrollbar-hide">
+
+            {/* Shops Section */}
+            {shopResults.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Elite Vendors</span>
                   </div>
-                  {shopResults.map((shop) => {
-                    const shopUrl = `/shop/${shop.id}`
-                    return (
-                      <Link
-                        key={shop.id}
-                        href={shopUrl}
-                        onClick={() => {
-                          setIsOpen(false)
-                          setQuery("")
-                        }}
-                        className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors"
-                      >
-                      <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden bg-muted">
+                  <div className="h-px flex-1 bg-stone-100 mx-4" />
+                </div>
+
+                <div className="grid gap-3">
+                  {shopResults.map((shop) => (
+                    <Link
+                      key={shop.id}
+                      href={`/shop/${shop.id}`}
+                      onClick={() => {
+                        setIsOpen(false)
+                        setQuery("")
+                      }}
+                      className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-50 transition-all group/shop"
+                    >
+                      <div className="relative w-14 h-14 flex-shrink-0 rounded-2xl overflow-hidden shadow-sm border border-stone-100 bg-white">
                         {shop.logo_url ? (
-                          <Image
-                            src={shop.logo_url || "/placeholder.svg"}
-                            alt={shop.name}
-                            fill
-                            className="object-cover"
-                          />
+                          <Image src={shop.logo_url} alt={shop.name} fill className="object-cover transition-transform duration-500 group-hover/shop:scale-110" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Store className="h-5 w-5 text-muted-foreground" />
+                          <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
+                            <Store className="h-6 w-6" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{shop.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {shop.description || shop.address || "Vendor"}
+                        <p className="text-base font-black text-stone-900 truncate tracking-tight">{shop.name}</p>
+                        <p className="text-xs font-bold text-stone-400 truncate italic">
+                          {shop.address || "Verified Tola Vendor"}
                         </p>
                       </div>
-                      <Store className="h-4 w-4 text-primary" />
-                      </Link>
-                    )
-                  })}
+                      <div className="h-10 w-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-400 group-hover/shop:bg-primary group-hover/shop:text-white transition-all">
+                        <ArrowRight className="h-5 w-5" />
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {productResults.length > 0 && (
-                <div>
-                  <div className="px-3 py-2 bg-muted/30 text-xs font-semibold text-muted-foreground uppercase">
-                    Products
+            {/* Products Section */}
+            {productResults.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-amber-500" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Curated Items</span>
                   </div>
-                  {productResults.map((product) => {
-                    const productUrl = `/product/${product.id}`
-                    return (
-                      <Link
-                        key={product.id}
-                        href={productUrl}
-                        onClick={() => {
-                          setIsOpen(false)
-                          setQuery("")
-                        }}
-                        className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors"
-                      >
-                      <div className="relative w-12 h-12 flex-shrink-0 rounded overflow-hidden bg-muted">
-                        {product.images && product.images[0] ? (
-                          <Image
-                            src={product.images[0] || "/placeholder.svg"}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
+                  <div className="h-px flex-1 bg-stone-100 mx-4" />
+                </div>
+
+                <div className="grid gap-4">
+                  {productResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/product/${product.id}`}
+                      onClick={() => {
+                        setIsOpen(false)
+                        setQuery("")
+                      }}
+                      className="flex items-center gap-5 p-4 rounded-2xl hover:bg-stone-50 transition-all group/item"
+                    >
+                      <div className="relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden shadow-md border border-stone-100 bg-white">
+                        {product.images?.[0] ? (
+                          <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-500 group-hover/item:scale-110" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Search className="h-5 w-5 text-muted-foreground" />
+                          <div className="w-full h-full flex items-center justify-center bg-stone-50">
+                            <ShoppingBag className="h-8 w-8 text-stone-200" />
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{product.shops?.name}</p>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-base font-black text-stone-900 truncate tracking-tight">{product.name}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-primary px-2 py-0.5 bg-primary/10 rounded-full">
+                            {product.shops?.name}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-sm font-semibold text-primary">TZS {product.price.toLocaleString()}</div>
-                      </Link>
-                    )
-                  })}
+                      <div className="text-right">
+                        <p className="text-lg font-black text-stone-950 tracking-tighter">
+                          {product.price.toLocaleString()} <span className="text-[10px] uppercase">TZS</span>
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {(productResults.length === 4 || shopResults.length === 3) && (
-                <Link
-                  href={`/shop?search=${encodeURIComponent(query)}`}
-                  onClick={() => {
-                    setIsOpen(false)
-                    setQuery("")
-                  }}
-                  className="block p-3 text-center text-sm text-primary hover:bg-muted/50 transition-colors border-t"
-                >
-                  View all results
-                </Link>
-              )}
-
-              {productResults.length === 0 && shopResults.length === 0 && (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  No products or vendors found for "{query}"
-                </div>
-              )}
-            </>
-          )}
+            {(productResults.length >= 4 || shopResults.length >= 3) && (
+              <Link
+                href={`/shop?search=${encodeURIComponent(query)}`}
+                onClick={() => {
+                  setIsOpen(false)
+                  setQuery("")
+                }}
+                className="flex items-center justify-center gap-3 w-full p-5 mt-4 text-sm font-black uppercase tracking-[0.2em] text-stone-400 border-2 border-dashed border-stone-100 rounded-3xl hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all group/all"
+              >
+                <span>Reveal All Findings</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </div>

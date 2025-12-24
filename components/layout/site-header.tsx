@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,22 +11,42 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, User, Package, Settings, LogOut, CheckCircle2, Menu, Home, Store } from "lucide-react"
+import {
+  ShoppingCart,
+  User,
+  LogOut,
+  Menu,
+  Package,
+  Settings,
+  ShieldCheck,
+  CheckCircle2,
+  Home,
+  ShoppingBag,
+  Sparkles,
+  Zap,
+  Globe,
+  ArrowRight
+} from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import Image from "next/image"
-import { HeaderAnimatedText } from "./header-animated-text"
-import { ProductSearch } from "./product-search"
+import { useRouter, usePathname } from "next/navigation"
 import { CartPopover } from "./cart-popover"
-import { useEffect, useState } from "react"
 import { LanguageSwitcher } from "./language-switcher"
+import { ProductSearch } from "./product-search"
 import { NotificationPopover } from "./notification-popover"
 import { clientApiGet } from "@/lib/api-client"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface SiteHeaderProps {
   user: any
@@ -34,344 +55,280 @@ interface SiteHeaderProps {
 }
 
 export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps) {
-  const router = useRouter()
+  const [authUser, setAuthUser] = useState<any>(user)
+  const [authProfile, setAuthProfile] = useState<any>(profile)
+  const [authKyc, setAuthKyc] = useState<string | null>(kycStatus || null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [authUser, setAuthUser] = useState(user)
-  const [authProfile, setAuthProfile] = useState(profile)
-  const [authKyc, setAuthKyc] = useState(kycStatus)
-  const [mounted, setMounted] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const supabase = createClientComponentClient<Database>()
 
   const handleLogout = async () => {
-    try {
-      // Clear Supabase session on client side first
-      const supabase = createClientComponentClient<Database>()
-      await supabase.auth.signOut()
-
-      // Also call backend logout (optional, but good for consistency)
-      try {
-        const { clientApiPost } = await import("@/lib/api-client")
-        await clientApiPost("auth/logout")
-      } catch (apiError) {
-        // Backend logout failed, but we've already cleared local session
-        console.error("Backend logout error:", apiError)
-      }
-    } catch (error) {
-      console.error("Logout error:", error)
-    } finally {
-      // Force redirect to home page
-      window.location.href = "/"
-    }
+    await supabase.auth.signOut()
+    localStorage.removeItem("cart")
+    window.dispatchEvent(new Event("cartUpdated"))
+    router.refresh()
+    router.push("/")
   }
 
-  // Client-side session check to update header after login
   useEffect(() => {
-    setMounted(true)
-    const supabase = createClientComponentClient<Database>()
-    const loadSession = async () => {
-      // Use getUser() to verify authentication with server
-      const {
-        data: { user: sessionUser },
-      } = await supabase.auth.getUser()
-      setAuthUser(sessionUser ?? null)
-      if (sessionUser) {
-        try {
-          const res = await clientApiGet<{ profile: any }>("profile")
-          setAuthProfile(res.profile)
-          setAuthKyc(res.profile?.kyc_status || null)
-        } catch {
-          // ignore
-        }
-      } else {
-        setAuthProfile(null)
-        setAuthKyc(null)
-      }
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
     }
-    loadSession()
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const sessionUser = session?.user ?? null
-      setAuthUser(sessionUser)
-      if (sessionUser) {
-        clientApiGet<{ profile: any }>("profile")
-          .then((res) => {
-            setAuthProfile(res.profile)
-            setAuthKyc(res.profile?.kyc_status || null)
-          })
-          .catch(() => {
-            setAuthProfile(null)
-            setAuthKyc(null)
-          })
-      } else {
-        setAuthProfile(null)
-        setAuthKyc(null)
-      }
-    })
-
-    return () => {
-      listener?.subscription.unsubscribe()
-    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  if (!mounted) return null
+  useEffect(() => {
+    if (!user) {
+      const loadSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          setAuthUser(session.user)
+          try {
+            const res = await clientApiGet<{ profile: any }>("profile")
+            setAuthProfile(res.profile)
+            setAuthKyc(res.profile?.kyc_status || null)
+          } catch (err) {
+            console.error("[v0] Header profile load error:", err)
+          }
+        }
+      }
+      loadSession()
+    } else {
+      setAuthUser(user)
+      setAuthProfile(profile)
+      setAuthKyc(kycStatus || null)
+    }
+  }, [user, profile, kycStatus, supabase])
 
   const getInitials = (name: string) => {
-    if (!name) return "U"
     return name
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
-
-  const handleLoginRedirect = () => {
-    // After login, users should land on shop
-    router.push("/auth/login?next=/shop")
+      .substring(0, 2)
   }
 
   const isVerified = (authKyc || kycStatus) === "approved"
+  const isHome = pathname === "/"
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-2 md:gap-4">
-        <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
-          <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
-          <div className="hidden lg:block">
-            <HeaderAnimatedText />
+    <header className={cn(
+      "sticky top-0 z-[100] transition-all duration-500",
+      scrolled
+        ? "py-3 bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20"
+        : "py-6 bg-transparent border-b border-transparent"
+    )}>
+      <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between gap-4 md:gap-8">
+
+        {/* Logo & Brand Identity */}
+        <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
+          <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
+            <Image src="/tolalogo.jpg" alt="TOLA" fill className="object-cover" priority />
           </div>
-          <div className="block lg:hidden">
-            <HeaderAnimatedText />
+          <div className="hidden sm:flex flex-col">
+            <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Vivid Trade</p>
           </div>
         </Link>
 
-        <div className="hidden md:flex flex-1 max-w-xl mx-4">
-          <LanguageSwitcher />
+        {/* Search Architecture - Elite Footprint */}
+        <div className="hidden lg:flex flex-1 max-w-2xl mx-8 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
           <ProductSearch />
         </div>
 
-        <nav className="hidden md:flex items-center gap-2 lg:gap-4">
-          <LanguageSwitcher />
-          <Link href="/shop">
-            <Button variant="ghost" className="text-sm lg:text-base">
-              Browse Products
-            </Button>
-          </Link>
+        {/* Navigation & User Hub */}
+        <nav className="flex items-center gap-2 md:gap-6">
 
-          {authUser ? (
-            <>
-              <NotificationPopover />
-              <CartPopover />
+          <div className="hidden xl:flex items-center gap-8 mr-4">
+            <Link href="/shop" className={cn(
+              "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
+              pathname === "/shop" ? "text-primary" : "text-stone-500"
+            )}>
+              Browse
+              <span className={cn(
+                "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
+                pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
+              )} />
+            </Link>
+          </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="relative h-10 w-10 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={authProfile?.profile_image_url || ""} alt={authProfile?.full_name || "User"} />
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        {getInitials(authProfile?.full_name || authProfile?.email || "User")}
-                      </AvatarFallback>
-                    </Avatar>
-                    {isVerified && (
-                      <CheckCircle2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary bg-background rounded-full border-2 border-background" />
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 z-[100]" align="end" forceMount sideOffset={8}>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none flex items-center gap-2">
-                        {authProfile?.full_name || "User"}
-                        {isVerified && (
-                          <Badge variant="secondary" className="text-xs">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Verified
-                          </Badge>
-                        )}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">{authProfile?.email}</p>
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden md:block">
+              <LanguageSwitcher />
+            </div>
+
+            {authUser ? (
+              <div className="flex items-center gap-2 md:gap-4">
+                <NotificationPopover />
+                <CartPopover />
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="relative group p-1 transition-transform active:scale-95 outline-none">
+                      <div className="relative h-11 w-11 md:h-12 md:w-12 rounded-[1.25rem] overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
+                        <div className="h-full w-full rounded-[1.1rem] overflow-hidden bg-white">
+                          <Avatar className="h-full w-full rounded-none">
+                            <AvatarImage src={authProfile?.profile_image_url || ""} />
+                            <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-xs">
+                              {getInitials(authProfile?.full_name || authProfile?.email || "User")}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </div>
+                      {isVerified && (
+                        <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary text-white rounded-lg flex items-center justify-center border-2 border-white shadow-lg shadow-primary/40 animate-in zoom-in duration-500">
+                          <CheckCircle2 className="h-3 w-3" />
+                        </div>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150] animate-in fade-in slide-in-from-top-2 duration-500" align="end">
+                    <DropdownMenuLabel className="p-4">
+                      <div className="flex flex-col gap-1">
+                        <p className="text-base font-black text-stone-900 leading-none truncate">
+                          {authProfile?.full_name || "Merchant"}
+                        </p>
+                        <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                    <div className="p-1 space-y-1">
+                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <Link href="/profile" className="flex items-center gap-3">
+                          <User className="h-4 w-4 text-primary" />
+                          <span className="font-bold">Profile Hub</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <Link href="/orders" className="flex items-center gap-3">
+                          <Package className="h-4 w-4 text-primary" />
+                          <span className="font-bold">Investment History</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <Link href="/favorites" className="flex items-center gap-3">
+                          <Sparkles className="h-4 w-4 text-amber-500" />
+                          <span className="font-bold">Curated Gems</span>
+                        </Link>
+                      </DropdownMenuItem>
+
+                      {(authProfile?.user_type === "vendor" || authProfile?.user_type === "admin") && (
+                        <div className="mt-2 pt-2 border-t border-stone-50">
+                          <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
+                            <Link href={authProfile?.user_type === "admin" ? "/admin" : "/vendor/dashboard"} className="flex justify-between items-center w-full px-4">
+                              <div className="flex items-center gap-3">
+                                <Settings className="h-4 w-4 text-primary" />
+                                <span className="font-black text-xs uppercase tracking-widest">Dashboard</span>
+                              </div>
+                              <ArrowRight className="h-4 w-4 opacity-50" />
+                            </Link>
+                          </DropdownMenuItem>
+                        </div>
+                      )}
                     </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer w-full">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/orders" className="cursor-pointer w-full">
-                      <Package className="mr-2 h-4 w-4" />
-                      <span>My Orders</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/favorites" className="cursor-pointer w-full">
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      <span>Favorites</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  {authProfile?.user_type === "vendor" && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/vendor/dashboard" className="cursor-pointer w-full">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Vendor Dashboard</span>
-                      </Link>
+                    <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                    <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
+                      <LogOut className="h-4 w-4 mr-3" />
+                      Deactivate Session
                     </DropdownMenuItem>
-                  )}
-                  {authProfile?.user_type === "admin" && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="cursor-pointer w-full">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Admin Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" className="text-sm lg:text-base bg-transparent" onClick={handleLoginRedirect}>
-                Login
-              </Button>
-              <Link href="/auth/sign-up">
-                <Button className="text-sm lg:text-base">Sign Up</Button>
-              </Link>
-            </>
-          )}
-        </nav>
-
-        <div className="flex md:hidden items-center gap-2">
-          {authUser && <CartPopover />}
-          <LanguageSwitcher />
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>Navigate through TOLA</SheetDescription>
-              </SheetHeader>
-
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="w-full">
-                  <ProductSearch />
-                </div>
-
-                {authUser && (
-                  <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={authProfile?.profile_image_url || ""} alt={authProfile?.full_name || "User"} />
-                      <AvatarFallback className="bg-primary text-primary-foreground">
-                        {getInitials(authProfile?.full_name || authProfile?.email || "User")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <p className="text-sm font-medium flex items-center gap-2">
-                        {authProfile?.full_name || "User"}
-                        {isVerified && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{authProfile?.email}</p>
-                    </div>
-                  </div>
-                )}
-
-                <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Home className="mr-2 h-4 w-4" />
-                    Home
-                  </Button>
-                </Link>
-
-                <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Store className="mr-2 h-4 w-4" />
-                    Browse Products
-                  </Button>
-                </Link>
-
-                {user ? (
-                  <>
-                    <Link href="/profile" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </Button>
-                    </Link>
-
-                    <Link href="/orders" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Package className="mr-2 h-4 w-4" />
-                        My Orders
-                      </Button>
-                    </Link>
-
-                    <Link href="/favorites" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        Favorites
-                      </Button>
-                    </Link>
-
-                    {profile?.user_type === "vendor" && (
-                      <Link href="/vendor/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Vendor Dashboard
-                        </Button>
-                      </Link>
-                    )}
-
-                    {profile?.user_type === "admin" && (
-                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Admin Dashboard
-                        </Button>
-                      </Link>
-                    )}
-
-                    <div className="border-t pt-4 mt-4">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => {
-                          setMobileMenuOpen(false)
-                          handleLogout()
-                        }}
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Log out
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full bg-transparent">
-                        Login
-                      </Button>
-                    </Link>
-                    <Link href="/auth/sign-up" onClick={() => setMobileMenuOpen(false)}>
-                      <Button className="w-full">Sign Up</Button>
-                    </Link>
-                  </>
-                )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+            ) : (
+              <div className="flex items-center gap-2 md:gap-4 animate-in fade-in slide-in-from-right-4 duration-700">
+                <Link href="/auth/login">
+                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/auth/sign-up">
+                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile Navigation Trigger */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden h-12 w-12 rounded-2xl bg-stone-50/50 hover:bg-white text-stone-900">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:w-[500px] border-none p-0 bg-white z-[200]">
+                <div className="flex flex-col h-full">
+                  <SheetHeader className="p-8 text-left bg-stone-950 text-white">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="h-14 w-14 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
+                        <Image src="/tolalogo.jpg" alt="Tola" width={56} height={56} className="object-cover" />
+                      </div>
+                      <div>
+                        <SheetTitle className="text-3xl font-black tracking-tighter text-white">TOLA Navigator</SheetTitle>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Marketplace Node 1.0</p>
+                      </div>
+                    </div>
+                  </SheetHeader>
+
+                  <div className="flex-1 overflow-y-auto p-8 space-y-12">
+                    <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">Inventory Search</p>
+                      <ProductSearch />
+                    </div>
+
+                    <nav className="grid gap-4">
+                      {[
+                        { href: "/", label: "Node Home", icon: Home },
+                        { href: "/shop", label: "Inventory", icon: ShoppingBag },
+                        { href: "/profile", label: "Identity", icon: User },
+                        { href: "/orders", label: "Ledger", icon: Package },
+                        { href: "/favorites", label: "Curated", icon: Sparkles }
+                      ].map((item) => (
+                        <Link key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                          <div className="flex items-center justify-between p-6 rounded-[2rem] bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
+                            <div className="flex items-center gap-4">
+                              <item.icon className="h-6 w-6 text-primary group-hover:text-primary transition-colors" />
+                              <span className="text-xl font-black tracking-tight">{item.label}</span>
+                            </div>
+                            <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                          </div>
+                        </Link>
+                      ))}
+                    </nav>
+
+                    {authUser && (
+                      <div className="pt-8 border-t border-stone-100 flex flex-col gap-4">
+                        <div className="flex items-center gap-4 p-6 rounded-[2rem] border-2 border-dashed border-stone-200">
+                          <ShieldCheck className="h-6 w-6 text-green-600" />
+                          <div>
+                            <p className="text-sm font-black text-stone-900">Secure Environment</p>
+                            <p className="text-[10px] uppercase font-black text-stone-400 tracking-wider">Verified Account Status</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="h-16 rounded-[2rem] text-destructive font-black text-xs uppercase tracking-widest hover:bg-destructive/5"
+                          onClick={() => {
+                            setMobileMenuOpen(false)
+                            handleLogout()
+                          }}
+                        >
+                          <LogOut className="mr-3 h-5 w-5" />
+                          Terminate Session
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+          </div>
+        </nav>
       </div>
     </header>
   )
