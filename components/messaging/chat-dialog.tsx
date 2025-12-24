@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
 import { Phone, Video, Send, Paperclip, ImageIcon, FileIcon, Loader2 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -48,15 +48,33 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
+  const loadMessages = async () => {
+    if (!conversationId) return
+    console.log("[ChatDialog] Loading messages for:", conversationId)
+    const result = await getConversationMessages(conversationId)
+    if (result.error) {
+      console.error("[ChatDialog] Error loading messages:", result.error)
+    }
+    if (result.messages) {
+      console.log(`[ChatDialog] Loaded ${result.messages.length} messages`)
+      setMessages(result.messages)
+    }
+  }
+
   // Load messages
   useEffect(() => {
     if (open && conversationId) {
+      // Load messages initially
+      console.log("[ChatDialog] Initializing for conversation:", conversationId)
       loadMessages()
       markMessagesAsRead(conversationId)
 
       // Get current user
       supabase.auth.getUser().then(({ data: { user } }) => {
-        if (user) setCurrentUserId(user.id)
+        if (user) {
+          console.log("[ChatDialog] Current user:", user.id)
+          setCurrentUserId(user.id)
+        }
       })
 
       // Subscribe to new messages
@@ -71,12 +89,16 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             filter: `conversation_id=eq.${conversationId}`,
           },
           (payload) => {
+            console.log("[ChatDialog] Realtime message received:", payload)
             loadMessages()
           },
         )
-        .subscribe()
+        .subscribe((status) => {
+          console.log(`[ChatDialog] Realtime status for ${conversationId}:`, status)
+        })
 
       return () => {
+        console.log("[ChatDialog] Cleaning up subscription for:", conversationId)
         supabase.removeChannel(channel)
       }
     }
@@ -85,16 +107,14 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   // Scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight
+      } else {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+      }
     }
   }, [messages])
-
-  const loadMessages = async () => {
-    const result = await getConversationMessages(conversationId)
-    if (result.messages) {
-      setMessages(result.messages)
-    }
-  }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -142,6 +162,8 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
       })
     } else {
       setNewMessage("")
+      // Proactively load messages after sending
+      loadMessages()
     }
     setSending(false)
   }
@@ -159,7 +181,9 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle>{shopName}</DialogTitle>
-                {productName && <p className="text-sm text-muted-foreground">{productName}</p>}
+                <DialogDescription className={productName ? "" : "sr-only"}>
+                  {productName || `Chatting with ${shopName}`}
+                </DialogDescription>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" onClick={() => handleCall("voice")}>
@@ -179,8 +203,8 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 return (
                   <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : ""}`}>
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={msg.sender.profile_image_url || "/placeholder.svg"} />
-                      <AvatarFallback>{msg.sender.full_name?.charAt(0) || "U"}</AvatarFallback>
+                      <AvatarImage src={msg.sender?.profile_image_url || "/placeholder.svg"} />
+                      <AvatarFallback>{msg.sender?.full_name?.charAt(0) || "U"}</AvatarFallback>
                     </Avatar>
                     <div className={`flex flex-col ${isOwnMessage ? "items-end" : ""}`}>
                       <div className={`rounded-lg px-4 py-2 max-w-[300px] ${isOwnMessage ? "bg-primary text-primary-foreground" : "bg-muted"
