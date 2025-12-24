@@ -2,215 +2,166 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import { Facebook, Twitter, Instagram, Linkedin, ShieldCheck, CreditCard, Lock, Globe, ArrowRight, Mail, Phone, MapPin } from "lucide-react"
 
 export function SiteFooter() {
-  return (
-    <footer className="border-t bg-gradient-to-b from-background to-muted/20 mt-auto">
-      <div className="container mx-auto px-4 py-12">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Left Section - Logo and Offices */}
-          <div className="space-y-6">
-            <div className="transition-transform hover:scale-105 duration-300">
-              <Image src="/tolalogo.jpg" alt="TOLA" width={180} height={60} className="h-16 w-auto" />
-            </div>
+  const currentYear = new Date().getFullYear()
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg text-foreground">Offices</h3>
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <div className="group">
-                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">Dodoma HQ</p>
-                  <a
-                    href="tel:+255678227227"
-                    className="hover:text-primary transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>📞</span> +255 678 227 227
-                  </a>
-                </div>
-                <div className="group">
-                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                    Dar Es Salaam
-                  </p>
-                  <a
-                    href="tel:+255625377978"
-                    className="hover:text-primary transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>📞</span> +255 625 377 978
-                  </a>
-                </div>
+  const footerLinks = {
+    company: [
+      { name: "About us", href: "/about" },
+      { name: "Careers", href: "/careers" },
+      { name: "Our Blog", href: "/blog" },
+      { name: "Privacy Policy", href: "/privacy" },
+      { name: "Terms & Conditions", href: "/terms" },
+    ],
+    support: [
+      { name: "FAQ", href: "/faq" },
+      { name: "Contact Us", href: "/contact" },
+      { name: "Return Policy", href: "/return-policy" },
+      { name: "Site Map", href: "/sitemap" },
+    ],
+    offices: [
+      { name: "Dodoma HQ", phone: "+255 678 227 227", icon: MapPin },
+      { name: "Dar Es Salaam", phone: "+255 625 377 978", icon: Globe },
+    ]
+  }
+
+  return (
+    <footer className="bg-stone-950 text-stone-400 mt-auto selection:bg-primary selection:text-white">
+      {/* Trust & Security Segment */}
+      <div className="border-b border-stone-900">
+        <div className="container mx-auto px-4 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex items-center gap-4 p-6 rounded-3xl bg-stone-900/30 border border-stone-800/50 group hover:border-primary/30 transition-all duration-500">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-white font-black text-xs uppercase tracking-widest">Escrow Protect</h4>
+                <p className="text-[10px] mt-1 font-medium">Safe & Insured Transactions</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-6 rounded-3xl bg-stone-900/30 border border-stone-800/50 group hover:border-primary/30 transition-all duration-500">
+              <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                <Lock className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-white font-black text-xs uppercase tracking-widest">SSL encryption</h4>
+                <p className="text-[10px] mt-1 font-medium">256-Bit Financial Grade Security</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-6 rounded-3xl bg-stone-900/30 border border-stone-800/50 group hover:border-primary/30 transition-all duration-500">
+              <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                <CreditCard className="h-6 w-6" />
+              </div>
+              <div>
+                <h4 className="text-white font-black text-xs uppercase tracking-widest">Verified Nodes</h4>
+                <p className="text-[10px] mt-1 font-medium">Local & International Gateway</p>
               </div>
             </div>
           </div>
-
-          {/* Company Links */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-foreground">Company</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/about"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  About us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/careers"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Our Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Terms & Conditions
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-foreground">Support</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/return-policy"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Return Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/sitemap"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Site Map
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
+      </div>
 
-        {/* Social Media Icons */}
-        <div className="mt-12 pt-8 border-t">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} TOLA Marketplace. All rights reserved.</p>
+      <div className="container mx-auto px-4 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16">
 
+          {/* Brand & Mission */}
+          <div className="lg:col-span-4 space-y-8">
+            <Link href="/" className="inline-block group">
+              <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-[1.5rem] overflow-hidden shadow-2xl ring-4 ring-stone-900 group-hover:rotate-6 transition-transform duration-500">
+                <Image src="/tolalogo.jpg" alt="TOLA" fill className="object-cover" />
+              </div>
+              <h2 className="mt-6 text-3xl font-black tracking-tighter text-white">TOLA<span className="text-primary">.</span></h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mt-2">vivid marketplace infrastructure</p>
+            </Link>
+            <p className="text-sm leading-relaxed max-w-sm">
+              Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with global accessibility.
+            </p>
             <div className="flex items-center gap-4">
-              <a
-                href="https://facebook.com/tolamarketplace"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-                aria-label="Facebook"
-              >
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform group-hover:scale-110">
-                  <Facebook className="h-5 w-5" />
-                </div>
+              {[
+                { icon: Facebook, href: "https://facebook.com/tolamarketplace" },
+                { icon: Twitter, href: "https://twitter.com/tolamarketplace" },
+                { icon: Instagram, href: "https://instagram.com/tolamarketplace" },
+                { icon: Linkedin, href: "https://linkedin.com/company/tolamarketplace" }
+              ].map((social, i) => (
+                <a key={i} href={social.href} className="h-10 w-10 rounded-xl bg-stone-900 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 group">
+                  <social.icon className="h-5 w-5 opacity-50 group-hover:opacity-100" />
+                </a>
+              ))}
+              <a href="https://tiktok.com/@tolamarketplace" className="h-10 w-10 rounded-xl bg-stone-900 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 group">
+                <svg className="h-5 w-5 opacity-50 group-hover:opacity-100" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                </svg>
               </a>
+            </div>
+          </div>
 
-              <a
-                href="https://twitter.com/tolamarketplace"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-                aria-label="Twitter/X"
-              >
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform group-hover:scale-110">
-                  <Twitter className="h-5 w-5" />
-                </div>
-              </a>
+          {/* Navigation Links */}
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="font-serif text-xl italic text-white">Company</h3>
+            <ul className="space-y-4">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-bold hover:text-primary transition-colors flex items-center gap-2 group">
+                    <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              <a
-                href="https://tiktok.com/@tolamarketplace"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-                aria-label="TikTok"
-              >
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform group-hover:scale-110">
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-                  </svg>
-                </div>
-              </a>
+          <div className="lg:col-span-2 space-y-6">
+            <h3 className="font-serif text-xl italic text-white">Support</h3>
+            <ul className="space-y-4">
+              {footerLinks.support.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-bold hover:text-primary transition-colors flex items-center gap-2 group">
+                    <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              <a
-                href="https://instagram.com/tolamarketplace"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-                aria-label="Instagram"
-              >
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform group-hover:scale-110">
-                  <Instagram className="h-5 w-5" />
+          {/* Contact & Global Offices */}
+          <div className="lg:col-span-4 space-y-8">
+            <h3 className="font-serif text-xl italic text-white">Global Presence</h3>
+            <div className="grid gap-6">
+              {footerLinks.offices.map((office) => (
+                <div key={office.name} className="flex gap-4 p-4 rounded-2xl bg-stone-900/50 border border-stone-800">
+                  <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-stone-800 flex items-center justify-center text-primary">
+                    <office.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-black text-[10px] uppercase tracking-widest">{office.name}</h4>
+                    <a href={`tel:${office.phone.replace(/\s+/g, '')}`} className="text-sm font-bold mt-1 block hover:text-white transition-colors">{office.phone}</a>
+                  </div>
                 </div>
-              </a>
+              ))}
+            </div>
+            <div className="pt-4 flex items-center gap-2">
+              <Mail className="h-4 w-4 text-primary" />
+              <span className="text-[10px] font-black tracking-widest uppercase">support@tolatola.co</span>
+            </div>
+          </div>
 
-              <a
-                href="https://linkedin.com/company/tolamarketplace"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative"
-                aria-label="LinkedIn"
-              >
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform group-hover:scale-110">
-                  <Linkedin className="h-5 w-5" />
-                </div>
-              </a>
+        </div>
+      </div>
+
+      {/* Copyright Architecture */}
+      <div className="border-t border-stone-900 bg-black/50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-600">
+              © {currentYear} TOLA Marketplace. Precision Engineered in Tanzania.
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-stone-600">System Status: Operational</span>
             </div>
           </div>
         </div>
