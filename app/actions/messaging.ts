@@ -90,7 +90,6 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
 
   return { error: "Missing parameters for conversation" }
 }
-}
 
 export async function sendMessage(conversationId: string, message: string) {
   const supabase = await createClient()
@@ -213,6 +212,7 @@ export async function logCall(
 
   const { data, error } = await supabase
     .from("call_logs")
+    // @ts-ignore - Database types are currently generic
     .insert({
       conversation_id: conversationId,
       caller_id: user.id,
