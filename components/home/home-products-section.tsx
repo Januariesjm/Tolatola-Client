@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, TrendingUp, Sparkles, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useRef, useState, useEffect } from "react"
@@ -23,57 +22,18 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
   const dealsScrollRef = useRef<HTMLDivElement>(null)
   const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set())
   const [userId, setUserId] = useState<string | null>(null)
-  // copiedProductId state is moved to ProductCard or handled via onCopyLink if we want to bubble up, 
-  // currently HomeProductsSection handles logic but ProductCard has internal state for "Copied!" text if we don't pass it?
-  // Actually my ProductCard implementation uses internal state for 'copied' if onCopyLink IS NOT provided.
-  // If onCopyLink IS provided, the parent is responsible for feedback/state if it wants to show "Copied!".
-  // But wait, the `ProductCard` component I wrote:
-  /*
-  const handleCopyLinkInternal = async () => {
-    if (onCopyLink) {
-      onCopyLink(product)
-      return
-    }
-    // ... default implementation with toast and setCopied(true)
-  }
-  */
-  // So if I pass onCopyLink, I must handle the UI feedback (changing icon to checkmark) myself?
-  // My ProductCard implementation DOES NOT expose 'copied' prop. It only uses internal 'copied' state.
-  // This means if I pass `onCopyLink`, the internal `tick` state won't trigger unless I ALSO pass a way to control it, which I didn't.
-  // Mistake in my plan/implementation?
-  // If I want the "Copied!" UI checkmark to appear, I should probably rely on the internal implementation of ProductCard 
-  // UNLESS `home-products-section` does something specific.
-  // `home-products-section` handles toast and state.
-  // To keep it simple and fix the bug, I should probably rely on the `ProductCard`'s internal logic for copy/share 
-  // unless there is a specific reason to lift it up.
-  // The original code in HomeProductsSection had `handleCopyLink` and `handleSocialShare`.
-  // It seems generic.
-  // I will REMOVE `handleCopyLink` and `handleSocialShare` from `HomeProductsSection` and rely on `ProductCard`'s default implementation.
-  // This simplifies `HomeProductsSection`. 
-  // I will still pass `handleAddToCart` and `handleToggleLike` because those interact with global/parent state (cart, auth).
-
-  // Checking `handleAddToCart`: pushes to localstorage and router.push('/cart'). Safe to pass or move?
-  // Passing it is fine.
-
-  // Checking `handleToggleLike`: checks auth, updates supabase. Safe to pass.
 
   useEffect(() => {
     const fetchUserAndLikes = async () => {
       const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
 
       if (user) {
         setUserId(user.id)
         const { data: likes } = await supabase.from("product_likes").select("product_id").eq("user_id", user.id)
-
-        if (likes) {
-          setLikedProducts(new Set(likes.map((like) => like.product_id)))
-        }
+        if (likes) setLikedProducts(new Set(likes.map((like) => like.product_id)))
       }
     }
-
     fetchUserAndLikes()
   }, [])
 
@@ -87,10 +47,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
       cartItems.push({
         product_id: product.id,
         quantity: 1,
-        product: {
-          ...product,
-          shops: product.shops,
-        },
+        product: { ...product, shops: product.shops },
       })
     }
 
@@ -100,11 +57,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
 
   const handleToggleLike = async (productId: string) => {
     if (!userId) {
-      toast({
-        title: "Login Required",
-        description: "Please login to add products to your wishlist",
-        variant: "destructive",
-      })
+      toast({ title: "Login Required", description: "Please login to add to wishlist", variant: "destructive" })
       router.push("/auth/login?returnUrl=" + window.location.pathname)
       return
     }
@@ -112,85 +65,69 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
     const supabase = createClient()
     const isLiked = likedProducts.has(productId)
 
-    // Optimistic update
     const newLikedProducts = new Set(likedProducts)
-    if (isLiked) {
-      newLikedProducts.delete(productId)
-    } else {
-      newLikedProducts.add(productId)
-    }
+    isLiked ? newLikedProducts.delete(productId) : newLikedProducts.add(productId)
     setLikedProducts(newLikedProducts)
 
     try {
       if (isLiked) {
         await supabase.from("product_likes").delete().eq("user_id", userId).eq("product_id", productId)
-        toast({
-          title: "Removed from wishlist",
-          description: "Product removed from your wishlist",
-        })
+        toast({ title: "Removed", description: "Product removed from wishlist" })
       } else {
         await supabase.from("product_likes").insert({ user_id: userId, product_id: productId })
-        toast({
-          title: "Added to wishlist",
-          description: "Product added to your wishlist",
-        })
+        toast({ title: "Added", description: "Product added to wishlist" })
       }
-    } catch (error) {
-      // Revert on error
+    } catch {
       setLikedProducts(likedProducts)
-      toast({
-        title: "Error",
-        description: "Failed to update wishlist",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Failed to update wishlist", variant: "destructive" })
     }
   }
 
   const scroll = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
     if (ref.current) {
-      const scrollAmount = direction === "left" ? -300 : 300
+      const scrollAmount = direction === "left" ? -400 : 400
       ref.current.scrollBy({ left: scrollAmount, behavior: "smooth" })
     }
   }
 
   return (
-    <>
-      {/* Featured Products Section */}
+    <div className="space-y-24 py-12">
+      {/* Featured Section */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Featured Products</h2>
-            <Link href="/shop">
-              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                View All →
-              </Button>
+        <section className="container mx-auto px-4 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
+                <Sparkles className="h-4 w-4" />
+                <span>Handpicked for You</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter">Featured <span className="text-primary italic">Collections</span></h2>
+            </div>
+            <Link href="/shop" className="group flex items-center gap-2 text-lg font-bold hover:text-primary transition-colors">
+              Explore Store <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+
           <div className="relative group/scroll">
-            {/* Left scroll button */}
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow-lg bg-background/95 backdrop-blur opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden sm:flex"
+              className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-primary hover:text-white"
               onClick={() => scroll(featuredScrollRef, "left")}
             >
-              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ChevronLeft className="h-6 w-6" />
             </Button>
 
-            {/* Scrollable container */}
             <div
               ref={featuredScrollRef}
-              className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {featuredProducts.map((product) => (
-                <div key={product.id} className="snap-start w-[160px] sm:w-[180px] md:w-[210px] lg:w-[240px]">
+                <div key={product.id} className="snap-start flex-shrink-0 w-[240px] md:w-[280px]">
                   <ProductCard
                     product={product}
-                    badge={{ text: "NEW", variant: "new" }}
+                    badge={{ text: "HOT", variant: "new" }}
                     isLiked={likedProducts.has(product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}
@@ -199,62 +136,72 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
               ))}
             </div>
 
-            {/* Right scroll button */}
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow-lg bg-background/95 backdrop-blur opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden sm:flex"
+              className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-primary hover:text-white"
               onClick={() => scroll(featuredScrollRef, "right")}
             >
-              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
-
-            {/* Scroll indicator for mobile */}
-            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none sm:hidden" />
           </div>
         </section>
       )}
+
+      {/* Hero Interstice */}
+      <section className="container mx-auto px-4">
+        <div className="bg-stone-950 rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-center md:text-left">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
+          <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">Verified Vendors. <br /><span className="text-primary italic">Guaranteed Quality.</span></h2>
+              <p className="text-stone-400 text-lg md:text-xl font-medium italic">Every seller on TOLA undergoes rigorous KYC verification for your safety.</p>
+              <Link href="/about" className="inline-flex items-center gap-2 text-white font-bold hover:text-primary transition-colors">
+                Learn about our vetting process <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="hidden md:flex justify-end">
+              <div className="w-64 h-64 rounded-[2rem] border-2 border-primary/30 rotate-12 flex items-center justify-center p-8 bg-stone-900 shadow-2xl">
+                <TrendingUp className="h-full w-full text-primary opacity-50" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Best Deals Section */}
       {bestDeals && bestDeals.length > 0 && (
-        <section className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Best Deals</h2>
-            <Link href="/shop">
-              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                View All →
-              </Button>
-            </Link>
+        <section className="container mx-auto px-4 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-destructive font-black uppercase tracking-widest text-xs">
+                <TrendingUp className="h-4 w-4" />
+                <span>Unbeatable Prices</span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter">Best Deals <span className="text-destructive italic">In Town</span></h2>
+            </div>
           </div>
+
           <div className="relative group/scroll">
-            {/* Left scroll button */}
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow-lg bg-background/95 backdrop-blur opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden sm:flex"
+              className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-destructive hover:text-white"
               onClick={() => scroll(dealsScrollRef, "left")}
             >
-              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ChevronLeft className="h-6 w-6" />
             </Button>
 
-            {/* Scrollable container */}
             <div
               ref={dealsScrollRef}
-              className="flex gap-3 sm:gap-4 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-              }}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {bestDeals.map((product) => (
-                <div key={product.id} className="snap-start w-[160px] sm:w-[180px] md:w-[210px] lg:w-[240px]">
+                <div key={product.id} className="snap-start flex-shrink-0 w-[240px] md:w-[280px]">
                   <ProductCard
                     product={product}
-                    badge={
-                      product.discountPercent > 0
-                        ? { text: `${product.discountPercent}% OFF`, variant: "deal" }
-                        : undefined
-                    }
+                    badge={{ text: "OFFER", variant: "deal" }}
                     isLiked={likedProducts.has(product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}
@@ -263,21 +210,17 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
               ))}
             </div>
 
-            {/* Right scroll button */}
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow-lg bg-background/95 backdrop-blur opacity-0 group-hover/scroll:opacity-100 transition-opacity hidden sm:flex"
+              className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-destructive hover:text-white"
               onClick={() => scroll(dealsScrollRef, "right")}
             >
-              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
-
-            {/* Scroll indicator for mobile */}
-            <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none sm:hidden" />
           </div>
         </section>
       )}
-    </>
+    </div>
   )
 }

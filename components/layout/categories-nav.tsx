@@ -27,24 +27,23 @@ const categoryImages: Record<string, string> = {
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
   return (
-    <nav className="sticky top-[72px] z-40 bg-background/95 backdrop-blur-sm border-b shadow-sm">
+    <nav className="sticky top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-3">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-4">
           {/* All Categories */}
           <Link
             href="/shop"
-            className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-              !currentCategory
-                ? "bg-green-600 text-white shadow-md hover:bg-green-700"
-                : "bg-blue-600 text-white hover:bg-green-600 hover:shadow-md"
-            }`}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl whitespace-nowrap transition-all font-black text-xs uppercase tracking-widest ${!currentCategory
+                ? "bg-primary text-white shadow-xl shadow-primary/20"
+                : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+              }`}
           >
-            <Grid3x3 className="h-5 w-5" />
-            <span className="font-medium text-sm">All Categories</span>
+            <Grid3x3 className="h-4 w-4" />
+            <span>Marketplace</span>
           </Link>
 
           {/* Category Links */}
-          {categories.map((category) => {
+          {categories.slice(0, 12).map((category) => {
             const imageUrl = categoryImages[category.slug] || "/abstract-categories.png"
             const isActive = currentCategory === category.slug
 
@@ -52,16 +51,15 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
               <Link
                 key={category.id}
                 href={`/shop?category=${category.slug}`}
-                className={`flex items-center gap-3 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-                  isActive
-                    ? "bg-green-600 text-white shadow-md hover:bg-green-700"
-                    : "bg-blue-600 text-white hover:bg-green-600 hover:shadow-md"
-                }`}
+                className={`flex items-center gap-3 px-5 py-2 rounded-2xl whitespace-nowrap transition-all border font-bold text-xs ${isActive
+                    ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
+                    : "bg-white text-stone-600 border-stone-100 hover:border-primary/30 hover:bg-stone-50"
+                  }`}
               >
-                <div className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-background shadow-sm">
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100">
                   <Image src={imageUrl || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
                 </div>
-                <span className="font-medium text-sm">{category.name}</span>
+                <span>{category.name}</span>
               </Link>
             )
           })}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, ShoppingCart, Store } from "lucide-react"
+import { ChevronLeft, ChevronRight, ShoppingCart, Store, ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -29,188 +29,126 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
   // Default welcome slide
   const defaultSlide = {
     id: "welcome",
-    title: "Welcome to TOLA",
+    title: "The Future of Trade in Tanzania",
     description:
-      "Tanzania's trusted multivendor marketplace connecting local producers with customers. Buy and sell with confidence using our secure escrow system and mobile money payments.",
-    image_url: null,
+      "TOLA is the premier multivendor marketplace connecting local artisans, verified vendors, and customers through a secure escrow-backed ecosystem.",
+    image_url: "https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=2070&auto=format&fit=crop",
     background_color: "transparent",
-    text_color: "inherit",
-    button_text: "Start Shopping",
+    text_color: "white",
+    button_text: "Shop the Collection",
     button_link: "/shop",
     display_order: -1,
   }
 
-  // Combine default slide with promotions
   const allSlides = [defaultSlide, ...promotions.sort((a, b) => a.display_order - b.display_order)]
 
   useEffect(() => {
     if (allSlides.length <= 1) return
-
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % allSlides.length)
-    }, 15000)
-
+    }, 12000)
     return () => clearInterval(interval)
   }, [allSlides.length])
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % allSlides.length)
-  }
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + allSlides.length) % allSlides.length)
-  }
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % allSlides.length)
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + allSlides.length) % allSlides.length)
 
   const currentSlideData = allSlides[currentSlide]
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="relative h-[200px] md:h-[240px]">
-        {currentSlideData.id === "welcome" ? (
-          // Welcome slide - Keep original design
-          <>
-            <div
-              className="absolute inset-0 z-0"
-              style={{
-                backgroundColor: currentSlideData.background_color || "transparent",
-              }}
+    <section className="relative h-[650px] md:h-[750px] w-full overflow-hidden bg-stone-950">
+      {/* Background Layer */}
+      {allSlides.map((slide, index) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-all duration-[2000ms] ease-in-out ${index === currentSlide ? "opacity-100 scale-110" : "opacity-0 scale-100"
+            }`}
+        >
+          {slide.image_url ? (
+            <Image
+              src={slide.image_url}
+              alt={slide.title}
+              fill
+              className="object-cover"
+              priority={index === 0}
             />
-            <div className="container mx-auto px-4 h-full relative z-10 flex items-center">
-              <div className="text-center w-full space-y-4 sm:space-y-6">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-balance animate-fade-in-up animation-delay-200">
-                  Welcome to <span className="text-primary">TOLA</span>
-                </h1>
+          ) : (
+            <div className="w-full h-full bg-stone-900" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-stone-950/90 via-stone-950/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent" />
+        </div>
+      ))}
 
-                {currentSlideData.description && (
-                  <p className="text-sm sm:text-base md:text-lg mb-4 sm:mb-5 max-w-2xl mx-auto text-pretty animate-fade-in-up animation-delay-400 px-2 opacity-90">
-                    {currentSlideData.description}
-                  </p>
-                )}
-
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animation-delay-600 px-4 sm:px-0">
-                  <Link href="/shop" className="w-full sm:w-auto">
-                    <Button size="default" className="w-full sm:w-auto text-base sm:text-lg">
-                      <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Start Shopping
-                    </Button>
-                  </Link>
-                  <Link href="/vendor/register" className="w-full sm:w-auto">
-                    <Button
-                      size="default"
-                      variant="outline"
-                      className="w-full sm:w-auto text-base sm:text-lg bg-background/80 backdrop-blur-sm"
-                    >
-                      <Store className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Become a Vendor
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          // Promotional ads - Professional ecommerce style
-          <div
-            className="relative w-full h-[200px] md:h-[240px] overflow-hidden"
-            style={{
-              backgroundColor: currentSlideData.background_color || "#f8f9fa",
-            }}
-          >
-            <div className="container mx-auto h-full px-4 relative z-10">
-              <div className="grid grid-cols-3 gap-4 md:gap-6 h-full items-center">
-                {/* Image Section */}
-                <div className="col-span-1 h-full flex items-center justify-center">
-                  <div className="relative w-full h-[180px] md:h-[200px] rounded-lg overflow-hidden shadow-md">
-                    {currentSlideData.image_url ? (
-                      <Image
-                        src={currentSlideData.image_url || "/placeholder.svg"}
-                        alt={currentSlideData.title || "Promotion"}
-                        fill
-                        className="object-cover"
-                        priority
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <ShoppingCart className="h-12 w-12 text-muted-foreground/30" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="col-span-2 h-full flex flex-col justify-center space-y-3">
-                  {/* Description */}
-                  {currentSlideData.description && (
-                    <p
-                      className="text-sm md:text-base leading-snug line-clamp-2 md:line-clamp-3"
-                      style={{ color: currentSlideData.text_color || "#1f2937" }}
-                    >
-                      {currentSlideData.description}
-                    </p>
-                  )}
-
-                  {/* Order Now Button */}
-                  {(currentSlideData.button_link || currentSlideData.product_id) && (
-                    <Link 
-                      href={currentSlideData.button_link || `/product/${currentSlideData.product_id}`} 
-                      className="w-fit"
-                    >
-                      <Button
-                        size="default"
-                        className="text-sm md:text-base px-6 py-2 shadow-sm hover:shadow-md transition-all duration-200"
-                        style={{
-                          backgroundColor: currentSlideData.text_color || "#3b82f6",
-                          color: currentSlideData.background_color || "#ffffff",
-                        }}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Order Now
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
+      {/* Content Layer */}
+      <div className="container mx-auto px-4 h-full relative z-20 flex flex-col justify-center">
+        <div className="max-w-3xl space-y-8">
+          <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-md transition-all duration-700 delay-300 ${currentSlide === currentSlide ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}>
+            <Sparkles className="h-4 w-4" />
+            <span className="text-xs font-black uppercase tracking-widest">TOLA Global Marketplace</span>
           </div>
-        )}
+
+          <h1 className="text-5xl md:text-8xl font-black text-white leading-[1.1] tracking-tighter">
+            {currentSlideData.id === "welcome" ? (
+              <>Tanzania's <span className="text-primary italic">Vivid</span> Commerce</>
+            ) : (
+              currentSlideData.title
+            )}
+          </h1>
+
+          <p className="text-stone-300 text-lg md:text-2xl font-medium leading-relaxed italic max-w-2xl opacity-90 transition-all duration-700 delay-500">
+            {currentSlideData.description}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 transition-all duration-700 delay-700">
+            <Link href={currentSlideData.button_link || "/shop"}>
+              <Button size="lg" className="w-full sm:w-auto text-lg font-black rounded-2xl shadow-2xl hover:scale-105 transition-all group py-8 px-10">
+                {currentSlideData.button_text}
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link href="/vendor/register">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg font-bold rounded-2xl bg-white/5 backdrop-blur-xl border-white/20 text-white hover:bg-white hover:text-stone-950 transition-all py-8 px-10">
+                Sell on Tola
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Navigation Controls */}
-      {allSlides.length > 1 && (
-        <>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-lg"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-background/80 backdrop-blur-sm hover:bg-background/90 shadow-lg"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-
-          {/* Slide Indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-            {allSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? "bg-primary w-8" : "bg-muted-foreground/50 w-2 hover:bg-muted-foreground/70"
+      {/* Floating Indicators */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4">
+        <div className="flex gap-2 p-2 bg-white/5 backdrop-blur-2xl rounded-full border border-white/10">
+          {allSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`h-2 rounded-full transition-all duration-500 ${index === currentSlide ? "bg-primary w-12" : "bg-white/20 w-2 hover:bg-white/40"
                 }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        </>
-      )}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Side Navigation */}
+      <div className="hidden md:flex absolute right-12 bottom-12 z-30 gap-3">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-14 w-14 rounded-2xl bg-white/5 backdrop-blur-xl border-white/10 text-white hover:bg-primary transition-all"
+          onClick={prevSlide}
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-14 w-14 rounded-2xl bg-white/5 backdrop-blur-xl border-white/10 text-white hover:bg-primary transition-all"
+          onClick={nextSlide}
+        >
+          <ChevronRight className="h-6 w-6" />
+        </Button>
+      </div>
     </section>
   )
 }
-
