@@ -1,7 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { Scale, Users, Gavel, Wallet, ShieldAlert, Cpu, Copyright, MessageCircle, AlertCircle } from "lucide-react"
+import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, AlertCircle, ShieldCheck, Globe, Zap } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions | Tola Marketplace",
+  description: "Legal framework for using the Tola marketplace. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
+  alternates: {
+    canonical: "https://tolatola.co/terms",
+  },
+}
 
 export default async function TermsPage() {
   const supabase = (await createClient()) as any
@@ -29,189 +38,124 @@ export default async function TermsPage() {
   const sections = [
     {
       title: "Agreement to Terms",
-      icon: <Gavel className="h-6 w-6 text-primary" />,
-      content: (
-        <p>
-          By accessing and using the <strong>Tola</strong> marketplace platform, you agree to be bound by these Terms and
-          Conditions. If you do not agree with any part of these terms, you may not use our services. These terms apply to all visitors, users, and others who access the Platform.
-        </p>
-      ),
+      icon: <Gavel />,
+      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Marketplace. These terms govern your use of our digital infrastructure, escrow services, and community interactions."
     },
     {
-      title: "User Accounts",
-      icon: <Users className="h-6 w-6 text-primary" />,
+      title: "User Obligations",
+      icon: <Users />,
       content: (
         <div className="space-y-4">
-          <p>To use specific features of our platform, you must create a secure account. By doing so, you agree to:</p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 list-none">
-            {[
-              "Provide accurate and complete information",
-              "Maintain credential security",
-              "Notify us of unauthorized access",
-              "Take responsibility for all account activity",
-            ].map((item, i) => (
-              <li key={i} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                <span className="text-sm">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ),
-    },
-    {
-      title: "Vendor & Buyer Responsibilities",
-      icon: <Scale className="h-6 w-6 text-primary" />,
-      content: (
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-3">
-            <h3 className="font-bold text-foreground inline-flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground text-xs">VENDORS</span>
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>• Complete KYC (TIN, NIDA, License)</li>
-              <li>• Accurate product pricing & details</li>
-              <li>• Timely order fulfillment</li>
-              <li>• Compliance with local trade laws</li>
-            </ul>
-          </div>
-          <div className="space-y-3">
-            <h3 className="font-bold text-foreground inline-flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-secondary text-secondary-foreground text-xs">BUYERS</span>
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>• Provide valid delivery addresses</li>
-              <li>• Timely payment for orders</li>
-              <li>• Confirm delivery upon receipt</li>
-              <li>• Follow dispute resolution protocols</li>
-            </ul>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Escrow Payment System",
-      icon: <Wallet className="h-6 w-6 text-primary" />,
-      content: (
-        <>
-          <p>
-            All transactions are processed through our proprietary <strong>Escrow System</strong>. Payments are held securely by Tola until the buyer
-            confirms receipt of goods. This protects investors and consumers alike.
-          </p>
-          <p>
-            Tola acts as a neutral intermediary and is not liable for inherent product quality issues, but we facilitate a fair dispute resolution process.
-          </p>
-        </>
-      ),
-    },
-    {
-      title: "Prohibited Activities",
-      icon: <ShieldAlert className="h-6 w-6 text-primary" />,
-      content: (
-        <div className="bg-red-50/50 border border-red-100 p-6 rounded-xl">
-          <p className="text-red-900 font-medium mb-3 flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" /> Strictly Forbidden:
-          </p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-red-800">
-            <li>• Fraudulent or deceptive behavior</li>
-            <li>• Selling counterfeit or illegal goods</li>
-            <li>• Platform or review manipulation</li>
-            <li>• Money laundering or illegal financing</li>
-            <li>• Circumventing Tola's payment system</li>
-            <li>• Harassment of users or staff</li>
-          </ul>
-        </div>
-      ),
-    },
-    {
-      title: "Intellectual Property",
-      icon: <Copyright className="h-6 w-6 text-primary" />,
-      content: (
-        <p>
-          All content on Tola, including logos, designs, software, and text, is owned by <strong>Tola Marketplace</strong>. Unauthorized reproduction or distribution of these assets is strictly prohibited. Vendors grant Tola a non-exclusive license to display their product media for marketing purposes.
-        </p>
-      ),
-    },
-    {
-      title: "Contact Legal Team",
-      icon: <MessageCircle className="h-6 w-6 text-primary" />,
-      content: (
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="flex-1 space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Legal Inquiries</p>
-            <a href="mailto:legal@tolatola.co" className="text-primary hover:underline font-medium text-lg">
-              legal@tolatola.co
-            </a>
-          </div>
-          <div className="flex-1 space-y-1 text-sm">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Customer Support</p>
-            <p className="font-medium">+255 678 227 227 (Dodoma HQ)</p>
-            <p className="font-medium">+255 625 377 978 (Dar Office)</p>
-          </div>
+          <p>Users must provide verified credentials, maintain account security, and interact with the ecosystem with integrity. We enforce a strict 'one-human, one-account' policy to prevent platform abuse.</p>
         </div>
       )
+    },
+    {
+      title: "Vendor Standard",
+      icon: <Zap />,
+      content: "Vendors are required to undergo NIDA & TIN verification. By listing products, vendors guarantee product authenticity, accurate pricing, and commitment to the TOLA delivery timeline."
+    },
+    {
+      title: "Escrow Mastery",
+      icon: <Wallet />,
+      content: "TOLA facilitates commerce through a secure escrow system. Funds are released only upon delivery confirmation. We act as a neutral intermediary in all transactional flows."
     }
   ]
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col font-sans">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
       <main className="flex-1">
-        {/* Header Section */}
-        <section className="bg-muted/30 py-20 border-b">
-          <div className="container mx-auto px-4 max-w-4xl text-center">
-            <div className="inline-flex p-3 rounded-full bg-white shadow-sm border mb-6">
-              <Scale className="h-8 w-8 text-primary" />
+        {/* Vivid Hero */}
+        <section className="relative h-[550px] flex items-center justify-center bg-stone-950 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-stone-950" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay" />
+
+          <div className="container mx-auto px-4 relative z-10 text-center">
+            <div className="inline-flex p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+              <Scale className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">Terms & Conditions</h1>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">
-              Legal framework for using the Tola marketplace. Please read carefully before using our platform.
+            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">Legal <span className="text-primary italic underline decoration-white/20 underline-offset-8">Framework</span></h1>
+            <p className="text-stone-400 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
+              Fairness, Security, and Transparency. Our terms are designed to protect every participant in the TOLA ecosystem.
             </p>
-            <div className="mt-8 text-sm font-medium text-muted-foreground bg-white inline-block px-4 py-1.5 rounded-full border shadow-sm">
-              Version 2.1 | Effective January 2025
+            <div className="mt-12 inline-block px-8 py-2.5 rounded-full bg-primary/20 border border-primary/30 text-primary text-sm font-black tracking-widest uppercase">
+              Version 2.4 | Effective Jan 2025
             </div>
           </div>
         </section>
 
-        {/* Dynamic Section Mapping */}
-        <section className="py-20 container mx-auto px-4">
-          <div className="max-w-4xl mx-auto space-y-16">
-            {sections.map((section, idx) => (
-              <div key={idx} className="group flex flex-col md:flex-row gap-8">
-                <div className="md:w-1/4">
-                  <div className="sticky top-24 inline-flex flex-col items-center md:items-start">
-                    <div className="p-4 rounded-2xl bg-primary/5 text-primary mb-4 transition-colors group-hover:bg-primary group-hover:text-white">
-                      {section.icon}
-                    </div>
-                    <h2 className="text-xl font-bold tracking-tight text-center md:text-left">{section.title}</h2>
-                  </div>
+        {/* Highlight Grid */}
+        <section className="py-24 container mx-auto px-4 -mt-24 relative z-20">
+          <div className="grid md:grid-cols-2 gap-8">
+            {sections.map((section, i) => (
+              <Card key={i} className="border-none shadow-2xl rounded-[3rem] bg-white p-12 group hover:scale-[1.02] transition-all duration-500">
+                <div className="mb-8 p-4 rounded-3xl bg-stone-50 text-stone-900 w-fit group-hover:bg-primary group-hover:text-white transition-colors">
+                  {section.icon}
                 </div>
-                <div className="md:w-3/4 bg-white md:bg-transparent p-6 md:p-0 rounded-2xl border md:border-0 shadow-sm md:shadow-none">
-                  <div className="text-muted-foreground leading-relaxed space-y-4">
-                    {section.content}
-                  </div>
-                </div>
-              </div>
+                <h2 className="text-3xl font-black mb-6 tracking-tight">{section.title}</h2>
+                <div className="text-muted-foreground text-lg leading-relaxed italic">{section.content}</div>
+              </Card>
             ))}
           </div>
         </section>
-      </main>
 
-      <section className="py-20 border-t bg-stone-50">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h3 className="text-2xl font-bold mb-4">Questions about these Terms?</h3>
-          <p className="text-muted-foreground mb-8 text-lg">Our legal and support teams are here to help you navigate our platform safely and fairly.</p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="mailto:legal@tolatola.co" className="px-8 py-3 bg-primary text-white rounded-full font-bold shadow-lg hover:shadow-primary/20 hover:scale-105 transition-all">
-              Contact Legal
-            </a>
-            <a href="/contact" className="px-8 py-3 bg-white border border-stone-200 rounded-full font-bold shadow-sm hover:bg-stone-50 transition-all">
-              Help Center
-            </a>
+        {/* Detailed Guidelines */}
+        <section className="py-24 bg-stone-900 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+          <div className="container mx-auto px-4 max-w-5xl relative z-10">
+            <div className="space-y-32">
+              <div className="grid md:grid-cols-2 gap-16 items-start">
+                <h2 className="text-5xl font-black text-white tracking-tighter sticky top-24">Prohibited Conduct</h2>
+                <div className="space-y-8">
+                  <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <h3 className="text-primary font-black mb-4 uppercase tracking-widest text-xs">Integrity Breach</h3>
+                    <p className="text-stone-400 leading-relaxed italic">"Any attempts to circumvent TOLA's internal messaging or payment system will result in permanent account suspension. We maintain a zero-tolerance policy for off-platform transactions."</p>
+                  </div>
+                  <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <h3 className="text-primary font-black mb-4 uppercase tracking-widest text-xs">KYC Fraud</h3>
+                    <p className="text-stone-400 leading-relaxed italic">"Uploading forged NIDA, TIN, or Business Licenses is a criminal offense under Tanzanian law. We report all fraudulent activities to the relevant authorities."</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-16 items-start">
+                <h2 className="text-5xl font-black text-white tracking-tighter sticky top-24">Dispute Resolution</h2>
+                <div className="space-y-8">
+                  <p className="text-stone-300 text-xl leading-relaxed italic">
+                    TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses transactional data and escrow logs to determine a fair outcome.
+                  </p>
+                  <div className="flex items-center gap-4 py-6 px-8 bg-primary rounded-[2rem]">
+                    <ShieldCheck className="h-10 w-10 text-white" />
+                    <div className="text-white">
+                      <p className="font-black text-xl tracking-tight">Escrow Backed</p>
+                      <p className="text-sm opacity-80">Final settlement is governed by delivery proof.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Contact Legal Section */}
+        <section className="py-32 bg-stone-50">
+          <div className="container mx-auto px-4 text-center max-w-3xl">
+            <Copyright className="h-12 w-12 text-stone-300 mx-auto mb-8" />
+            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Need legal clarification?</h2>
+            <p className="text-muted-foreground text-xl mb-12 italic">Our legal council is available to decode any part of our platform framework for you.</p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="mailto:legal@tolatola.co" className="px-12 py-5 bg-primary text-white rounded-3xl font-black shadow-2xl hover:scale-105 transition-all text-xl">
+                legal@tolatola.co
+              </a>
+              <a href="/faq" className="px-12 py-5 bg-white border border-stone-200 rounded-3xl font-black shadow-xl hover:scale-105 transition-all text-xl">
+                Visit FAQ Hub
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

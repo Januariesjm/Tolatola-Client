@@ -1,7 +1,16 @@
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { RefreshCcw, CheckCircle2, XCircle, Truck, HelpCircle, Mail, Phone, Calendar, ClipboardCheck } from "lucide-react"
+import { RefreshCcw, CheckCircle2, XCircle, Truck, HelpCircle, Mail, Phone, Calendar, ClipboardCheck, ArrowRight, ShieldCheck } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Return Policy | Tola Marketplace",
+  description: "Learn about Tola's hassle-free return policy. We protect our buyers with a secure escrow system and clear return guidelines for every transaction.",
+  alternates: {
+    canonical: "https://tolatola.co/return-policy",
+  },
+}
 
 export default async function ReturnPolicyPage() {
   const supabase = (await createClient()) as any
@@ -27,165 +36,135 @@ export default async function ReturnPolicyPage() {
   }
 
   const steps = [
-    {
-      title: "Contact Vendor",
-      desc: "Reach out to the vendor through your order management page to initiate a return request.",
-      icon: <Mail className="h-6 w-6" />
-    },
-    {
-      title: "Vendor Approval",
-      desc: "The vendor will review your request and provide specific return or replacement instructions.",
-      icon: <ClipboardCheck className="h-6 w-6" />
-    },
-    {
-      title: "Safe Packaging",
-      desc: "Return the item in its original packaging with all included accessories and documentation.",
-      icon: <RefreshCcw className="h-6 w-6" />
-    },
-    {
-      title: "Refund Issued",
-      desc: "Once received and inspected, your refund will be released back to your mobile money wallet.",
-      icon: <CheckCircle2 className="h-6 w-6" />
-    }
+    { title: "Initiate Request", desc: "Start the process via your dashboard within 7 days.", icon: <Mail /> },
+    { title: "Review & Verify", desc: "Vendors review photos and details of your claim.", icon: <ClipboardCheck /> },
+    { title: "Secure Return", desc: "Ship the item back in its original condition.", icon: <RefreshCcw /> },
+    { title: "Instant Payout", desc: "Funds are released from escrow to your wallet.", icon: <CheckCircle2 /> }
   ]
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col font-sans">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
       <main className="flex-1">
-        {/* Banner Section */}
-        <section className="bg-primary text-primary-foreground py-20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl" />
+        {/* Premium Banner */}
+        <section className="relative h-[550px] flex items-center justify-center bg-stone-950 overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40 grayscale" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
+
           <div className="container mx-auto px-4 relative z-10 text-center">
-            <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">Hassle-Free Returns</h1>
-            <p className="text-primary-foreground/80 text-xl max-w-2xl mx-auto font-medium">
-              At Tola, buyer protection is our standard. If you're not happy with your order, we've got you covered.
+            <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-xs font-black uppercase tracking-widest">Buyer Protection</span>
+            </div>
+            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">Hassle-Free <span className="text-primary underline decoration-primary decoration-4 underline-offset-8">Returns</span></h1>
+            <p className="text-stone-300 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
+              Shopping on TOLA is risk-free. Our escrow-backed returns guarantee your money is safe until you're satisfied.
             </p>
           </div>
         </section>
 
-        {/* Policy Grid */}
-        <section className="py-20 container mx-auto px-4 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Eligibility */}
-            <Card className="border-none shadow-xl bg-muted/50 p-2">
-              <CardContent className="pt-8">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="p-3 bg-green-100 text-green-700 rounded-2xl">
-                    <CheckCircle2 className="h-6 w-6" />
-                  </div>
-                  <h2 className="text-2xl font-bold">Return Eligibility</h2>
-                </div>
-                <p className="mb-6 text-muted-foreground">You may return items within <span className="text-foreground font-bold underline">7 days of delivery</span> if:</p>
-                <ul className="space-y-4">
-                  {[
-                    "Item is defective or damaged upon arrival",
-                    "Significant difference from product description",
-                    "Received the wrong item entirely",
-                    "Missing critical parts or accessories"
-                  ].map((text, i) => (
-                    <li key={i} className="flex gap-3 text-sm font-medium">
-                      <span className="text-green-500 font-bold">✓</span>
-                      {text}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+        {/* Eligibility Section */}
+        <section className="py-24 container mx-auto px-4 max-w-6xl -mt-24 relative z-20">
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="border-none shadow-2xl rounded-[3rem] bg-white p-12 group hover:-translate-y-2 transition-all duration-500">
+              <div className="mb-8 p-5 rounded-3xl bg-green-50 text-green-600 w-fit group-hover:bg-green-600 group-hover:text-white transition-colors duration-500">
+                <CheckCircle2 className="h-10 w-10" />
+              </div>
+              <h2 className="text-4xl font-black mb-6 tracking-tight">Return Eligibility</h2>
+              <p className="text-muted-foreground text-lg mb-8 italic">You can return items within <span className="text-foreground font-black underline underline-offset-4 decoration-green-500">7 days</span> if:</p>
+              <ul className="space-y-4">
+                {["Defective or damaged items", "Description mismatch", "Incorrect item delivered", "Missing accessories"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-lg font-bold group/item">
+                    <span className="h-2 w-2 rounded-full bg-green-500 group-hover/item:scale-150 transition-transform" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </Card>
 
-            {/* Exclusions */}
-            <Card className="border-none shadow-xl bg-orange-50/50 p-2">
-              <CardContent className="pt-8">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="p-3 bg-orange-100 text-orange-700 rounded-2xl">
-                    <XCircle className="h-6 w-6" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-orange-950">Non-Returnable Items</h2>
-                </div>
-                <p className="mb-6 text-orange-900/60 font-medium">To maintain hygiene and safety standards, the following cannot be returned:</p>
-                <ul className="space-y-4">
-                  {[
-                    "Perishable goods (fresh food, flowers)",
-                    "Opened personal care or beauty items",
-                    "Customized or personalized products",
-                    "Digital products or software keys"
-                  ].map((text, i) => (
-                    <li key={i} className="flex gap-3 text-sm font-medium text-orange-900">
-                      <span className="text-orange-400 font-bold">✕</span>
-                      {text}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
+            <Card className="border-none shadow-2xl rounded-[3rem] bg-stone-900 text-stone-100 p-12 group hover:-translate-y-2 transition-all duration-500">
+              <div className="mb-8 p-5 rounded-3xl bg-white/5 text-primary w-fit group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                <XCircle className="h-10 w-10" />
+              </div>
+              <h2 className="text-4xl font-black mb-6 tracking-tight text-white">Non-Returnable</h2>
+              <p className="text-stone-400 text-lg mb-8 italic">For hygiene and safety, we cannot accept returns on:</p>
+              <ul className="space-y-4">
+                {["Perishables & Food", "Personal Care & Beauty", "Customized Goods", "Digital Vouchers"].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-lg font-bold text-stone-300 group/item">
+                    <span className="h-2 w-2 rounded-full bg-primary/40 group-hover/item:bg-primary transition-colors" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </Card>
           </div>
+        </section>
 
-          {/* How it Works - Timeline UI */}
-          <div className="mt-20">
-            <h2 className="text-3xl font-bold text-center mb-12">The Return Process</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* The Process - Premium UI */}
+        <section className="py-24 bg-muted/20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-center text-5xl font-black mb-20 tracking-tight">The Tola Process</h2>
+            <div className="grid md:grid-cols-4 gap-4 relative">
+              <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-0.5 bg-stone-200 border-t border-dashed border-stone-300" />
+
               {steps.map((step, i) => (
-                <div key={i} className="relative group p-8 rounded-3xl bg-white border hover:border-primary transition-all hover:shadow-2xl hover:-translate-y-1">
-                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-muted text-muted-foreground rounded-full flex items-center justify-center font-black text-xl group-hover:bg-primary group-hover:text-white transition-colors">
-                    {i + 1}
-                  </div>
-                  <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mb-6 group-hover:text-primary transition-colors">
+                <div key={i} className="relative z-10 flex flex-col items-center text-center p-8 bg-white border border-stone-100 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group">
+                  <div className="mb-8 w-20 h-20 rounded-3xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 transform group-hover:rotate-12">
                     {step.icon}
                   </div>
-                  <h3 className="text-lg font-bold mb-3">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                  <h3 className="text-xl font-black mb-4">{step.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed italic line-clamp-2">"{step.desc}"</p>
                 </div>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Refund Info */}
-          <div className="mt-32 bg-stone-900 text-stone-100 rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
-            <div className="md:w-1/2">
-              <h2 className="text-4xl font-bold mb-6">Secured Refunds</h2>
-              <div className="space-y-6 text-stone-400">
-                <p className="text-lg leading-relaxed">
-                  Refunds are processed through our <strong>escrow system</strong>. If your return is approved, funds are released back to your mobile money account (M-Pesa, Tigo Pesa, or Airtel Money).
+        {/* Refund Mechanism */}
+        <section className="py-24 container mx-auto px-4">
+          <div className="bg-stone-900 rounded-[4rem] p-12 md:p-24 overflow-hidden relative shadow-2xl">
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] translate-x-1/3 -translate-y-1/3" />
+            <div className="grid lg:grid-cols-2 gap-16 relative z-10 items-center">
+              <div>
+                <h2 className="text-5xl font-black text-white mb-8 tracking-tighter">Secure Escrow Payouts</h2>
+                <p className="text-stone-400 text-xl leading-relaxed mb-12 italic">
+                  Your refund isn't just a promise. It's built into our code. Once a return is verified, funds are automatically released back to your mobile money wallet.
                 </p>
-                <div className="flex items-center gap-4 py-4 px-6 bg-white/5 rounded-2xl border border-white/10">
-                  <Calendar className="h-6 w-6 text-primary" />
-                  <p className="text-sm font-medium"><span className="text-white">Timeline:</span> Refunds typically take 3-5 business days.</p>
+                <div className="flex items-center gap-4 p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-md">
+                  <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                    <Calendar className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <p className="text-white font-black text-xl">3-5 Business Days</p>
+                    <p className="text-stone-500 text-sm">Typical processing time for all mobile wallets.</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="md:w-1/2 grid grid-cols-2 gap-4">
-              <div className="aspect-square rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 p-4 text-center">
-                <RefreshCcw className="h-8 w-8 text-primary" />
-                <span className="text-xs uppercase font-bold tracking-widest text-stone-500 underline decoration-primary decoration-2 underline-offset-4">Escrow Backed</span>
-              </div>
-              <div className="aspect-square rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 p-4 text-center">
-                <CheckCircle2 className="h-8 w-8 text-primary" />
-                <span className="text-xs uppercase font-bold tracking-widest text-stone-500 underline decoration-primary decoration-2 underline-offset-4">Verified Items</span>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-stone-500 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+                <div className="relative p-8 bg-stone-950 rounded-[3rem] border border-white/10 text-center">
+                  <RefreshCcw className="h-20 w-20 text-primary mx-auto mb-8 animate-spin-slow" />
+                  <h3 className="text-3xl font-black text-white mb-4">Real-time Tracking</h3>
+                  <p className="text-stone-500 mb-8 italic">Monitor your return status every step of the way in your TOLA dashboard.</p>
+                  <a href="/orders" className="inline-flex items-center gap-2 group-hover:text-primary transition-colors text-white font-bold uppercase tracking-widest text-xs">
+                    Manage Orders <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Support CTA */}
-        <section className="py-20 bg-muted/30">
+        {/* Support Section */}
+        <section className="py-24 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-xl mx-auto">
-              <div className="inline-flex p-3 rounded-2xl bg-primary/10 text-primary mb-6">
-                <HelpCircle className="h-8 w-8" />
-              </div>
-              <h2 className="text-3xl font-black mb-4">Still need assistance?</h2>
-              <p className="text-muted-foreground mb-10 text-lg">Our customer success team is here to help you resolve any issues with your order.</p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="mailto:support@tolatola.co" className="flex items-center justify-center gap-3 px-8 py-4 bg-white border border-stone-200 rounded-2xl font-bold shadow-sm hover:bg-muted transition-all">
-                  <Mail className="h-5 w-5 text-primary" />
-                  support@tolatola.co
-                </a>
-                <a href="tel:+255678227227" className="flex items-center justify-center gap-3 px-8 py-4 bg-white border border-stone-200 rounded-2xl font-bold shadow-sm hover:bg-muted transition-all">
-                  <Phone className="h-5 w-5 text-primary" />
-                  +255 678 227 227
-                </a>
-              </div>
+            <HelpCircle className="h-16 w-16 text-primary mx-auto mb-8 opacity-50" />
+            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Need a customized solution?</h2>
+            <p className="text-muted-foreground text-xl mb-12 italic max-w-2xl mx-auto">Our support team handles complex disputes personally to ensure fair outcomes for all.</p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="mailto:support@tolatola.co" className="px-10 py-5 bg-white border border-stone-200 rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"> support@tolatola.co </a>
+              <a href="/contact" className="px-10 py-5 bg-stone-900 text-white rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"> Open Support Ticket </a>
             </div>
           </div>
         </section>
