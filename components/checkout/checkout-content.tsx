@@ -8,7 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Smartphone, Truck, MapPin, Loader2, CheckCircle2, CreditCard, Banknote, Building2, ChevronDown } from "lucide-react"
+import {
+  Smartphone, Truck, MapPin, Loader2, CheckCircle2,
+  CreditCard, Banknote, Building2, ChevronDown,
+  ShieldCheck, Wallet, ArrowRight, ShoppingBag,
+  Zap, Info
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/lib/utils"
@@ -35,21 +40,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     street: "",
   })
   const [fullAddress, setFullAddress] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<
-    | "m-pesa"
-    | "airtel-money"
-    | "halopesa"
-    | "mixx-by-yas"
-    | "ezypesa"
-    | "crdb-simbanking"
-    | "crdb-internet-banking"
-    | "crdb-wakala"
-    | "crdb-branch-otc"
-    | "visa"
-    | "mastercard"
-    | "unionpay"
-    | "cash-on-delivery"
-  >("m-pesa")
+  const [paymentMethod, setPaymentMethod] = useState<string>("m-pesa")
   const [transportMethods, setTransportMethods] = useState<TransportMethod[]>([])
   const [selectedTransportId, setSelectedTransportId] = useState<string>("")
   const [deliveryInfo, setDeliveryInfo] = useState<{
@@ -77,7 +68,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       .then((res) => {
         const methods = res.data || []
         setTransportMethods(methods)
-        // Auto-select first method as default
         if (methods.length > 0 && !selectedTransportId) {
           setSelectedTransportId(methods[0].id)
         }
@@ -99,12 +89,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     setIsCalculatingDelivery(true)
 
     try {
-      console.log("[v0] Calculating delivery for:", {
-        region: addressData.region,
-        district: addressData.district,
-        ward: addressData.ward,
-      })
-
       const result = await calculateDeliveryDistance(
         addressData.region,
         addressData.district || undefined,
@@ -132,13 +116,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         } else {
           setDeliveryInfo(result)
         }
-        console.log("[v0] Delivery calculated:", result)
       } else {
         setDeliveryError("Could not calculate delivery fee for this address. Please try a more specific address.")
         setDeliveryInfo(null)
       }
     } catch (error) {
-      console.error("[v0] Delivery calculation error:", error)
       setDeliveryError("Failed to calculate delivery fee. Please try again.")
       setDeliveryInfo(null)
     } finally {
@@ -209,8 +191,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     setError(null)
 
     try {
-      console.log("[v0] Starting checkout process via API...")
-
       const items = cartItems.map((item) => ({
         product_id: item.product_id || item.product?.id,
         quantity: item.quantity,
@@ -247,460 +227,376 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         throw new Error("Order ID not returned from API")
       }
 
-      console.log("[v0] Checkout completed successfully!")
-
       localStorage.removeItem("cart")
       window.dispatchEvent(new Event("cartUpdated"))
 
       router.push(`/payment/${orderId}`)
     } catch (error: unknown) {
-      console.error("[v0] Checkout error:", error)
       setError(error instanceof Error ? error.message : "An error occurred during checkout")
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (cartItems.length === 0) {
-    return null
-  }
+  if (cartItems.length === 0) return null
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Checkout</h1>
-          <p className="text-muted-foreground">Complete your order</p>
-        </div>
+    <div className="min-h-screen bg-[#FDFCFB] pb-20">
+      <div className="container mx-auto px-4 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
+                <ShieldCheck className="h-4 w-4" />
+                <span>Secure Checkout Environment</span>
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-stone-900 leading-none">
+                Finalize <span className="text-primary italic">Investment.</span>
+              </h1>
+              <p className="text-stone-500 text-lg md:text-xl font-medium italic max-w-xl">
+                You're just a few moments away from securing your selected items with Tola's escrow protection.
+              </p>
+            </div>
+            <div className="hidden md:flex flex-col items-end gap-2 p-6 bg-white rounded-[2rem] shadow-2xl shadow-stone-200/50 border border-stone-100">
+              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Total Calculation</p>
+              <p className="text-4xl font-black text-primary tracking-tighter">TZS {total.toLocaleString()}</p>
+            </div>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Information</CardTitle>
-                  <CardDescription>Where should we deliver your order?</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name *</Label>
-                      <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-12 items-start">
+            <div className="lg:col-span-8 space-y-12">
+
+              {/* Shipping Section */}
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">1</div>
+                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Shipping Destination</h2>
+                </div>
+
+                <Card className="border-none shadow-2xl shadow-stone-200/40 rounded-[3rem] overflow-hidden bg-white group transition-all duration-500">
+                  <CardContent className="p-10 space-y-8">
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <Label htmlFor="fullName" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Full Name *</Label>
+                        <Input
+                          id="fullName"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                          placeholder="Enter recipient's full name"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="phone" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Phone Number *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                          className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                          placeholder="+255..."
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number *</Label>
-                      <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+
+                    <div className="pt-4 border-t border-stone-50">
+                      <TanzaniaAddressForm
+                        value={addressData}
+                        onChange={setAddressData}
+                        onAddressComplete={handleAddressComplete}
+                        userId={user.id}
+                      />
+                    </div>
+
+                    {isCalculatingDelivery && (
+                      <div className="flex items-center gap-3 p-6 bg-stone-900 rounded-[2rem] text-white/80 animate-pulse">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <span className="font-bold text-sm tracking-tight text-white">Engine is optimizing logistics routes...</span>
+                      </div>
+                    )}
+
+                    {deliveryError && (
+                      <div className="flex items-center gap-3 p-6 bg-destructive/5 rounded-[2rem] text-destructive border border-destructive/20">
+                        <Info className="h-5 w-5" />
+                        <span className="font-bold text-sm">{deliveryError}</span>
+                      </div>
+                    )}
+
+                    {deliveryInfo && (
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Total Distance</p>
+                          <p className="text-xl font-black text-stone-900">{deliveryInfo.distanceKm} KM</p>
+                        </div>
+                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Estimated Speed</p>
+                          <p className="text-xl font-black text-stone-900">{deliveryInfo.duration || "Prompt Delivery"}</p>
+                        </div>
+                        <div className="p-6 bg-primary/10 rounded-[2rem] border border-primary/20 space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-primary">Logistics Fee</p>
+                          <p className="text-xl font-black text-primary">TZS {deliveryInfo.deliveryFee.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </section>
+
+              {/* Transport Section */}
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">2</div>
+                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Logistics Partner</h2>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {transportMethods.map((method) => {
+                    const isActive = selectedTransportId === method.id
+                    return (
+                      <div
+                        key={method.id}
+                        onClick={() => setSelectedTransportId(method.id)}
+                        className={cn(
+                          "relative group cursor-pointer transition-all duration-500 rounded-[2.5rem] p-8 border-2 flex flex-col gap-6",
+                          isActive
+                            ? "bg-white border-primary shadow-2xl shadow-primary/10 -translate-y-2"
+                            : "bg-stone-50/50 border-transparent hover:border-stone-200 hover:bg-white"
+                        )}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className={cn(
+                            "h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500",
+                            isActive ? "bg-primary text-white rotate-6" : "bg-white text-stone-400 shadow-sm"
+                          )}>
+                            <Truck className="h-7 w-7" />
+                          </div>
+                          {isActive && <CheckCircle2 className="h-6 w-6 text-primary" />}
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="text-2xl font-black tracking-tight text-stone-900">{method.name}</h3>
+                          <p className="text-stone-500 text-sm font-medium line-clamp-2 leading-relaxed italic">{method.description}</p>
+                        </div>
+                        <div className="mt-auto pt-4 flex items-center justify-between">
+                          <span className="text-xs font-black uppercase tracking-widest text-stone-400">Vivid Logistics Rate</span>
+                          <span className="text-lg font-black text-primary tracking-tight">
+                            {method.rate_per_km
+                              ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
+                              : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+
+              {/* Payment Section */}
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">3</div>
+                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Secure Payment Channel</h2>
+                </div>
+
+                <Card className="border-none shadow-2xl shadow-stone-200/40 rounded-[3rem] overflow-hidden bg-white">
+                  <CardContent className="p-10">
+                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                      <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-4">
+                        <AccordionItem value="mobile-money" className="border-none">
+                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
+                            <div className="flex items-center gap-4">
+                              <Smartphone className="h-6 w-6" />
+                              <span className="text-xl font-black tracking-tight">Mobile Money Escrow</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="p-6 grid md:grid-cols-2 gap-4 mt-4">
+                            {[
+                              { id: "m-pesa", name: "M-Pesa", provider: "Vodacom" },
+                              { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
+                              { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
+                              { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
+                              { id: "ezypesa", name: "EzyPesa", provider: "Zantel" }
+                            ].map((p) => (
+                              <Label
+                                key={p.id}
+                                htmlFor={p.id}
+                                className={cn(
+                                  "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                  paymentMethod === p.id ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                                )}
+                              >
+                                <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
+                                <div className={cn(
+                                  "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                  paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                )}>
+                                  <Smartphone className="h-5 w-5" />
+                                </div>
+                                <div>
+                                  <p className="font-black text-stone-900">{p.name}</p>
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">{p.provider}</p>
+                                </div>
+                              </Label>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="cards" className="border-none">
+                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
+                            <div className="flex items-center gap-4">
+                              <CreditCard className="h-6 w-6" />
+                              <span className="text-xl font-black tracking-tight">Global Debit/Credit</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="p-6 grid md:grid-cols-3 gap-4 mt-4">
+                            {["visa", "mastercard", "unionpay"].map((c) => (
+                              <Label key={c} htmlFor={c} className={cn(
+                                "flex flex-col items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                paymentMethod === c ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                              )}>
+                                <RadioGroupItem value={c} id={c} className="sr-only" />
+                                <div className={cn(
+                                  "h-12 w-12 rounded-xl flex items-center justify-center transition-colors",
+                                  paymentMethod === c ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                )}>
+                                  <CreditCard className="h-6 w-6" />
+                                </div>
+                                <span className="font-black uppercase tracking-widest text-xs text-stone-900">{c}</span>
+                              </Label>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="bank" className="border-none">
+                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
+                            <div className="flex items-center gap-4">
+                              <Building2 className="h-6 w-6" />
+                              <span className="text-xl font-black tracking-tight">Direct Bank Infrastructure</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="p-6 space-y-3 mt-4">
+                            {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
+                              <Label key={b} htmlFor={b} className={cn(
+                                "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                              )}>
+                                <RadioGroupItem value={b} id={b} className="sr-only" />
+                                <div className={cn(
+                                  "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                  paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                )}>
+                                  <Building2 className="h-5 w-5" />
+                                </div>
+                                <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
+                              </Label>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+              </section>
+            </div>
+
+            {/* Sidebar / Summary */}
+            <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-8">
+              <Card className="border-none shadow-2xl shadow-stone-200/50 rounded-[3rem] overflow-hidden bg-white">
+                <div className="bg-stone-950 p-10 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                  <h3 className="text-2xl font-black tracking-tight relative z-10">Order Architecture</h3>
+                  <p className="text-white/40 text-xs font-black uppercase tracking-widest mt-1 relative z-10">Summary of selections</p>
+                </div>
+                <CardContent className="p-10 space-y-8">
+                  <div className="space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-2">
+                    {cartItems.map((item) => (
+                      <div key={item.product_id} className="flex gap-4">
+                        <div className="h-16 w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
+                          {item.product.images?.[0] ? (
+                            <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-6 w-6 text-stone-200" /></div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <p className="font-black text-stone-900 leading-tight truncate">{item.product.name}</p>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-stone-400 font-bold">Qty: {item.quantity}</span>
+                            <span className="text-stone-900 font-black">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-8 border-t border-stone-100 space-y-4">
+                    <div className="flex justify-between items-center group">
+                      <span className="text-stone-400 text-sm font-bold flex items-center gap-2">
+                        <Wallet className="h-4 w-4" /> Subtotal
+                      </span>
+                      <span className="text-stone-900 font-black tracking-tight">{subtotal.toLocaleString()} TZS</span>
+                    </div>
+                    <div className="flex justify-between items-center group">
+                      <span className="text-stone-400 text-sm font-bold flex items-center gap-2">
+                        <Truck className="h-4 w-4" /> Logistics
+                      </span>
+                      <span className={cn(
+                        "font-black tracking-tight",
+                        deliveryInfo ? "text-stone-900" : "text-primary italic animate-pulse"
+                      )}>
+                        {deliveryInfo ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
+                      </span>
+                    </div>
+                    <div className="pt-6 border-t border-stone-100 flex justify-between items-end">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary">Final Investment</p>
+                        <p className="text-3xl font-black text-stone-950 tracking-tighter">
+                          {total.toLocaleString()} <span className="text-xs uppercase">TZS</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <TanzaniaAddressForm
-                    value={addressData}
-                    onChange={setAddressData}
-                    onAddressComplete={handleAddressComplete}
-                    userId={user.id}
-                  />
+                  <Button
+                    type="submit"
+                    className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-stone-900 text-white font-black text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.97] group"
+                    disabled={isLoading || !deliveryInfo || isCalculatingDelivery}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <span className="flex items-center gap-3">
+                        Deploy Final Order
+                        <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                      </span>
+                    )}
+                  </Button>
 
-                  {isCalculatingDelivery && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Calculating delivery fee from your location...
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <div className="flex items-center gap-1">
+                      <ShieldCheck className="h-3 w-3 text-green-600" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Escrow Protect</span>
                     </div>
-                  )}
-
-                  {deliveryError && (
-                    <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
-                      <MapPin className="h-4 w-4" />
-                      {deliveryError}
+                    <div className="w-1 h-1 rounded-full bg-stone-200" />
+                    <div className="flex items-center gap-1">
+                      <Zap className="h-3 w-3 text-amber-500" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Secure Node</span>
                     </div>
-                  )}
-
-                  {deliveryInfo && (
-                    <div className="rounded-xl border border-green-200 bg-green-50/50 p-5 space-y-4 shadow-sm">
-                      <div className="flex items-center gap-2 text-sm font-bold text-green-700">
-                        <CheckCircle2 className="h-5 w-5" />
-                        DELIVERY QUOTE
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <p className="text-[10px] uppercase tracking-wider text-green-600 font-bold">Distance</p>
-                          <p className="text-sm font-semibold flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {deliveryInfo.distanceKm} km
-                          </p>
-                        </div>
-                        {deliveryInfo.duration && (
-                          <div className="space-y-1">
-                            <p className="text-[10px] uppercase tracking-wider text-green-600 font-bold">Estimated Time</p>
-                            <p className="text-sm font-semibold flex items-center gap-1">
-                              <Truck className="h-3 w-3" />
-                              {deliveryInfo.duration}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="pt-3 border-t border-green-200 flex justify-between items-center">
-                        <span className="text-sm font-medium text-green-700">Delivery Fee</span>
-                        <span className="text-xl font-black text-green-800">
-                          TZS {deliveryInfo.deliveryFee.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Truck className="h-5 w-5" />
-                    Transport Method *
-                  </CardTitle>
-                  <CardDescription>
-                    Choose how your order will be delivered based on distance and weight
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {transportMethods.length === 0 ? (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading transport options...
-                    </div>
-                  ) : (
-                    <>
-                      <RadioGroup value={selectedTransportId} onValueChange={setSelectedTransportId}>
-                        {transportMethods.map((method) => {
-                          const isActive = selectedTransportId === method.id
-                          return (
-                            <div
-                              key={method.id}
-                              onClick={() => setSelectedTransportId(method.id)}
-                              className={cn(
-                                "flex items-start space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all hover:bg-muted/30",
-                                isActive ? "border-primary bg-primary/5 shadow-sm" : "border-muted",
-                              )}
-                            >
-                              <div className="pt-0.5">
-                                <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
-                                <div
-                                  className={cn(
-                                    "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all",
-                                    isActive ? "border-primary bg-primary" : "border-muted-foreground/30",
-                                  )}
-                                >
-                                  {isActive && <div className="h-2 w-2 rounded-full bg-white" />}
-                                </div>
-                              </div>
-                              <Label htmlFor={method.id} className="cursor-pointer flex-1 space-y-1">
-                                <div className="font-bold text-base leading-none">{method.name}</div>
-                                <div className="text-xs text-muted-foreground line-clamp-1">{method.description}</div>
-                                <div className="text-sm font-bold text-primary mt-1">
-                                  {method.rate_per_km
-                                    ? `TZS ${method.rate_per_km.toLocaleString()}/km`
-                                    : `TZS ${method.rate_per_kg?.toLocaleString()}/kg`}
-                                </div>
-                              </Label>
-                            </div>
-                          )
-                        })}
-                      </RadioGroup>
-
-                      {deliveryInfo && (
-                        <div className="bg-muted/50 p-3 rounded-lg space-y-1 text-sm">
-                          <p className="font-medium">Delivery Details:</p>
-                          <p className="text-muted-foreground">
-                            Distance: <span className="font-medium text-foreground">{deliveryInfo.distanceKm} km</span>
-                          </p>
-                          <p className="text-muted-foreground">
-                            Package Weight:{" "}
-                            <span className="font-medium text-foreground">
-                              {cartItems.reduce((sum, item) => sum + (item.product.weight || 1) * item.quantity, 0)} kg
-                            </span>
-                          </p>
-                          {deliveryInfo.transportMethod && (
-                            <p className="text-muted-foreground">
-                              Selected:{" "}
-                              <span className="font-medium text-foreground">{deliveryInfo.transportMethod}</span>
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
-                  <CardDescription>Select your preferred payment method</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RadioGroup value={paymentMethod} onValueChange={(value: any) => setPaymentMethod(value)}>
-                    <Accordion type="single" defaultValue="mobile-money" className="w-full">
-                      {/* Mobile Money Options */}
-                      <AccordionItem value="mobile-money">
-                        <AccordionTrigger className="hover:no-underline">
-                          <span className="font-semibold text-sm">Mobile Money</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-3 pt-2">
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="m-pesa" id="m-pesa" />
-                            <Label htmlFor="m-pesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Smartphone className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">M-Pesa</p>
-                                <p className="text-xs text-muted-foreground">Vodacom</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="airtel-money" id="airtel-money" />
-                            <Label htmlFor="airtel-money" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Smartphone className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">Airtel Money</p>
-                                <p className="text-xs text-muted-foreground">Airtel</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="mixx-by-yas" id="mixx-by-yas" />
-                            <Label htmlFor="mixx-by-yas" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Smartphone className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">Mixx by Yas</p>
-                                <p className="text-xs text-muted-foreground">Tigo Pesa</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="halopesa" id="halopesa" />
-                            <Label htmlFor="halopesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Smartphone className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">HaloPesa</p>
-                                <p className="text-xs text-muted-foreground">Halotel</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="ezypesa" id="ezypesa" />
-                            <Label htmlFor="ezypesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Smartphone className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">EzyPesa</p>
-                                <p className="text-xs text-muted-foreground">Zantel</p>
-                              </div>
-                            </Label>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      {/* Card Payment Options */}
-                      <AccordionItem value="cards">
-                        <AccordionTrigger className="hover:no-underline">
-                          <span className="font-semibold text-sm">Card Payments</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-3 pt-2">
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="visa" id="visa" />
-                            <Label htmlFor="visa" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <CreditCard className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">Visa</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="mastercard" id="mastercard" />
-                            <Label htmlFor="mastercard" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <CreditCard className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">Mastercard</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="unionpay" id="unionpay" />
-                            <Label htmlFor="unionpay" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <CreditCard className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">UnionPay</p>
-                              </div>
-                            </Label>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      {/* Bank Payment Options */}
-                      <AccordionItem value="bank">
-                        <AccordionTrigger className="hover:no-underline">
-                          <span className="font-semibold text-sm">Bank Payments</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-3 pt-2">
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="crdb-simbanking" id="crdb-simbanking" />
-                            <Label htmlFor="crdb-simbanking" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Building2 className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">CRDB SimBanking</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="crdb-internet-banking" id="crdb-internet-banking" />
-                            <Label htmlFor="crdb-internet-banking" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Building2 className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">CRDB Internet Banking</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="crdb-wakala" id="crdb-wakala" />
-                            <Label htmlFor="crdb-wakala" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Building2 className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">CRDB Wakala</p>
-                              </div>
-                            </Label>
-                          </div>
-
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="crdb-branch-otc" id="crdb-branch-otc" />
-                            <Label htmlFor="crdb-branch-otc" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Building2 className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">CRDB Branch OTC</p>
-                              </div>
-                            </Label>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      {/* Other Options */}
-                      <AccordionItem value="other">
-                        <AccordionTrigger className="hover:no-underline">
-                          <span className="font-semibold text-sm">Other Options</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-3 pt-2">
-                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                            <RadioGroupItem value="cash-on-delivery" id="cash-on-delivery" />
-                            <Label htmlFor="cash-on-delivery" className="flex items-center gap-3 cursor-pointer flex-1">
-                              <Banknote className="h-4 w-4 text-primary" />
-                              <div>
-                                <p className="font-medium text-sm">Cash on Delivery</p>
-                                <p className="text-xs text-muted-foreground">Pay with cash when you receive your order</p>
-                              </div>
-                            </Label>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </RadioGroup>
+                  </div>
                 </CardContent>
               </Card>
 
               {error && (
-                <Card className="border-destructive">
-                  <CardContent className="pt-6">
-                    <p className="text-sm text-destructive">{error}</p>
-                  </CardContent>
-                </Card>
+                <div className="p-6 bg-destructive/10 border-2 border-destructive/20 rounded-[2.5rem] text-destructive text-center space-y-2 animate-in slide-in-from-top-4 duration-500">
+                  <p className="text-xs font-black uppercase tracking-widest">Protocol Error</p>
+                  <p className="font-bold">{error}</p>
+                </div>
               )}
             </div>
-
-            <div className="lg:col-span-1">
-              <Card className="sticky top-24">
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="items" className="border-none">
-                        <AccordionTrigger className="py-2 hover:no-underline hover:bg-muted/50 rounded-md px-2">
-                          <span className="text-sm font-semibold">Items ({cartItems.length})</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="pt-2">
-                          <div className="space-y-3">
-                            {cartItems.map((item) => (
-                              <div key={item.product_id} className="flex justify-between text-sm">
-                                <div className="flex gap-2">
-                                  <span className="font-medium">{item.quantity}x</span>
-                                  <span className="text-muted-foreground truncate max-w-[150px]">
-                                    {item.product.name}
-                                  </span>
-                                </div>
-                                <span className="font-medium whitespace-nowrap">
-                                  TZS {(item.product.price * item.quantity).toLocaleString()}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-                  <div className="border-t pt-3 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>TZS {subtotal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground flex items-center gap-1">
-                        <Truck className="h-4 w-4" />
-                        Delivery Fee
-                      </span>
-                      <span>
-                        {deliveryInfo ? (
-                          `TZS ${deliveryFee.toLocaleString()}`
-                        ) : isCalculatingDelivery ? (
-                          <span className="flex items-center gap-1">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            Calculating...
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">Enter address</span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-                      <span>Total</span>
-                      <span>TZS {total.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] mt-2"
-                    size="lg"
-                    disabled={isLoading || !deliveryInfo || isCalculatingDelivery}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Processing...
-                      </span>
-                    ) : (
-                      "Place Order"
-                    )}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    By placing your order, you agree to our terms and conditions
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )
