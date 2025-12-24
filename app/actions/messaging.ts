@@ -5,14 +5,21 @@ import { createClient } from "@/lib/supabase/server"
 export async function getOrCreateConversation(shopId?: string, productId?: string, receiverId?: string, orderId?: string) {
   try {
     const supabase = await createClient()
+    console.log("[Messaging] Supabase client initialized")
 
     const {
       data: { user },
+      error: authError
     } = await supabase.auth.getUser()
 
+    if (authError) {
+      console.error("[Messaging] Auth error:", authError)
+      return { error: `Authentication failed: ${authError.message}` }
+    }
+
     if (!user) {
-      console.log("[Messaging] User not authenticated")
-      return { error: "Not authenticated" }
+      console.log("[Messaging] User not authenticated - session might be expired")
+      return { error: "Please log in to chat with the seller" }
     }
 
     console.log("[Messaging] getOrCreateConversation:", { shopId, productId, receiverId, orderId, userId: user.id })
@@ -22,10 +29,17 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       // Get shop vendor_id
       const { data: shop, error: shopError } = await (supabase as any).from("shops").select("vendor_id").eq("id", shopId).single()
 
-      if (shopError || !shop) {
-        console.error("[Messaging] Shop not found:", shopError)
-        return { error: "Shop not found" }
+      if (shopError) {
+        console.error("[Messaging] Error fetching shop:", shopError)
+        return { error: `Could not find shop: ${shopError.message}` }
       }
+
+      if (!shop) {
+        console.error("[Messaging] Shop not found for ID:", shopId)
+        return { error: "Shop no longer exists" }
+      }
+
+      console.log("[Messaging] Shop found, vendor_id:", (shop as any).vendor_id)
 
       // Check if conversation already exists
       const { data: existingConversation } = await (supabase as any)
@@ -41,6 +55,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       }
 
       // Create new conversation
+      console.log("[Messaging] Creating new shop conversation...")
       const { data: newConversation, error } = await (supabase as any)
         .from("conversations")
         .insert({
@@ -54,7 +69,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
 
       if (error) {
         console.error("[Messaging] Error creating shop conversation:", error)
-        return { error: error.message }
+        return { error: `Failed to start conversation: ${error.message}` }
       }
 
       console.log("[Messaging] Created new shop conversation:", newConversation.id)

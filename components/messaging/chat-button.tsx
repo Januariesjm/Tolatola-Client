@@ -22,20 +22,36 @@ export function ChatButton({ shopId, shopName, productId, productName, receiverI
   const [loading, setLoading] = useState(false)
 
   const handleOpenChat = async () => {
+    console.log("[ChatButton] handleOpenChat clicked", { shopId, productId, productName, receiverId, orderId })
     setLoading(true)
-    const result = await getOrCreateConversation(shopId, productId, receiverId, orderId)
+    try {
+      const result = await getOrCreateConversation(shopId, productId, receiverId, orderId)
+      console.log("[ChatButton] getOrCreateConversation result:", result)
 
-    if (result.error) {
+      if (result.error) {
+        console.error("[ChatButton] Error in getOrCreateConversation:", result.error)
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+      } else if (result.conversation) {
+        console.log("[ChatButton] Opening chat dialog for conversation:", result.conversation.id)
+        setConversationId(result.conversation.id)
+        setOpen(true)
+      } else {
+        console.warn("[ChatButton] No error but no conversation returned")
+      }
+    } catch (err: any) {
+      console.error("[ChatButton] Panic in handleOpenChat:", err)
       toast({
-        title: "Error",
-        description: result.error,
+        title: "Unexpected Error",
+        description: err.message || "Failed to open chat",
         variant: "destructive",
       })
-    } else if (result.conversation) {
-      setConversationId(result.conversation.id)
-      setOpen(true)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
