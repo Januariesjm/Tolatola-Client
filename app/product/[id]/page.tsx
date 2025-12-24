@@ -8,7 +8,7 @@ import type { Database } from "@/lib/types"
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { user },
@@ -48,7 +48,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
       <ProductDetailContent product={product} reviews={reviews || []} isLiked={isLiked} />
     </div>
