@@ -8,20 +8,22 @@ import { getOrCreateConversation } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 
 interface ChatButtonProps {
-  shopId: string
-  shopName: string
+  shopId?: string
+  shopName?: string
   productId?: string
   productName?: string
+  receiverId?: string
+  orderId?: string
 }
 
-export function ChatButton({ shopId, shopName, productId, productName }: ChatButtonProps) {
+export function ChatButton({ shopId, shopName, productId, productName, receiverId, orderId }: ChatButtonProps) {
   const [open, setOpen] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleOpenChat = async () => {
     setLoading(true)
-    const result = await getOrCreateConversation(shopId, productId)
+    const result = await getOrCreateConversation(shopId, productId, receiverId, orderId)
 
     if (result.error) {
       toast({
@@ -54,7 +56,7 @@ export function ChatButton({ shopId, shopName, productId, productName }: ChatBut
           open={open}
           onOpenChange={setOpen}
           conversationId={conversationId}
-          shopName={shopName}
+          shopName={shopName || "Seller"}
           productName={productName}
         />
       )}

@@ -22,6 +22,7 @@ import { ProductSearch } from "./product-search"
 import { CartPopover } from "./cart-popover"
 import { useEffect, useState } from "react"
 import { LanguageSwitcher } from "./language-switcher"
+import { NotificationPopover } from "./notification-popover"
 import { clientApiGet } from "@/lib/api-client"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/lib/types"
@@ -45,7 +46,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
       // Clear Supabase session on client side first
       const supabase = createClientComponentClient<Database>()
       await supabase.auth.signOut()
-      
+
       // Also call backend logout (optional, but good for consistency)
       try {
         const { clientApiPost } = await import("@/lib/api-client")
@@ -158,6 +159,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
           {authUser ? (
             <>
+              <NotificationPopover />
               <CartPopover />
 
               <DropdownMenu>

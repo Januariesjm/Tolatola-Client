@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 
-export async function getOrCreateConversation(shopId: string, productId?: string) {
+export async function getOrCreateConversation(shopId?: string, productId?: string, receiverId?: string, orderId?: string) {
   const supabase = await createClient()
 
   const {
@@ -13,42 +13,83 @@ export async function getOrCreateConversation(shopId: string, productId?: string
     return { error: "Not authenticated" }
   }
 
-  // Get shop vendor_id
-  const { data: shop } = await supabase.from("shops").select("vendor_id").eq("id", shopId).single()
+  // Case 1: Traditional Customer-Shop/Vendor conversation
+  if (shopId) {
+    // Get shop vendor_id
+    const { data: shop } = await supabase.from("shops").select("vendor_id").eq("id", shopId).single()
 
-  if (!shop) {
-    return { error: "Shop not found" }
+    if (!shop) {
+      return { error: "Shop not found" }
+    }
+
+    // Check if conversation already exists
+    const { data: existingConversation } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("customer_id", user.id)
+      .eq("shop_id", shopId)
+      .maybeSingle()
+
+    if (existingConversation) {
+      return { conversation: existingConversation }
+    }
+
+    // Create new conversation
+    const { data: newConversation, error } = await supabase
+      .from("conversations")
+      .insert({
+        customer_id: user.id,
+        vendor_id: shop.vendor_id,
+        shop_id: shopId,
+        product_id: productId,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { conversation: newConversation }
   }
 
-  // Check if conversation already exists
-  const { data: existingConversation } = await supabase
-    .from("conversations")
-    .select("*")
-    .eq("customer_id", user.id)
-    .eq("shop_id", shopId)
-    .maybeSingle()
+  // Case 2: Transporter-Customer conversation (based on receiverId and orderId)
+  if (receiverId) {
+    // Check if conversation already exists between these two users
+    const { data: existingConversation } = await supabase
+      .from("conversations")
+      .select("*")
+      .or(`and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`)
+      .is("shop_id", null) // Distinguish from shop chats
+      .maybeSingle()
 
-  if (existingConversation) {
-    return { conversation: existingConversation }
+    if (existingConversation) {
+      return { conversation: existingConversation }
+    }
+
+    // Create new conversation
+    // Note: We use customer_id and vendor_id fields as generic participant fields for now
+    // as the schema seems to be built around them. In a real scenario, we might want
+    // a more generic participants table.
+    const { data: newConversation, error } = await supabase
+      .from("conversations")
+      .insert({
+        customer_id: user.id, // Current user (could be transporter)
+        vendor_id: receiverId, // Target user (could be customer)
+        order_id: orderId,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { conversation: newConversation }
   }
 
-  // Create new conversation
-  const { data: newConversation, error } = await supabase
-    .from("conversations")
-    .insert({
-      customer_id: user.id,
-      vendor_id: shop.vendor_id,
-      shop_id: shopId,
-      product_id: productId,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { conversation: newConversation }
+  return { error: "Missing parameters for conversation" }
+}
 }
 
 export async function sendMessage(conversationId: string, message: string) {

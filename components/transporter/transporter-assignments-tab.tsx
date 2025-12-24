@@ -3,9 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Package, CheckCircle, Truck, Phone } from "lucide-react"
+import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { ChatButton } from "@/components/messaging/chat-button"
 
 interface TransporterAssignmentsTabProps {
   assignments: any[]
@@ -132,6 +133,12 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
                 {Number(assignment.delivery_fee).toLocaleString()} TZS
               </span>
             </div>
+
+            <ChatButton
+              receiverId={assignment.orders?.user_id}
+              orderId={assignment.order_id}
+              shopName={assignment.orders?.users?.full_name || "Customer"}
+            />
 
             {/* Action Buttons */}
             {assignment.status === "assigned" && (
