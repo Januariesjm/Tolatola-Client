@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Smartphone, Truck, MapPin, Loader2, CheckCircle2, CreditCard, Banknote, Building2 } from "lucide-react"
+import { Smartphone, Truck, MapPin, Loader2, CheckCircle2, CreditCard, Banknote, Building2, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { cn } from "@/lib/utils"
 import { calculateDeliveryDistance } from "@/app/actions/maps"
 import type { TransportMethod } from "@/app/actions/maps"
 import { useToast } from "@/hooks/use-toast"
@@ -159,11 +161,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       setDeliveryInfo((prev) =>
         prev
           ? {
-              ...prev,
-              deliveryFee: Math.round(deliveryFeeCalc),
-              transportMethod: method?.name,
-              transportMethodId: method?.id,
-            }
+            ...prev,
+            deliveryFee: Math.round(deliveryFeeCalc),
+            transportMethod: method?.name,
+            transportMethodId: method?.id,
+          }
           : null,
       )
     }
@@ -313,25 +315,34 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   )}
 
                   {deliveryInfo && (
-                    <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium text-green-900">
+                    <div className="rounded-xl border border-green-200 bg-green-50/50 p-5 space-y-4 shadow-sm">
+                      <div className="flex items-center gap-2 text-sm font-bold text-green-700">
                         <CheckCircle2 className="h-5 w-5" />
-                        Delivery Fee Calculated
+                        DELIVERY QUOTE
                       </div>
-                      <div className="text-sm text-green-800 space-y-1">
-                        <p className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          Distance: <strong>{deliveryInfo.distanceKm} km</strong> from Dar es Salaam
-                        </p>
-                        {deliveryInfo.duration && (
-                          <p className="flex items-center gap-2">
-                            <Truck className="h-4 w-4" />
-                            Estimated delivery: <strong>{deliveryInfo.duration}</strong>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] uppercase tracking-wider text-green-600 font-bold">Distance</p>
+                          <p className="text-sm font-semibold flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {deliveryInfo.distanceKm} km
                           </p>
+                        </div>
+                        {deliveryInfo.duration && (
+                          <div className="space-y-1">
+                            <p className="text-[10px] uppercase tracking-wider text-green-600 font-bold">Estimated Time</p>
+                            <p className="text-sm font-semibold flex items-center gap-1">
+                              <Truck className="h-3 w-3" />
+                              {deliveryInfo.duration}
+                            </p>
+                          </div>
                         )}
-                        <p className="text-base font-bold text-green-900 mt-2">
-                          Delivery fee: TZS {deliveryInfo.deliveryFee.toLocaleString()}
-                        </p>
+                      </div>
+                      <div className="pt-3 border-t border-green-200 flex justify-between items-center">
+                        <span className="text-sm font-medium text-green-700">Delivery Fee</span>
+                        <span className="text-xl font-black text-green-800">
+                          TZS {deliveryInfo.deliveryFee.toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -357,23 +368,40 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   ) : (
                     <>
                       <RadioGroup value={selectedTransportId} onValueChange={setSelectedTransportId}>
-                        {transportMethods.map((method) => (
-                          <div
-                            key={method.id}
-                            className="flex items-start space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50"
-                          >
-                            <RadioGroupItem value={method.id} id={method.id} />
-                            <Label htmlFor={method.id} className="cursor-pointer flex-1 space-y-1">
-                              <div className="font-medium">{method.name}</div>
-                              <div className="text-sm text-muted-foreground">{method.description}</div>
-                              <div className="text-xs font-semibold text-primary">
-                                {method.rate_per_km
-                                  ? `TZS ${method.rate_per_km.toLocaleString()}/km`
-                                  : `TZS ${method.rate_per_kg?.toLocaleString()}/kg`}
+                        {transportMethods.map((method) => {
+                          const isActive = selectedTransportId === method.id
+                          return (
+                            <div
+                              key={method.id}
+                              onClick={() => setSelectedTransportId(method.id)}
+                              className={cn(
+                                "flex items-start space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all hover:bg-muted/30",
+                                isActive ? "border-primary bg-primary/5 shadow-sm" : "border-muted",
+                              )}
+                            >
+                              <div className="pt-0.5">
+                                <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                                <div
+                                  className={cn(
+                                    "h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                    isActive ? "border-primary bg-primary" : "border-muted-foreground/30",
+                                  )}
+                                >
+                                  {isActive && <div className="h-2 w-2 rounded-full bg-white" />}
+                                </div>
                               </div>
-                            </Label>
-                          </div>
-                        ))}
+                              <Label htmlFor={method.id} className="cursor-pointer flex-1 space-y-1">
+                                <div className="font-bold text-base leading-none">{method.name}</div>
+                                <div className="text-xs text-muted-foreground line-clamp-1">{method.description}</div>
+                                <div className="text-sm font-bold text-primary mt-1">
+                                  {method.rate_per_km
+                                    ? `TZS ${method.rate_per_km.toLocaleString()}/km`
+                                    : `TZS ${method.rate_per_kg?.toLocaleString()}/kg`}
+                                </div>
+                              </Label>
+                            </div>
+                          )
+                        })}
                       </RadioGroup>
 
                       {deliveryInfo && (
@@ -408,171 +436,175 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 </CardHeader>
                 <CardContent>
                   <RadioGroup value={paymentMethod} onValueChange={(value: any) => setPaymentMethod(value)}>
-                    {/* Mobile Money Options */}
-                    <div className="space-y-3 mb-4">
-                      <Label className="text-sm font-semibold">Mobile Money</Label>
-
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="m-pesa" id="m-pesa" />
-                        <Label htmlFor="m-pesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">M-Pesa</p>
-                            <p className="text-sm text-muted-foreground">Pay with Vodacom M-Pesa</p>
+                    <Accordion type="single" defaultValue="mobile-money" className="w-full">
+                      {/* Mobile Money Options */}
+                      <AccordionItem value="mobile-money">
+                        <AccordionTrigger className="hover:no-underline">
+                          <span className="font-semibold text-sm">Mobile Money</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-3 pt-2">
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="m-pesa" id="m-pesa" />
+                            <Label htmlFor="m-pesa" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Smartphone className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">M-Pesa</p>
+                                <p className="text-xs text-muted-foreground">Vodacom</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="airtel-money" id="airtel-money" />
-                        <Label htmlFor="airtel-money" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">Airtel Money</p>
-                            <p className="text-sm text-muted-foreground">Pay with Airtel Money</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="airtel-money" id="airtel-money" />
+                            <Label htmlFor="airtel-money" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Smartphone className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">Airtel Money</p>
+                                <p className="text-xs text-muted-foreground">Airtel</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="mixx-by-yas" id="mixx-by-yas" />
-                        <Label htmlFor="mixx-by-yas" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">Mixx by Yas</p>
-                            <p className="text-sm text-muted-foreground">Pay with Mixx by Yas (Tigo Pesa)</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="mixx-by-yas" id="mixx-by-yas" />
+                            <Label htmlFor="mixx-by-yas" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Smartphone className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">Mixx by Yas</p>
+                                <p className="text-xs text-muted-foreground">Tigo Pesa</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="halopesa" id="halopesa" />
-                        <Label htmlFor="halopesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">HaloPesa</p>
-                            <p className="text-sm text-muted-foreground">Pay with HaloPesa</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="halopesa" id="halopesa" />
+                            <Label htmlFor="halopesa" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Smartphone className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">HaloPesa</p>
+                                <p className="text-xs text-muted-foreground">Halotel</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="ezypesa" id="ezypesa" />
-                        <Label htmlFor="ezypesa" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Smartphone className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">EzyPesa</p>
-                            <p className="text-sm text-muted-foreground">Pay with EzyPesa</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="ezypesa" id="ezypesa" />
+                            <Label htmlFor="ezypesa" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Smartphone className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">EzyPesa</p>
+                                <p className="text-xs text-muted-foreground">Zantel</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                    </div>
+                        </AccordionContent>
+                      </AccordionItem>
 
-                    {/* Card Payment Options */}
-                    <div className="space-y-3 mb-4">
-                      <Label className="text-sm font-semibold">Card Payments</Label>
-
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="visa" id="visa" />
-                        <Label htmlFor="visa" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <CreditCard className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">Visa</p>
-                            <p className="text-sm text-muted-foreground">Pay with Visa card</p>
+                      {/* Card Payment Options */}
+                      <AccordionItem value="cards">
+                        <AccordionTrigger className="hover:no-underline">
+                          <span className="font-semibold text-sm">Card Payments</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-3 pt-2">
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="visa" id="visa" />
+                            <Label htmlFor="visa" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <CreditCard className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">Visa</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="mastercard" id="mastercard" />
-                        <Label htmlFor="mastercard" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <CreditCard className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">Mastercard</p>
-                            <p className="text-sm text-muted-foreground">Pay with Mastercard</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="mastercard" id="mastercard" />
+                            <Label htmlFor="mastercard" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <CreditCard className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">Mastercard</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="unionpay" id="unionpay" />
-                        <Label htmlFor="unionpay" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <CreditCard className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">UnionPay</p>
-                            <p className="text-sm text-muted-foreground">Pay with UnionPay card</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="unionpay" id="unionpay" />
+                            <Label htmlFor="unionpay" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <CreditCard className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">UnionPay</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                    </div>
+                        </AccordionContent>
+                      </AccordionItem>
 
-                    {/* Bank Payment Options */}
-                    <div className="space-y-3 mb-4">
-                      <Label className="text-sm font-semibold">Bank Payments</Label>
-
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="crdb-simbanking" id="crdb-simbanking" />
-                        <Label htmlFor="crdb-simbanking" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Building2 className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">CRDB SimBanking</p>
-                            <p className="text-sm text-muted-foreground">Pay via CRDB SimBanking</p>
+                      {/* Bank Payment Options */}
+                      <AccordionItem value="bank">
+                        <AccordionTrigger className="hover:no-underline">
+                          <span className="font-semibold text-sm">Bank Payments</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-3 pt-2">
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="crdb-simbanking" id="crdb-simbanking" />
+                            <Label htmlFor="crdb-simbanking" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">CRDB SimBanking</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="crdb-internet-banking" id="crdb-internet-banking" />
-                        <Label
-                          htmlFor="crdb-internet-banking"
-                          className="flex items-center gap-3 cursor-pointer flex-1"
-                        >
-                          <Building2 className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">CRDB Internet Banking</p>
-                            <p className="text-sm text-muted-foreground">Pay via CRDB Internet Banking</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="crdb-internet-banking" id="crdb-internet-banking" />
+                            <Label htmlFor="crdb-internet-banking" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">CRDB Internet Banking</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="crdb-wakala" id="crdb-wakala" />
-                        <Label htmlFor="crdb-wakala" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Building2 className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">CRDB Wakala</p>
-                            <p className="text-sm text-muted-foreground">Pay at CRDB Wakala agent</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="crdb-wakala" id="crdb-wakala" />
+                            <Label htmlFor="crdb-wakala" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">CRDB Wakala</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
 
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="crdb-branch-otc" id="crdb-branch-otc" />
-                        <Label htmlFor="crdb-branch-otc" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Building2 className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">CRDB Branch OTC</p>
-                            <p className="text-sm text-muted-foreground">Pay at CRDB branch counter</p>
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="crdb-branch-otc" id="crdb-branch-otc" />
+                            <Label htmlFor="crdb-branch-otc" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">CRDB Branch OTC</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                    </div>
+                        </AccordionContent>
+                      </AccordionItem>
 
-                    {/* Cash on Delivery */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-semibold">Other Options</Label>
-
-                      <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                        <RadioGroupItem value="cash-on-delivery" id="cash-on-delivery" />
-                        <Label htmlFor="cash-on-delivery" className="flex items-center gap-3 cursor-pointer flex-1">
-                          <Banknote className="h-5 w-5" />
-                          <div>
-                            <p className="font-medium">Cash on Delivery</p>
-                            <p className="text-sm text-muted-foreground">Pay with cash when you receive your order</p>
+                      {/* Other Options */}
+                      <AccordionItem value="other">
+                        <AccordionTrigger className="hover:no-underline">
+                          <span className="font-semibold text-sm">Other Options</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-3 pt-2">
+                          <div className="flex items-center space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                            <RadioGroupItem value="cash-on-delivery" id="cash-on-delivery" />
+                            <Label htmlFor="cash-on-delivery" className="flex items-center gap-3 cursor-pointer flex-1">
+                              <Banknote className="h-4 w-4 text-primary" />
+                              <div>
+                                <p className="font-medium text-sm">Cash on Delivery</p>
+                                <p className="text-xs text-muted-foreground">Pay with cash when you receive your order</p>
+                              </div>
+                            </Label>
                           </div>
-                        </Label>
-                      </div>
-                    </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </RadioGroup>
                 </CardContent>
               </Card>
@@ -593,14 +625,30 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
-                    {cartItems.map((item) => (
-                      <div key={item.product_id} className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {item.product.name} x {item.quantity}
-                        </span>
-                        <span>TZS {(item.product.price * item.quantity).toLocaleString()}</span>
-                      </div>
-                    ))}
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="items" className="border-none">
+                        <AccordionTrigger className="py-2 hover:no-underline hover:bg-muted/50 rounded-md px-2">
+                          <span className="text-sm font-semibold">Items ({cartItems.length})</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-2">
+                          <div className="space-y-3">
+                            {cartItems.map((item) => (
+                              <div key={item.product_id} className="flex justify-between text-sm">
+                                <div className="flex gap-2">
+                                  <span className="font-medium">{item.quantity}x</span>
+                                  <span className="text-muted-foreground truncate max-w-[150px]">
+                                    {item.product.name}
+                                  </span>
+                                </div>
+                                <span className="font-medium whitespace-nowrap">
+                                  TZS {(item.product.price * item.quantity).toLocaleString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </div>
                   <div className="border-t pt-3 space-y-2">
                     <div className="flex justify-between text-sm">
@@ -632,11 +680,18 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] mt-2"
                     size="lg"
                     disabled={isLoading || !deliveryInfo || isCalculatingDelivery}
                   >
-                    {isLoading ? "Processing..." : "Place Order"}
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Processing...
+                      </span>
+                    ) : (
+                      "Place Order"
+                    )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
                     By placing your order, you agree to our terms and conditions
