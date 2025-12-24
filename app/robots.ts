@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/vendor/dashboard/", "/api/", "/checkout/", "/cart/"],
     },
-    sitemap: "https://tolatola.vercel.app/sitemap.xml",
+    sitemap: "https://tolatola.co/sitemap.xml",
   }
 }
