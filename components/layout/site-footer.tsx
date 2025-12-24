@@ -83,6 +83,15 @@ export function SiteFooter() {
                   Privacy Policy
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
+                >
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  Terms & Conditions
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -119,15 +128,6 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="/terms"
-                  className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  Terms And Conditions
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/sitemap"
                   className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
                 >
@@ -142,7 +142,7 @@ export function SiteFooter() {
         {/* Social Media Icons */}
         <div className="mt-12 pt-8 border-t">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} TOLA. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} TOLA Marketplace. All rights reserved.</p>
 
             <div className="flex items-center gap-4">
               <a

@@ -2,10 +2,10 @@ import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Briefcase, Users, TrendingUp, Heart } from "lucide-react"
+import { Briefcase, Users, TrendingUp, Heart, Sparkles, MapPin, ArrowRight, Zap, Mail } from "lucide-react"
 
 export default async function CareersPage() {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -27,121 +27,139 @@ export default async function CareersPage() {
     }
   }
 
+  const jobs = [
+    {
+      title: "Senior Software Engineer",
+      loc: "Dar Es Salaam / Remote",
+      dept: "Engineering",
+      desc: "Help architect and scale our core marketplace engine and logistics systems using Next.js and Go.",
+      tags: ["Full-time", "Hybrid"]
+    },
+    {
+      title: "Brand Marketing Lead",
+      loc: "Dar Es Salaam",
+      dept: "Marketing",
+      desc: "Shape the Tola brand identity and lead our digital acquisition strategies across East Africa.",
+      tags: ["Full-time", "On-site"]
+    },
+    {
+      title: "Customer Success Manager",
+      loc: "Dodoma",
+      dept: "Operations",
+      desc: "Ensure our vendors and customers have a world-class experience on the Tola platform.",
+      tags: ["Full-time", "On-site"]
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-4 text-center">Careers at Dan'g 31</h1>
-        <p className="text-xl text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-          Join our team and help shape the future of e-commerce in Tanzania
-        </p>
 
-        <div className="max-w-4xl mx-auto space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Why Work With Us?</CardTitle>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-6">
-              <div className="flex gap-4">
-                <TrendingUp className="h-8 w-8 text-primary flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-2">Growth Opportunities</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    We're a fast-growing company with plenty of opportunities for career advancement and skill
-                    development.
-                  </p>
+      <main className="flex-1">
+        {/* Animated Hero Section */}
+        <section className="relative h-[500px] flex items-center justify-center overflow-hidden bg-stone-950">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
+
+          <div className="container mx-auto px-4 relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm mb-6">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs font-bold uppercase tracking-widest">We're Growing Fast</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
+              Careers at <span className="text-primary italic">TOLA</span>
+            </h1>
+            <p className="text-stone-400 text-xl max-w-2xl mx-auto leading-relaxed">
+              We're building the infrastructure of East African commerce. Join our mission to empower local entrepreneurs.
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Button size="lg" className="rounded-full px-8 h-12 font-bold group">
+                View Openings
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button variant="outline" size="lg" className="rounded-full px-8 h-12 font-bold text-white border-white/20 bg-white/5 backdrop-blur-md hover:bg-white/10">
+                Our Culture
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Perks Section */}
+        <section className="py-24 container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { icon: <TrendingUp />, title: "Hyper Growth", desc: "Plentiful paths for career advancement." },
+              { icon: <Users />, title: "True Diversity", desc: "Collaborate with top talent globally." },
+              { icon: <Heart />, title: "Mission Driven", desc: "Impact thousands of local businesses." },
+              { icon: <Zap />, title: "Modern Tech", desc: "Ship fast with the latest technologies." }
+            ].map((perk, i) => (
+              <div key={i} className="space-y-4 text-center md:text-left">
+                <div className="inline-flex p-3 rounded-2xl bg-primary/5 text-primary">
+                  {perk.icon}
                 </div>
+                <h3 className="text-xl font-bold tracking-tight">{perk.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{perk.desc}</p>
               </div>
+            ))}
+          </div>
+        </section>
 
-              <div className="flex gap-4">
-                <Users className="h-8 w-8 text-primary flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-2">Collaborative Culture</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Work with a talented, diverse team that values innovation, creativity, and mutual respect.
-                  </p>
+        {/* Job Listings */}
+        <section className="py-24 bg-muted/30">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+              <div>
+                <h2 className="text-4xl font-bold tracking-tighter mb-4">Open Positions</h2>
+                <p className="text-muted-foreground text-lg">Help us shape the future of African e-commerce.</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {jobs.map((job, i) => (
+                <div key={i} className="group p-8 rounded-[2rem] bg-white border shadow-sm hover:shadow-xl transition-all hover:border-primary/30 flex flex-col md:flex-row items-center gap-8">
+                  <div className="flex-1 text-center md:text-left">
+                    <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                      {job.tags.map((tag, ti) => (
+                        <span key={ti} className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-2xl font-black mb-2 group-hover:text-primary transition-colors">{job.title}</h3>
+                    <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground font-medium mb-4">
+                      <span className="flex items-center gap-1.5">
+                        <Briefcase className="h-3.5 w-3.5" />
+                        {job.dept}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {job.loc}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed md:max-w-2xl italic">"{job.desc}"</p>
+                  </div>
+                  <Button className="rounded-full px-8 py-6 font-black h-auto group-hover:scale-110 transition-transform">
+                    Apply
+                  </Button>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              <div className="flex gap-4">
-                <Heart className="h-8 w-8 text-primary flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-2">Meaningful Impact</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Help empower Tanzanian entrepreneurs and contribute to the growth of local businesses.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Briefcase className="h-8 w-8 text-primary flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-2">Competitive Benefits</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Enjoy competitive salaries, health benefits, and a supportive work environment.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Open Positions</CardTitle>
-              <CardDescription>We're always looking for talented individuals to join our team</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border rounded-lg p-4 hover:border-primary transition-colors">
-                <h3 className="font-semibold text-lg mb-2">Software Engineer</h3>
-                <p className="text-muted-foreground text-sm mb-3">Full-time • Dar Es Salaam • Engineering</p>
-                <p className="text-sm leading-relaxed mb-4">
-                  We're looking for a talented software engineer to help build and scale our marketplace platform.
-                  Experience with React, Node.js, and PostgreSQL preferred.
-                </p>
-                <Button size="sm">Apply Now</Button>
-              </div>
-
-              <div className="border rounded-lg p-4 hover:border-primary transition-colors">
-                <h3 className="font-semibold text-lg mb-2">Customer Support Specialist</h3>
-                <p className="text-muted-foreground text-sm mb-3">Full-time • Dodoma • Customer Service</p>
-                <p className="text-sm leading-relaxed mb-4">
-                  Join our customer support team to help vendors and customers have the best experience on our platform.
-                  Fluency in Swahili and English required.
-                </p>
-                <Button size="sm">Apply Now</Button>
-              </div>
-
-              <div className="border rounded-lg p-4 hover:border-primary transition-colors">
-                <h3 className="font-semibold text-lg mb-2">Marketing Manager</h3>
-                <p className="text-muted-foreground text-sm mb-3">Full-time • Dar Es Salaam • Marketing</p>
-                <p className="text-sm leading-relaxed mb-4">
-                  Lead our marketing efforts to grow vendor and customer acquisition. Experience in digital marketing
-                  and e-commerce preferred.
-                </p>
-                <Button size="sm">Apply Now</Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">How to Apply</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                Interested in joining our team? Send your CV and cover letter to{" "}
-                <a href="mailto:careers@danggroup.co.tz" className="text-primary hover:underline">
-                  careers@danggroup.co.tz
-                </a>
+            {/* General Inquiry */}
+            <div className="mt-20 p-12 rounded-[3rem] bg-primary text-primary-foreground text-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <h3 className="text-3xl font-black mb-4">Don't see the right role?</h3>
+              <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
+                We're always on the lookout for exceptional talent. If you're passionate about marketplaces, send us your resume.
               </p>
-              <p>
-                Please include the position you're applying for in the subject line. We review all applications and will
-                contact qualified candidates for interviews.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              <a href="mailto:careers@tolatola.co" className="inline-flex h-14 items-center gap-3 px-10 bg-white text-primary rounded-2xl font-black shadow-xl hover:scale-105 transition-all">
+                <Mail className="h-5 w-5" />
+                careers@tolatola.co
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

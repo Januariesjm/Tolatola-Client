@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
 // Setup key - In production, this should be an environment variable
-const SETUP_KEY = process.env.ADMIN_SETUP_KEY || "danggroup-admin-setup-2024"
+const SETUP_KEY = process.env.ADMIN_SETUP_KEY || "tolamarketplace-admin-setup-2025"
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = (await createClient()) as any
 
     // Check if any admin user already exists
     const { data: existingAdmins, error: checkError } = await supabase

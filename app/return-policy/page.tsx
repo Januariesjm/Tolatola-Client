@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { RefreshCcw, CheckCircle2, XCircle, Truck, HelpCircle, Mail, Phone, Calendar, ClipboardCheck } from "lucide-react"
 
 export default async function ReturnPolicyPage() {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -25,129 +26,170 @@ export default async function ReturnPolicyPage() {
     }
   }
 
+  const steps = [
+    {
+      title: "Contact Vendor",
+      desc: "Reach out to the vendor through your order management page to initiate a return request.",
+      icon: <Mail className="h-6 w-6" />
+    },
+    {
+      title: "Vendor Approval",
+      desc: "The vendor will review your request and provide specific return or replacement instructions.",
+      icon: <ClipboardCheck className="h-6 w-6" />
+    },
+    {
+      title: "Safe Packaging",
+      desc: "Return the item in its original packaging with all included accessories and documentation.",
+      icon: <RefreshCcw className="h-6 w-6" />
+    },
+    {
+      title: "Refund Issued",
+      desc: "Once received and inspected, your refund will be released back to your mobile money wallet.",
+      icon: <CheckCircle2 className="h-6 w-6" />
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-8 text-center">Return Policy</h1>
 
-        <div className="max-w-4xl mx-auto space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Our Return Policy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                At Dan'g 31, we want you to be completely satisfied with your purchase. If you're not happy with your
-                order, we're here to help.
-              </p>
-            </CardContent>
-          </Card>
+      <main className="flex-1">
+        {/* Banner Section */}
+        <section className="bg-primary text-primary-foreground py-20 overflow-hidden relative">
+          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl" />
+          <div className="container mx-auto px-4 relative z-10 text-center">
+            <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">Hassle-Free Returns</h1>
+            <p className="text-primary-foreground/80 text-xl max-w-2xl mx-auto font-medium">
+              At Tola, buyer protection is our standard. If you're not happy with your order, we've got you covered.
+            </p>
+          </div>
+        </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Return Eligibility</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>You may return items within 7 days of delivery if:</p>
-              <ul className="list-disc list-inside space-y-2">
-                <li>The item is defective or damaged</li>
-                <li>The item is significantly different from the description</li>
-                <li>You received the wrong item</li>
-                <li>The item is missing parts or accessories</li>
-              </ul>
-              <p className="font-semibold text-foreground mt-4">Items that cannot be returned:</p>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Perishable goods (food, flowers, etc.)</li>
-                <li>Personal care items that have been opened</li>
-                <li>Custom or personalized items</li>
-                <li>Digital products or downloads</li>
-              </ul>
-            </CardContent>
-          </Card>
+        {/* Policy Grid */}
+        <section className="py-20 container mx-auto px-4 max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Eligibility */}
+            <Card className="border-none shadow-xl bg-muted/50 p-2">
+              <CardContent className="pt-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 bg-green-100 text-green-700 rounded-2xl">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Return Eligibility</h2>
+                </div>
+                <p className="mb-6 text-muted-foreground">You may return items within <span className="text-foreground font-bold underline">7 days of delivery</span> if:</p>
+                <ul className="space-y-4">
+                  {[
+                    "Item is defective or damaged upon arrival",
+                    "Significant difference from product description",
+                    "Received the wrong item entirely",
+                    "Missing critical parts or accessories"
+                  ].map((text, i) => (
+                    <li key={i} className="flex gap-3 text-sm font-medium">
+                      <span className="text-green-500 font-bold">✓</span>
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>How to Return an Item</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <ol className="list-decimal list-inside space-y-3">
-                <li>
-                  <strong className="text-foreground">Contact the vendor:</strong> Reach out to the vendor through your
-                  order page to initiate a return request.
-                </li>
-                <li>
-                  <strong className="text-foreground">Wait for approval:</strong> The vendor will review your request
-                  and provide return instructions.
-                </li>
-                <li>
-                  <strong className="text-foreground">Package the item:</strong> Return the item in its original
-                  packaging with all accessories and documentation.
-                </li>
-                <li>
-                  <strong className="text-foreground">Ship the item:</strong> Follow the vendor's return shipping
-                  instructions.
-                </li>
-                <li>
-                  <strong className="text-foreground">Receive your refund:</strong> Once the vendor receives and
-                  inspects the return, your refund will be processed.
-                </li>
-              </ol>
-            </CardContent>
-          </Card>
+            {/* Exclusions */}
+            <Card className="border-none shadow-xl bg-orange-50/50 p-2">
+              <CardContent className="pt-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 bg-orange-100 text-orange-700 rounded-2xl">
+                    <XCircle className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-orange-950">Non-Returnable Items</h2>
+                </div>
+                <p className="mb-6 text-orange-900/60 font-medium">To maintain hygiene and safety standards, the following cannot be returned:</p>
+                <ul className="space-y-4">
+                  {[
+                    "Perishable goods (fresh food, flowers)",
+                    "Opened personal care or beauty items",
+                    "Customized or personalized products",
+                    "Digital products or software keys"
+                  ].map((text, i) => (
+                    <li key={i} className="flex gap-3 text-sm font-medium text-orange-900">
+                      <span className="text-orange-400 font-bold">✕</span>
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Refund Process</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                Refunds are processed through our escrow system. If your return is approved, the funds will be released
-                back to your original payment method (M-Pesa, Tigo Pesa, or Airtel Money).
-              </p>
-              <p>Refunds typically take 3-5 business days to appear in your mobile money account.</p>
-            </CardContent>
-          </Card>
+          {/* How it Works - Timeline UI */}
+          <div className="mt-20">
+            <h2 className="text-3xl font-bold text-center mb-12">The Return Process</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {steps.map((step, i) => (
+                <div key={i} className="relative group p-8 rounded-3xl bg-white border hover:border-primary transition-all hover:shadow-2xl hover:-translate-y-1">
+                  <div className="absolute -top-4 -right-4 w-12 h-12 bg-muted text-muted-foreground rounded-full flex items-center justify-center font-black text-xl group-hover:bg-primary group-hover:text-white transition-colors">
+                    {i + 1}
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mb-6 group-hover:text-primary transition-colors">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-lg font-bold mb-3">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendor-Specific Policies</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                Individual vendors may have their own return policies that provide additional benefits or restrictions.
-                Always check the vendor's return policy on their shop page before making a purchase.
-              </p>
-              <p>
-                If a vendor's policy conflicts with our general policy, the more customer-friendly policy will apply.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Need Help?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground leading-relaxed">
-              <p>
-                If you have questions about returns or need assistance with a return request, contact our support team:
-              </p>
-              <div className="mt-4 space-y-2">
-                <p>
-                  <strong className="text-foreground">Email:</strong>{" "}
-                  <a href="mailto:support@danggroup.co.tz" className="text-primary hover:underline">
-                    support@danggroup.co.tz
-                  </a>
+          {/* Refund Info */}
+          <div className="mt-32 bg-stone-900 text-stone-100 rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
+            <div className="md:w-1/2">
+              <h2 className="text-4xl font-bold mb-6">Secured Refunds</h2>
+              <div className="space-y-6 text-stone-400">
+                <p className="text-lg leading-relaxed">
+                  Refunds are processed through our <strong>escrow system</strong>. If your return is approved, funds are released back to your mobile money account (M-Pesa, Tigo Pesa, or Airtel Money).
                 </p>
-                <p>
-                  <strong className="text-foreground">Phone:</strong> +255 678 227 227 (Dodoma) | +255 625 377 978 (Dar
-                  Es Salaam)
-                </p>
+                <div className="flex items-center gap-4 py-4 px-6 bg-white/5 rounded-2xl border border-white/10">
+                  <Calendar className="h-6 w-6 text-primary" />
+                  <p className="text-sm font-medium"><span className="text-white">Timeline:</span> Refunds typically take 3-5 business days.</p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            </div>
+            <div className="md:w-1/2 grid grid-cols-2 gap-4">
+              <div className="aspect-square rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 p-4 text-center">
+                <RefreshCcw className="h-8 w-8 text-primary" />
+                <span className="text-xs uppercase font-bold tracking-widest text-stone-500 underline decoration-primary decoration-2 underline-offset-4">Escrow Backed</span>
+              </div>
+              <div className="aspect-square rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center justify-center gap-2 p-4 text-center">
+                <CheckCircle2 className="h-8 w-8 text-primary" />
+                <span className="text-xs uppercase font-bold tracking-widest text-stone-500 underline decoration-primary decoration-2 underline-offset-4">Verified Items</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Support CTA */}
+        <section className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-xl mx-auto">
+              <div className="inline-flex p-3 rounded-2xl bg-primary/10 text-primary mb-6">
+                <HelpCircle className="h-8 w-8" />
+              </div>
+              <h2 className="text-3xl font-black mb-4">Still need assistance?</h2>
+              <p className="text-muted-foreground mb-10 text-lg">Our customer success team is here to help you resolve any issues with your order.</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="mailto:support@tolatola.co" className="flex items-center justify-center gap-3 px-8 py-4 bg-white border border-stone-200 rounded-2xl font-bold shadow-sm hover:bg-muted transition-all">
+                  <Mail className="h-5 w-5 text-primary" />
+                  support@tolatola.co
+                </a>
+                <a href="tel:+255678227227" className="flex items-center justify-center gap-3 px-8 py-4 bg-white border border-stone-200 rounded-2xl font-bold shadow-sm hover:bg-muted transition-all">
+                  <Phone className="h-5 w-5 text-primary" />
+                  +255 678 227 227
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

@@ -17,7 +17,7 @@ export default function AdminSetupPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
-    email: "admin@danggroup.com",
+    email: "admin@tolatola.co",
     password: "",
     confirmPassword: "",
     fullName: "System Administrator",
@@ -82,7 +82,7 @@ export default function AdminSetupPage() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">Admin Setup</CardTitle>
-          <CardDescription>Create the first administrator account for Dan'g 31</CardDescription>
+          <CardDescription>Create the first administrator account for Tola</CardDescription>
         </CardHeader>
         <CardContent>
           {success ? (

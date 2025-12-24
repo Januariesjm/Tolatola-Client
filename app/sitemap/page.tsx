@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 
 export default async function SitemapPage() {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -76,25 +76,26 @@ export default async function SitemapPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
       <div className="container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-4 text-center">Site Map</h1>
-        <p className="text-xl text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-          Navigate through all pages on Dan'g Group marketplace
+        <h1 className="text-4xl font-black mb-4 text-center tracking-tight uppercase">Site Map</h1>
+        <p className="text-xl text-muted-foreground text-center mb-12 max-w-2xl mx-auto italic">
+          Navigate through all pages on TOLA Marketplace
         </p>
 
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sitemapSections.map((section) => (
-            <Card key={section.title}>
-              <CardHeader>
-                <CardTitle>{section.title}</CardTitle>
+            <Card key={section.title} className="border-none shadow-xl rounded-[2rem] overflow-hidden group">
+              <CardHeader className="bg-primary/5 group-hover:bg-primary transition-colors duration-500">
+                <CardTitle className="group-hover:text-primary-foreground transition-colors">{section.title}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
+              <CardContent className="pt-6">
+                <ul className="space-y-4">
                   {section.links.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                        className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold flex items-center gap-2 group/link"
                       >
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/20 group-hover/link:bg-primary transition-colors" />
                         {link.name}
                       </Link>
                     </li>
