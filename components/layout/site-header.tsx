@@ -200,19 +200,19 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/profile" className="flex items-center gap-3">
                           <User className="h-4 w-4 text-primary" />
-                          <span className="font-bold">Profile Hub</span>
+                          <span className="font-bold">Your Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/orders" className="flex items-center gap-3">
                           <Package className="h-4 w-4 text-primary" />
-                          <span className="font-bold">Investment History</span>
+                          <span className="font-bold">Order History</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/favorites" className="flex items-center gap-3">
                           <Sparkles className="h-4 w-4 text-amber-500" />
-                          <span className="font-bold">Curated Gems</span>
+                          <span className="font-bold">Wishlist</span>
                         </Link>
                       </DropdownMenuItem>
 
@@ -233,7 +233,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     <DropdownMenuSeparator className="mx-2 bg-stone-50" />
                     <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
                       <LogOut className="h-4 w-4 mr-3" />
-                      Deactivate Session
+                      Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

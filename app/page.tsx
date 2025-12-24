@@ -138,7 +138,7 @@ export default async function HomePage() {
             <div className="space-y-2 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-widest text-xs">
                 <Sparkles className="h-4 w-4" />
-                <span>Curated Selections</span>
+                <span>Selections for you</span>
               </div>
               <h2 className="text-4xl md:text-7xl font-black tracking-tighter">Shop by <span className="text-primary italic">Category</span></h2>
             </div>
@@ -204,7 +204,7 @@ export default async function HomePage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/vendor/register">
                     <Button size="lg" className="w-full sm:w-auto text-xl font-black rounded-2xl bg-stone-900 text-white hover:bg-stone-950 shadow-2xl transition-all py-8 px-10">
-                      Become a Vendor
+                      Become a seller
                     </Button>
                   </Link>
                   <Link href="/contact">
