@@ -3,95 +3,107 @@
 import { createClient } from "@/lib/supabase/server"
 
 export async function getOrCreateConversation(shopId?: string, productId?: string, receiverId?: string, orderId?: string) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) {
-    return { error: "Not authenticated" }
+    if (!user) {
+      console.log("[Messaging] User not authenticated")
+      return { error: "Not authenticated" }
+    }
+
+    console.log("[Messaging] getOrCreateConversation:", { shopId, productId, receiverId, orderId, userId: user.id })
+
+    // Case 1: Traditional Customer-Shop/Vendor conversation
+    if (shopId) {
+      // Get shop vendor_id
+      const { data: shop, error: shopError } = await (supabase as any).from("shops").select("vendor_id").eq("id", shopId).single()
+
+      if (shopError || !shop) {
+        console.error("[Messaging] Shop not found:", shopError)
+        return { error: "Shop not found" }
+      }
+
+      // Check if conversation already exists
+      const { data: existingConversation } = await (supabase as any)
+        .from("conversations")
+        .select("*")
+        .eq("customer_id", user.id)
+        .eq("shop_id", shopId)
+        .maybeSingle()
+
+      if (existingConversation) {
+        console.log("[Messaging] Found existing shop conversation:", existingConversation.id)
+        return { conversation: existingConversation }
+      }
+
+      // Create new conversation
+      const { data: newConversation, error } = await (supabase as any)
+        .from("conversations")
+        .insert({
+          customer_id: user.id,
+          vendor_id: (shop as any).vendor_id,
+          shop_id: shopId,
+          product_id: productId,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("[Messaging] Error creating shop conversation:", error)
+        return { error: error.message }
+      }
+
+      console.log("[Messaging] Created new shop conversation:", newConversation.id)
+      return { conversation: newConversation }
+    }
+
+    // Case 2: Transporter-Customer conversation (based on receiverId and orderId)
+    if (receiverId) {
+      // Check if conversation already exists between these two users
+      const { data: existingConversation } = await (supabase as any)
+        .from("conversations")
+        .select("*")
+        .or(`and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`)
+        .is("shop_id", null) // Distinguish from shop chats
+        .maybeSingle()
+
+      if (existingConversation) {
+        console.log("[Messaging] Found existing direct conversation:", existingConversation.id)
+        return { conversation: existingConversation }
+      }
+
+      // Create new conversation
+      const { data: newConversation, error } = await (supabase as any)
+        .from("conversations")
+        .insert({
+          customer_id: user.id, // Current user (could be transporter)
+          vendor_id: receiverId, // Target user (could be customer)
+          order_id: orderId,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("[Messaging] Error creating direct conversation:", error)
+        return { error: error.message }
+      }
+
+      console.log("[Messaging] Created new direct conversation:", newConversation.id)
+      return { conversation: newConversation }
+    }
+
+    return { error: "Missing parameters for conversation" }
+  } catch (err: any) {
+    console.error("[Messaging] Panic in getOrCreateConversation:", err)
+    return { error: err.message || "An unexpected error occurred" }
   }
-
-  // Case 1: Traditional Customer-Shop/Vendor conversation
-  if (shopId) {
-    // Get shop vendor_id
-    const { data: shop } = await supabase.from("shops").select("vendor_id").eq("id", shopId).single()
-
-    if (!shop) {
-      return { error: "Shop not found" }
-    }
-
-    // Check if conversation already exists
-    const { data: existingConversation } = await supabase
-      .from("conversations")
-      .select("*")
-      .eq("customer_id", user.id)
-      .eq("shop_id", shopId)
-      .maybeSingle()
-
-    if (existingConversation) {
-      return { conversation: existingConversation }
-    }
-
-    // Create new conversation
-    const { data: newConversation, error } = await supabase
-      .from("conversations")
-      .insert({
-        customer_id: user.id,
-        vendor_id: shop.vendor_id,
-        shop_id: shopId,
-        product_id: productId,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { conversation: newConversation }
-  }
-
-  // Case 2: Transporter-Customer conversation (based on receiverId and orderId)
-  if (receiverId) {
-    // Check if conversation already exists between these two users
-    const { data: existingConversation } = await supabase
-      .from("conversations")
-      .select("*")
-      .or(`and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`)
-      .is("shop_id", null) // Distinguish from shop chats
-      .maybeSingle()
-
-    if (existingConversation) {
-      return { conversation: existingConversation }
-    }
-
-    // Create new conversation
-    // Note: We use customer_id and vendor_id fields as generic participant fields for now
-    // as the schema seems to be built around them. In a real scenario, we might want
-    // a more generic participants table.
-    const { data: newConversation, error } = await supabase
-      .from("conversations")
-      .insert({
-        customer_id: user.id, // Current user (could be transporter)
-        vendor_id: receiverId, // Target user (could be customer)
-        order_id: orderId,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      return { error: error.message }
-    }
-
-    return { conversation: newConversation }
-  }
-
-  return { error: "Missing parameters for conversation" }
 }
 
-export async function sendMessage(conversationId: string, message: string) {
+export async function sendMessage(conversationId: string, message: string, attachmentUrl?: string, attachmentType?: string) {
   const supabase = await createClient()
 
   const {
@@ -102,12 +114,14 @@ export async function sendMessage(conversationId: string, message: string) {
     return { error: "Not authenticated" }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("messages")
     .insert({
       conversation_id: conversationId,
       sender_id: user.id,
       message,
+      attachment_url: attachmentUrl,
+      attachment_type: attachmentType,
     })
     .select()
     .single()
@@ -119,10 +133,43 @@ export async function sendMessage(conversationId: string, message: string) {
   return { message: data }
 }
 
+export async function uploadChatFile(formData: FormData) {
+  try {
+    const supabase = await createClient()
+    const file = formData.get("file") as File
+    if (!file) return { error: "No file provided" }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return { error: "Not authenticated" }
+
+    const fileExt = file.name.split(".").pop()
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}.${fileExt}`
+    const filePath = `${user.id}/${fileName}`
+
+    const { data, error } = await supabase.storage.from("messaging").upload(filePath, file)
+
+    if (error) {
+      console.error("[Messaging] Upload error:", error)
+      return { error: error.message }
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("messaging").getPublicUrl(filePath)
+
+    return { url: publicUrl, type: file.type }
+  } catch (err: any) {
+    console.error("[Messaging] Panic in uploadChatFile:", err)
+    return { error: err.message || "Upload failed" }
+  }
+}
+
 export async function getConversationMessages(conversationId: string) {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("messages")
     .select(`
       *,
@@ -149,7 +196,7 @@ export async function getUserConversations() {
     return { error: "Not authenticated" }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("conversations")
     .select(`
       *,
@@ -179,7 +226,7 @@ export async function markMessagesAsRead(conversationId: string) {
     return { error: "Not authenticated" }
   }
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from("messages")
     .update({ is_read: true })
     .eq("conversation_id", conversationId)
@@ -210,9 +257,8 @@ export async function logCall(
     return { error: "Not authenticated" }
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("call_logs")
-    // @ts-ignore - Database types are currently generic
     .insert({
       conversation_id: conversationId,
       caller_id: user.id,

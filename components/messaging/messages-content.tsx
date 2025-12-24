@@ -64,7 +64,9 @@ export function MessagesContent() {
 
   const handleOpenChat = (conversation: Conversation) => {
     setSelectedConversation(conversation.id)
-    setSelectedShopName(conversation.shop.name)
+    const isCustomer = conversation.customer.id === currentUserId
+    const otherUser = isCustomer ? conversation.vendor : conversation.customer
+    setSelectedShopName(conversation.shop?.name || otherUser?.full_name || "Chat")
   }
 
   if (loading) {
@@ -112,7 +114,7 @@ export function MessagesContent() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold truncate">{conversation.shop.name}</h3>
+                        <h3 className="font-semibold truncate">{conversation.shop?.name || otherUser?.full_name || "Chat"}</h3>
                         {conversation.last_message_at && (
                           <span className="text-xs text-muted-foreground">
                             {new Date(conversation.last_message_at).toLocaleDateString()}

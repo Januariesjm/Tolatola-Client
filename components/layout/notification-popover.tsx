@@ -88,7 +88,7 @@ export function NotificationPopover() {
                                     </Avatar>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2">
-                                            <p className="text-sm font-medium truncate">{conv.shop?.name || conv.customer?.full_name}</p>
+                                            <p className="text-sm font-medium truncate">{conv.shop?.name || conv.customer?.full_name || conv.vendor?.full_name || "Chat"}</p>
                                             {conv.unread_count > 0 && <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />}
                                         </div>
                                         <p className="text-xs text-muted-foreground truncate">

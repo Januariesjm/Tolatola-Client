@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { EditShopDialog } from "./edit-shop-dialog"
+import { NotificationPopover } from "../layout/notification-popover"
 
 interface VendorDashboardContentProps {
   vendor: any
@@ -57,7 +58,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
       const { createClient } = await import("@/lib/supabase/client")
       const supabase = createClient()
       await supabase.auth.signOut()
-      
+
       // Also call backend logout (optional, but good for consistency)
       try {
         await clientApiPost("auth/logout")
@@ -130,6 +131,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">Vendor Dashboard</span>
+            <NotificationPopover />
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
