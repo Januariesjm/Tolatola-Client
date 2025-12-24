@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShoppingCart, Heart, Share2, Copy, Check, Star, MapPin } from "lucide-react"
+import { ShoppingCart, Heart, Share2, Copy, Check, Star, MapPin, Store, ShoppingBag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
