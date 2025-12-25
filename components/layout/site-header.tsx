@@ -124,6 +124,77 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
     )}>
       <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between gap-4 md:gap-8">
 
+        {/* Mobile Hamburger Menu - First on Left */}
+        <div className="lg:hidden flex-shrink-0">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-2xl bg-stone-50 hover:bg-stone-100 text-stone-900">
+                <Menu className="h-7 w-7" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
+              <div className="flex flex-col h-full">
+                <SheetHeader className="p-6 text-left bg-stone-950 text-white">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="h-12 w-12 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
+                      <Image src="/tolalogo.jpg" alt="Tola" width={48} height={48} className="object-cover" />
+                    </div>
+                    <div>
+                      <SheetTitle className="text-2xl font-black tracking-tighter text-white">Menu</SheetTitle>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Navigation</p>
+                    </div>
+                  </div>
+                </SheetHeader>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  <nav className="grid gap-3">
+                    {[
+                      { href: "/", label: "Home", icon: Home },
+                      { href: "/shop", label: "Shop", icon: ShoppingBag },
+                      { href: "/profile", label: "Profile", icon: User },
+                      { href: "/orders", label: "Orders", icon: Package },
+                      { href: "/favorites", label: "Favorites", icon: Sparkles }
+                    ].map((item) => (
+                      <Link key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                        <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
+                          <div className="flex items-center gap-4">
+                            <item.icon className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
+                            <span className="text-lg font-bold tracking-tight">{item.label}</span>
+                          </div>
+                          <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                        </div>
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {authUser && (
+                    <div className="pt-6 border-t border-stone-100 flex flex-col gap-3">
+                      <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
+                        <ShieldCheck className="h-5 w-5 text-green-600" />
+                        <div>
+                          <p className="text-sm font-bold text-stone-900">Verified Account</p>
+                          <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Secure</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        className="h-14 rounded-2xl text-destructive font-bold text-sm hover:bg-destructive/5"
+                        onClick={() => {
+                          setMobileMenuOpen(false)
+                          handleLogout()
+                        }}
+                      >
+                        <LogOut className="mr-3 h-5 w-5" />
+                        Logout
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         {/* Logo & Brand Identity */}
         <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
           <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
@@ -131,7 +202,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           </div>
           <div className="hidden sm:flex flex-col">
             <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Vivid Trade</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
           </div>
         </Link>
 
@@ -253,79 +324,6 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               </div>
             )}
 
-            {/* Mobile Navigation Trigger */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden h-12 w-12 rounded-2xl bg-stone-50/50 hover:bg-white text-stone-900">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:w-[500px] border-none p-0 bg-white z-[200]">
-                <div className="flex flex-col h-full">
-                  <SheetHeader className="p-8 text-left bg-stone-950 text-white">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="h-14 w-14 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
-                        <Image src="/tolalogo.jpg" alt="Tola" width={56} height={56} className="object-cover" />
-                      </div>
-                      <div>
-                        <SheetTitle className="text-3xl font-black tracking-tighter text-white">TOLA Navigator</SheetTitle>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Marketplace Node 1.0</p>
-                      </div>
-                    </div>
-                  </SheetHeader>
-
-                  <div className="flex-1 overflow-y-auto p-8 space-y-12">
-                    <div className="space-y-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">Inventory Search</p>
-                      <ProductSearch />
-                    </div>
-
-                    <nav className="grid gap-4">
-                      {[
-                        { href: "/", label: "Node Home", icon: Home },
-                        { href: "/shop", label: "Inventory", icon: ShoppingBag },
-                        { href: "/profile", label: "Identity", icon: User },
-                        { href: "/orders", label: "Ledger", icon: Package },
-                        { href: "/favorites", label: "Curated", icon: Sparkles }
-                      ].map((item) => (
-                        <Link key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)}>
-                          <div className="flex items-center justify-between p-6 rounded-[2rem] bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
-                            <div className="flex items-center gap-4">
-                              <item.icon className="h-6 w-6 text-primary group-hover:text-primary transition-colors" />
-                              <span className="text-xl font-black tracking-tight">{item.label}</span>
-                            </div>
-                            <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
-                          </div>
-                        </Link>
-                      ))}
-                    </nav>
-
-                    {authUser && (
-                      <div className="pt-8 border-t border-stone-100 flex flex-col gap-4">
-                        <div className="flex items-center gap-4 p-6 rounded-[2rem] border-2 border-dashed border-stone-200">
-                          <ShieldCheck className="h-6 w-6 text-green-600" />
-                          <div>
-                            <p className="text-sm font-black text-stone-900">Secure Environment</p>
-                            <p className="text-[10px] uppercase font-black text-stone-400 tracking-wider">Verified Account Status</p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          className="h-16 rounded-[2rem] text-destructive font-black text-xs uppercase tracking-widest hover:bg-destructive/5"
-                          onClick={() => {
-                            setMobileMenuOpen(false)
-                            handleLogout()
-                          }}
-                        >
-                          <LogOut className="mr-3 h-5 w-5" />
-                          Terminate Session
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
 
           </div>
         </nav>

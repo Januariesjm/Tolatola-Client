@@ -27,7 +27,7 @@ const categoryImages: Record<string, string> = {
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
   return (
-    <nav className="sticky top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
+    <nav className="sticky top-[140px] lg:top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-4">
           {/* All Categories */}

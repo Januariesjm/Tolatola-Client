@@ -8,6 +8,7 @@ import SiteHeader from "@/components/layout/site-header"
 import { HomeProductsSection } from "@/components/home/home-products-section"
 import { CategoriesNav } from "@/components/layout/categories-nav"
 import { HeroSlider } from "@/components/home/hero-slider"
+import { ProductSearch } from "@/components/layout/product-search"
 import type { Metadata } from "next"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
@@ -107,10 +108,22 @@ export default async function HomePage() {
       />
 
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
+      
+      {/* Mobile Search Bar - Between Header and Categories */}
+      <div className="lg:hidden sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <ProductSearch />
+        </div>
+      </div>
+
       <CategoriesNav categories={categories || []} />
 
       <main className="flex-1">
+        {/* Promotions Banner Section */}
         <HeroSlider promotions={promotions || []} />
+
+        {/* Featured Products Section - Handpicked for You */}
+        <HomeProductsSection featuredProducts={featuredProducts} bestDeals={bestDeals} />
 
         {/* Benefits Strip */}
         <section className="bg-stone-900 overflow-hidden py-10">
@@ -165,8 +178,6 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
-
-        <HomeProductsSection featuredProducts={featuredProducts} bestDeals={bestDeals} />
 
         {/* Why Tola - Modern Cards */}
         <section className="py-32 bg-stone-50 overflow-hidden relative">

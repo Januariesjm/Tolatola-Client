@@ -115,13 +115,13 @@ export function ProductSearch() {
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Search for perfection..."
+          placeholder="what are you looking for..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
             if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
           }}
-          className="pl-12 pr-12 h-14 md:h-16 rounded-[2rem] bg-stone-50/50 border-stone-200/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-lg font-medium placeholder:text-stone-300 border-2"
+          className="pl-12 pr-12 h-14 md:h-16 rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-lg font-medium placeholder:text-stone-500 border-2"
         />
 
         {query && (
