@@ -52,6 +52,34 @@ export default async function HomePage() {
   const promotions = promotionsRes.data || []
   const allProducts = productsRes.data || []
 
+  // Category background images mapping - Using local downloaded images
+  const categoryImages: Record<string, string> = {
+    agriculture: "/category-agriculture.jpg",
+    farming: "/category-agriculture.jpg",
+    crops: "/category-agriculture.jpg",
+    vegetables: "/category-agriculture.jpg",
+    handicrafts: "/category-handicrafts.jpg",
+    crafts: "/category-handicrafts.jpg",
+    "food-beverages": "/category-food-beverages.jpg",
+    food: "/category-food-beverages.jpg",
+    beverages: "/category-food-beverages.jpg",
+    textiles: "/category-textiles.jpg",
+    fabric: "/category-textiles.jpg",
+    clothing: "/category-textiles.jpg",
+    electronics: "/category-electronics.jpg",
+    gadgets: "/category-electronics.jpg",
+    "home-garden": "/category-home-garden.jpg",
+    home: "/category-home-garden.jpg",
+    garden: "/category-home-garden.jpg",
+    "health-beauty": "/category-health-beauty.jpg",
+    beauty: "/category-health-beauty.jpg",
+    health: "/category-health-beauty.jpg",
+    services: "/category-services.jpg",
+    business: "/category-services.jpg",
+    // Fallback to local images if category doesn't match
+    default: "/abstract-categories.png",
+  }
+
   const productsWithDiscount = allProducts.map((product: any) => {
     let discountPercent = 0
     if (product.compare_at_price && product.compare_at_price > product.price) {
@@ -161,21 +189,79 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {categories.slice(0, 8).map((cat, i) => (
-              <Link key={cat.id} href={`/shop?category=${cat.id}`} className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-stone-100 border border-stone-100 hover:shadow-2xl transition-all duration-500">
-                {cat.image_url ? (
-                  <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-stone-100">
-                    <ShoppingBag className="h-12 w-12 text-stone-300" />
+            {categories.slice(0, 8).map((cat: any, i) => {
+              // Get background image based on category slug, name, or use image_url from database
+              const getCategoryImage = () => {
+                // First try database image_url
+                if (cat.image_url) return cat.image_url
+                
+                // Try matching by slug
+                if (cat.slug && categoryImages[cat.slug.toLowerCase()]) {
+                  return categoryImages[cat.slug.toLowerCase()]
+                }
+                
+                // Try matching by name (normalized)
+                const categoryName = (cat.name || "").toLowerCase().replace(/\s+/g, "-")
+                if (categoryImages[categoryName]) {
+                  return categoryImages[categoryName]
+                }
+                
+                // Try partial matches for common category names
+                const nameLower = (cat.name || "").toLowerCase()
+                if (nameLower.includes("agriculture") || nameLower.includes("farm")) {
+                  return categoryImages.agriculture
+                }
+                if (nameLower.includes("handicraft") || nameLower.includes("craft")) {
+                  return categoryImages.handicrafts
+                }
+                if (nameLower.includes("food") || nameLower.includes("beverage")) {
+                  return categoryImages.food
+                }
+                if (nameLower.includes("textile") || nameLower.includes("fabric") || nameLower.includes("cloth")) {
+                  return categoryImages.textiles
+                }
+                if (nameLower.includes("electronic") || nameLower.includes("gadget")) {
+                  return categoryImages.electronics
+                }
+                if (nameLower.includes("home") || nameLower.includes("garden")) {
+                  return categoryImages["home-garden"]
+                }
+                if (nameLower.includes("beauty") || nameLower.includes("health")) {
+                  return categoryImages["health-beauty"]
+                }
+                if (nameLower.includes("service") || nameLower.includes("business")) {
+                  return categoryImages.services
+                }
+                
+                // Default fallback
+                return categoryImages.default || "/abstract-categories.png"
+              }
+              
+              const backgroundImage = getCategoryImage()
+              
+              return (
+                <Link 
+                  key={cat.id} 
+                  href={`/shop?category=${cat.id}`} 
+                  className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-stone-200 hover:shadow-2xl transition-all duration-500"
+                >
+                  {/* Background Image */}
+                  <div 
+                    className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
+                    style={{ backgroundImage: `url(${backgroundImage})` }}
+                  />
+                  
+                  {/* Overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/50 to-stone-950/20" />
+                  
+                  {/* Content */}
+                  <div className="absolute inset-x-0 bottom-0 p-6 md:p-8 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent flex flex-col justify-end h-1/2">
+                    <h3 className="text-white text-xl md:text-2xl font-black tracking-tight">{cat.name}</h3>
+                    <p className="text-white/70 text-xs font-bold uppercase tracking-widest mt-2 group-hover:text-primary transition-colors">Explore Now →</p>
                   </div>
-                )}
-                <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent flex flex-col justify-end h-1/2">
-                  <h3 className="text-white text-xl md:text-2xl font-black tracking-tight">{cat.name}</h3>
-                  <p className="text-white/60 text-xs font-bold uppercase tracking-widest mt-2 group-hover:text-primary transition-colors">Explore Now →</p>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         </section>
 
