@@ -39,7 +39,7 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
               }`}
           >
             <Grid3x3 className="h-4 w-4" />
-            <span>Marketplace</span>
+            <span>All Categories</span>
           </Link>
 
           {/* Category Links */}
