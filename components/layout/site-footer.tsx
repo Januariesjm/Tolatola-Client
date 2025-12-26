@@ -74,7 +74,7 @@ export function SiteFooter() {
                 <Image src="/tolalogo.jpg" alt="TOLA" fill className="object-cover" />
               </div>
               <h2 className="mt-6 text-3xl font-black tracking-tighter text-white">TOLA<span className="text-primary">.</span></h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mt-2">vivid marketplace infrastructure</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mt-2">vivid Digital trade and Supply Chain Ecosystem infrastructure</p>
             </Link>
             <p className="text-sm leading-relaxed max-w-sm">
               Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with global accessibility.
@@ -157,7 +157,7 @@ export function SiteFooter() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-600">
-              © {currentYear} TOLA Marketplace. Precision Engineered in Tanzania.
+              © {currentYear} TOLA Digital trade and Supply Chain Ecosystem. Precision Engineered in Tanzania.
             </p>
             <div className="flex items-center gap-2">
               <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />

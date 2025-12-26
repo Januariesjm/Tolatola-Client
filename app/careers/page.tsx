@@ -32,7 +32,7 @@ export default async function CareersPage() {
       title: "Senior Software Engineer",
       loc: "Dar Es Salaam / Remote",
       dept: "Engineering",
-      desc: "Help architect and scale our core marketplace engine and logistics systems using Next.js and Go.",
+      desc: "Help architect and scale our core Digital trade and Supply Chain Ecosystem engine and logistics systems using Next.js and Go.",
       tags: ["Full-time", "Hybrid"]
     },
     {
@@ -150,7 +150,7 @@ export default async function CareersPage() {
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               <h3 className="text-3xl font-black mb-4">Don't see the right role?</h3>
               <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-                We're always on the lookout for exceptional talent. If you're passionate about marketplaces, send us your resume.
+                We're always on the lookout for exceptional talent. If you're passionate about Digital trade and Supply Chain Ecosystems, send us your resume.
               </p>
               <a href="mailto:careers@tolatola.co" className="inline-flex h-14 items-center gap-3 px-10 bg-white text-primary rounded-2xl font-black shadow-xl hover:scale-105 transition-all">
                 <Mail className="h-5 w-5" />

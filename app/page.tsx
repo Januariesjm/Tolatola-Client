@@ -15,9 +15,9 @@ import type { Database } from "@/lib/types"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "TOLA Marketplace | Tanzania's Premier Trading Platform",
+  title: "TOLA Digital trade and Supply Chain Ecosystem | Tanzania's Premier Trading Platform",
   description:
-    "Experience the future of trade in Tanzania. TOLA combines secure escrow, verified vendors, and mobile money convenience in one premium marketplace.",
+    "Experience the future of trade in Tanzania. TOLA combines secure escrow, verified vendors, and mobile money convenience in one premium Digital trade and Supply Chain Ecosystem.",
   alternates: {
     canonical: "https://tolatola.co",
   },
@@ -130,7 +130,7 @@ export default async function HomePage() {
               },
               "query-input": "required name=search_term_string",
             },
-            description: "Tanzania's premier multivendor marketplace",
+            description: "Tanzania's premier multivendor Digital trade and Supply Chain Ecosystem",
           }),
         }}
       />

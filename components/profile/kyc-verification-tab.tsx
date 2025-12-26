@@ -96,7 +96,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Complete your KYC verification to unlock full marketplace features and build trust with vendors.
+            Complete your KYC verification to unlock full Digital trade and Supply Chain Ecosystem features and build trust with vendors.
           </AlertDescription>
         </Alert>
       )
@@ -108,7 +108,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
           <Alert className="border-green-600 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-900">
-              Your identity has been verified. You can now enjoy full marketplace access.
+              Your identity has been verified. You can now enjoy full Digital trade and Supply Chain Ecosystem access.
             </AlertDescription>
           </Alert>
         )
@@ -249,7 +249,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
                 <ShieldCheck className="h-5 w-5" />
                 KYC Verification
               </CardTitle>
-              <CardDescription>Verify your identity to access all marketplace features</CardDescription>
+              <CardDescription>Verify your identity to access all Digital trade and Supply Chain Ecosystem features</CardDescription>
             </div>
             {kyc && (
               <Badge

@@ -9,9 +9,9 @@ import { Phone, Mail, MapPin, Send, MessageSquare, Clock, Globe } from "lucide-r
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Contact Us | Tola Marketplace",
+  title: "Contact Us | Tola Digital trade and Supply Chain Ecosystem",
   description:
-    "Get in touch with Tola customer support. We're here to help with your questions about buying, selling, or using our marketplace. Contact us via phone or email.",
+    "Get in touch with Tola customer support. We're here to help with your questions about buying, selling, or using our Digital trade and Supply Chain Ecosystem. Contact us via phone or email.",
   alternates: {
     canonical: "https://tolatola.co/contact",
   },

@@ -6,9 +6,9 @@ import { HelpCircle, ShoppingBag, Store, ShieldCheck, Wallet, Truck, MessageCirc
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "FAQ | Tola Marketplace Support",
+  title: "FAQ | Tola Digital trade and Supply Chain Ecosystem Support",
   description:
-    "Frequently asked questions about Tola marketplace. Find answers about buying, selling, payments, escrow system, KYC verification, and more.",
+    "Frequently asked questions about Tola Digital trade and Supply Chain Ecosystem. Find answers about buying, selling, payments, escrow system, KYC verification, and more.",
   alternates: {
     canonical: "https://tolatola.co/faq",
   },

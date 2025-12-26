@@ -5,7 +5,7 @@ import { Store, Users, Shield, TrendingUp, Target, Heart, Globe, Award, Zap } fr
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "About Us | Tola Marketplace",
+  title: "About Us | Tola Digital trade and Supply Chain Ecosystem",
   description:
     "Learn about Tola - Tanzania's premier Trade & Supply Chain Ecosystem. Discover our mission to empower local entrepreneurs and connect verified vendors with customers across Tanzania.",
   alternates: {
@@ -54,7 +54,7 @@ export default async function AboutPage() {
               Empowering <span className="text-primary underline decoration-primary decoration-4 underline-offset-8">Tanzania</span>
             </h1>
             <p className="text-stone-300 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-12 duration-700 delay-200">
-              TOLA is more than a marketplace. It's a digital ecosystem designed to accelerate trade and supply chains for every entrepreneur in the region.
+              TOLA is more than a Digital trade and Supply Chain Ecosystem. It's a digital ecosystem designed to accelerate trade and supply chains for every entrepreneur in the region.
             </p>
           </div>
         </section>

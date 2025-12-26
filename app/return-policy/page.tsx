@@ -5,7 +5,7 @@ import { RefreshCcw, CheckCircle2, XCircle, Truck, HelpCircle, Mail, Phone, Cale
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Return Policy | Tola Marketplace",
+  title: "Return Policy | Tola Digital trade and Supply Chain Ecosystem",
   description: "Learn about Tola's hassle-free return policy. We protect our buyers with a secure escrow system and clear return guidelines for every transaction.",
   alternates: {
     canonical: "https://tolatola.co/return-policy",

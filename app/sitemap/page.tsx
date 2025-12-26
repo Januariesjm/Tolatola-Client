@@ -78,7 +78,7 @@ export default async function SitemapPage() {
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-black mb-4 text-center tracking-tight uppercase">Site Map</h1>
         <p className="text-xl text-muted-foreground text-center mb-12 max-w-2xl mx-auto italic">
-          Navigate through all pages on TOLA Marketplace
+          Navigate through all pages on TOLA Digital trade and Supply Chain Ecosystem
         </p>
 
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">

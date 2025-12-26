@@ -4,13 +4,13 @@ import ClientPage from "./client-page"
 export const metadata: Metadata = {
   title: "Transporter Registration",
   description:
-    "Register as a transporter on TOLA marketplace. Complete KYC verification to start delivering products across Tanzania.",
+    "Register as a transporter on TOLA Digital trade and Supply Chain Ecosystem. Complete KYC verification to start delivering products across Tanzania.",
   alternates: {
     canonical: "https://tolatola.vercel.app/transporter/register",
   },
   openGraph: {
     title: "Become a Transporter on TOLA",
-    description: "Start delivering products on Tanzania's trusted marketplace",
+    description: "Start delivering products on Tanzania's trusted Digital trade and Supply Chain Ecosystem",
     url: "https://tolatola.vercel.app/transporter/register",
   },
   robots: {

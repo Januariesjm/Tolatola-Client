@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
 import { signInWithGoogle, signInWithFacebook } from "@/app/actions/auth"
@@ -19,18 +19,32 @@ import { logFailedRegistration } from "@/app/actions/registration"
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
-  const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">("customer")
-  const [vendorType, setVendorType] = useState<VendorType | "">("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const returnUrl = searchParams.get("returnUrl")
   const urlError = searchParams.get("error")
+  const userTypeParam = searchParams.get("userType") as "customer" | "vendor" | "transporter" | null
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [fullName, setFullName] = useState("")
+  const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">(
+    userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam) ? userTypeParam : "customer"
+  )
+  const [vendorType, setVendorType] = useState<VendorType | "">("")
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
+
+  // Update userType when URL param changes
+  useEffect(() => {
+    if (userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam)) {
+      setUserType(userTypeParam)
+      if (userTypeParam !== "vendor") {
+        setVendorType("")
+      }
+    }
+  }, [userTypeParam])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()

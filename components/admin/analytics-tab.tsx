@@ -50,7 +50,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">Platform Analytics</h2>
-        <p className="text-muted-foreground">Overview of marketplace performance</p>
+        <p className="text-muted-foreground">Overview of Digital trade and Supply Chain Ecosystem performance</p>
       </div>
 
       {/* Key Metrics */}
@@ -199,7 +199,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
       <Card>
         <CardHeader>
           <CardTitle>Performance Indicators</CardTitle>
-          <CardDescription>Key marketplace health metrics</CardDescription>
+          <CardDescription>Key Digital trade and Supply Chain Ecosystem health metrics</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

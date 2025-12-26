@@ -5,8 +5,8 @@ import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, Ale
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Tola Marketplace",
-  description: "Legal framework for using the Tola marketplace. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
+  title: "Terms & Conditions | Tola Digital trade and Supply Chain Ecosystem",
+  description: "Legal framework for using the Tola Digital trade and Supply Chain Ecosystem. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
   alternates: {
     canonical: "https://tolatola.co/terms",
   },
@@ -39,7 +39,7 @@ export default async function TermsPage() {
     {
       title: "Agreement to Terms",
       icon: <Gavel />,
-      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Marketplace. These terms govern your use of our digital infrastructure, escrow services, and community interactions."
+      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Digital trade and Supply Chain Ecosystem. These terms govern your use of our digital infrastructure, escrow services, and community interactions."
     },
     {
       title: "User Obligations",
@@ -80,9 +80,6 @@ export default async function TermsPage() {
             <p className="text-stone-400 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
               Fairness, Security, and Transparency. Our terms are designed to protect every participant in the TOLA ecosystem.
             </p>
-            <div className="mt-12 inline-block px-8 py-2.5 rounded-full bg-primary/20 border border-primary/30 text-primary text-sm font-black tracking-widest uppercase">
-              Version 2.4 | Effective Jan 2025
-            </div>
           </div>
         </section>
 

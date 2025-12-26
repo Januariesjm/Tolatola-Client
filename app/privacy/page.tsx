@@ -5,7 +5,7 @@ import { Shield, Lock, Eye, FileText, UserCheck, Mail, Globe, ShieldAlert, Finge
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Tola Marketplace",
+  title: "Privacy Policy | Tola Digital trade and Supply Chain Ecosystem",
   description: "Transparency, trust, and security. Learn how Tola protects your data and ensures a safe trading environment for all Tanzanian entrepreneurs and consumers.",
   alternates: {
     canonical: "https://tolatola.co/privacy",
@@ -39,7 +39,7 @@ export default async function PrivacyPage() {
     {
       title: "Data Sovereignty",
       icon: <Globe className="h-8 w-8 text-primary" />,
-      content: "At TOLA, we believe your data is your own. We collect only what is necessary to facilitate secure trade and provide you with a seamless marketplace experience within the Tanzanian digital landscape."
+      content: "At TOLA, we believe your data is your own. We collect only what is necessary to facilitate secure trade and provide you with a seamless Digital trade and Supply Chain Ecosystem experience within the Tanzanian digital landscape."
     },
     {
       title: "Consent & Usage",
@@ -54,7 +54,7 @@ export default async function PrivacyPage() {
     {
       title: "KYC Compliance",
       icon: <ShieldAlert className="h-8 w-8 text-primary" />,
-      content: "For the safety of our ecosystem, we verify vendor identities through NIDA and TIN validation. This minimizes risk and builds a marketplace of verified, trustworthy professionals."
+      content: "For the safety of our ecosystem, we verify vendor identities through NIDA and TIN validation. This minimizes risk and builds a Digital trade and Supply Chain Ecosystem of verified, trustworthy professionals."
     }
   ]
 
@@ -104,7 +104,7 @@ export default async function PrivacyPage() {
               <div>
                 <h2 className="text-4xl font-black mb-8 border-l-8 border-primary pl-8 tracking-tight">Personal Data Collection</h2>
                 <div className="space-y-6 text-muted-foreground text-lg leading-relaxed">
-                  <p>We collect identifiable information such as your <strong>Full Name, Email, Phone Number, and Delivery Address</strong>. This data is used solely to facilitate the marketplace lifecycle.</p>
+                  <p>We collect identifiable information such as your <strong>Full Name, Email, Phone Number, and Delivery Address</strong>. This data is used solely to facilitate the Digital trade and Supply Chain Ecosystem lifecycle.</p>
                   <p>For vendors, our <strong>KYC Process</strong> requires Tax Identification Numbers (TIN) and National ID (NIDA) data. This information is stored in encrypted offshore and local servers to ensure maximum resilience and compliance.</p>
                 </div>
               </div>

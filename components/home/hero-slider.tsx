@@ -117,15 +117,26 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                     </Button>
                   </Link>
                   {slide.id === "welcome" && (
-                    <Link href="/vendor/register" className="flex-1 sm:flex-none">
-                      <Button 
-                        size="lg" 
-                        variant="outline" 
-                        className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
-                      >
-                        Become a Seller
-                      </Button>
-                    </Link>
+                    <>
+                      <Link href="/auth/sign-up?userType=vendor" className="flex-1 sm:flex-none">
+                        <Button 
+                          size="lg" 
+                          variant="outline" 
+                          className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
+                        >
+                          Become a Seller
+                        </Button>
+                      </Link>
+                      <Link href="/auth/sign-up?userType=transporter" className="flex-1 sm:flex-none">
+                        <Button 
+                          size="lg" 
+                          variant="outline" 
+                          className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
+                        >
+                          Become a Transporter
+                        </Button>
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>

@@ -53,7 +53,7 @@ export default function AnimatedBrand() {
           )}
         </div>
         <p className="text-sm md:text-base text-muted-foreground mt-2 animate-fade-in animation-delay-400">
-          Tanzania's Trusted Marketplace
+          Tanzania's Trusted Digital trade and Supply Chain Ecosystem
         </p>
       </div>
     </div>
