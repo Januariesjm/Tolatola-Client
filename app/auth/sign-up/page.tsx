@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
@@ -15,11 +16,14 @@ import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
 import { signInWithGoogle, signInWithFacebook } from "@/app/actions/auth"
 import { logFailedRegistration } from "@/app/actions/registration"
 
+type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
+
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">("customer")
+  const [vendorType, setVendorType] = useState<VendorType | "">("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
@@ -39,6 +43,13 @@ export default function SignUpPage() {
         throw new Error("API base URL is not configured")
       }
 
+      // Validate vendor type if user is a vendor
+      if (userType === "vendor" && !vendorType) {
+        setError("Please select a vendor type")
+        setIsLoading(false)
+        return
+      }
+
       // Sign up via backend API
       const response = await fetch(`${apiBase}/auth/signup`, {
         method: "POST",
@@ -48,6 +59,7 @@ export default function SignUpPage() {
           password,
           fullName,
           userType,
+          vendorType: userType === "vendor" ? vendorType : undefined,
         }),
       })
 
@@ -225,7 +237,13 @@ export default function SignUpPage() {
                     <Label>I want to</Label>
                     <RadioGroup
                       value={userType}
-                      onValueChange={(value) => setUserType(value as "customer" | "vendor" | "transporter")}
+                      onValueChange={(value) => {
+                        setUserType(value as "customer" | "vendor" | "transporter")
+                        // Reset vendor type when switching away from vendor
+                        if (value !== "vendor") {
+                          setVendorType("")
+                        }
+                      }}
                     >
                       <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
                         <RadioGroupItem value="customer" id="customer" />
@@ -233,11 +251,29 @@ export default function SignUpPage() {
                           Buy products (Consumer)
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                        <RadioGroupItem value="vendor" id="vendor" />
-                        <Label htmlFor="vendor" className="font-normal cursor-pointer flex-1">
-                          Sell products (Vendor)
-                        </Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
+                          <RadioGroupItem value="vendor" id="vendor" />
+                          <Label htmlFor="vendor" className="font-normal cursor-pointer flex-1">
+                            Sell products (Vendor)
+                          </Label>
+                        </div>
+                        {userType === "vendor" && (
+                          <div className="ml-8 pr-3 pb-2">
+                            <Select value={vendorType} onValueChange={(value) => setVendorType(value as VendorType)}>
+                              <SelectTrigger id="vendorType" className="transition-all focus:scale-[1.02]">
+                                <SelectValue placeholder="Select your vendor type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="producer">Producer</SelectItem>
+                                <SelectItem value="manufacturer">Manufacturer</SelectItem>
+                                <SelectItem value="supplier">Supplier</SelectItem>
+                                <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                                <SelectItem value="retail_trader">Retail Trader</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
                         <RadioGroupItem value="transporter" id="transporter" />

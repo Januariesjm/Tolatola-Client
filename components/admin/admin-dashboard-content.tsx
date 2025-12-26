@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LogOut, Users, Package, ShoppingCart, DollarSign, MessageSquare, Megaphone, Crown } from "lucide-react"
+import { LogOut, Users, Package, ShoppingCart, DollarSign, MessageSquare, Megaphone, Crown, Store } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -20,6 +20,7 @@ import { PromotionsManagementTab } from "./promotions-management-tab"
 import { AdminUsersManagementTab } from "./admin-users-management-tab"
 import { TransporterKYCApprovalTab } from "./transporter-kyc-approval-tab"
 import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
+import { VendorManagementTab } from "./vendor-management-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -32,6 +33,7 @@ interface AdminDashboardContentProps {
   payouts: any[]
   stats: any
   promotions: any[]
+  vendorTypesAnalytics?: any
 }
 
 export function AdminDashboardContent({
@@ -45,6 +47,7 @@ export function AdminDashboardContent({
   payouts,
   stats,
   promotions,
+  vendorTypesAnalytics = {},
 }: AdminDashboardContentProps) {
   const router = useRouter()
 
@@ -182,6 +185,12 @@ export function AdminDashboardContent({
               </TabsTrigger>
             )}
             {adminRole?.permissions.includes("manage_vendors") && (
+              <TabsTrigger value="vendors">
+                <Store className="h-4 w-4 mr-2" />
+                All Vendors
+              </TabsTrigger>
+            )}
+            {adminRole?.permissions.includes("manage_vendors") && (
               <TabsTrigger value="subscriptions">
                 <Crown className="h-4 w-4 mr-2" />
                 Subscriptions
@@ -238,12 +247,18 @@ export function AdminDashboardContent({
           </TabsList>
 
           <TabsContent value="analytics">
-            <AnalyticsTab stats={stats} />
+            <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} />
           </TabsContent>
 
           {adminRole?.permissions.includes("manage_promotions") && (
             <TabsContent value="promotions">
               <PromotionsManagementTab promotions={promotions} />
+            </TabsContent>
+          )}
+
+          {adminRole?.permissions.includes("manage_vendors") && (
+            <TabsContent value="vendors">
+              <VendorManagementTab />
             </TabsContent>
           )}
 

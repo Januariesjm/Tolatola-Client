@@ -24,9 +24,28 @@ interface AnalyticsTabProps {
     totalDeliveryFees: number
     totalTransporterEarnings: number
   }
+  vendorTypesAnalytics?: Record<string, {
+    count: number
+    approvedCount: number
+    totalProducts: number
+    approvedProducts: number
+    totalSales: number
+    completedSales: number
+    totalOrders: number
+    completedOrders: number
+    averageOrderValue: number
+  }>
 }
 
-export function AnalyticsTab({ stats }: AnalyticsTabProps) {
+const vendorTypeLabels: Record<string, string> = {
+  producer: "Producer",
+  manufacturer: "Manufacturer",
+  supplier: "Supplier",
+  wholesaler: "Wholesaler",
+  retail_trader: "Retail Trader",
+}
+
+export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -279,6 +298,101 @@ export function AnalyticsTab({ stats }: AnalyticsTabProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Vendor Type Analytics */}
+      {Object.keys(vendorTypesAnalytics).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Vendor Type Analytics</CardTitle>
+            <CardDescription>Performance breakdown by vendor type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {Object.entries(vendorTypesAnalytics).map(([type, analytics]: [string, any]) => (
+                <div key={type} className="border rounded-lg p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold">{vendorTypeLabels[type] || type}</h3>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold">{analytics.count}</p>
+                      <p className="text-sm text-muted-foreground">Total Vendors</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Approved Vendors</p>
+                      <p className="text-2xl font-bold">{analytics.approvedCount}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {analytics.count > 0 ? Math.round((analytics.approvedCount / analytics.count) * 100) : 0}% approval rate
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Products</p>
+                      <p className="text-2xl font-bold">{analytics.totalProducts}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {analytics.approvedProducts} approved
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Sales</p>
+                      <p className="text-2xl font-bold">TZS {analytics.totalSales.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {analytics.completedSales.toLocaleString()} completed
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
+                      <p className="text-2xl font-bold">{analytics.totalOrders}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Avg: TZS {analytics.averageOrderValue.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Order Completion Rate</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary transition-all"
+                            style={{
+                              width: `${analytics.totalOrders > 0 ? (analytics.completedOrders / analytics.totalOrders) * 100 : 0}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium">
+                          {analytics.totalOrders > 0 ? Math.round((analytics.completedOrders / analytics.totalOrders) * 100) : 0}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Sales Contribution</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-green-500 transition-all"
+                            style={{
+                              width: `${stats.totalGMV > 0 ? (analytics.totalSales / stats.totalGMV) * 100 : 0}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium">
+                          {stats.totalGMV > 0 ? Math.round((analytics.totalSales / stats.totalGMV) * 100) : 0}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

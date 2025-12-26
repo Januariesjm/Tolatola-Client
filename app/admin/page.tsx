@@ -26,6 +26,7 @@ export default async function AdminDashboardPage() {
   let tickets: any[] = []
   let payouts: any[] = []
   let promotions: any[] = []
+  let vendorTypesAnalytics: any = {}
   let stats = {
     totalVendors: 0,
     activeVendors: 0,
@@ -52,7 +53,7 @@ export default async function AdminDashboardPage() {
       return <div>You need admin access to view this page.</div>
     }
 
-    const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes] =
+    const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes] =
       await Promise.all([
       serverApiGet<{ data: any[] }>("vendors").catch(() => ({ data: [] })),
       serverApiGet<{ data: any[] }>("products").catch(() => ({ data: [] })),
@@ -65,6 +66,7 @@ export default async function AdminDashboardPage() {
         serverApiGet<{ admins: any[] }>("admin/users").catch(() => ({ admins: [] })),
         serverApiGet<{ data: any[] }>("admin/revoke-history").catch(() => ({ data: [] })),
         serverApiGet<{ data: any[] }>("admin/transporters").catch(() => ({ data: [] })),
+        serverApiGet<{ analytics: any }>("admin/vendor-types").catch(() => ({ analytics: {} })),
     ])
 
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []
@@ -77,6 +79,7 @@ export default async function AdminDashboardPage() {
     promotions = promosRes.data || []
 
     stats = statsRes.stats || stats
+    vendorTypesAnalytics = vendorTypesRes.analytics || {}
     const adminUsers = adminsRes.admins || []
     const revokeHistory = revokeRes.data || []
 
@@ -112,6 +115,7 @@ export default async function AdminDashboardPage() {
       payouts={payouts}
       stats={stats}
       promotions={promotions}
+      vendorTypesAnalytics={vendorTypesAnalytics}
     />
   )
 }

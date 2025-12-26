@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Search, X, Store, ShoppingBag, ArrowRight, Loader2, Sparkles, TrendingUp } from "lucide-react"
+import { Search, X, Store, ShoppingBag, ArrowRight, Loader2, Sparkles, TrendingUp, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { SearchFiltersPopover } from "./search-filters-popover"
 
 interface Product {
   id: string
@@ -27,11 +28,18 @@ interface Shop {
   address: string
 }
 
-export function ProductSearch() {
+interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
+export function ProductSearch({ categories = [] }: { categories?: Category[] }) {
   const [query, setQuery] = useState("")
   const [productResults, setProductResults] = useState<Product[]>([])
   const [shopResults, setShopResults] = useState<Shop[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -42,7 +50,13 @@ export function ProductSearch() {
         setProductResults([])
         setShopResults([])
         setIsOpen(false)
+        // If no query and filters were not manually closed, keep filters open
         return
+      }
+
+      // If user is typing, show search results and hide filters
+      if (query.trim().length >= 2) {
+        setShowFilters(false)
       }
 
       setIsLoading(true)
@@ -72,7 +86,7 @@ export function ProductSearch() {
           setShopResults(shops as Shop[])
         }
 
-        setIsOpen((products && products.length > 0) || (shops && shops.length > 0))
+        setIsOpen(Boolean((products && products.length > 0) || (shops && shops.length > 0)))
       } catch (err) {
         console.error("[v0] Search error:", err)
       } finally {
@@ -85,11 +99,14 @@ export function ProductSearch() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      // Check if click is outside the search container
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false)
+        setShowFilters(false)
       }
     }
 
+    // Use bubble phase (default) so input handlers fire first
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
@@ -117,26 +134,109 @@ export function ProductSearch() {
           type="text"
           placeholder="what are you looking for..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            // When user starts typing, hide filters and show search results
+            if (e.target.value.trim().length >= 2) {
+              setShowFilters(false)
+            } else {
+              // If query is cleared, show filters again
+              if (categories.length > 0) {
+                setShowFilters(true)
+                setIsOpen(false)
+              }
+            }
+          }}
+          onMouseDown={(e) => {
+            // Stop propagation to prevent click outside from firing
+            e.stopPropagation()
+            // When clicking the search box, ALWAYS show filters immediately if categories are available
+            if (categories.length > 0) {
+              setShowFilters(true)
+              setIsOpen(false)
+            }
+          }}
+          onClick={(e) => {
+            // Stop propagation to prevent click outside from firing
+            e.stopPropagation()
+            // When clicking the search box, ALWAYS show filters immediately if categories are available
+            if (categories.length > 0) {
+              setShowFilters(true)
+              setIsOpen(false)
+            } else if (query.trim().length >= 2) {
+              setShowFilters(false)
+              if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
+            }
+          }}
           onFocus={() => {
-            if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
+            // On focus, ALWAYS show filters immediately if categories are available
+            if (categories.length > 0 && query.trim().length < 2) {
+              setShowFilters(true)
+              setIsOpen(false)
+            } else if (query.trim().length >= 2) {
+              setShowFilters(false)
+              if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && query.trim().length >= 2) {
+              setIsOpen(false)
+              setShowFilters(false)
+              window.location.href = `/shop?search=${encodeURIComponent(query)}`
+            }
           }}
           className="pl-12 pr-12 h-14 md:h-16 rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-lg font-medium placeholder:text-stone-500 border-2"
         />
 
-        {query && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-stone-100 rounded-full transition-colors"
-            onClick={handleClear}
-          >
-            <X className="h-5 w-5 text-stone-400" />
-          </Button>
-        )}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {query && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 hover:bg-stone-100 rounded-full transition-colors"
+              onClick={handleClear}
+            >
+              <X className="h-5 w-5 text-stone-400" />
+            </Button>
+          )}
+          {categories.length > 0 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "h-10 w-10 hover:bg-stone-100 rounded-full transition-colors",
+                showFilters && "bg-primary text-white hover:bg-primary/90"
+              )}
+              onClick={(e) => {
+                e.stopPropagation()
+                const newShowFilters = !showFilters
+                setShowFilters(newShowFilters)
+                if (newShowFilters) {
+                  setIsOpen(false)
+                  inputRef.current?.focus()
+                }
+              }}
+              title="Filters"
+            >
+              <Filter className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
       </div>
 
-      {isOpen && (
+      {/* Filters Popover */}
+      {showFilters && categories.length > 0 && (
+        <div 
+          className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <SearchFiltersPopover categories={categories} onClose={() => setShowFilters(false)} />
+        </div>
+      )}
+
+      {/* Search Results Dropdown */}
+      {isOpen && !showFilters && (
         <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto scrollbar-hide">
 
@@ -236,16 +336,16 @@ export function ProductSearch() {
               </div>
             )}
 
-            {(productResults.length >= 4 || shopResults.length >= 3) && (
+            {/* Always show "View All Results" link if there are results */}
+            {((productResults.length > 0 || shopResults.length > 0) && query.trim().length >= 2) && (
               <Link
                 href={`/shop?search=${encodeURIComponent(query)}`}
                 onClick={() => {
                   setIsOpen(false)
-                  setQuery("")
                 }}
                 className="flex items-center justify-center gap-3 w-full p-5 mt-4 text-sm font-black uppercase tracking-[0.2em] text-stone-400 border-2 border-dashed border-stone-100 rounded-3xl hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all group/all"
               >
-                <span>Reveal All Findings</span>
+                <span>View All Results</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
               </Link>
             )}
