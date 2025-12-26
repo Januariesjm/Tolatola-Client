@@ -219,7 +219,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
               pathname === "/shop" ? "text-primary" : "text-stone-500"
             )}>
-              Browse
+              Shop
               <span className={cn(
                 "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
                 pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
