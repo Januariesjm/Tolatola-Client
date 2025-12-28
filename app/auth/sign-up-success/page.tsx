@@ -30,9 +30,20 @@ export default function SignUpSuccessPage() {
               <CardDescription>Check your email to confirm</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                You&apos;ve successfully signed up. Please check your email to confirm your account before signing in.
-              </p>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  You&apos;ve successfully signed up! We&apos;ve sent a verification email to your inbox.
+                </p>
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-semibold text-primary">📧 Check Your Email</p>
+                  <p className="text-xs text-muted-foreground">
+                    Click the verification link in the email from <strong>support@tolatola.co</strong> to activate your account.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Note:</strong> The verification link expires in 24 hours. If you don&apos;t see the email, check your spam folder.
+                  </p>
+                </div>
+              </div>
               {returnUrl ? (
                 <Link href={`/auth/login?returnUrl=${encodeURIComponent(returnUrl)}`}>
                   <Button className="w-full">Continue to Login</Button>
