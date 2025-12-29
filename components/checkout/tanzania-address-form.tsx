@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 declare global {
   interface Window {
     google: any
-    initGoogleMapsCallback: () => void
+    initGoogleMapsCallback?: () => void
   }
 }
 
@@ -36,7 +36,7 @@ interface AddressData {
 interface TanzaniaAddressFormProps {
   value: AddressData
   onChange: (address: AddressData) => void
-  onAddressComplete: (fullAddress: string) => void
+  onAddressComplete: (fullAddress: string, coordinates?: { lat: number; lng: number }) => void
   userId: string
 }
 
@@ -134,7 +134,18 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           addressData.street = streetParts.join(" ") || place.formatted_address?.split(",")[0] || ""
           onChange(addressData)
           setSearchQuery(place.formatted_address || "")
-          toast({ title: "Address Optimized", description: "Vivid coordinates synced and fields auto-filled." })
+
+          const lat = place.geometry?.location?.lat()
+          const lng = place.geometry?.location?.lng()
+          const coords = lat && lng ? { lat, lng } : undefined
+
+          if (coords) {
+            // Immediately notify parent with coordinates
+            onAddressComplete(place.formatted_address || "", coords)
+            toast({ title: "Address Optimized", description: "Vivid coordinates synced and fields auto-filled." })
+          } else {
+            toast({ title: "Location Warning", description: "Coordinates not found. Delivery calculation may be unavailable.", variant: "destructive" })
+          }
         })
       } catch (err) {
         console.error(err)
@@ -145,17 +156,7 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
     return () => clearTimeout(timer)
   }, [isGoogleLoaded, onChange, toast])
 
-  useEffect(() => {
-    if (value.region) {
-      const addressParts = []
-      if (value.street) addressParts.push(value.street)
-      if (value.village) addressParts.push(value.village)
-      if (value.ward) addressParts.push(`${value.ward} Ward`)
-      if (value.district) addressParts.push(`${value.district} District`)
-      addressParts.push(`${value.region} Region, Tanzania`)
-      onAddressComplete(addressParts.join(", "))
-    }
-  }, [value.region, value.district, value.ward, value.street, value.village, onAddressComplete])
+
 
   const handleFieldChange = (field: keyof AddressData, fieldValue: string) => {
     onChange({ ...value, [field]: fieldValue })

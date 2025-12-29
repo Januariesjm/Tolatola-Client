@@ -17,7 +17,7 @@ import {
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/lib/utils"
-import { calculateDeliveryDistance } from "@/app/actions/maps"
+import { calculateDeliveryDistance, calculateDeliveryDistanceByCoords } from "@/app/actions/maps"
 import type { TransportMethod } from "@/app/actions/maps"
 import { useToast } from "@/hooks/use-toast"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
@@ -41,6 +41,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   })
   const [fullAddress, setFullAddress] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<string>("m-pesa")
+  const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
+  const [cardDetails, setCardDetails] = useState({
+    number: "",
+    expiry: "",
+    cvv: "",
+  })
   const [transportMethods, setTransportMethods] = useState<TransportMethod[]>([])
   const [selectedTransportId, setSelectedTransportId] = useState<string>("")
   const [deliveryInfo, setDeliveryInfo] = useState<{
@@ -77,23 +83,20 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       })
   }, [router])
 
-  const handleAddressComplete = async (address: string) => {
+  const handleAddressComplete = async (address: string, coordinates?: { lat: number; lng: number }) => {
     setFullAddress(address)
     setDeliveryError(null)
 
-    if (!addressData.region) {
-      setDeliveryInfo(null)
+    if (!coordinates) {
+      // Manual entry or incomplete data - do not calculate delivery fee
+      // We rely on the autocomplete for accurate logistics
       return
     }
 
     setIsCalculatingDelivery(true)
 
     try {
-      const result = await calculateDeliveryDistance(
-        addressData.region,
-        addressData.district || undefined,
-        addressData.ward || undefined,
-      )
+      const result = await calculateDeliveryDistanceByCoords(coordinates.lat, coordinates.lng)
 
       if (result) {
         if (selectedTransportId) {
@@ -117,11 +120,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           setDeliveryInfo(result)
         }
       } else {
-        setDeliveryError("Could not calculate delivery fee for this address. Please try a more specific address.")
+        setDeliveryError("Logistics Engine could not determine a route to this coordinate bundle.")
         setDeliveryInfo(null)
       }
     } catch (error) {
-      setDeliveryError("Failed to calculate delivery fee. Please try again.")
+      setDeliveryError("Logistics calculation failed. Please retry location selection.")
       setDeliveryInfo(null)
     } finally {
       setIsCalculatingDelivery(false)
@@ -216,6 +219,14 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         },
         totalAmount: total,
         paymentMethod,
+        paymentDetails: {
+          phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa"].includes(paymentMethod)
+            ? paymentPhoneNumber
+            : undefined,
+          cardNumber: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.number : undefined,
+          expiryDate: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.expiry : undefined,
+          cvv: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.cvv : undefined,
+        },
         transportMethodId: deliveryInfo?.transportMethodId || selectedTransportId || null,
         deliveryFee,
       }
@@ -411,35 +422,48 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                               <span className="text-xl font-black tracking-tight">Mobile Money Escrow</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-6 grid md:grid-cols-2 gap-4 mt-4">
-                            {[
-                              { id: "m-pesa", name: "M-Pesa", provider: "Vodacom" },
-                              { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
-                              { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
-                              { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
-                              { id: "ezypesa", name: "EzyPesa", provider: "Zantel" }
-                            ].map((p) => (
-                              <Label
-                                key={p.id}
-                                htmlFor={p.id}
-                                className={cn(
-                                  "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                                  paymentMethod === p.id ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
-                                )}
-                              >
-                                <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
-                                <div className={cn(
-                                  "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                                  paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
-                                )}>
-                                  <Smartphone className="h-5 w-5" />
-                                </div>
-                                <div>
-                                  <p className="font-black text-stone-900">{p.name}</p>
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">{p.provider}</p>
-                                </div>
-                              </Label>
-                            ))}
+                          <AccordionContent className="p-6 mt-4 space-y-6">
+                            <div className="space-y-3">
+                              <Label htmlFor="paymentPhone" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Payment Phone Number</Label>
+                              <Input
+                                id="paymentPhone"
+                                type="tel"
+                                value={paymentPhoneNumber}
+                                onChange={(e) => setPaymentPhoneNumber(e.target.value)}
+                                className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                placeholder="e.g. 2557..."
+                              />
+                            </div>
+                            <div className="grid md:grid-cols-2 gap-4">
+                              {[
+                                { id: "m-pesa", name: "M-Pesa", provider: "Vodacom" },
+                                { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
+                                { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
+                                { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
+                                { id: "ezypesa", name: "EzyPesa", provider: "Zantel" }
+                              ].map((p) => (
+                                <Label
+                                  key={p.id}
+                                  htmlFor={p.id}
+                                  className={cn(
+                                    "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                                  )}
+                                >
+                                  <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
+                                  <div className={cn(
+                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                    paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                  )}>
+                                    <Smartphone className="h-5 w-5" />
+                                  </div>
+                                  <div>
+                                    <p className="font-black text-stone-900">{p.name}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">{p.provider}</p>
+                                  </div>
+                                </Label>
+                              ))}
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
 
@@ -450,22 +474,58 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                               <span className="text-xl font-black tracking-tight">Global Debit/Credit</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-6 grid md:grid-cols-3 gap-4 mt-4">
-                            {["visa", "mastercard", "unionpay"].map((c) => (
-                              <Label key={c} htmlFor={c} className={cn(
-                                "flex flex-col items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 text-center",
-                                paymentMethod === c ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
-                              )}>
-                                <RadioGroupItem value={c} id={c} className="sr-only" />
-                                <div className={cn(
-                                  "h-12 w-12 rounded-xl flex items-center justify-center transition-colors",
-                                  paymentMethod === c ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                          <AccordionContent className="p-6 mt-4 space-y-6">
+                            <div className="grid md:grid-cols-3 gap-4">
+                              {["visa", "mastercard", "unionpay"].map((c) => (
+                                <Label key={c} htmlFor={c} className={cn(
+                                  "flex flex-col items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                  paymentMethod === c ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
                                 )}>
-                                  <CreditCard className="h-6 w-6" />
+                                  <RadioGroupItem value={c} id={c} className="sr-only" />
+                                  <div className={cn(
+                                    "h-12 w-12 rounded-xl flex items-center justify-center transition-colors",
+                                    paymentMethod === c ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                  )}>
+                                    <CreditCard className="h-6 w-6" />
+                                  </div>
+                                  <span className="font-black uppercase tracking-widest text-xs text-stone-900">{c}</span>
+                                </Label>
+                              ))}
+                            </div>
+                            <div className="space-y-4 pt-4 border-t border-stone-50">
+                              <div className="space-y-3">
+                                <Label htmlFor="cardNumber" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Card Number</Label>
+                                <Input
+                                  id="cardNumber"
+                                  value={cardDetails.number}
+                                  onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+                                  className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                  placeholder="0000 0000 0000 0000"
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <Label htmlFor="expiry" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Expiry Date</Label>
+                                  <Input
+                                    id="expiry"
+                                    value={cardDetails.expiry}
+                                    onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                    placeholder="MM/YY"
+                                  />
                                 </div>
-                                <span className="font-black uppercase tracking-widest text-xs text-stone-900">{c}</span>
-                              </Label>
-                            ))}
+                                <div className="space-y-3">
+                                  <Label htmlFor="cvv" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">CVV / CVC</Label>
+                                  <Input
+                                    id="cvv"
+                                    value={cardDetails.cvv}
+                                    onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+                                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                    placeholder="123"
+                                  />
+                                </div>
+                              </div>
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
 

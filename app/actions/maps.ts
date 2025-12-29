@@ -144,6 +144,57 @@ export async function calculateDeliveryDistance(
   }
 }
 
+export async function calculateDeliveryDistanceByCoords(
+  lat: number,
+  lng: number,
+): Promise<DistanceResult | null> {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY
+
+  if (!apiKey) {
+    console.error("[v0] Google Maps API key not found")
+    return null
+  }
+
+  console.log("[v0] Calculating delivery with coords:", { lat, lng })
+
+  try {
+    // Try Distance Matrix API first
+    const distanceResponse = await fetch(
+      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(BASE_LOCATION.address)}&destinations=${lat},${lng}&units=metric&key=${apiKey}`,
+    )
+
+    const distanceData = await distanceResponse.json()
+
+    if (distanceData.status === "OK" && distanceData.rows?.[0]?.elements?.[0]?.status === "OK") {
+      const element = distanceData.rows[0].elements[0]
+      const distanceKm = element.distance.value / 1000
+      const duration = element.duration.text
+      const deliveryFee = calculateDeliveryFee(distanceKm)
+
+      return {
+        distanceKm: Math.round(distanceKm * 10) / 10,
+        deliveryFee,
+        duration,
+      }
+    }
+
+    // Fallback to Haversine
+    const distanceKm = calculateHaversineDistance(BASE_LOCATION.lat, BASE_LOCATION.lng, lat, lng)
+    const estimatedRoadDistance = distanceKm * 1.3 // 30% buffer for road vs air
+    const deliveryFee = calculateDeliveryFee(estimatedRoadDistance)
+
+    return {
+      distanceKm: Math.round(estimatedRoadDistance * 10) / 10,
+      deliveryFee,
+      duration: estimateDeliveryTime(estimatedRoadDistance),
+    }
+
+  } catch (error) {
+    console.error("[v0] Distance calculation via coords error:", error)
+    return null
+  }
+}
+
 export async function geocodeAddress(address: string): Promise<GeocodeResult | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
@@ -280,19 +331,21 @@ export async function calculateTransportDeliveryFee(
     }
   }
 
+  const transportMethod = method as unknown as TransportMethod
+
   let deliveryFee = 0
 
-  if (method.rate_per_kg) {
+  if (transportMethod.rate_per_kg) {
     // Flight uses per kg rate
-    deliveryFee = weightKg * method.rate_per_kg
-  } else if (method.rate_per_km) {
+    deliveryFee = weightKg * transportMethod.rate_per_kg
+  } else if (transportMethod.rate_per_km) {
     // Other methods use per km rate
-    deliveryFee = distanceKm * method.rate_per_km
+    deliveryFee = distanceKm * transportMethod.rate_per_km
   }
 
   return {
     deliveryFee: Math.round(deliveryFee),
-    transportMethod: method.name,
-    transportMethodId: method.id,
+    transportMethod: transportMethod.name,
+    transportMethodId: transportMethod.id,
   }
 }
