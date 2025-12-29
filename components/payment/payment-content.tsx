@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2 } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { CheckCircle2, AlertCircle } from "lucide-react"
 import { ClickPesaPayment } from "@/components/payment/clickpesa-payment"
 import type { PaymentMethod } from "@/lib/clickpesa"
 
@@ -16,15 +17,21 @@ interface PaymentContentProps {
 export function PaymentContent({ order, user }: PaymentContentProps) {
   const router = useRouter()
   const [paymentCompleted, setPaymentCompleted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handlePaymentSuccess = (transactionId: string) => {
     console.log("[v0] Payment successful:", transactionId)
     setPaymentCompleted(true)
   }
 
-  const handlePaymentError = (error: string) => {
-    console.error("[v0] Payment error:", error)
-    alert(`Payment failed: ${error}`)
+  const handlePaymentError = (backendError: string) => {
+    console.error("[v0] Payment error:", backendError)
+    // Extract cleaner message if possible
+    let message = backendError
+    if (backendError.includes("Failed to generate ClickPesa token")) {
+      message = "Payment service is temporarily unavailable. Please try again later."
+    }
+    setError(message)
   }
 
   const handleCashOnDelivery = () => {
@@ -71,6 +78,14 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
           <h1 className="text-3xl font-bold mb-2">Complete Payment</h1>
           <p className="text-muted-foreground">Order #{order.order_number}</p>
         </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Payment Failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
