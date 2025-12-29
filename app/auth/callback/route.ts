@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
     if (!error) {
       // Redirect to success page or home
-      const redirectTo = requestUrl.origin + "/auth/sign-up-success"
+      const redirectTo = requestUrl.origin + "/auth/verified"
       return NextResponse.redirect(redirectTo)
     }
   }
