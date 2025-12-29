@@ -61,14 +61,13 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
       {allSlides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`transition-all duration-1000 ease-in-out ${
-            index === currentSlide ? "opacity-100 block" : "opacity-0 hidden"
-          }`}
+          className={`transition-all duration-1000 ease-in-out ${index === currentSlide ? "opacity-100 block" : "opacity-0 hidden"
+            }`}
         >
-          <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12 items-center">
+          <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 md:py-12">
+            <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center">
               {/* Image Section - Left Side */}
-              <div className="w-full md:w-1/2 lg:w-2/5 h-[240px] sm:h-[280px] md:h-[360px] lg:h-[400px] relative rounded-2xl overflow-hidden shadow-2xl">
+              <div className="w-[35%] md:w-1/2 lg:w-2/5 h-[160px] sm:h-[280px] md:h-[360px] lg:h-[400px] relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl flex-shrink-0">
                 {slide.image_url ? (
                   <Image
                     src={slide.image_url}
@@ -84,7 +83,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
               </div>
 
               {/* Content Section - Right Side */}
-              <div className="w-full md:w-1/2 lg:w-3/5 flex flex-col justify-center space-y-4 sm:space-y-5 md:space-y-6">
+              <div className="flex-1 min-w-0 flex flex-col justify-center space-y-2 sm:space-y-5 md:space-y-6">
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm w-fit">
                   <Sparkles className="h-3 w-3" />
@@ -92,7 +91,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                 </div>
 
                 {/* Title */}
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight">
+                <h1 className="text-lg sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight line-clamp-2 md:line-clamp-none">
                   {slide.id === "welcome" ? (
                     <>Shop with <span className="text-primary">Confidence</span></>
                   ) : (
@@ -101,16 +100,16 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                 </h1>
 
                 {/* Description */}
-                <p className="text-white/90 text-sm sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed max-w-2xl">
+                <p className="text-white/90 text-xs sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none">
                   {slide.description || "Discover amazing deals and shop from trusted sellers."}
                 </p>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Link href={slide.button_link || "/shop"} className="flex-1 sm:flex-none">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto text-base sm:text-lg font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 py-6 px-6 sm:px-8"
+                <div className="flex flex-wrap gap-2 pt-1 md:pt-2">
+                  <Link href={slide.button_link || "/shop"} className="flex-none">
+                    <Button
+                      size="sm"
+                      className="w-auto h-8 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-8"
                     >
                       {slide.button_text || "Shop Now"}
                       <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
@@ -119,19 +118,19 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                   {slide.id === "welcome" && (
                     <>
                       <Link href="/auth/sign-up?userType=vendor" className="flex-1 sm:flex-none">
-                        <Button 
-                          size="lg" 
-                          variant="outline" 
+                        <Button
+                          size="lg"
+                          variant="outline"
                           className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
                         >
                           Become a Seller
                         </Button>
                       </Link>
-                      <Link href="/auth/sign-up?userType=transporter" className="flex-1 sm:flex-none">
-                        <Button 
-                          size="lg" 
-                          variant="outline" 
-                          className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
+                      <Link href="/auth/sign-up?userType=transporter" className="flex-none">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-auto h-8 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-8"
                         >
                           Become a Transporter
                         </Button>
@@ -177,11 +176,10 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                    index === currentSlide 
-                      ? "bg-primary w-6 sm:w-8" 
+                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                      ? "bg-primary w-6 sm:w-8"
                       : "bg-white/40 w-1.5 sm:w-2 hover:bg-white/60"
-                  }`}
+                    }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
