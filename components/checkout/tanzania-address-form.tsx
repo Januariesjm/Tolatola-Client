@@ -142,7 +142,7 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           if (coords) {
             // Immediately notify parent with coordinates
             onAddressComplete(place.formatted_address || "", coords)
-            toast({ title: "Address Optimized", description: "Vivid coordinates synced and fields auto-filled." })
+            toast({ title: "Address Found", description: "Location synced and fields auto-filled." })
           } else {
             toast({ title: "Location Warning", description: "Coordinates not found. Delivery calculation may be unavailable.", variant: "destructive" })
           }
@@ -171,8 +171,8 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
             <Search className="h-5 w-5" />
           </div>
           <div className="space-y-0.5">
-            <Label htmlFor="address-search" className="text-sm font-black text-stone-900 tracking-tight">Vivid Location Search</Label>
-            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Powered by Global Sat-Mapping</p>
+            <Label htmlFor="address-search" className="text-sm font-bold text-stone-900 tracking-tight">Address Search</Label>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Search for your location</p>
           </div>
         </div>
 
@@ -181,11 +181,11 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
             ref={inputRef}
             id="address-search"
             type="text"
-            placeholder={isLoadingGoogle ? "Initializing global positioning..." : "Type your precise Tanzania location..."}
+            placeholder={isLoadingGoogle ? "Loading maps..." : "Type to search location..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             disabled={isLoadingGoogle}
-            className="flex h-16 w-full rounded-2xl border-2 border-stone-100 bg-stone-50/50 px-6 py-2 text-lg font-medium ring-offset-background placeholder:text-stone-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:bg-white transition-all disabled:opacity-50"
+            className="flex h-12 w-full rounded-xl border-2 border-stone-100 bg-white px-4 py-2 text-base font-medium ring-offset-background placeholder:text-stone-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all disabled:opacity-50"
           />
           {isLoadingGoogle && (
             <div className="absolute right-6 top-1/2 -translate-y-1/2">
@@ -204,21 +204,21 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
 
       {/* Manual Entry Grid */}
       <div className="space-y-6">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-2 mb-2">
           <Info className="h-4 w-4 text-stone-400" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 italic">Manual Parameter Verification</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Manual Entry</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-3">
-            <Label htmlFor="region" className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-1">Administrative Region *</Label>
+            <Label htmlFor="region" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Region *</Label>
             <Select value={value.region} onValueChange={(val) => handleFieldChange("region", val)}>
-              <SelectTrigger id="region" className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 font-bold text-stone-900 px-6">
-                <SelectValue placeholder="Select Tanzania Region" />
+              <SelectTrigger id="region" className="h-12 rounded-xl border-stone-200 bg-white font-medium text-stone-900 px-4">
+                <SelectValue placeholder="Select Region" />
               </SelectTrigger>
-              <SelectContent className="rounded-[1.5rem] border-stone-100 shadow-2xl">
+              <SelectContent className="rounded-xl border-stone-100 shadow-xl">
                 {TANZANIA_REGIONS.map((region) => (
-                  <SelectItem key={region} value={region} className="rounded-xl focus:bg-primary/5 font-medium">
+                  <SelectItem key={region} value={region} className="rounded-lg focus:bg-primary/5 font-medium">
                     {region}
                   </SelectItem>
                 ))}
@@ -227,58 +227,58 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="district" className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-1">Municipal District *</Label>
+            <Label htmlFor="district" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">District *</Label>
             <Input
               id="district"
-              placeholder="e.g., Kinondoni, Arusha City"
+              placeholder="e.g., Kinondoni"
               value={value.district}
               onChange={(e) => handleFieldChange("district", e.target.value)}
               required
-              className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 font-bold placeholder:text-stone-300 px-6"
+              className="h-12 rounded-xl border-stone-200 bg-white font-medium placeholder:text-stone-400 px-4"
             />
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="ward" className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-1">Ward Selection *</Label>
+            <Label htmlFor="ward" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Ward *</Label>
             <Input
               id="ward"
-              placeholder="e.g., Masaki, Kariakoo"
+              placeholder="e.g., Masaki"
               value={value.ward}
               onChange={(e) => handleFieldChange("ward", e.target.value)}
               required
-              className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 font-bold placeholder:text-stone-300 px-6"
+              className="h-12 rounded-xl border-stone-200 bg-white font-medium placeholder:text-stone-400 px-4"
             />
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="street" className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-1">Street / Building Node *</Label>
+            <Label htmlFor="street" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Street / Building *</Label>
             <Input
               id="street"
-              placeholder="e.g., Samora Ave, Tola Towers"
+              placeholder="e.g., Samora Ave"
               value={value.street}
               onChange={(e) => handleFieldChange("street", e.target.value)}
               required
-              className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 font-bold placeholder:text-stone-300 px-6"
+              className="h-12 rounded-xl border-stone-200 bg-white font-medium placeholder:text-stone-400 px-4"
             />
           </div>
 
           <div className="space-y-3 md:col-span-2">
-            <Label htmlFor="village" className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-1">Village / Mtaa / Additional Instructions</Label>
+            <Label htmlFor="village" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Village / Mtaa / Notes</Label>
             <Input
               id="village"
-              placeholder="Specific directions for the logistics partner"
+              placeholder="Additional delivery instructions"
               value={value.village}
               onChange={(e) => handleFieldChange("village", e.target.value)}
-              className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 font-bold placeholder:text-stone-300 px-6"
+              className="h-12 rounded-xl border-stone-200 bg-white font-medium placeholder:text-stone-400 px-4"
             />
           </div>
         </div>
       </div>
 
-      <div className="p-6 bg-stone-900 rounded-[2rem] flex items-start gap-4 border border-stone-800">
-        <CheckCircle2 className="h-5 w-5 text-primary mt-1" />
-        <p className="text-white/60 text-[11px] leading-relaxed font-medium">
-          <span className="text-white font-black">Escrow Policy Verification:</span> Your delivery coordinates are used to calculate the insurance bond and transport rate. Please ensure accuracy for a seamless handover.
+      <div className="p-4 bg-stone-50 rounded-xl flex items-start gap-3 border border-stone-100">
+        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
+        <p className="text-stone-600 text-xs leading-relaxed font-medium">
+          Please ensure your address details are accurate to ensure smooth delivery.
         </p>
       </div>
     </div>

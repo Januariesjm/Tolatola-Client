@@ -252,62 +252,62 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   if (cartItems.length === 0) return null
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB] pb-20">
-      <div className="container mx-auto px-4 py-12 md:py-20">
+    <div className="min-h-screen bg-[#FDFCFB] pb-10">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-[10px]">
                 <ShieldCheck className="h-4 w-4" />
-                <span>Secure Checkout Environment</span>
+                <span>Secure Checkout</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-stone-900 leading-none">
-                Finalize <span className="text-primary italic">Investment.</span>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight text-stone-900 leading-none">
+                Complete <span className="text-primary">Order.</span>
               </h1>
-              <p className="text-stone-500 text-lg md:text-xl font-medium italic max-w-xl">
-                You're just a few moments away from securing your selected items with Tola's escrow protection.
+              <p className="text-stone-600 text-base font-medium max-w-xl">
+                Complete your purchase securely below.
               </p>
             </div>
-            <div className="hidden md:flex flex-col items-end gap-2 p-6 bg-white rounded-[2rem] shadow-2xl shadow-stone-200/50 border border-stone-100">
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Total Calculation</p>
-              <p className="text-4xl font-black text-primary tracking-tighter">TZS {total.toLocaleString()}</p>
+            <div className="hidden md:flex flex-col items-end gap-1 p-4 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Total Amount</p>
+              <p className="text-2xl font-black text-primary tracking-tight">TZS {total.toLocaleString()}</p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-12 items-start">
+          <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-8 space-y-12">
 
               {/* Shipping Section */}
-              <section className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">1</div>
-                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Shipping Destination</h2>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Enter Location</h2>
                 </div>
 
-                <Card className="border-none shadow-2xl shadow-stone-200/40 rounded-[3rem] overflow-hidden bg-white group transition-all duration-500">
-                  <CardContent className="p-10 space-y-8">
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <Label htmlFor="fullName" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Full Name *</Label>
+                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl overflow-hidden bg-white group hover:shadow-2xl transition-all duration-300">
+                  <CardContent className="p-6 md:p-8 space-y-6">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Full Name *</Label>
                         <Input
                           id="fullName"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           required
-                          className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
-                          placeholder="Enter recipient's full name"
+                          className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                          placeholder="Enter name"
                         />
                       </div>
-                      <div className="space-y-3">
-                        <Label htmlFor="phone" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Phone Number *</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Phone Number *</Label>
                         <Input
                           id="phone"
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           required
-                          className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                          className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                           placeholder="+255..."
                         />
                       </div>
@@ -323,9 +323,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     </div>
 
                     {isCalculatingDelivery && (
-                      <div className="flex items-center gap-3 p-6 bg-stone-900 rounded-[2rem] text-white/80 animate-pulse">
-                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                        <span className="font-bold text-sm tracking-tight text-white">Engine is optimizing logistics routes...</span>
+                      <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        <span className="font-medium text-sm">Calculating delivery fee...</span>
                       </div>
                     )}
 
@@ -337,18 +337,18 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     )}
 
                     {deliveryInfo && (
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Total Distance</p>
-                          <p className="text-xl font-black text-stone-900">{deliveryInfo.distanceKm} KM</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 space-y-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Distance</p>
+                          <p className="text-sm font-black text-stone-900">{deliveryInfo.distanceKm} KM</p>
                         </div>
-                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Estimated Speed</p>
-                          <p className="text-xl font-black text-stone-900">{deliveryInfo.duration || "Prompt Delivery"}</p>
+                        <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 space-y-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Time</p>
+                          <p className="text-sm font-black text-stone-900">{deliveryInfo.duration || "Fast"}</p>
                         </div>
-                        <div className="p-6 bg-primary/10 rounded-[2rem] border border-primary/20 space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-primary">Logistics Fee</p>
-                          <p className="text-xl font-black text-primary">TZS {deliveryInfo.deliveryFee.toLocaleString()}</p>
+                        <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 space-y-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Fee</p>
+                          <p className="text-sm font-black text-primary">TZS {deliveryInfo.deliveryFee.toLocaleString()}</p>
                         </div>
                       </div>
                     )}
@@ -357,13 +357,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               </section>
 
               {/* Transport Section */}
-              <section className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">2</div>
-                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Logistics Partner</h2>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-4">
                   {transportMethods.map((method) => {
                     const isActive = selectedTransportId === method.id
                     return (
@@ -371,28 +371,28 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         key={method.id}
                         onClick={() => setSelectedTransportId(method.id)}
                         className={cn(
-                          "relative group cursor-pointer transition-all duration-500 rounded-[2.5rem] p-8 border-2 flex flex-col gap-6",
+                          "relative group cursor-pointer transition-all duration-300 rounded-3xl p-5 border-2 flex flex-col gap-4",
                           isActive
-                            ? "bg-white border-primary shadow-2xl shadow-primary/10 -translate-y-2"
-                            : "bg-stone-50/50 border-transparent hover:border-stone-200 hover:bg-white"
+                            ? "bg-white border-primary shadow-lg -translate-y-1"
+                            : "bg-white border-transparent hover:border-stone-200"
                         )}
                       >
                         <div className="flex justify-between items-start">
                           <div className={cn(
-                            "h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500",
-                            isActive ? "bg-primary text-white rotate-6" : "bg-white text-stone-400 shadow-sm"
+                            "h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                            isActive ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
                           )}>
-                            <Truck className="h-7 w-7" />
+                            <Truck className="h-5 w-5" />
                           </div>
-                          {isActive && <CheckCircle2 className="h-6 w-6 text-primary" />}
+                          {isActive && <CheckCircle2 className="h-5 w-5 text-primary" />}
                         </div>
                         <div className="space-y-1">
-                          <h3 className="text-2xl font-black tracking-tight text-stone-900">{method.name}</h3>
-                          <p className="text-stone-500 text-sm font-medium line-clamp-2 leading-relaxed italic">{method.description}</p>
+                          <h3 className="text-lg font-bold tracking-tight text-stone-900">{method.name}</h3>
+                          <p className="text-stone-600 text-xs font-medium line-clamp-2 leading-relaxed">{method.description}</p>
                         </div>
-                        <div className="mt-auto pt-4 flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-widest text-stone-400">Vivid Logistics Rate</span>
-                          <span className="text-lg font-black text-primary tracking-tight">
+                        <div className="mt-auto pt-2 flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Rate</span>
+                          <span className="text-base font-black text-primary tracking-tight">
                             {method.rate_per_km
                               ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
                               : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
@@ -405,32 +405,32 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               </section>
 
               {/* Payment Section */}
-              <section className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center font-black text-xl shadow-xl">3</div>
-                  <h2 className="text-3xl font-black tracking-tight text-stone-900">Secure Payment Channel</h2>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">3</div>
+                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Choose Payment</h2>
                 </div>
 
-                <Card className="border-none shadow-2xl shadow-stone-200/40 rounded-[3rem] overflow-hidden bg-white">
-                  <CardContent className="p-10">
+                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl overflow-hidden bg-white">
+                  <CardContent className="p-6 md:p-8">
                     <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-4">
+                      <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
                         <AccordionItem value="mobile-money" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
-                            <div className="flex items-center gap-4">
-                              <Smartphone className="h-6 w-6" />
-                              <span className="text-xl font-black tracking-tight">Mobile Money Escrow</span>
+                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                            <div className="flex items-center gap-3">
+                              <Smartphone className="h-5 w-5" />
+                              <span className="text-lg font-bold tracking-tight">Mobile Money</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-6 mt-4 space-y-6">
-                            <div className="space-y-3">
-                              <Label htmlFor="paymentPhone" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Payment Phone Number</Label>
+                          <AccordionContent className="p-4 mt-2 space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="paymentPhone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Phone Number</Label>
                               <Input
                                 id="paymentPhone"
                                 type="tel"
                                 value={paymentPhoneNumber}
                                 onChange={(e) => setPaymentPhoneNumber(e.target.value)}
-                                className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                                 placeholder="e.g. 2557..."
                               />
                             </div>
@@ -446,20 +446,20 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   key={p.id}
                                   htmlFor={p.id}
                                   className={cn(
-                                    "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                                    "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
+                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
                                   )}
                                 >
                                   <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
                                   <div className={cn(
-                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                                    paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                    "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                                    paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
                                   )}>
-                                    <Smartphone className="h-5 w-5" />
+                                    <Smartphone className="h-4 w-4" />
                                   </div>
                                   <div>
-                                    <p className="font-black text-stone-900">{p.name}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">{p.provider}</p>
+                                    <p className="font-bold text-stone-900 text-sm">{p.name}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
                                   </div>
                                 </Label>
                               ))}
@@ -468,59 +468,59 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         </AccordionItem>
 
                         <AccordionItem value="cards" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
-                            <div className="flex items-center gap-4">
-                              <CreditCard className="h-6 w-6" />
-                              <span className="text-xl font-black tracking-tight">Global Debit/Credit</span>
+                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                            <div className="flex items-center gap-3">
+                              <CreditCard className="h-5 w-5" />
+                              <span className="text-lg font-bold tracking-tight">Card Payment</span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="p-6 mt-4 space-y-6">
-                            <div className="grid md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-3 gap-2">
                               {["visa", "mastercard", "unionpay"].map((c) => (
                                 <Label key={c} htmlFor={c} className={cn(
-                                  "flex flex-col items-center gap-4 p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 text-center",
-                                  paymentMethod === c ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                                  "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                  paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
                                 )}>
                                   <RadioGroupItem value={c} id={c} className="sr-only" />
                                   <div className={cn(
-                                    "h-12 w-12 rounded-xl flex items-center justify-center transition-colors",
-                                    paymentMethod === c ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                    "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+                                    paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
                                   )}>
-                                    <CreditCard className="h-6 w-6" />
+                                    <CreditCard className="h-5 w-5" />
                                   </div>
-                                  <span className="font-black uppercase tracking-widest text-xs text-stone-900">{c}</span>
+                                  <span className="font-bold uppercase tracking-wide text-[10px] text-stone-900">{c}</span>
                                 </Label>
                               ))}
                             </div>
-                            <div className="space-y-4 pt-4 border-t border-stone-50">
-                              <div className="space-y-3">
-                                <Label htmlFor="cardNumber" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Card Number</Label>
+                            <div className="space-y-3 pt-3 border-t border-stone-100">
+                              <div className="space-y-2">
+                                <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Card Number</Label>
                                 <Input
                                   id="cardNumber"
                                   value={cardDetails.number}
                                   onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                                  className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                  className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                                   placeholder="0000 0000 0000 0000"
                                 />
                               </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-3">
-                                  <Label htmlFor="expiry" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">Expiry Date</Label>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-2">
+                                  <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Expiry</Label>
                                   <Input
                                     id="expiry"
                                     value={cardDetails.expiry}
                                     onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                    className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                                     placeholder="MM/YY"
                                   />
                                 </div>
-                                <div className="space-y-3">
-                                  <Label htmlFor="cvv" className="text-xs font-black uppercase tracking-widest text-stone-400 ml-1">CVV / CVC</Label>
+                                <div className="space-y-2">
+                                  <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">CVV / CVC</Label>
                                   <Input
                                     id="cvv"
                                     value={cardDetails.cvv}
                                     onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 focus:bg-white focus:ring-primary/20 transition-all font-medium text-lg px-6"
+                                    className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                                     placeholder="123"
                                   />
                                 </div>
@@ -530,10 +530,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         </AccordionItem>
 
                         <AccordionItem value="bank" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-6 bg-stone-50 rounded-[2rem] group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-500">
-                            <div className="flex items-center gap-4">
-                              <Building2 className="h-6 w-6" />
-                              <span className="text-xl font-black tracking-tight">Direct Bank Infrastructure</span>
+                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                            <div className="flex items-center gap-3">
+                              <Building2 className="h-5 w-5" />
+                              <span className="text-lg font-bold tracking-tight">Bank Transfer</span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="p-6 space-y-3 mt-4">
@@ -562,14 +562,14 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             </div>
 
             {/* Sidebar / Summary */}
-            <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-8">
-              <Card className="border-none shadow-2xl shadow-stone-200/50 rounded-[3rem] overflow-hidden bg-white">
-                <div className="bg-stone-950 p-10 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                  <h3 className="text-2xl font-black tracking-tight relative z-10">Order Architecture</h3>
-                  <p className="text-white/40 text-xs font-black uppercase tracking-widest mt-1 relative z-10">Summary of selections</p>
+            <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+              <Card className="border-none shadow-xl shadow-stone-200/50 rounded-3xl overflow-hidden bg-white">
+                <div className="bg-stone-900 p-6 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <h3 className="text-xl font-black tracking-tight relative z-10">Order Summary</h3>
+                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mt-0.5 relative z-10">Your items</p>
                 </div>
-                <CardContent className="p-10 space-y-8">
+                <CardContent className="p-6 space-y-6">
                   <div className="space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-2">
                     {cartItems.map((item) => (
                       <div key={item.product_id} className="flex gap-4">
@@ -591,29 +591,29 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     ))}
                   </div>
 
-                  <div className="pt-8 border-t border-stone-100 space-y-4">
+                  <div className="pt-6 border-t border-stone-100 space-y-2">
                     <div className="flex justify-between items-center group">
-                      <span className="text-stone-400 text-sm font-bold flex items-center gap-2">
-                        <Wallet className="h-4 w-4" /> Subtotal
+                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
+                        Subtotal
                       </span>
-                      <span className="text-stone-900 font-black tracking-tight">{subtotal.toLocaleString()} TZS</span>
+                      <span className="text-stone-900 font-bold tracking-tight">{subtotal.toLocaleString()} TZS</span>
                     </div>
                     <div className="flex justify-between items-center group">
-                      <span className="text-stone-400 text-sm font-bold flex items-center gap-2">
-                        <Truck className="h-4 w-4" /> Logistics
+                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
+                        Delivery
                       </span>
                       <span className={cn(
-                        "font-black tracking-tight",
+                        "font-bold tracking-tight",
                         deliveryInfo ? "text-stone-900" : "text-primary italic animate-pulse"
                       )}>
                         {deliveryInfo ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
                       </span>
                     </div>
-                    <div className="pt-6 border-t border-stone-100 flex justify-between items-end">
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-primary">Final Investment</p>
-                        <p className="text-3xl font-black text-stone-950 tracking-tighter">
-                          {total.toLocaleString()} <span className="text-xs uppercase">TZS</span>
+                    <div className="pt-4 border-t border-stone-100 flex justify-between items-end">
+                      <div className="space-y-0.5">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Total Amount</p>
+                        <p className="text-2xl font-black text-stone-900 tracking-tight">
+                          {total.toLocaleString()} <span className="text-[10px] uppercase">TZS</span>
                         </p>
                       </div>
                     </div>
@@ -621,28 +621,28 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
                   <Button
                     type="submit"
-                    className="w-full h-20 rounded-[2.5rem] bg-primary hover:bg-stone-900 text-white font-black text-xl shadow-2xl shadow-primary/20 transition-all active:scale-[0.97] group"
+                    className="w-full h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
                     disabled={isLoading || !deliveryInfo || isCalculatingDelivery}
                   >
                     {isLoading ? (
-                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
-                      <span className="flex items-center gap-3">
-                        Deploy Final Order
-                        <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                      <span className="flex items-center gap-2">
+                        Complete Order
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     )}
                   </Button>
 
-                  <div className="flex items-center justify-center gap-4 pt-4">
+                  <div className="flex items-center justify-center gap-4 pt-2">
                     <div className="flex items-center gap-1">
                       <ShieldCheck className="h-3 w-3 text-green-600" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Escrow Protect</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Protected</span>
                     </div>
-                    <div className="w-1 h-1 rounded-full bg-stone-200" />
+                    <div className="w-1 h-1 rounded-full bg-stone-300" />
                     <div className="flex items-center gap-1">
-                      <Zap className="h-3 w-3 text-amber-500" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Secure Node</span>
+                      <CheckCircle2 className="h-3 w-3 text-primary" />
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Secure</span>
                     </div>
                   </div>
                 </CardContent>

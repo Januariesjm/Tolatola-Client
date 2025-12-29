@@ -117,7 +117,7 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
                   {order.order_items?.map((item: any) => (
                     <div key={item.id} className="flex justify-between text-sm">
                       <span>
-                        {item.product.name} x {item.quantity}
+                        {item.product?.name || "Product"} x {item.quantity}
                       </span>
                       <span>TZS {(item.unit_price * item.quantity).toLocaleString()}</span>
                     </div>
