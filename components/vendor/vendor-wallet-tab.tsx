@@ -177,7 +177,6 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="details">Phone Number / Account Details</Label>
             <Input
               id="details"
               placeholder="e.g., +255 XXX XXX XXX"
@@ -185,6 +184,23 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
               onChange={(e) => setPaymentDetails(e.target.value)}
             />
           </div>
+
+          {payoutAmount && !isNaN(Number(payoutAmount)) && Number(payoutAmount) > 0 && (
+            <div className="bg-stone-50 p-4 rounded-lg space-y-2 text-sm">
+              <div className="flex justify-between text-stone-600">
+                <span>Requested:</span>
+                <span>TZS {Number(payoutAmount).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-stone-600">
+                <span>Service Fee (5%):</span>
+                <span>- TZS {(Number(payoutAmount) * 0.05).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg pt-2 border-t border-stone-200">
+                <span>You Receive:</span>
+                <span className="text-green-600">TZS {(Number(payoutAmount) * 0.95).toLocaleString()}</span>
+              </div>
+            </div>
+          )}
 
           <Button onClick={handleRequestPayout} disabled={requestingPayout || balance <= 0} className="w-full">
             <DollarSign className="h-4 w-4 mr-2" />
@@ -220,13 +236,12 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`text-sm font-medium ${
-                        payout.status === "completed"
+                      className={`text-sm font-medium ${payout.status === "completed"
                           ? "text-green-600"
                           : payout.status === "failed"
                             ? "text-red-600"
                             : "text-yellow-600"
-                      }`}
+                        }`}
                     >
                       {payout.status}
                     </span>

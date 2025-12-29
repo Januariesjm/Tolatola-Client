@@ -104,6 +104,23 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
               />
             </div>
 
+            {amount && !isNaN(Number(amount)) && Number(amount) > 0 && (
+              <div className="bg-green-50/50 p-4 rounded-lg space-y-2 text-sm border border-green-100">
+                <div className="flex justify-between text-stone-600">
+                  <span>Requested:</span>
+                  <span>TZS {Number(amount).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-stone-600">
+                  <span>Service Fee (5%):</span>
+                  <span>- TZS {(Number(amount) * 0.05).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg pt-2 border-t border-green-200">
+                  <span>You Receive:</span>
+                  <span className="text-green-700">TZS {(Number(amount) * 0.95).toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="paymentMethod">Payment Method *</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
