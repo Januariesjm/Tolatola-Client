@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, ShoppingCart, Store, ArrowRight, Sparkles } from "lucide-react"
+import { ChevronLeft, ChevronRight, ShoppingCart, Store, ArrowRight, Sparkles, Truck } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -108,30 +108,32 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                 <div className="flex flex-wrap gap-2 pt-1 md:pt-2">
                   <Link href={slide.button_link || "/shop"} className="flex-none">
                     <Button
-                      size="sm"
-                      className="w-auto h-8 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-8"
+                      size="lg"
+                      className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-4 md:px-8"
                     >
-                      {slide.button_text || "Shop Now"}
-                      <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                      {slide.id === "welcome" ? <ShoppingCart className="mr-2 h-4 w-4" /> : null}
+                      {slide.button_text || "Start Shopping"}
                     </Button>
                   </Link>
                   {slide.id === "welcome" && (
                     <>
-                      <Link href="/auth/sign-up?userType=vendor" className="flex-1 sm:flex-none">
+                      <Link href="/auth/sign-up?userType=vendor" className="flex-none">
                         <Button
                           size="lg"
                           variant="outline"
-                          className="w-full sm:w-auto text-base sm:text-lg font-semibold rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all py-6 px-6 sm:px-8"
+                          className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
                         >
+                          <Store className="mr-2 h-4 w-4" />
                           Become a Seller
                         </Button>
                       </Link>
                       <Link href="/auth/sign-up?userType=transporter" className="flex-none">
                         <Button
-                          size="sm"
+                          size="lg"
                           variant="outline"
-                          className="w-auto h-8 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-8"
+                          className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
                         >
+                          <Truck className="mr-2 h-4 w-4" />
                           Become a Transporter
                         </Button>
                       </Link>
@@ -177,8 +179,8 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                   key={index}
                   onClick={() => setCurrentSlide(index)}
                   className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${index === currentSlide
-                      ? "bg-primary w-6 sm:w-8"
-                      : "bg-white/40 w-1.5 sm:w-2 hover:bg-white/60"
+                    ? "bg-primary w-6 sm:w-8"
+                    : "bg-white/40 w-1.5 sm:w-2 hover:bg-white/60"
                     }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
