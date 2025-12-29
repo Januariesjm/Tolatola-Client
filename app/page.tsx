@@ -136,7 +136,7 @@ export default async function HomePage() {
       />
 
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
-      
+
       {/* Mobile Search Bar - Between Header and Categories */}
       <div className="lg:hidden sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm">
         <div className="container mx-auto px-4 py-3">
@@ -174,14 +174,14 @@ export default async function HomePage() {
         </section>
 
         {/* Trending Categories */}
-        <section className="py-24 container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <section className="py-12 md:py-24 container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-16 gap-6">
             <div className="space-y-2 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-widest text-xs">
                 <Sparkles className="h-4 w-4" />
                 <span>Selections for you</span>
               </div>
-              <h2 className="text-4xl md:text-7xl font-black tracking-tighter">Shop by <span className="text-primary italic">Category</span></h2>
+              <h2 className="text-3xl md:text-7xl font-black tracking-tighter">Shop by <span className="text-primary italic">Category</span></h2>
             </div>
             <Link href="/shop" className="group flex items-center justify-center gap-2 text-lg font-bold hover:text-primary transition-colors">
               View Entire Catalog <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -194,18 +194,18 @@ export default async function HomePage() {
               const getCategoryImage = () => {
                 // First try database image_url
                 if (cat.image_url) return cat.image_url
-                
+
                 // Try matching by slug
                 if (cat.slug && categoryImages[cat.slug.toLowerCase()]) {
                   return categoryImages[cat.slug.toLowerCase()]
                 }
-                
+
                 // Try matching by name (normalized)
                 const categoryName = (cat.name || "").toLowerCase().replace(/\s+/g, "-")
                 if (categoryImages[categoryName]) {
                   return categoryImages[categoryName]
                 }
-                
+
                 // Try partial matches for common category names
                 const nameLower = (cat.name || "").toLowerCase()
                 if (nameLower.includes("agriculture") || nameLower.includes("farm")) {
@@ -232,28 +232,28 @@ export default async function HomePage() {
                 if (nameLower.includes("service") || nameLower.includes("business")) {
                   return categoryImages.services
                 }
-                
+
                 // Default fallback
                 return categoryImages.default || "/abstract-categories.png"
               }
-              
+
               const backgroundImage = getCategoryImage()
-              
+
               return (
-                <Link 
-                  key={cat.id} 
-                  href={`/shop?category=${cat.id}`} 
+                <Link
+                  key={cat.id}
+                  href={`/shop?category=${cat.id}`}
                   className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-stone-200 hover:shadow-2xl transition-all duration-500"
                 >
                   {/* Background Image */}
-                  <div 
+                  <div
                     className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
                     style={{ backgroundImage: `url(${backgroundImage})` }}
                   />
-                  
+
                   {/* Overlay for better text readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/50 to-stone-950/20" />
-                  
+
                   {/* Content */}
                   <div className="absolute inset-x-0 bottom-0 p-6 md:p-8 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent flex flex-col justify-end h-1/2">
                     <h3 className="text-white text-xl md:text-2xl font-black tracking-tight">{cat.name}</h3>
@@ -266,10 +266,10 @@ export default async function HomePage() {
         </section>
 
         {/* Why Tola - Modern Cards */}
-        <section className="py-32 bg-stone-50 overflow-hidden relative">
+        <section className="py-16 md:py-32 bg-stone-50 overflow-hidden relative">
           <div className="container mx-auto px-4 relative z-10">
-            <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter">Engineered for <span className="text-primary italic">Trust</span></h2>
+            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-4">
+              <h2 className="text-3xl md:text-7xl font-black tracking-tighter">Engineered for <span className="text-primary italic">Trust</span></h2>
               <p className="text-muted-foreground text-xl italic font-medium">We've built a multi-layered security framework to protect both the buyer and the merchant.</p>
             </div>
 
@@ -288,15 +288,15 @@ export default async function HomePage() {
         </section>
 
         {/* Seller CTA */}
-        <section className="py-24 container mx-auto px-4">
-          <div className="bg-primary rounded-[4rem] p-12 md:p-24 relative overflow-hidden text-center md:text-left">
+        <section className="py-12 md:py-24 container mx-auto px-4">
+          <div className="bg-primary rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden text-center md:text-left">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
-            <div className="relative z-10 grid md:grid-cols-2 gap-16 items-center">
-              <div className="space-y-8">
+            <div className="relative z-10 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+              <div className="space-y-6 md:space-y-8">
                 <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white text-primary text-sm font-black tracking-widest uppercase">
                   Open for Enrollment
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
+                <h2 className="text-3xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
                 <p className="text-primary-foreground/80 text-xl font-medium italic">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and escrow protection for every sale.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/vendor/register">
