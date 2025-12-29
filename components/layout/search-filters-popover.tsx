@@ -34,7 +34,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
   )
   const [priceRange, setPriceRange] = useState<[number, number]>([
     searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : 0,
-    searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : 1000000
+    searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : 50000000
   ])
   const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">(
     (searchParams.get("sort") as any) || "name"
@@ -87,7 +87,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     } else {
       params.delete("minPrice")
     }
-    if (newMaxPrice < 1000000) {
+    if (newMaxPrice < 50000000) {
       params.set("maxPrice", newMaxPrice.toString())
     } else {
       params.delete("maxPrice")
@@ -98,9 +98,9 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
 
   const clearFilters = () => {
     setSelectedCategories([])
-    setPriceRange([0, 1000000])
+    setPriceRange([0, 50000000])
     setSortBy("name")
-    updateFilters({ categories: [], minPrice: 0, maxPrice: 1000000, sortBy: "name" })
+    updateFilters({ categories: [], minPrice: 0, maxPrice: 50000000, sortBy: "name" })
   }
 
   return (
@@ -153,7 +153,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
             value={priceRange}
             onValueChange={handlePriceChange}
             min={0}
-            max={1000000}
+            max={50000000}
             step={1000}
             className="mb-4"
           />
