@@ -285,7 +285,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <h2 className="text-xl font-bold tracking-tight text-stone-900">Enter Location</h2>
                 </div>
 
-                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl overflow-hidden bg-white group hover:shadow-2xl transition-all duration-300">
+                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
                   <CardContent className="p-6 md:p-8 space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
