@@ -156,12 +156,77 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     }
   }, [selectedTransportId, cartItems])
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  const deliveryFee = deliveryInfo?.deliveryFee || 0
-  const total = subtotal + deliveryFee
+  const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
+  const [paymentStatusMessage, setPaymentStatusMessage] = useState("")
+
+  const pollPaymentStatus = async (orderId: string) => {
+    let attempts = 0
+    const maxAttempts = 40 // ~2 mins polling
+
+    const checkStatus = async () => {
+      try {
+        const res = await clientApiGet<{ data: { payment_status: string; status: string; click_pesa_error?: string } }>(
+          `payments/status/${orderId}`
+        )
+        const { payment_status, status } = res.data
+
+        if (payment_status === "paid" || status === "confirmed") {
+          setIsAwaitingPayment(false)
+          toast({
+            title: "Payment Successful",
+            description: "Your order has been confirmed successfully!",
+          })
+          localStorage.removeItem("cart")
+          window.dispatchEvent(new Event("cartUpdated"))
+          router.push(`/payment/${orderId}`)
+          return true
+        }
+
+        if (payment_status === "failed") {
+          setIsAwaitingPayment(false)
+          toast({
+            title: "Payment Failed",
+            description: res.data.click_pesa_error || "The transaction was unsuccessful. Please check your balance or try another method.",
+            variant: "destructive",
+          })
+          return true
+        }
+
+        return false
+      } catch (err) {
+        console.error("Polling error:", err)
+        return false
+      }
+    }
+
+    const interval = setInterval(async () => {
+      attempts++
+      const finished = await checkStatus()
+      if (finished || attempts >= maxAttempts) {
+        clearInterval(interval)
+        if (attempts >= maxAttempts) {
+          setIsAwaitingPayment(false)
+          toast({
+            title: "Payment Timeout",
+            description: "We haven't received confirmation yet. Please check your order status later.",
+            variant: "destructive",
+          })
+        }
+      }
+    }, 3000)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (paymentMethod === "m-pesa") {
+      toast({
+        title: "Maintenance",
+        description: "M-Pesa Vodacom is currently under maintenance. Please try another payment method.",
+        variant: "destructive",
+      })
+      return
+    }
 
     if (!addressData.region || !addressData.district || !addressData.ward || !addressData.street) {
       toast({
@@ -238,12 +303,37 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         throw new Error("Order ID not returned from API")
       }
 
-      localStorage.removeItem("cart")
-      window.dispatchEvent(new Event("cartUpdated"))
+      if (paymentMethod === "cash-on-delivery") {
+        localStorage.removeItem("cart")
+        window.dispatchEvent(new Event("cartUpdated"))
+        router.push(`/payment/${orderId}`)
+        return
+      }
 
-      router.push(`/payment/${orderId}`)
+      // Initiate Payment
+      setPaymentStatusMessage("Initiating secure payment request...")
+      setIsAwaitingPayment(true)
+
+      const payRes = await clientApiPost<{ success: boolean; message: string; transactionId?: string }>(
+        "payments/clickpesa/initiate",
+        {
+          orderId,
+          paymentMethod,
+          paymentDetails: {
+            phoneNumber: paymentPhoneNumber,
+          },
+        }
+      )
+
+      if (payRes.success) {
+        setPaymentStatusMessage("Awaiting Payment... Please check your phone for the USSD prompt.")
+        pollPaymentStatus(orderId)
+      } else {
+        throw new Error(payRes.message || "Failed to initiate payment")
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred during checkout")
+      setIsAwaitingPayment(false)
     } finally {
       setIsLoading(false)
     }
@@ -253,6 +343,36 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-10">
+      {/* Payment Loading Overlay */}
+      {isAwaitingPayment && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+          <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden">
+            <div className="bg-primary p-8 text-white text-center space-y-4">
+              <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto animate-pulse">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+              <h2 className="text-2xl font-black tracking-tight">Confirming Payment</h2>
+            </div>
+            <CardContent className="p-8 text-center space-y-6">
+              <p className="text-stone-600 font-medium leading-relaxed">
+                {paymentStatusMessage}
+              </p>
+              <div className="flex flex-col gap-3">
+                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
+                  <ShieldCheck className="h-5 w-5 text-green-600" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
+                    Encrypted secure transaction protocol active
+                  </span>
+                </div>
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                Do not refresh this page
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
@@ -436,18 +556,19 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             </div>
                             <div className="grid md:grid-cols-2 gap-4">
                               {[
-                                { id: "m-pesa", name: "M-Pesa", provider: "Vodacom" },
                                 { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
                                 { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
                                 { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
-                                { id: "ezypesa", name: "EzyPesa", provider: "Zantel" }
+                                { id: "ezypesa", name: "EzyPesa", provider: "Zantel" },
+                                { id: "m-pesa", name: "M-Pesa", provider: "Vodacom", maintenance: true },
                               ].map((p) => (
                                 <Label
                                   key={p.id}
                                   htmlFor={p.id}
                                   className={cn(
                                     "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
-                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
+                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
+                                    p.maintenance && "opacity-60 grayscale-[0.5]"
                                   )}
                                 >
                                   <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
@@ -457,8 +578,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   )}>
                                     <Smartphone className="h-4 w-4" />
                                   </div>
-                                  <div>
-                                    <p className="font-bold text-stone-900 text-sm">{p.name}</p>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                      <p className="font-bold text-stone-900 text-sm">{p.name}</p>
+                                      {p.maintenance && (
+                                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">Service Down</span>
+                                      )}
+                                    </div>
                                     <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
                                   </div>
                                 </Label>
@@ -622,13 +748,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <Button
                     type="submit"
                     className="w-full h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
-                    disabled={isLoading || !deliveryInfo || isCalculatingDelivery}
+                    disabled={isLoading || !deliveryInfo || isCalculatingDelivery || paymentMethod === "m-pesa"}
                   >
                     {isLoading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                       <span className="flex items-center gap-2">
-                        Complete Order
+                        {paymentMethod === "m-pesa" ? "Service Unavailable" : "Complete Order"}
                         <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     )}
