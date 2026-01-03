@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2, AlertCircle, ShoppingBag, Package, Truck, Home, ShieldCheck, MapPin, Phone, User } from "lucide-react"
+import { CheckCircle2, AlertCircle, ShoppingBag, Package, Truck, Home, ShieldCheck, MapPin, Phone, User, Building2 } from "lucide-react"
 import { ClickPesaPayment } from "@/components/payment/clickpesa-payment"
 import type { PaymentMethod } from "@/lib/clickpesa"
 import { cn } from "@/lib/utils"
@@ -180,6 +180,30 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
 
                   {/* Delivery Address Details */}
                   <div className="space-y-6">
+                    {/* Bank Transfer Details (if applicable) */}
+                    {(order.payment_status !== "paid" && ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(order.payment_method)) && (
+                      <div className="p-6 bg-primary/5 rounded-[2.5rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                        <div className="flex items-center gap-3">
+                          <Building2 className="h-5 w-5 text-primary" />
+                          <p className="text-sm font-black text-stone-900">Payment Required via Bank</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                            {order.clickpesa_transaction_id}
+                          </p>
+                        </div>
+                        <div className="text-left space-y-2 bg-white/50 p-4 rounded-xl border border-stone-100">
+                          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
+                          <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
+                            <li>Dial *150*03# (CRDB SimBanking)</li>
+                            <li>Select 'Bill Payment'</li>
+                            <li>Enter this Control Number</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="space-y-4">
                       <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Shipping To</h4>
                       <div className="space-y-5">
