@@ -156,6 +156,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     }
   }, [selectedTransportId, cartItems])
 
+  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  const deliveryFee = deliveryInfo?.deliveryFee || 0
+  const total = subtotal + deliveryFee
+
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
   const [paymentStatusMessage, setPaymentStatusMessage] = useState("")
 
