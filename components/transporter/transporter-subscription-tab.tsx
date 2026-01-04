@@ -320,25 +320,27 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
 
             {/* Upgrade Dialog */}
             <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-                <DialogContent className="max-w-md rounded-[2.5rem] p-8">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-black">Upgrade Account</DialogTitle>
-                        <DialogDescription className="text-stone-500 font-medium">
-                            Elevate your earnings and priority status.
-                        </DialogDescription>
-                    </DialogHeader>
+                <DialogContent className="max-w-md w-[95vw] sm:w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl animate-in zoom-in duration-300">
+                    <div className="bg-primary p-6 py-8 text-white">
+                        <DialogHeader className="space-y-1">
+                            <DialogTitle className="text-2xl font-black text-white">Upgrade Account</DialogTitle>
+                            <DialogDescription className="text-white/80 font-medium">
+                                Elevate your earnings and priority status.
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
 
-                    <div className="space-y-6 py-4">
+                    <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-hide py-4 space-y-6">
                         <div className="bg-stone-50 p-6 rounded-[1.5rem] border border-stone-100">
                             <div className="flex justify-between items-center mb-1">
                                 <span className="font-bold text-stone-900">{selectedPlan?.name} Member</span>
                                 <span className="text-2xl font-black text-primary">{selectedPlan?.price?.toLocaleString()} TZS</span>
                             </div>
-                            <p className="text-xs text-stone-400 font-bold uppercase tracking-widest">Billed Monthly</p>
+                            <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Billed Monthly</p>
                         </div>
 
                         <div className="space-y-3">
-                            <Label className="font-bold text-stone-900 ml-1">Select Payment Method</Label>
+                            <Label className="font-black text-stone-900 ml-1">Select Payment Method</Label>
                             <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid gap-3">
                                 {[
                                     { id: "airtel-money", name: "Airtel Money", icon: <Phone className="h-4 w-4 text-red-600" /> },
@@ -347,7 +349,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                     { id: "visa", name: "Visa / Mastercard", icon: <CreditCard className="h-4 w-4 text-stone-900" /> },
                                     { id: "crdb-simbanking", name: "Bank Transfer", icon: <Building2 className="h-4 w-4 text-stone-900" /> },
                                 ].map((method) => (
-                                    <div key={method.id} className={`flex items-center space-x-3 border-2 rounded-2xl p-4 transition-all duration-200 cursor-pointer ${paymentMethod === method.id ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                                    <div key={method.id} className={`flex items-center space-x-3 border-2 rounded-2xl p-4 transition-all duration-200 cursor-pointer ${paymentMethod === method.id ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                                         <RadioGroupItem value={method.id} id={method.id} />
                                         <Label htmlFor={method.id} className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                                             {method.icon} {method.name}
@@ -358,10 +360,10 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                         </div>
 
                         {/* Method Specific Inputs */}
-                        <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                        <div className="animate-in slide-in-from-top-2 duration-300">
                             {["airtel-money", "tigo-pesa", "halopesa"].includes(paymentMethod) && (
                                 <div className="space-y-2">
-                                    <Label className="font-bold text-stone-700 ml-1">Phone Number</Label>
+                                    <Label className="font-bold text-stone-800 ml-1">Phone Number</Label>
                                     <Input
                                         placeholder="07XXXXXXXX"
                                         value={phoneNumber}
@@ -375,7 +377,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                             {paymentMethod === "visa" && (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label className="font-bold text-stone-700 ml-1">Card Number</Label>
+                                        <Label className="font-bold text-stone-800 ml-1">Card Number</Label>
                                         <Input
                                             placeholder="XXXX XXXX XXXX XXXX"
                                             value={cardNumber}
@@ -385,7 +387,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label className="font-bold text-stone-700 ml-1">Expiry</Label>
+                                            <Label className="font-bold text-stone-800 ml-1">Expiry</Label>
                                             <Input
                                                 placeholder="MM/YY"
                                                 value={expiryDate}
@@ -394,7 +396,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="font-bold text-stone-700 ml-1">CVV</Label>
+                                            <Label className="font-bold text-stone-800 ml-1">CVV</Label>
                                             <Input
                                                 placeholder="XXX"
                                                 value={cvv}
@@ -405,10 +407,19 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                     </div>
                                 </div>
                             )}
+
+                            {paymentMethod === "crdb-simbanking" && (
+                                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
+                                    <Building2 className="h-5 w-5 text-primary" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left leading-relaxed">
+                                        Selecting Bank Transfer will generate a GePG Control Number for use with CRDB SimBanking or any TISS transfer.
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <DialogFooter className="flex-col sm:flex-col gap-3 mt-4">
+                    <DialogFooter className="p-6 pt-2 flex-col sm:flex-col gap-3">
                         <Button
                             onClick={handleUpgrade}
                             disabled={upgrading}
