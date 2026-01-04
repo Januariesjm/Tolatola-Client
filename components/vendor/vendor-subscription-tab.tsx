@@ -362,110 +362,105 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
 
       {/* Upgrade Dialog */}
       <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Upgrade to {selectedPlan?.name}</DialogTitle>
-            <DialogDescription>Choose your payment method to upgrade your subscription</DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-md w-[95vw] sm:w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl animate-in zoom-in duration-300">
+          <div className="bg-primary p-6 py-8 text-white">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-2xl font-black text-white">Upgrade to {selectedPlan?.name}</DialogTitle>
+              <DialogDescription className="text-white/80 font-medium">Choose your payment method to upgrade</DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4 py-4">
-            <div className="bg-muted p-4 rounded-lg">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">{selectedPlan?.name} Plan</span>
-                <span className="text-2xl font-bold">{selectedPlan?.price?.toLocaleString()} TZS</span>
+          <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-hide py-4 space-y-6">
+            <div className="bg-stone-50 p-6 rounded-[1.5rem] border border-stone-100">
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-bold text-stone-900">{selectedPlan?.name} Plan</span>
+                <span className="text-2xl font-black text-primary">{selectedPlan?.price?.toLocaleString()} TZS</span>
               </div>
-              <p className="text-sm text-muted-foreground">Billed monthly</p>
+              <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Billed monthly</p>
             </div>
 
-            <div>
-              <Label className="mb-3 block font-bold">Payment Method</Label>
+            <div className="space-y-3">
+              <Label className="font-black text-stone-900 ml-1">Select Payment Method</Label>
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid grid-cols-1 gap-3">
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "airtel-money" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "airtel-money" ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                   <RadioGroupItem value="airtel-money" id="airtel" />
-                  <Label htmlFor="airtel" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                  <Label htmlFor="airtel" className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                     <Phone className="h-4 w-4 text-red-600" /> Airtel Money
                   </Label>
                 </div>
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "tigo-pesa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "tigo-pesa" ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                   <RadioGroupItem value="tigo-pesa" id="tigo" />
-                  <Label htmlFor="tigo" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                  <Label htmlFor="tigo" className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                     <Phone className="h-4 w-4 text-blue-600" /> Tigo Pesa
                   </Label>
                 </div>
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "halopesa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "halopesa" ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                   <RadioGroupItem value="halopesa" id="halopesa" />
-                  <Label htmlFor="halopesa" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                  <Label htmlFor="halopesa" className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                     <Phone className="h-4 w-4 text-orange-600" /> HaloPesa
                   </Label>
                 </div>
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "visa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "visa" ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                   <RadioGroupItem value="visa" id="visa" />
-                  <Label htmlFor="visa" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                  <Label htmlFor="visa" className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                     <CreditCard className="h-4 w-4 text-stone-900" /> Visa / Mastercard
                   </Label>
                 </div>
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "crdb-simbanking" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "crdb-simbanking" ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
                   <RadioGroupItem value="crdb-simbanking" id="bank" />
-                  <Label htmlFor="bank" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                  <Label htmlFor="bank" className="flex-1 cursor-pointer font-bold flex items-center gap-3">
                     <Building2 className="h-4 w-4 text-stone-900" /> Bank Transfer
-                  </Label>
-                </div>
-                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 opacity-50 cursor-not-allowed border-stone-100`}>
-                  <RadioGroupItem value="m-pesa" id="mpesa" disabled />
-                  <Label htmlFor="mpesa" className="flex-1 cursor-not-allowed font-bold flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-stone-400" /> M-Pesa (Maintenance)
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
-            {/* Method-specific inputs */}
-            <div className="pt-2 animate-in slide-in-from-top-2 duration-300">
+            <div className="animate-in slide-in-from-top-2 duration-300">
               {["airtel-money", "tigo-pesa", "halopesa"].includes(paymentMethod) && (
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone" className="font-bold text-stone-800 ml-1">Phone Number</Label>
                   <Input
                     id="phone"
                     placeholder="07XXXXXXXX"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="rounded-xl h-12"
+                    className="rounded-xl h-12 border-stone-200"
                   />
-                  <p className="text-[10px] text-stone-500 font-medium">You will receive a USSD push to authorize</p>
+                  <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest ml-1">USSD push will be sent</p>
                 </div>
               )}
 
               {["visa", "mastercard", "visa"].includes(paymentMethod) && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="card">Card Number</Label>
+                    <Label htmlFor="card" className="font-bold text-stone-800 ml-1">Card Number</Label>
                     <Input
                       id="card"
                       placeholder="XXXX XXXX XXXX XXXX"
                       value={cardNumber}
                       onChange={(e) => setCardNumber(e.target.value)}
-                      className="rounded-xl h-12"
+                      className="rounded-xl h-12 border-stone-200"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="expiry">Expiry (MM/YY)</Label>
+                      <Label htmlFor="expiry" className="font-bold text-stone-800 ml-1">Expiry (MM/YY)</Label>
                       <Input
                         id="expiry"
                         placeholder="MM/YY"
                         value={expiryDate}
                         onChange={(e) => setExpiryDate(e.target.value)}
-                        className="rounded-xl h-12"
+                        className="rounded-xl h-12 border-stone-200"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="cvv">CVV</Label>
+                      <Label htmlFor="cvv" className="font-bold text-stone-800 ml-1">CVV</Label>
                       <Input
                         id="cvv"
                         placeholder="XXX"
                         value={cvv}
                         onChange={(e) => setCvv(e.target.value)}
-                        className="rounded-xl h-12"
+                        className="rounded-xl h-12 border-stone-200"
                       />
                     </div>
                   </div>
@@ -473,19 +468,31 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
               )}
 
               {paymentMethod === "crdb-simbanking" && (
-                <div className="p-4 bg-stone-50 rounded-xl border border-stone-100 text-xs text-stone-600">
-                  Selecting Bank Transfer will generate a control number for use with CRDB SimBanking or any TISS transfer.
+                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left leading-relaxed">
+                    Selecting Bank Transfer will generate a GePG Control Number for use with CRDB SimBanking or any TISS transfer.
+                  </span>
                 </div>
               )}
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUpgradeDialog(false)} disabled={upgrading}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpgrade} disabled={upgrading}>
+          <DialogFooter className="p-6 pt-2 flex-col sm:flex-col gap-3">
+            <Button
+              onClick={handleUpgrade}
+              disabled={upgrading}
+              className="w-full h-14 rounded-2xl bg-primary text-white font-black text-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+            >
               {upgrading ? "Processing..." : `Pay ${selectedPlan?.price?.toLocaleString()} TZS`}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowUpgradeDialog(false)}
+              disabled={upgrading}
+              className="w-full h-12 rounded-2xl border-stone-200 text-stone-500 font-bold"
+            >
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
