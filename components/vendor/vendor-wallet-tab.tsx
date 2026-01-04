@@ -21,7 +21,7 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
   const [loading, setLoading] = useState(true)
   const [requestingPayout, setRequestingPayout] = useState(false)
   const [payoutAmount, setPayoutAmount] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState("m-pesa")
+  const [paymentMethod, setPaymentMethod] = useState("airtel-money")
   const [paymentDetails, setPaymentDetails] = useState("")
   const { toast } = useToast()
 
@@ -167,10 +167,12 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="m-pesa">M-Pesa</SelectItem>
-                  <SelectItem value="tigo-pesa">Tigo Pesa</SelectItem>
                   <SelectItem value="airtel-money">Airtel Money</SelectItem>
+                  <SelectItem value="tigo-pesa">Tigo Pesa</SelectItem>
+                  <SelectItem value="halopesa">HaloPesa</SelectItem>
+                  <SelectItem value="ezypesa">EzyPesa</SelectItem>
                   <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="m-pesa" disabled>M-Pesa (Under Maintenance)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -237,10 +239,10 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                   <div className="text-right">
                     <span
                       className={`text-sm font-medium ${payout.status === "completed"
-                          ? "text-green-600"
-                          : payout.status === "failed"
-                            ? "text-red-600"
-                            : "text-yellow-600"
+                        ? "text-green-600"
+                        : payout.status === "failed"
+                          ? "text-red-600"
+                          : "text-yellow-600"
                         }`}
                     >
                       {payout.status}

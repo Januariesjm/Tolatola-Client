@@ -128,9 +128,12 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mixx_by_yas">Mixx by Yas</SelectItem>
+                  <SelectItem value="airtel-money">Airtel Money</SelectItem>
+                  <SelectItem value="tigo-pesa">Tigo Pesa</SelectItem>
+                  <SelectItem value="halopesa">HaloPesa</SelectItem>
+                  <SelectItem value="ezypesa">EzyPesa</SelectItem>
                   <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                  <SelectItem value="m-pesa" disabled>M-Pesa (Under Maintenance)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
