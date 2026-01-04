@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Crown, Sparkles, Star, Zap } from "lucide-react"
+import { Check, Crown, Sparkles, Star, Zap, ShieldCheck, Building2, Loader2, Phone, CreditCard } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -29,8 +30,16 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
   const [loading, setLoading] = useState(true)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<any>(null)
-  const [paymentMethod, setPaymentMethod] = useState("mixx")
+  const [paymentMethod, setPaymentMethod] = useState("airtel-money")
   const [upgrading, setUpgrading] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [cardNumber, setCardNumber] = useState("")
+  const [expiryDate, setExpiryDate] = useState("")
+  const [cvv, setCvv] = useState("")
+  const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
+  const [controlNumber, setControlNumber] = useState("")
+  const [paymentStatusMessage, setPaymentStatusMessage] = useState("")
+  const { toast } = useToast()
 
   useEffect(() => {
     loadSubscriptionData()
@@ -59,15 +68,53 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     if (!selectedPlan) return
 
     setUpgrading(true)
+    setPaymentStatusMessage(
+      paymentMethod === "crdb-simbanking"
+        ? "Generating your bank control number..."
+        : paymentMethod.includes("visa") || paymentMethod.includes("master")
+          ? "Authorizing your card securely..."
+          : "Sending payment request to your phone..."
+    )
+    setIsAwaitingPayment(true)
 
     try {
-      await clientApiPost("subscriptions", { planId: selectedPlan.id, vendorId, paymentMethod })
-      setShowUpgradeDialog(false)
-      router.refresh()
-      await loadSubscriptionData()
-    } catch (error) {
+      const result = await clientApiPost<any>("subscriptions", {
+        planId: selectedPlan.id,
+        vendorId,
+        paymentMethod,
+        paymentDetails: {
+          phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa", "tigo-pesa"].includes(paymentMethod) ? phoneNumber : undefined,
+          cardNumber: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardNumber : undefined,
+          expiryDate: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? expiryDate : undefined,
+          cvv: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cvv : undefined,
+        }
+      })
+
+      if (result.success) {
+        if (result.controlNumber) {
+          setControlNumber(result.controlNumber)
+          setPaymentStatusMessage("Control number generated! Please complete the transfer to activate your subscription.")
+        } else {
+          setPaymentStatusMessage("Payment initiated! Please confirm on your device. Your subscription will activate automatically once confirmed.")
+
+          // For mobile/card, we can auto-reload after a delay or poll
+          setTimeout(() => {
+            setShowUpgradeDialog(false)
+            setIsAwaitingPayment(false)
+            loadSubscriptionData()
+          }, 5000)
+        }
+      } else {
+        throw new Error(result.message || "Payment initiation failed")
+      }
+    } catch (error: any) {
       console.error("Error upgrading subscription:", error)
-      alert("Failed to upgrade subscription. Please try again.")
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Failed to initiate payment. Please try again.",
+        variant: "destructive"
+      })
+      setIsAwaitingPayment(false)
     } finally {
       setUpgrading(false)
     }
@@ -109,6 +156,88 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
 
   return (
     <div className="space-y-6">
+      {/* Payment Loading Overlay */}
+      {isAwaitingPayment && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+          <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-300">
+            <div className="bg-primary p-8 text-white text-center space-y-4">
+              <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
+                {controlNumber ? (
+                  <Building2 className="h-8 w-8 animate-bounce" />
+                ) : (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                )}
+              </div>
+              <h2 className="text-2xl font-black tracking-tight">
+                {controlNumber ? "Bank Settlement" : "Confirming Payment"}
+              </h2>
+            </div>
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="space-y-2">
+                <p className="text-stone-600 font-medium leading-relaxed">
+                  {paymentStatusMessage}
+                </p>
+                {controlNumber && (
+                  <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                      <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                        {controlNumber}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-xl border-stone-200"
+                      onClick={() => {
+                        navigator.clipboard.writeText(controlNumber)
+                        toast({ title: "Copied!", description: "Control number copied to clipboard." })
+                      }}
+                    >
+                      Copy Number
+                    </Button>
+                    <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
+                      <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
+                      <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
+                        <li>Dial *150*03# (CRDB SimBanking)</li>
+                        <li>Select 'Bill Payment'</li>
+                        <li>Enter this Control Number</li>
+                        <li>Follow prompts to complete</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {controlNumber ? (
+                  <Button
+                    className="w-full h-12 rounded-xl bg-stone-900 text-white font-bold"
+                    onClick={() => {
+                      setIsAwaitingPayment(false)
+                      setShowUpgradeDialog(false)
+                      loadSubscriptionData()
+                    }}
+                  >
+                    I have completed payment
+                  </Button>
+                ) : (
+                  <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-green-600" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
+                      Encrypted secure transaction protocol active
+                    </span>
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                Do not refresh this page
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Current Plan Card */}
       {currentSubscription && (
         <Card className={getPlanColor(currentSubscription.plan.name)}>
@@ -248,27 +377,105 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
             </div>
 
             <div>
-              <Label className="mb-3 block">Payment Method</Label>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                <div className="flex items-center space-x-2 border rounded-lg p-3">
-                  <RadioGroupItem value="mixx" id="mixx" />
-                  <Label htmlFor="mixx" className="flex-1 cursor-pointer">
-                    Mixx by Yas
+              <Label className="mb-3 block font-bold">Payment Method</Label>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid grid-cols-1 gap-3">
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "airtel-money" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                  <RadioGroupItem value="airtel-money" id="airtel" />
+                  <Label htmlFor="airtel" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-red-600" /> Airtel Money
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2 border rounded-lg p-3">
-                  <RadioGroupItem value="credit_card" id="credit_card" />
-                  <Label htmlFor="credit_card" className="flex-1 cursor-pointer">
-                    Credit Card
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "tigo-pesa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                  <RadioGroupItem value="tigo-pesa" id="tigo" />
+                  <Label htmlFor="tigo" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-blue-600" /> Tigo Pesa
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2 border rounded-lg p-3">
-                  <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                  <Label htmlFor="bank_transfer" className="flex-1 cursor-pointer">
-                    Bank Transfer
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "halopesa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                  <RadioGroupItem value="halopesa" id="halopesa" />
+                  <Label htmlFor="halopesa" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-orange-600" /> HaloPesa
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "visa" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                  <RadioGroupItem value="visa" id="visa" />
+                  <Label htmlFor="visa" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-stone-900" /> Visa / Mastercard
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 transition-all ${paymentMethod === "crdb-simbanking" ? "border-primary bg-primary/5" : "border-stone-100 hover:border-stone-200"}`}>
+                  <RadioGroupItem value="crdb-simbanking" id="bank" />
+                  <Label htmlFor="bank" className="flex-1 cursor-pointer font-bold flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-stone-900" /> Bank Transfer
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 border-2 rounded-[1.25rem] p-4 opacity-50 cursor-not-allowed border-stone-100`}>
+                  <RadioGroupItem value="m-pesa" id="mpesa" disabled />
+                  <Label htmlFor="mpesa" className="flex-1 cursor-not-allowed font-bold flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-stone-400" /> M-Pesa (Maintenance)
                   </Label>
                 </div>
               </RadioGroup>
+            </div>
+
+            {/* Method-specific inputs */}
+            <div className="pt-2 animate-in slide-in-from-top-2 duration-300">
+              {["airtel-money", "tigo-pesa", "halopesa"].includes(paymentMethod) && (
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    placeholder="07XXXXXXXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="rounded-xl h-12"
+                  />
+                  <p className="text-[10px] text-stone-500 font-medium">You will receive a USSD push to authorize</p>
+                </div>
+              )}
+
+              {["visa", "mastercard", "visa"].includes(paymentMethod) && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="card">Card Number</Label>
+                    <Input
+                      id="card"
+                      placeholder="XXXX XXXX XXXX XXXX"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      className="rounded-xl h-12"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="expiry">Expiry (MM/YY)</Label>
+                      <Input
+                        id="expiry"
+                        placeholder="MM/YY"
+                        value={expiryDate}
+                        onChange={(e) => setExpiryDate(e.target.value)}
+                        className="rounded-xl h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cvv">CVV</Label>
+                      <Input
+                        id="cvv"
+                        placeholder="XXX"
+                        value={cvv}
+                        onChange={(e) => setCvv(e.target.value)}
+                        className="rounded-xl h-12"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === "crdb-simbanking" && (
+                <div className="p-4 bg-stone-50 rounded-xl border border-stone-100 text-xs text-stone-600">
+                  Selecting Bank Transfer will generate a control number for use with CRDB SimBanking or any TISS transfer.
+                </div>
+              )}
             </div>
           </div>
 
