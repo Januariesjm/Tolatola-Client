@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock } from "lucide-react"
+import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -12,6 +12,7 @@ import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
 import { TransporterAssignmentsTab } from "./transporter-assignments-tab"
 import { TransporterPaymentsTab } from "./transporter-payments-tab"
 import { TransporterWithdrawalsTab } from "./transporter-withdrawals-tab"
+import { TransporterSubscriptionTab } from "./transporter-subscription-tab"
 
 interface TransporterDashboardContentProps {
   transporter: any
@@ -34,7 +35,7 @@ export function TransporterDashboardContent({
       const { createClient } = await import("@/lib/supabase/client")
       const supabase = createClient()
       await supabase.auth.signOut()
-      
+
       // Also call backend logout (optional, but good for consistency)
       try {
         const { clientApiPost } = await import("@/lib/api-client")
@@ -154,6 +155,10 @@ export function TransporterDashboardContent({
               <Clock className="h-4 w-4 mr-2" />
               Withdrawals
             </TabsTrigger>
+            <TabsTrigger value="subscription">
+              <Crown className="h-4 w-4 mr-2" />
+              Membership
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="assignments">
@@ -171,6 +176,10 @@ export function TransporterDashboardContent({
 
           <TabsContent value="withdrawals">
             <TransporterWithdrawalsTab withdrawals={withdrawals} availableBalance={availableBalance} />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <TransporterSubscriptionTab transporterId={transporter.id} />
           </TabsContent>
         </Tabs>
       </div>
