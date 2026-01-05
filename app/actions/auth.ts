@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 export async function signInWithGoogle(returnUrl?: string) {
   const supabase = await createClient()
   const headersList = await headers()
-  const origin = headersList.get("origin") || headersList.get("x-forwarded-host") || ""
+  const origin = (process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co').replace(/\/$/, '')
 
   const redirectTo = returnUrl
     ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}`
@@ -38,8 +38,7 @@ export async function signInWithGoogle(returnUrl?: string) {
 
 export async function signInWithFacebook(returnUrl?: string) {
   const supabase = await createClient()
-  const headersList = await headers()
-  const origin = headersList.get("origin") || headersList.get("x-forwarded-host") || ""
+  const origin = (process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co').replace(/\/$/, '')
 
   const redirectTo = returnUrl
     ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}`
