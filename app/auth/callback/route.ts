@@ -17,11 +17,14 @@ export async function GET(request: Request) {
 
     if (!error) {
       // Redirect to success page or home
-      const redirectTo = requestUrl.origin + "/auth/verified"
+      // FORCE PRODUCTION URL: prevent 0.0.0.0 or localhost redirects in containerized env
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const redirectTo = `${appUrl}/auth/verified`
       return NextResponse.redirect(redirectTo)
     }
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(requestUrl.origin + "/auth/auth-code-error")
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+  return NextResponse.redirect(`${appUrl}/auth/auth-code-error`)
 }
