@@ -48,7 +48,18 @@ export async function GET(request: Request) {
 
     if (data?.session) {
       console.log('[AUTH CALLBACK] OAuth successful, user:', data.session.user.email)
-      // OAuth successful - redirect to next page or home
+
+      // Check if this is a new user without profile completion
+      const userMetadata = data.session.user.user_metadata
+      const userType = userMetadata?.user_type
+
+      // If user doesn't have a user_type, redirect to profile completion
+      if (!userType) {
+        console.log('[AUTH CALLBACK] New OAuth user needs profile completion')
+        return NextResponse.redirect(`${appUrl}/auth/complete-profile?from=oauth`)
+      }
+
+      // OAuth successful with complete profile - redirect to next page or home
       const redirectTo = next !== "/" ? next : `${appUrl}/`
       console.log('[AUTH CALLBACK] Redirecting to:', redirectTo)
       return NextResponse.redirect(redirectTo)
