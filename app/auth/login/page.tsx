@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +11,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
-import { signInWithGoogle, signInWithFacebook } from "@/app/actions/auth"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -36,7 +34,6 @@ export default function LoginPage() {
         throw new Error("API base URL is not configured")
       }
 
-      // Login via backend API
       const response = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,12 +42,11 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: "Login failed" }))
-        throw new Error(errorData.error || "Invalid email or password")
+        throw new Error(errorData.error || "Incorrect email or password")
       }
 
       const { user: userData, session } = await response.json()
 
-      // Store session in Supabase client for compatibility
       const supabase = createClient()
       if (session) {
         await supabase.auth.setSession({
@@ -64,7 +60,6 @@ export default function LoginPage() {
         return
       }
 
-      // Get user type from profile
       const { data: profile } = await supabase
         .from("users")
         .select("user_type")
@@ -81,7 +76,7 @@ export default function LoginPage() {
         router.push("/shop")
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred during login"
+      const errorMessage = error instanceof Error ? error.message : "Login failed. Please try again."
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -91,45 +86,172 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsOAuthLoading("google")
     setError(null)
-    await signInWithGoogle(returnUrl || undefined)
+
+    try {
+      const supabase = createClient()
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${appUrl}/auth/callback`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      })
+
+      if (error) {
+        console.error("Google login error:", error)
+        setError(error.message)
+        setIsOAuthLoading(null)
+      }
+    } catch (err) {
+      console.error("Google login exception:", err)
+      setError("Unable to sign in with Google. Please try again.")
+      setIsOAuthLoading(null)
+    }
   }
 
   const handleFacebookLogin = async () => {
     setIsOAuthLoading("facebook")
     setError(null)
-    await signInWithFacebook(returnUrl || undefined)
+
+    try {
+      const supabase = createClient()
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${appUrl}/auth/callback`,
+          scopes: "email,public_profile",
+        },
+      })
+
+      if (error) {
+        console.error("Facebook login error:", error)
+        setError(error.message)
+        setIsOAuthLoading(null)
+      }
+    } catch (err) {
+      console.error("Facebook login exception:", err)
+      setError("Unable to sign in with Facebook. Please try again.")
+      setIsOAuthLoading(null)
+    }
   }
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden">
+      {/* Animated background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
       </div>
 
-      <div className="w-full max-w-sm animate-fade-in-up">
+      <div className="w-full max-w-md animate-fade-in-up">
         <div className="flex flex-col gap-6">
           <Link href="/" className="flex items-center gap-3 justify-center hover:scale-105 transition-transform">
             <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
             <HeaderAnimatedText />
           </Link>
-          <Card className="backdrop-blur-sm bg-card/95 shadow-xl border-primary/10">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-              <CardDescription>Enter your credentials to access your account</CardDescription>
+
+          <Card className="backdrop-blur-sm bg-card/95 shadow-2xl border-primary/20">
+            <CardHeader className="space-y-2 text-center pb-6">
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-base">
+                Sign in to your account
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+
+            <CardContent className="space-y-6">
               {urlError && (
-                <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md mb-4">
-                  {decodeURIComponent(urlError)}
-                </p>
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+                  <p className="text-sm text-destructive text-center">
+                    {decodeURIComponent(urlError)}
+                  </p>
+                </div>
               )}
 
-              <div className="flex flex-col gap-3 mb-6">
+              {/* Email/Password Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Forgot?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 animate-shake">
+                    <p className="text-sm text-destructive text-center">{error}</p>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 text-base font-medium shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                  disabled={isLoading || isOAuthLoading !== null}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                      Signing in...
+                    </span>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/60" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-3 text-muted-foreground font-medium">
+                    Or sign in with
+                  </span>
+                </div>
+              </div>
+
+              {/* OAuth Buttons */}
+              <div className="space-y-3">
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full gap-2 transition-all hover:scale-[1.02] bg-transparent"
+                  className="w-full h-11 gap-3 transition-all hover:scale-[1.02] hover:bg-accent/50 border-border/60"
                   onClick={handleGoogleLogin}
                   disabled={isOAuthLoading !== null}
                 >
@@ -155,12 +277,13 @@ export default function LoginPage() {
                       />
                     </svg>
                   )}
-                  Continue with Google
+                  <span className="font-medium">Google</span>
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full gap-2 transition-all hover:scale-[1.02] bg-transparent"
+                  className="w-full h-11 gap-3 transition-all hover:scale-[1.02] hover:bg-accent/50 border-border/60"
                   onClick={handleFacebookLogin}
                   disabled={isOAuthLoading !== null}
                 >
@@ -171,65 +294,22 @@ export default function LoginPage() {
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
                   )}
-                  Continue with Facebook
+                  <span className="font-medium">Facebook</span>
                 </Button>
               </div>
 
-              <div className="relative mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleLogin}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="transition-all focus:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="transition-all focus:scale-[1.02]"
-                    />
-                  </div>
-                  {error && (
-                    <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md animate-shake">{error}</p>
-                  )}
-                  <Button
-                    type="submit"
-                    className="w-full transition-all hover:scale-[1.02]"
-                    disabled={isLoading || isOAuthLoading !== null}
-                  >
-                    {isLoading ? "Logging in..." : "Login"}
-                  </Button>
-                </div>
-                <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{" "}
+              {/* Sign up link */}
+              <div className="text-center pt-4 border-t border-border/60">
+                <p className="text-sm text-muted-foreground">
+                  Don't have an account?{" "}
                   <Link
                     href={returnUrl ? `/auth/sign-up?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/sign-up"}
-                    className="underline underline-offset-4 text-primary hover:text-primary/80"
+                    className="font-medium text-primary hover:underline underline-offset-4"
                   >
-                    Sign up
+                    Create one
                   </Link>
-                </div>
-              </form>
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

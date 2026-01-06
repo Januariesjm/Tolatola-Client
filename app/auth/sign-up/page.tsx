@@ -35,7 +35,6 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
 
-  // Update userType when URL param changes
   useEffect(() => {
     if (userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam)) {
       setUserType(userTypeParam)
@@ -56,14 +55,12 @@ export default function SignUpPage() {
         throw new Error("API base URL is not configured")
       }
 
-      // Validate vendor type if user is a vendor
       if (userType === "vendor" && !vendorType) {
-        setError("Please select a vendor type")
+        setError("Please select your business type")
         setIsLoading(false)
         return
       }
 
-      // Sign up via backend API
       const response = await fetch(`${apiBase}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,12 +75,11 @@ export default function SignUpPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: "Signup failed" }))
-        throw new Error(errorData.error || "Failed to create account")
+        throw new Error(errorData.error || "Unable to create account")
       }
 
       const { user: userData, session } = await response.json()
 
-      // Store session in Supabase client for compatibility
       const supabase = createClient()
       if (session) {
         await supabase.auth.setSession({
@@ -132,14 +128,13 @@ export default function SignUpPage() {
       })
 
       if (error) {
-        console.error("Google OAuth error:", error)
+        console.error("Google signup error:", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
-      // If successful, browser will redirect automatically
     } catch (err) {
-      console.error("Google OAuth exception:", err)
-      setError("Failed to initiate Google login")
+      console.error("Google signup exception:", err)
+      setError("Unable to sign up with Google. Please try again.")
       setIsOAuthLoading(null)
     }
   }
@@ -161,14 +156,13 @@ export default function SignUpPage() {
       })
 
       if (error) {
-        console.error("Facebook OAuth error:", error)
+        console.error("Facebook signup error:", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
-      // If successful, browser will redirect automatically
     } catch (err) {
-      console.error("Facebook OAuth exception:", err)
-      setError("Failed to initiate Facebook login")
+      console.error("Facebook signup exception:", err)
+      setError("Unable to sign up with Facebook. Please try again.")
       setIsOAuthLoading(null)
     }
   }
@@ -181,29 +175,166 @@ export default function SignUpPage() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
       </div>
 
-      <div className="w-full max-w-sm animate-fade-in-up">
+      <div className="w-full max-w-md animate-fade-in-up">
         <div className="flex flex-col gap-6">
           <Link href="/" className="flex items-center gap-3 justify-center hover:scale-105 transition-transform">
             <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
             <HeaderAnimatedText />
           </Link>
-          <Card className="backdrop-blur-sm bg-card/95 shadow-xl border-primary/10">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-              <CardDescription>Enter your details to get started</CardDescription>
+
+          <Card className="backdrop-blur-sm bg-card/95 shadow-2xl border-primary/20">
+            <CardHeader className="space-y-2 text-center pb-6">
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Join TOLA
+              </CardTitle>
+              <CardDescription className="text-base">
+                Create your account to get started
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+
+            <CardContent className="space-y-6">
               {urlError && (
-                <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md mb-4">
-                  {decodeURIComponent(urlError)}
-                </p>
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+                  <p className="text-sm text-destructive text-center">
+                    {decodeURIComponent(urlError)}
+                  </p>
+                </div>
               )}
 
-              <div className="flex flex-col gap-3 mb-6">
+              {/* Email/Password Form */}
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Create a strong password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">I want to</Label>
+                  <RadioGroup
+                    value={userType}
+                    onValueChange={(value) => {
+                      setUserType(value as "customer" | "vendor" | "transporter")
+                      if (value !== "vendor") {
+                        setVendorType("")
+                      }
+                    }}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border border-border/60 hover:bg-accent/30 transition-all cursor-pointer">
+                      <RadioGroupItem value="customer" id="customer" />
+                      <Label htmlFor="customer" className="font-normal cursor-pointer flex-1 text-sm">
+                        Shop for products
+                      </Label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-border/60 hover:bg-accent/30 transition-all cursor-pointer">
+                        <RadioGroupItem value="vendor" id="vendor" />
+                        <Label htmlFor="vendor" className="font-normal cursor-pointer flex-1 text-sm">
+                          Sell my products
+                        </Label>
+                      </div>
+                      {userType === "vendor" && (
+                        <div className="ml-5 pl-3 border-l-2 border-primary/30">
+                          <Select value={vendorType} onValueChange={(value) => setVendorType(value as VendorType)}>
+                            <SelectTrigger className="h-11 transition-all focus:ring-2">
+                              <SelectValue placeholder="Select your business type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="producer">Producer</SelectItem>
+                              <SelectItem value="manufacturer">Manufacturer</SelectItem>
+                              <SelectItem value="supplier">Supplier</SelectItem>
+                              <SelectItem value="wholesaler">Wholesaler</SelectItem>
+                              <SelectItem value="retail_trader">Retail Trader</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-3 p-3 rounded-lg border border-border/60 hover:bg-accent/30 transition-all cursor-pointer">
+                      <RadioGroupItem value="transporter" id="transporter" />
+                      <Label htmlFor="transporter" className="font-normal cursor-pointer flex-1 text-sm">
+                        Provide transport services
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {error && (
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 animate-shake">
+                    <p className="text-sm text-destructive text-center">{error}</p>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 text-base font-medium shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                  disabled={isLoading || isOAuthLoading !== null}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                      Creating account...
+                    </span>
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/60" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-3 text-muted-foreground font-medium">
+                    Or sign up with
+                  </span>
+                </div>
+              </div>
+
+              {/* OAuth Buttons */}
+              <div className="space-y-3">
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full gap-2 transition-all hover:scale-[1.02] bg-transparent"
+                  className="w-full h-11 gap-3 transition-all hover:scale-[1.02] hover:bg-accent/50 border-border/60"
                   onClick={handleGoogleSignUp}
                   disabled={isOAuthLoading !== null}
                 >
@@ -229,12 +360,13 @@ export default function SignUpPage() {
                       />
                     </svg>
                   )}
-                  Continue with Google
+                  <span className="font-medium">Google</span>
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full gap-2 transition-all hover:scale-[1.02] bg-transparent"
+                  className="w-full h-11 gap-3 transition-all hover:scale-[1.02] hover:bg-accent/50 border-border/60"
                   onClick={handleFacebookSignUp}
                   disabled={isOAuthLoading !== null}
                 >
@@ -245,127 +377,22 @@ export default function SignUpPage() {
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                     </svg>
                   )}
-                  Continue with Facebook
+                  <span className="font-medium">Facebook</span>
                 </Button>
               </div>
 
-              <div className="relative mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleSignUp}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="John Doe"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="transition-all focus:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="m@example.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="transition-all focus:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="transition-all focus:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>I want to</Label>
-                    <RadioGroup
-                      value={userType}
-                      onValueChange={(value) => {
-                        setUserType(value as "customer" | "vendor" | "transporter")
-                        // Reset vendor type when switching away from vendor
-                        if (value !== "vendor") {
-                          setVendorType("")
-                        }
-                      }}
-                    >
-                      <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                        <RadioGroupItem value="customer" id="customer" />
-                        <Label htmlFor="customer" className="font-normal cursor-pointer flex-1">
-                          Buy products (Consumer)
-                        </Label>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                          <RadioGroupItem value="vendor" id="vendor" />
-                          <Label htmlFor="vendor" className="font-normal cursor-pointer flex-1">
-                            Sell products (Vendor)
-                          </Label>
-                        </div>
-                        {userType === "vendor" && (
-                          <div className="ml-8 pr-3 pb-2">
-                            <Select value={vendorType} onValueChange={(value) => setVendorType(value as VendorType)}>
-                              <SelectTrigger id="vendorType" className="transition-all focus:scale-[1.02]">
-                                <SelectValue placeholder="Select your vendor type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="producer">Producer</SelectItem>
-                                <SelectItem value="manufacturer">Manufacturer</SelectItem>
-                                <SelectItem value="supplier">Supplier</SelectItem>
-                                <SelectItem value="wholesaler">Wholesaler</SelectItem>
-                                <SelectItem value="retail_trader">Retail Trader</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                        <RadioGroupItem value="transporter" id="transporter" />
-                        <Label htmlFor="transporter" className="font-normal cursor-pointer flex-1">
-                          Transport products (Transporter)
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  {error && (
-                    <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md animate-shake">{error}</p>
-                  )}
-                  <Button
-                    type="submit"
-                    className="w-full transition-all hover:scale-[1.02]"
-                    disabled={isLoading || isOAuthLoading !== null}
-                  >
-                    {isLoading ? "Creating account..." : "Sign up"}
-                  </Button>
-                </div>
-                <div className="mt-4 text-center text-sm">
+              {/* Login link */}
+              <div className="text-center pt-4 border-t border-border/60">
+                <p className="text-sm text-muted-foreground">
                   Already have an account?{" "}
                   <Link
                     href={returnUrl ? `/auth/login?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/login"}
-                    className="underline underline-offset-4 text-primary hover:text-primary/80"
+                    className="font-medium text-primary hover:underline underline-offset-4"
                   >
-                    Login
+                    Sign in
                   </Link>
-                </div>
-              </form>
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
