@@ -13,7 +13,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
-import { signInWithGoogle, signInWithFacebook } from "@/app/actions/auth"
 import { logFailedRegistration } from "@/app/actions/registration"
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
@@ -116,13 +115,62 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setIsOAuthLoading("google")
     setError(null)
-    await signInWithGoogle(returnUrl || undefined)
+
+    try {
+      const supabase = createClient()
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${appUrl}/auth/callback`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      })
+
+      if (error) {
+        console.error("Google OAuth error:", error)
+        setError(error.message)
+        setIsOAuthLoading(null)
+      }
+      // If successful, browser will redirect automatically
+    } catch (err) {
+      console.error("Google OAuth exception:", err)
+      setError("Failed to initiate Google login")
+      setIsOAuthLoading(null)
+    }
   }
 
   const handleFacebookSignUp = async () => {
     setIsOAuthLoading("facebook")
     setError(null)
-    await signInWithFacebook(returnUrl || undefined)
+
+    try {
+      const supabase = createClient()
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${appUrl}/auth/callback`,
+          scopes: "email,public_profile",
+        },
+      })
+
+      if (error) {
+        console.error("Facebook OAuth error:", error)
+        setError(error.message)
+        setIsOAuthLoading(null)
+      }
+      // If successful, browser will redirect automatically
+    } catch (err) {
+      console.error("Facebook OAuth exception:", err)
+      setError("Failed to initiate Facebook login")
+      setIsOAuthLoading(null)
+    }
   }
 
   return (
