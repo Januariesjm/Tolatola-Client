@@ -59,8 +59,33 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${appUrl}/auth/complete-profile?from=oauth`)
       }
 
-      // OAuth successful with complete profile - redirect to next page or home
-      const redirectTo = next !== "/" ? next : `${appUrl}/`
+      // Existing user with complete profile - redirect to appropriate dashboard
+      console.log('[AUTH CALLBACK] Existing OAuth user, checking dashboard redirect...')
+
+      // Get user profile from database to check user type
+      const { data: profile } = await supabase
+        .from("users")
+        .select("user_type")
+        .eq("id", data.session.user.id)
+        .maybeSingle()
+
+      // Determine redirect based on user type
+      let redirectTo = appUrl
+
+      if (next && next !== "/") {
+        // If there's a specific next parameter, use it
+        redirectTo = next
+      } else if (profile?.user_type === "admin") {
+        redirectTo = `${appUrl}/admin`
+      } else if (profile?.user_type === "vendor") {
+        redirectTo = `${appUrl}/vendor/dashboard`
+      } else if (profile?.user_type === "transporter") {
+        redirectTo = `${appUrl}/transporter/dashboard`
+      } else {
+        // Customer or default - go to shop
+        redirectTo = `${appUrl}/shop`
+      }
+
       console.log('[AUTH CALLBACK] Redirecting to:', redirectTo)
       return NextResponse.redirect(redirectTo)
     }
