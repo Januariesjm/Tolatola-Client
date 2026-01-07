@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { clientApiPost } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
 
 interface ProductApprovalTabProps {
@@ -15,15 +15,23 @@ export function ProductApprovalTab({ products }: ProductApprovalTabProps) {
   const router = useRouter()
 
   const handleApprove = async (productId: string) => {
-    const supabase = createClient()
-    await supabase.from("products").update({ status: "approved" }).eq("id", productId)
-    router.refresh()
+    try {
+      await clientApiPost(`admin/products/${productId}/approve`)
+      router.refresh()
+    } catch (error) {
+      console.error("Error approving product:", error)
+      alert("Failed to approve product")
+    }
   }
 
   const handleReject = async (productId: string) => {
-    const supabase = createClient()
-    await supabase.from("products").update({ status: "rejected" }).eq("id", productId)
-    router.refresh()
+    try {
+      await clientApiPost(`admin/products/${productId}/reject`)
+      router.refresh()
+    } catch (error) {
+      console.error("Error rejecting product:", error)
+      alert("Failed to reject product")
+    }
   }
 
   return (

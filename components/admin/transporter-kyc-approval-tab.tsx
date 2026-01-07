@@ -1,5 +1,7 @@
 "use client"
 
+import { clientApiPost } from "@/lib/api-client"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -35,33 +37,15 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
 
   const handleApprove = async (transporterId: string, userEmail: string, fullName: string) => {
     setIsSubmitting(true)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("transporters")
-      .update({
-        kyc_status: "approved",
-        kyc_reviewed_at: new Date().toISOString(),
-        kyc_notes: null,
-      })
-      .eq("id", transporterId)
-
-    if (error) {
+    try {
+      await clientApiPost(`admin/transporters/${transporterId}/approve`)
+      router.refresh()
+    } catch (error) {
       console.error("[v0] Error approving transporter:", error)
       alert("Failed to approve transporter. Please try again.")
-    } else {
-      // Send approval email notification
-      try {
-        await fetch("/api/notifications/transporter-kyc-approved", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: userEmail, fullName }),
-        })
-      } catch (emailError) {
-        console.error("[v0] Error sending approval email:", emailError)
-      }
-      router.refresh()
     }
+
     setIsSubmitting(false)
   }
 
@@ -78,39 +62,19 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
     }
 
     setIsSubmitting(true)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("transporters")
-      .update({
-        kyc_status: "rejected",
-        kyc_reviewed_at: new Date().toISOString(),
-        kyc_notes: rejectionReason,
+    try {
+      await clientApiPost(`admin/transporters/${selectedTransporter.id}/reject`, {
+        reason: rejectionReason
       })
-      .eq("id", selectedTransporter.id)
 
-    if (error) {
-      console.error("[v0] Error rejecting transporter:", error)
-      alert("Failed to reject transporter. Please try again.")
-    } else {
-      // Send rejection email notification
-      try {
-        await fetch("/api/notifications/transporter-kyc-rejected", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: selectedTransporter.users?.email,
-            fullName: selectedTransporter.users?.full_name,
-            reason: rejectionReason,
-          }),
-        })
-      } catch (emailError) {
-        console.error("[v0] Error sending rejection email:", emailError)
-      }
       setRejectDialogOpen(false)
       setSelectedTransporter(null)
       setRejectionReason("")
       router.refresh()
+    } catch (error) {
+      console.error("[v0] Error rejecting transporter:", error)
+      alert("Failed to reject transporter. Please try again.")
     }
     setIsSubmitting(false)
   }
