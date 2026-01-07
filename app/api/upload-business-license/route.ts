@@ -25,22 +25,43 @@ export async function POST(request: Request) {
 
     const bucketName = process.env.STORAGE_BUCKET || "uploads"
     let supabase;
+    let usingServiceKey = false;
 
-    // Use Service Role Key if available to bypass RLS for registration uploads
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.log("Using Supabase Service Role Client for upload");
-      supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
-        {
-          auth: {
-            persistSession: false
-          }
+    // Check for Service Role Key
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+    if (serviceRoleKey && supabaseUrl) {
+      // Basic validation of JWT format to catch obviously bad keys
+      if (serviceRoleKey.split('.').length === 3) {
+        try {
+          // Attempt to create client with Service Key
+          supabase = createClient(supabaseUrl, serviceRoleKey, {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+              detectSessionInUrl: false
+            }
+          });
+          usingServiceKey = true;
+          console.log("Using Supabase Service Role Client for upload (RLS Bypassed)");
+        } catch (e) {
+          console.error("Failed to initialize Supabase with Service Key:", e);
         }
-      );
+      } else {
+        console.warn("SUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.");
+      }
     } else {
-      console.log("Using standard RouteHandlerClient as fallback");
+      console.warn("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.");
+    }
+
+    if (!usingServiceKey) {
+      console.log("Using standard RouteHandlerClient as fallback (Subject to RLS)");
       supabase = createRouteHandlerClient({ cookies });
+
+      // Debug user session
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log(`Current session user: ${session?.user?.id || 'None'}`);
     }
 
     // Upload to Supabase Storage
@@ -57,7 +78,11 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase storage upload error details:", error)
-      return NextResponse.json({ error: `Failed to upload file to storage: ${error.message}`, details: error }, { status: 500 })
+      const errorMsg = usingServiceKey
+        ? `Upload failed with Service Key: ${error.message}`
+        : `Upload failed (User Session): ${error.message}. Likely RLS or Permission issue.`;
+
+      return NextResponse.json({ error: errorMsg, details: error }, { status: 500 })
     }
 
     // Get public URL
