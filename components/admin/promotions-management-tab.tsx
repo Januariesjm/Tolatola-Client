@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -34,6 +34,12 @@ interface PromotionsManagementTabProps {
 
 export function PromotionsManagementTab({ promotions: initialPromotions }: PromotionsManagementTabProps) {
   const [promotions, setPromotions] = useState(initialPromotions)
+
+  // Sync state with props when dashboard data refreshes
+  useEffect(() => {
+    setPromotions(initialPromotions)
+  }, [initialPromotions])
+
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)

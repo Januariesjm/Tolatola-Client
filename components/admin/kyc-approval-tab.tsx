@@ -88,10 +88,10 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Vendor KYC Applications</h2>
-        <Badge variant="outline">{vendors.length} Pending</Badge>
+        <Badge variant="outline">{(vendors || []).length} Pending</Badge>
       </div>
 
-      {vendors.length === 0 ? (
+      {(!vendors || vendors.length === 0) ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">No pending KYC applications</p>

@@ -173,7 +173,7 @@ export function AdminDashboardContent({
           </TabsContent>
 
           <TabsContent value="kyc" className="border-none p-0 outline-none">
-            <KYCApprovalTab pendingVendors={pendingVendors} />
+            <KYCApprovalTab vendors={pendingVendors} />
           </TabsContent>
 
           <TabsContent value="transporter-kyc" className="border-none p-0 outline-none">
