@@ -49,8 +49,9 @@ export default async function AdminDashboardPage() {
   }
 
   try {
-    const roleRes = await serverApiGet<{ roles: any[] }>("admin/roles")
-    adminRole = roleRes?.roles?.[0] || null
+    // Fetch specifically the current user's role and permissions
+    adminRole = await serverApiGet<any>("admin/my-role")
+
     if (!adminRole) {
       return <div>You need admin access to view this page.</div>
     }
