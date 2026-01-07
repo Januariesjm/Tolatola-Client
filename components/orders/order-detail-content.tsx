@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, CheckCircle, Package, Truck, MapPin } from "lucide-react"
+import { ShoppingBag, CheckCircle, Package, Truck, MapPin, Store, CheckCircle2, Phone, Home } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -102,7 +102,13 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Order #{order.order_number}</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      Order #{order.order_number}
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1 py-0.5">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Verified by TOLA
+                      </Badge>
+                    </CardTitle>
                     <CardDescription>Placed on {new Date(order.created_at).toLocaleDateString()}</CardDescription>
                   </div>
                   <div className="flex gap-2">
@@ -113,7 +119,6 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               </CardHeader>
             </Card>
 
-            {/* Order Items */}
             <Card>
               <CardHeader>
                 <CardTitle>Order Items</CardTitle>
@@ -122,17 +127,26 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                 {order.order_items.map((item: any) => (
                   <div key={item.id} className="flex gap-4 pb-4 border-b last:border-0">
                     <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                      <img
-                        src={`/.jpg?height=80&width=80&query=${encodeURIComponent(item.products.name)}`}
-                        alt={item.products.name}
-                        className="w-full h-full object-cover"
-                      />
+                      {item.products.images?.[0] ? (
+                        <img
+                          src={item.products.images[0]}
+                          alt={item.products.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Package className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold mb-1">{item.products.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        by {item.products.shops?.vendors?.business_name || "Unknown"}
-                      </p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Store className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          {item.products.shops?.vendors?.business_name || item.products.shops?.name || "Verified Merchant"}
+                        </span>
+                      </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Quantity: {item.quantity}</span>
                         <span className="font-semibold">TZS {item.total_price.toLocaleString()}</span>
@@ -140,6 +154,46 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                     </div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+
+            {/* Merchant Details (Unveiled Post-Order) */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle className="text-lg">Merchant Details</CardTitle>
+                <CardDescription>Seller identity revealed for your order</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {order.order_items[0]?.products?.shops ? (
+                  <div className="flex items-start gap-4">
+                    <div className="h-16 w-16 rounded-xl bg-background border flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {order.order_items[0].products.shops.logo_url ? (
+                        <img src={order.order_items[0].products.shops.logo_url} className="object-cover w-full h-full" />
+                      ) : (
+                        <Store className="h-8 w-8 text-primary" />
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-lg">
+                        {order.order_items[0].products.shops.vendors?.business_name || order.order_items[0].products.shops.name}
+                      </h4>
+                      <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-3 w-3" />
+                          <span>{order.order_items[0].products.shops.vendors?.contact_phone || order.order_items[0].products.shops.phone || "No contact info available"}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3 w-3" />
+                          <span>
+                            {order.order_items[0].products.shops.address}, {order.order_items[0].products.shops.district}, {order.order_items[0].products.shops.region}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">Merchant details unavailable</p>
+                )}
               </CardContent>
             </Card>
 
@@ -312,15 +366,56 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               </CardContent>
             </Card>
 
+            {/* Logistics & Delivery */}
+            <Card className="border-blue-500/20 bg-blue-500/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Truck className="h-5 w-5 text-blue-600" />
+                  Logistics Provider
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {order.transport_methods ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Home className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-bold">{order.transport_methods.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{order.transport_methods.provider_type || "Third-party Logistics"}</p>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-blue-500/10">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Delivery Fee</span>
+                        <span className="font-medium">TZS {order.delivery_fee?.toLocaleString() || 0}</span>
+                      </div>
+                    </div>
+                    {["shipped", "delivered"].includes(order.status) && (
+                      <Badge variant="outline" className="w-full justify-center bg-blue-100 text-blue-700 border-blue-200 py-1">
+                        Order Tracking Active
+                      </Badge>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground italic flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Standard Delivery (Logistics TBC)
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Payment Method */}
             <Card>
               <CardHeader>
                 <CardTitle>Payment Method</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-muted-foreground" />
-                  <span className="capitalize">{order.payment_method}</span>
+                <div className="flex items-center gap-2 text-sm">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <span className="capitalize font-medium">{order.payment_method}</span>
                 </div>
               </CardContent>
             </Card>

@@ -38,6 +38,9 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [error, setError] = useState<string | null>(null)
   const [images, setImages] = useState<string[]>([])
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [qualityGrade, setQualityGrade] = useState("")
+  const [moq, setMoq] = useState("1")
+  const [deliveryAvailable, setDeliveryAvailable] = useState(true)
 
   useEffect(() => {
     if (product && open) {
@@ -47,6 +50,9 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setStockQuantity(product.stock_quantity?.toString() || "")
       setCategoryId(product.category_id || "")
       setImages(product.images || [])
+      setQualityGrade(product.quality_grade || "")
+      setMoq(product.moq?.toString() || "1")
+      setDeliveryAvailable(product.delivery_available ?? true)
     }
   }, [product, open])
 
@@ -114,6 +120,9 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         price: Number.parseFloat(price),
         stock_quantity: Number.parseInt(stockQuantity),
         images: images,
+        quality_grade: qualityGrade,
+        moq: Number.parseInt(moq) || 1,
+        delivery_available: deliveryAvailable,
         updated_at: new Date().toISOString(),
       })
 
@@ -236,10 +245,48 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="quality_grade">Quality Grade</Label>
+                <Select value={qualityGrade} onValueChange={setQualityGrade}>
+                  <SelectTrigger id="quality_grade">
+                    <SelectValue placeholder="Select quality grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A">Grade A (Premium)</SelectItem>
+                    <SelectItem value="B">Grade B (Standard)</SelectItem>
+                    <SelectItem value="C">Grade C (Basic)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="moq">Min Order Quantity (MOQ)</Label>
+                <Input
+                  id="moq"
+                  type="number"
+                  placeholder="1"
+                  value={moq}
+                  onChange={(e) => setMoq(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 py-2">
+              <input
+                type="checkbox"
+                id="delivery_available"
+                checked={deliveryAvailable}
+                onChange={(e) => setDeliveryAvailable(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="delivery_available" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Delivery Available from Seller
+              </Label>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
+                <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>

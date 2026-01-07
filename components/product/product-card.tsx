@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShoppingCart, Heart, Share2, Copy, Check, Star, MapPin, Store, ShoppingBag } from "lucide-react"
+import { ShoppingCart, Heart, Share2, Copy, Check, Star, MapPin, Store, ShoppingBag, CheckCircle2, Truck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -119,17 +119,36 @@ export function ProductCard({
             </Link>
 
             {/* Details Section */}
-            <div className="p-6 flex-grow flex flex-col gap-4">
+            <div className="p-6 flex-grow flex flex-col gap-3">
                 <div className="space-y-1">
-                    <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">
-                        <Store className="h-3 w-3" />
-                        <span className="truncate max-w-[150px]">{product.shops?.vendors?.business_name || product.shops?.name || "Tola Merchant"}</span>
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>Verified by TOLA</span>
+                        </div>
+                        {product.quality_grade && (
+                            <div className="px-2 py-0.5 rounded-md bg-stone-100 text-[9px] font-black uppercase text-stone-600">
+                                Grade {product.quality_grade}
+                            </div>
+                        )}
                     </div>
+
                     <Link href={`/product/${product.id}`}>
                         <h3 className="text-lg font-black tracking-tight line-clamp-1 hover:text-primary transition-colors cursor-pointer leading-tight">
                             {product.name}
                         </h3>
                     </Link>
+
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground/60">
+                        <div className="flex items-center gap-1">
+                            <ShoppingBag className="h-3 w-3 text-primary/60" />
+                            <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Truck className="h-3 w-3 text-primary/60" />
+                            <span>Delivery: {product.delivery_available ? "Yes" : "No"}</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-auto">

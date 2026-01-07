@@ -34,14 +34,22 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         products (
           name,
           price,
+          images,
           shops (
             name,
+            logo_url,
+            phone,
+            address,
+            district,
+            region,
             vendors (
-              business_name
+              business_name,
+              contact_phone
             )
           )
         )
-      )
+      ),
+      transport_methods:transport_method_id (*)
     `,
     )
     .eq("id", id)

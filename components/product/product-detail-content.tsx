@@ -171,7 +171,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         {/* Elite Buy Box & Product Architecture */}
         <div className="lg:col-span-5 space-y-10">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -186,11 +186,23 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">
                 {averageRating.toFixed(1)} Rating / {reviews.length} Client Reviews
               </span>
+              {product.quality_grade && (
+                <Badge variant="outline" className="rounded-lg font-black text-[10px] uppercase tracking-widest border-primary/20 text-primary">
+                  Grade {product.quality_grade}
+                </Badge>
+              )}
             </div>
 
             <h1 className="font-serif text-5xl md:text-6xl text-stone-950 leading-tight tracking-tight">
               {product.name}
             </h1>
+
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Verified by TOLA</span>
+              </div>
+            </div>
 
             <p className="text-stone-500 text-lg leading-relaxed font-medium">
               {product.description}
@@ -213,8 +225,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-md transition-all"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
+                    onClick={() => setQuantity(Math.max(product.moq || 1, quantity - 1))}
+                    disabled={quantity <= (product.moq || 1)}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -230,9 +242,14 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   </Button>
                 </div>
               </div>
-              <p className="text-[10px] text-center font-bold text-stone-400 italic">
-                {product.stock_quantity} Units remaining in secure inventory
-              </p>
+              <div className="flex justify-between items-center px-1">
+                <p className="text-[10px] font-bold text-stone-400 italic">
+                  Min Order: {product.moq || 1} {product.unit || "Units"}
+                </p>
+                <p className="text-[10px] font-bold text-stone-400 italic">
+                  {product.stock_quantity} Units in inventory
+                </p>
+              </div>
             </div>
 
             <div className="grid gap-3">
@@ -278,7 +295,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <div className="p-6 rounded-3xl bg-stone-50 border border-stone-100 group hover:border-primary/20 transition-all">
               <Truck className="h-5 w-5 text-primary mb-3" />
               <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Logistics</p>
-              <p className="text-xs font-bold text-stone-900 mt-1">Door-to-Door Delivery</p>
+              <p className="text-xs font-bold text-stone-900 mt-1">
+                {product.delivery_available ? "Door-to-Door Delivery Available" : "Self-Collection Only"}
+              </p>
             </div>
             <div className="p-6 rounded-3xl bg-stone-50 border border-stone-100 group hover:border-primary/20 transition-all">
               <RotateCcw className="h-5 w-5 text-primary mb-3" />
@@ -296,30 +315,24 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
           <div className="p-8 rounded-[2.5rem] bg-stone-950 text-white space-y-6">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-2xl overflow-hidden ring-4 ring-stone-900 shadow-2xl">
-                {product.shops?.logo_url ? (
-                  <Image src={product.shops.logo_url} alt="Shop" width={64} height={64} className="object-cover" />
-                ) : (
-                  <div className="h-full w-full bg-stone-900 flex items-center justify-center">
-                    <Store className="h-8 w-8 text-primary" />
-                  </div>
-                )}
+                <div className="h-full w-full bg-stone-900 flex items-center justify-center">
+                  <Lock className="h-8 w-8 text-primary/40" />
+                </div>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Verified Merchant</p>
-                <h3 className="text-xl font-black tracking-tight">{product.shops?.vendors?.business_name || product.shops?.name}</h3>
+                <h3 className="text-xl font-black tracking-tight tracking-widest blur-[4px] select-none">XXXXXX XXXXXX</h3>
               </div>
             </div>
 
             <div className="space-y-4 pt-4">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">
                 <span>Identity Status</span>
-                <span className="text-white">Approved</span>
+                <span className="text-primary">Verified by TOLA</span>
               </div>
-              <Link href={`/shop/${product.shops?.id}`}>
-                <Button className="w-full h-12 rounded-xl bg-stone-800 hover:bg-white hover:text-stone-950 transition-all font-black text-[10px] uppercase tracking-widest">
-                  View Merchant Showroom
-                </Button>
-              </Link>
+              <div className="p-4 rounded-xl bg-stone-900/50 border border-white/5 text-[10px] font-medium text-stone-400 leading-relaxed italic">
+                Seller details are hidden to prevent off-platform deals and ensure secure trade. Identity will be revealed after order placement.
+              </div>
             </div>
           </div>
 
