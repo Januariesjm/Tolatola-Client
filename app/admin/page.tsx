@@ -55,19 +55,19 @@ export default async function AdminDashboardPage() {
 
     const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes] =
       await Promise.all([
-      serverApiGet<{ data: any[] }>("vendors").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("products").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("admin/orders").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("admin/escrows").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("admin/tickets").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("payouts/request").catch(() => ({ data: [] })),
-      serverApiGet<{ data: any[] }>("promotions").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/vendors").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/products").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/orders").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/escrows").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/tickets").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/payouts").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("promotions").catch(() => ({ data: [] })),
         serverApiGet<{ stats: any }>("admin/stats").catch(() => ({ stats: {} })),
         serverApiGet<{ admins: any[] }>("admin/users").catch(() => ({ admins: [] })),
         serverApiGet<{ data: any[] }>("admin/revoke-history").catch(() => ({ data: [] })),
         serverApiGet<{ data: any[] }>("admin/transporters").catch(() => ({ data: [] })),
         serverApiGet<{ analytics: any }>("admin/vendor-types").catch(() => ({ analytics: {} })),
-    ])
+      ])
 
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []
     pendingTransporters = transportersRes.data?.filter((t) => t.kyc_status === "pending") || []
