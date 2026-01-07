@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 
+import { clientApiPost } from "@/lib/api-client"
+
 interface KYCApprovalTabProps {
   vendors: any[]
 }
@@ -34,23 +36,15 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
 
   const handleApprove = async (vendorId: string) => {
     setIsSubmitting(true)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("vendors")
-      .update({
-        kyc_status: "approved",
-        kyc_reviewed_at: new Date().toISOString(),
-        kyc_notes: null, // Clear any previous rejection notes
-      })
-      .eq("id", vendorId)
-
-    if (error) {
+    try {
+      await clientApiPost(`admin/vendors/${vendorId}/activate`)
+      router.refresh()
+    } catch (error) {
       console.error("[v0] Error approving vendor:", error)
       alert("Failed to approve vendor. Please try again.")
-    } else {
-      router.refresh()
     }
+
     setIsSubmitting(false)
   }
 
@@ -67,26 +61,21 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
     }
 
     setIsSubmitting(true)
-    const supabase = createClient()
 
-    const { error } = await supabase
-      .from("vendors")
-      .update({
-        kyc_status: "rejected",
-        kyc_reviewed_at: new Date().toISOString(),
-        kyc_notes: rejectionReason,
+    try {
+      await clientApiPost(`admin/vendors/${selectedVendor.id}/reject`, {
+        reason: rejectionReason
       })
-      .eq("id", selectedVendor.id)
 
-    if (error) {
-      console.error("[v0] Error rejecting vendor:", error)
-      alert("Failed to reject vendor. Please try again.")
-    } else {
       setRejectDialogOpen(false)
       setSelectedVendor(null)
       setRejectionReason("")
       router.refresh()
+    } catch (error) {
+      console.error("[v0] Error rejecting vendor:", error)
+      alert("Failed to reject vendor. Please try again.")
     }
+
     setIsSubmitting(false)
   }
 
