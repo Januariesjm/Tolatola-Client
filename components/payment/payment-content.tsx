@@ -249,7 +249,7 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
                         </div>
                         <div className="flex-1">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Purchase Shield Active</p>
-                          <p className="text-sm font-bold leading-tight">Your payment is protected by TOLA's escrow system.</p>
+                          <p className="text-sm font-bold leading-tight">Your payment is protected by TOLA's buyer protection.</p>
                         </div>
                       </div>
                     </div>
@@ -343,7 +343,7 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
                       </p>
                       <div className="flex items-center gap-2 pt-4">
                         <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-white/40 italic">Escrow protection deactivated for COD</span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-white/40 italic">Payment protection unavailable for COD</span>
                       </div>
                     </div>
 

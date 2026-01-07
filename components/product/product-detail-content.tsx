@@ -268,7 +268,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-xs font-black text-stone-900 uppercase tracking-tight">Tola Protect Enabled</p>
-                  <p className="text-[10px] text-stone-400 font-medium">100% Escrow protected transactions.</p>
+                  <p className="text-[10px] text-stone-400 font-medium">100% Payment Protection Guaranteed.</p>
                 </div>
               </div>
             </div>

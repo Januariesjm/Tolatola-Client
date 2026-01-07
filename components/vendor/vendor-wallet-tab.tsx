@@ -131,7 +131,7 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
               <Clock className="h-5 w-5 text-yellow-600" />
               Pending Balance
             </CardTitle>
-            <CardDescription>In escrow (awaiting delivery)</CardDescription>
+            <CardDescription>Protected (awaiting delivery)</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">TZS {pendingBalance.toLocaleString()}</p>

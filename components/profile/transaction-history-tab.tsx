@@ -22,6 +22,14 @@ export default function TransactionHistoryTab({ transactions }: TransactionHisto
     }
   }
 
+  const getTransactionLabel = (type: string) => {
+    switch (type) {
+      case "escrow_hold": return "Payment Protected"
+      case "escrow_release": return "Payment Released"
+      default: return type.replace("_", " ")
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -57,7 +65,7 @@ export default function TransactionHistoryTab({ transactions }: TransactionHisto
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-muted rounded-full">{getTransactionIcon(transaction.transaction_type)}</div>
                   <div>
-                    <p className="font-medium capitalize">{transaction.transaction_type.replace("_", " ")}</p>
+                    <p className="font-medium capitalize">{getTransactionLabel(transaction.transaction_type)}</p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(transaction.created_at).toLocaleDateString()} at{" "}
                       {new Date(transaction.created_at).toLocaleTimeString()}

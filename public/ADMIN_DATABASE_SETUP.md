@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.admin_permissions (
 - manage_products
 - manage_orders
 - manage_payouts
-- manage_escrow
+- manage_transactions
 - manage_support
 - manage_promotions
 - manage_admins

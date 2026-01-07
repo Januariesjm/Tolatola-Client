@@ -38,7 +38,7 @@ export function SiteFooter() {
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-white font-black text-xs uppercase tracking-widest">Escrow Protect</h4>
+                <h4 className="text-white font-black text-xs uppercase tracking-widest">Buyer Protection</h4>
                 <p className="text-[10px] mt-1 font-medium">Safe & Insured Transactions</p>
               </div>
             </div>

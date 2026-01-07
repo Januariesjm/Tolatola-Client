@@ -101,7 +101,7 @@ You can run these directly in your Supabase SQL editor or through the v0 script 
 - ✅ KYC Approval
 - ✅ Product Approval  
 - ✅ Orders Management
-- ✅ Escrow Management
+- ✅ Transaction Management
 - ✅ Payout Approval
 - ✅ Support Tickets
 - ✅ Promotions Management
@@ -122,7 +122,7 @@ You can run these directly in your Supabase SQL editor or through the v0 script 
 - ✅ KYC Approval
 - ✅ Product Approval
 - ✅ Orders Management
-- ✅ Escrow Management
+- ✅ Transaction Management
 - ✅ Support Tickets
 - ✅ Promotions Management
 - ❌ Payout Approval
@@ -144,7 +144,7 @@ You can run these directly in your Supabase SQL editor or through the v0 script 
 - ❌ KYC Approval
 - ❌ Product Approval
 - ❌ Orders Management
-- ❌ Escrow Management
+- ❌ Transaction Management
 - ❌ Support Tickets
 - ❌ Promotions Management
 - ❌ Admin Users Management
@@ -164,7 +164,7 @@ You can run these directly in your Supabase SQL editor or through the v0 script 
 - ✅ KYC Approval
 - ✅ Product Approval
 - ✅ Orders Management
-- ❌ Escrow Management
+- ❌ Transaction Management
 - ❌ Payout Approval
 - ❌ Support Tickets
 - ❌ Promotions Management
@@ -187,7 +187,7 @@ You can run these directly in your Supabase SQL editor or through the v0 script 
 - ❌ KYC Approval
 - ❌ Product Approval
 - ❌ Orders Management
-- ❌ Escrow Management
+- ❌ Transaction Management
 - ❌ Payout Approval
 - ❌ Admin Users Management
 

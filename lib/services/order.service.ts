@@ -67,7 +67,7 @@ export class OrderService {
           throw new Error(`Failed to create order item: ${itemError.message}`)
         }
 
-        // Create escrow for vendor payment
+        // Create secure transaction record for vendor payout
         const itemTotal = item.price * item.quantity
         const { error: escrowError } = await supabase.from("escrows").insert({
           order_id: order.id,
@@ -77,7 +77,7 @@ export class OrderService {
         })
 
         if (escrowError) {
-          throw new Error(`Failed to create escrow: ${escrowError.message}`)
+          throw new Error(`Failed to create transaction record: ${escrowError.message}`)
         }
 
         // Update product stock

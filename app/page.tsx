@@ -93,8 +93,8 @@ export default async function HomePage() {
 
   const features = [
     {
-      title: "Escrow Secured",
-      desc: "Your funds are held in trust until you verify delivery. Total peace of mind.",
+      title: "Secure Payments",
+      desc: "Your payments are protected and processed securely by licensed PSPs.",
       icon: <Wallet className="h-8 w-8" />,
       color: "bg-blue-500"
     },
@@ -159,7 +159,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap justify-center md:justify-around gap-8 text-white/60">
               <div className="flex items-center gap-3">
                 <Shield className="h-6 w-6 text-primary" />
-                <span className="text-sm font-black tracking-widest uppercase italic">Secure Escrow</span>
+                <span className="text-sm font-black tracking-widest uppercase italic">Secure Payments</span>
               </div>
               <div className="flex items-center gap-3">
                 <Users className="h-6 w-6 text-primary" />
@@ -297,7 +297,7 @@ export default async function HomePage() {
                   Open for Enrollment
                 </div>
                 <h2 className="text-3xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
-                <p className="text-primary-foreground/80 text-xl font-medium italic">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and escrow protection for every sale.</p>
+                <p className="text-primary-foreground/80 text-xl font-medium italic">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and payment protection for every sale.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/vendor/register">
                     <Button size="lg" className="w-full sm:w-auto text-xl font-black rounded-2xl bg-stone-900 text-white hover:bg-stone-950 shadow-2xl transition-all py-8 px-10">

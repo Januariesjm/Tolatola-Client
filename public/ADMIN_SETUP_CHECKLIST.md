@@ -135,7 +135,7 @@ Status: ✅ Ready to use immediately
 | KYC Approval | ✅ | Approve/Reject vendors |
 | Products | ✅ | Approve/Reject products |
 | Orders | ✅ | Manage all orders |
-| Escrow | ✅ | Manage escrow funds |
+| Transactions | ✅ | Manage protected transactions |
 | Payouts | ✅ | Process all payouts |
 | Support | ✅ | Handle support tickets |
 | Promotions | ✅ | Create ad campaigns |
@@ -148,7 +148,7 @@ Status: ✅ Ready to use immediately
 | KYC Approval | ✅ | Approve/Reject vendors |
 | Products | ✅ | Approve/Reject products |
 | Orders | ✅ | View/Manage orders |
-| Escrow | ✅ | Manage escrow |
+| Transactions | ✅ | Manage transactions |
 | Support | ✅ | Handle tickets |
 | Promotions | ✅ | Create campaigns |
 | Payouts | ❌ | No access |

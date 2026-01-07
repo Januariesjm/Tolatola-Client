@@ -13,7 +13,7 @@
 | Role | Login URL | Can Access |
 |------|-----------|-----------|
 | Super Admin | /admin | Everything |
-| IT Admin | /admin | KYC, Products, Orders, Escrow, Support, Promotions |
+| IT Admin | /admin | KYC, Products, Orders, Transactions, Support, Promotions |
 | Finance Admin | /admin | Analytics, Payouts Only |
 | Vendor Manager | /admin | KYC, Products, Orders, Analytics |
 | Marketing & Support | /admin | Support Tickets, Promotions, Analytics |
@@ -45,7 +45,7 @@
 
 ### IT Admin
 - ✅ Approve/reject vendors & products
-- ✅ Manage orders & escrow
+- ✅ Manage orders & transactions
 - ✅ Handle support tickets
 - ✅ Create promotions
 - ❌ Cannot process payouts

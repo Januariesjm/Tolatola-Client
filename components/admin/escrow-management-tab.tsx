@@ -7,6 +7,7 @@ interface EscrowManagementTabProps {
   escrows: any[]
 }
 
+// Renaming component to TransactionMonitoringTab (conceptually)
 export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
   const statusColors: Record<string, string> = {
     held: "bg-yellow-500",
@@ -20,15 +21,15 @@ export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Escrow Management</h2>
+        <h2 className="text-2xl font-bold">Transaction Monitoring</h2>
       </div>
 
       {/* Summary Cards */}
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Total Held in Escrow</CardTitle>
-            <CardDescription>Funds awaiting delivery confirmation</CardDescription>
+            <CardTitle className="text-lg">Pending Settlements</CardTitle>
+            <CardDescription>Funds protected by PSP awaiting completion</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-yellow-600">TZS {totalHeld.toLocaleString()}</p>
@@ -37,8 +38,8 @@ export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Total Released</CardTitle>
-            <CardDescription>Funds released to vendors</CardDescription>
+            <CardTitle className="text-lg">Settled Funds</CardTitle>
+            <CardDescription>Funds successfully released to vendors</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-green-600">TZS {totalReleased.toLocaleString()}</p>
@@ -46,11 +47,11 @@ export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
         </Card>
       </div>
 
-      {/* Escrow List */}
+      {/* List */}
       {escrows.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No escrow records</p>
+            <p className="text-muted-foreground">No transaction records</p>
           </CardContent>
         </Card>
       ) : (
@@ -63,7 +64,7 @@ export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
                     <CardTitle className="text-lg">Order #{escrow.orders?.order_number}</CardTitle>
                     <CardDescription>Shop: {escrow.shops?.name}</CardDescription>
                   </div>
-                  <Badge className={statusColors[escrow.status]}>{escrow.status}</Badge>
+                  <Badge className={statusColors[escrow.status]}>{escrow.status === 'held' ? 'Processing' : escrow.status}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
@@ -77,7 +78,7 @@ export function EscrowManagementTab({ escrows }: EscrowManagementTabProps) {
                     <p className="font-medium">{new Date(escrow.created_at).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground mb-1">{escrow.status === "released" ? "Released" : "Status"}</p>
+                    <p className="text-muted-foreground mb-1">{escrow.status === "released" ? "Settled" : "Status"}</p>
                     <p className="font-medium">
                       {escrow.released_at
                         ? new Date(escrow.released_at).toLocaleDateString()

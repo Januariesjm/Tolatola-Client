@@ -22,7 +22,7 @@ export default async function AdminDashboardPage() {
   let pendingTransporters: any[] = []
   let pendingProducts: any[] = []
   let orders: any[] = []
-  let escrows: any[] = []
+  let transactions: any[] = []
   let tickets: any[] = []
   let payouts: any[] = []
   let promotions: any[] = []
@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
     totalOrders: 0,
     completedOrders: 0,
     totalGMV: 0,
-    totalEscrow: 0,
+    totalProtectedVolume: 0,
     totalPayouts: 0,
     totalTransporters: 0,
     activeTransporters: 0,
@@ -73,12 +73,18 @@ export default async function AdminDashboardPage() {
     pendingTransporters = transportersRes.data?.filter((t) => t.kyc_status === "pending") || []
     pendingProducts = productsRes.data?.filter((p) => p.status === "pending") || []
     orders = ordersRes.data || []
-    escrows = escrowsRes.data || []
+    transactions = escrowsRes.data || []
     tickets = ticketsRes.data || []
     payouts = payoutsRes.data || []
     promotions = promosRes.data || []
 
     stats = statsRes.stats || stats
+    // map backend stats.totalEscrow to frontend stats.totalProtectedVolume if keys differ
+    // assuming backend still returns totalEscrow for now
+    if ((stats as any).totalEscrow) {
+      stats.totalProtectedVolume = (stats as any).totalEscrow
+    }
+
     vendorTypesAnalytics = vendorTypesRes.analytics || {}
     const adminUsers = adminsRes.admins || []
     const revokeHistory = revokeRes.data || []
@@ -110,7 +116,7 @@ export default async function AdminDashboardPage() {
       pendingTransporters={pendingTransporters}
       pendingProducts={pendingProducts}
       orders={orders}
-      escrows={escrows}
+      transactions={transactions}
       tickets={tickets}
       payouts={payouts}
       stats={stats}

@@ -14,7 +14,7 @@ The admin dashboard system uses **role-based access control (RBAC)** with 5 dist
 - ✅ KYC Vendor Approval
 - ✅ Product Approval Management
 - ✅ Orders Management
-- ✅ Escrow Management
+- ✅ Transaction Management
 - ✅ Payout Processing
 - ✅ Support Tickets
 - ✅ Promotions & Ads Management
@@ -42,7 +42,7 @@ The admin dashboard system uses **role-based access control (RBAC)** with 5 dist
 - ✅ KYC Vendor Approval
 - ✅ Product Approval Management
 - ✅ Orders Management
-- ✅ Escrow Management
+- ✅ Transaction Management
 - ✅ Support Tickets
 - ✅ Promotions Management
 - ✅ System Configuration
@@ -57,7 +57,7 @@ The admin dashboard system uses **role-based access control (RBAC)** with 5 dist
 **Key Actions:**
 - Approve/reject vendors
 - Manage product listings
-- Track orders and escrow
+- Track orders and payments
 - Handle technical support issues
 - Configure promotional campaigns
 
@@ -99,7 +99,7 @@ The admin dashboard system uses **role-based access control (RBAC)** with 5 dist
 - ✅ KYC Vendor Approval
 - ✅ Product Approval Management
 - ✅ Orders Management
-- ❌ Escrow Management
+- ❌ Transaction Management
 - ❌ Payout Processing
 - ❌ Support Tickets
 - ❌ Promotions
@@ -129,7 +129,7 @@ The admin dashboard system uses **role-based access control (RBAC)** with 5 dist
 - ❌ KYC Approval
 - ❌ Product Management
 - ❌ Orders
-- ❌ Escrow
+- ❌ Protected Transactions
 - ❌ Payouts
 - ❌ Admin Management
 
@@ -213,9 +213,9 @@ https://yourdomain.com/admin
 - **Shows:** All marketplace orders
 - **Actions:** Track orders, manage disputes
 
-### Escrow Tab
+### Transactions Tab
 - **Available to:** Super Admin, IT Admin
-- **Shows:** Held escrow payments
+- **Shows:** Protected payments
 - **Actions:** Release/Hold payments, manage disputes
 
 ### Payouts Tab
