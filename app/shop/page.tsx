@@ -13,7 +13,7 @@ export default async function ShopPage({
 }: {
   searchParams: { category?: string; search?: string; minPrice?: string; maxPrice?: string; sort?: string }
 }) {
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies, headers } as any)
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -59,11 +59,26 @@ export default async function ShopPage({
   if (maxPrice) {
     params.append("maxPrice", maxPrice.toString())
   }
-  
+
+  // Location-based prioritization
+  if (profile?.latitude && profile?.longitude) {
+    params.append("userLat", profile.latitude.toString())
+    params.append("userLng", profile.longitude.toString())
+
+    // Default to closest if no sort is specified
+    if (!searchParams.sort) {
+      params.append("sortBy", "closest")
+    }
+  }
+
+  if (searchParams.sort === "closest") {
+    params.append("sortBy", "closest")
+  }
+
   if (params.toString()) {
     productsUrl += `?${params.toString()}`
   }
-  
+
   const productsRes = await serverApiGet<{ data: any[] }>(productsUrl).catch(() => ({ data: [] }))
   let products = productsRes.data || []
 
@@ -88,7 +103,7 @@ export default async function ShopPage({
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
-      
+
       {/* Mobile Search Bar - Between Header and Categories */}
       <div className="lg:hidden sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm">
         <div className="container mx-auto px-4 py-3">
@@ -97,9 +112,9 @@ export default async function ShopPage({
       </div>
 
       <CategoriesNav categories={categories || []} currentCategory={currentCategory} />
-      <ShopContent 
-        products={products || []} 
-        categories={categories || []} 
+      <ShopContent
+        products={products || []}
+        categories={categories || []}
         trendingProducts={trending}
         searchQuery={searchQuery}
       />

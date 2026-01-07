@@ -112,12 +112,18 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           }
           setDeliveryInfo({
             ...result,
+            lat: coordinates.lat,
+            lng: coordinates.lng,
             deliveryFee: Math.round(deliveryFeeCalc),
             transportMethod: method?.name,
             transportMethodId: method?.id,
           })
         } else {
-          setDeliveryInfo(result)
+          setDeliveryInfo({
+            ...result,
+            lat: coordinates.lat,
+            lng: coordinates.lng,
+          })
         }
       } else {
         setDeliveryError("Logistics Engine could not determine a route to this coordinate bundle.")
@@ -284,6 +290,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           ward: addressData.ward,
           village: addressData.village,
           street: addressData.street,
+          latitude: deliveryInfo.lat, // Added from deliveryInfo or coordinates
+          longitude: deliveryInfo.lng, // Added from deliveryInfo or coordinates
           delivery_distance_km: deliveryInfo.distanceKm,
           delivery_duration: deliveryInfo.duration,
           delivery_fee: deliveryFee,
@@ -608,7 +616,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
                             <div className="flex items-center gap-3">
                               <Smartphone className="h-5 w-5" />
-                              <span className="text-lg font-bold tracking-tight">Mobile Money</span>
+                              <span className="text-lg font-bold tracking-tight">TOLA Pay</span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="p-4 mt-2 space-y-4">

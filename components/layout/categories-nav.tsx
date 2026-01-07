@@ -15,7 +15,9 @@ interface CategoriesNavProps {
 }
 
 const categoryImages: Record<string, string> = {
+  "fast-moving-consumer-goods": "/category-fmcg.jpg",
   agriculture: "/fresh-vegetables-and-farming-crops.jpg",
+  "construction-hardware": "/category-hardware.jpg",
   handicrafts: "/handmade-crafts-and-artisan-products.jpg",
   "food-beverages": "/delicious-food-and-beverages.jpg",
   textiles: "/colorful-fabrics-and-textiles.jpg",
@@ -34,8 +36,8 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
           <Link
             href="/shop"
             className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl whitespace-nowrap transition-all font-black text-xs uppercase tracking-widest ${!currentCategory
-                ? "bg-primary text-white shadow-xl shadow-primary/20"
-                : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+              ? "bg-primary text-white shadow-xl shadow-primary/20"
+              : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
               }`}
           >
             <Grid3x3 className="h-4 w-4" />
@@ -52,8 +54,8 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
                 key={category.id}
                 href={`/shop?category=${category.slug}`}
                 className={`flex items-center gap-3 px-5 py-2 rounded-2xl whitespace-nowrap transition-all border font-bold text-xs ${isActive
-                    ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
-                    : "bg-white text-stone-600 border-stone-100 hover:border-primary/30 hover:bg-stone-50"
+                  ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
+                  : "bg-white text-stone-600 border-stone-100 hover:border-primary/30 hover:bg-stone-50"
                   }`}
               >
                 <div className="relative h-6 w-6 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100">

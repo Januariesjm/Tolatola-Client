@@ -107,7 +107,19 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                     <CardTitle>{vendor.business_name}</CardTitle>
                     <CardDescription>{vendor.users?.email}</CardDescription>
                   </div>
-                  <Badge className="bg-yellow-500">Pending Review</Badge>
+                  <div className="flex flex-col gap-2 items-end">
+                    <Badge className="bg-yellow-500">Pending Review</Badge>
+                    {vendor.kyc_type && (
+                      <Badge variant="outline" className="text-xs">
+                        {vendor.kyc_type === "individual" ? "Individual / Sole Trader" : "Company"}
+                      </Badge>
+                    )}
+                    {vendor.users?.vendor_type && (
+                      <Badge variant="secondary" className="text-xs capitalize">
+                        {vendor.users.vendor_type.replace(/_/g, ' ')}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -117,18 +129,50 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                     <span className="font-medium">{vendor.users?.full_name || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="font-medium">{vendor.users?.email || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Phone:</span>
-                    <span className="font-medium">{vendor.users?.phone || "N/A"}</span>
+                    <span className="font-medium">{vendor.phone_number || vendor.users?.phone || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Location:</span>
+                    <span className="font-medium">{vendor.location || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">TIN Number:</span>
                     <span className="font-medium">{vendor.tin_number}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">NIDA Number:</span>
-                    <span className="font-medium">{vendor.nida_number}</span>
-                  </div>
-                  <div className="flex justify-between">
+
+                  {/* Company Representative Details */}
+                  {vendor.kyc_type === "company" && (
+                    <>
+                      <div className="pt-3 border-t">
+                        <p className="text-xs font-bold uppercase tracking-wide text-stone-500 mb-2">
+                          Company Representative
+                        </p>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rep. Name:</span>
+                        <span className="font-medium">{vendor.representative_full_name || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rep. Phone:</span>
+                        <span className="font-medium">{vendor.representative_phone || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rep. TIN:</span>
+                        <span className="font-medium">{vendor.representative_tin || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rep. National ID:</span>
+                        <span className="font-medium">{vendor.representative_national_id || "N/A"}</span>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex justify-between pt-2 border-t">
                     <span className="text-muted-foreground">Applied:</span>
                     <span className="font-medium">{new Date(vendor.created_at).toLocaleDateString()}</span>
                   </div>

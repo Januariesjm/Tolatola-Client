@@ -54,10 +54,15 @@ export default async function HomePage() {
 
   // Category background images mapping - Using local downloaded images
   const categoryImages: Record<string, string> = {
+    "fast-moving-consumer-goods": "/category-fmcg.jpg",
+    fmcg: "/category-fmcg.jpg",
     agriculture: "/category-agriculture.jpg",
     farming: "/category-agriculture.jpg",
     crops: "/category-agriculture.jpg",
     vegetables: "/category-agriculture.jpg",
+    "construction-hardware": "/category-hardware.jpg",
+    construction: "/category-hardware.jpg",
+    hardware: "/category-hardware.jpg",
     handicrafts: "/category-handicrafts.jpg",
     crafts: "/category-handicrafts.jpg",
     "food-beverages": "/category-food-beverages.jpg",
@@ -226,11 +231,17 @@ export default async function HomePage() {
                 if (nameLower.includes("home") || nameLower.includes("garden")) {
                   return categoryImages["home-garden"]
                 }
-                if (nameLower.includes("beauty") || nameLower.includes("health")) {
+                if (nameLower.includes("health") || nameLower.includes("beauty")) {
                   return categoryImages["health-beauty"]
                 }
                 if (nameLower.includes("service") || nameLower.includes("business")) {
                   return categoryImages.services
+                }
+                if (nameLower.includes("construction") || nameLower.includes("hardware")) {
+                  return categoryImages["construction-hardware"]
+                }
+                if (nameLower.includes("fast moving") || nameLower.includes("consumer goods") || nameLower.includes("fmcg")) {
+                  return categoryImages["fast-moving-consumer-goods"]
                 }
 
                 // Default fallback

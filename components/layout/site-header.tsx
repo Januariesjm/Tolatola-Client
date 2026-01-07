@@ -117,12 +117,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
   return (
     <header className={cn(
-      "sticky top-0 z-[100] transition-all duration-500",
+      "sticky top-0 z-[100] will-change-transform transform-gpu",
       scrolled
-        ? "py-3 bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20"
-        : "py-6 bg-transparent border-b border-transparent"
+        ? "h-[72px] bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20"
+        : "h-[96px] bg-transparent border-b border-transparent"
     )}>
-      <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between gap-4 md:gap-8">
+      <div className={cn(
+        "container mx-auto px-4 lg:px-8 flex items-center justify-between gap-4 md:gap-8 h-full transition-all duration-500"
+      )}>
 
         {/* Mobile Hamburger Menu - First on Left */}
         <div className="lg:hidden flex-shrink-0">

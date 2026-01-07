@@ -23,20 +23,20 @@ export interface FilterState {
   categories: string[]
   minPrice: number
   maxPrice: number
-  sortBy: "name" | "price_asc" | "price_desc" | "newest"
+  sortBy: "name" | "price_asc" | "price_desc" | "newest" | "closest"
 }
 
 export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isOpen, setIsOpen] = useState(false)
-  
+
   // Get category from URL - it's a slug, find the matching category ID
   const categorySlug = searchParams.get("category")
-  const categoryFromSlug = categorySlug 
+  const categoryFromSlug = categorySlug
     ? categories.find(c => c.slug === categorySlug)
     : null
-  
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     categoryFromSlug ? [categoryFromSlug.id] : []
   )
@@ -75,7 +75,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
       ...partial,
     }
     onFiltersChange?.(newFilters)
-    
+
     // Update URL params
     const params = new URLSearchParams(searchParams.toString())
     if (newFilters.categories.length > 0) {
@@ -129,9 +129,8 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
 
       {/* Filters Panel */}
       <div
-        className={`${
-          isOpen ? "block" : "hidden"
-        } lg:block bg-white border border-gray-200 rounded-lg p-6 space-y-6`}
+        className={`${isOpen ? "block" : "hidden"
+          } lg:block bg-white border border-gray-200 rounded-lg p-6 space-y-6`}
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Filters</h3>
@@ -194,6 +193,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
           <div className="space-y-2">
             {[
               { value: "name", label: "Name (A-Z)" },
+              { value: "closest", label: "Closest First" },
               { value: "price_asc", label: "Price: Low to High" },
               { value: "price_desc", label: "Price: High to Low" },
               { value: "newest", label: "Newest First" },
