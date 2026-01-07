@@ -150,7 +150,7 @@ export class OrderService {
     const supabase = await createClient()
 
     try {
-      // Get transport method details
+      // 1. Get transport method details
       const { data: transportMethod } = await supabase
         .from("transport_methods")
         .select("vehicle_type")
@@ -161,33 +161,54 @@ export class OrderService {
         throw new Error("Transport method not found")
       }
 
-      // Find available transporter with matching vehicle type
-      const { data: transporter } = await supabase
+      // 2. Fetch eligible transporters with active subscriptions
+      const { data: eligibleTransporters, error: fetchError } = await supabase
         .from("transporters")
-        .select("*")
+        .select(`
+          *,
+          transporter_subscriptions(
+            status,
+            plan:subscription_plans(
+              name,
+              display_order
+            )
+          )
+        `)
         .eq("vehicle_type", transportMethod.vehicle_type)
         .eq("kyc_status", "approved")
-        .eq("is_available", true)
-        .limit(1)
-        .single()
+        .eq("availability_status", "available")
 
-      if (!transporter) {
+      if (fetchError) throw fetchError
+
+      if (!eligibleTransporters || eligibleTransporters.length === 0) {
         console.log("[OrderService] No available transporter found for vehicle type:", transportMethod.vehicle_type)
         return { success: false, message: "No available transporter" }
       }
 
-      // Create assignment
+      // 3. Sort by Subscription Tier (display_order) then Rating
+      const sortedTransporters = eligibleTransporters.map((t: any) => {
+        const activeSub = t.transporter_subscriptions?.find((s: any) => s.status === 'active')
+        const planOrder = activeSub?.plan?.display_order ?? 999
+        return { ...t, planOrder }
+      }).sort((a: any, b: any) => {
+        if (a.planOrder !== b.planOrder) return a.planOrder - b.planOrder
+        return (Number(b.rating) || 5) - (Number(a.rating) || 5)
+      })
+
+      const bestTransporter = sortedTransporters[0]
+
+      // 4. Create assignment
       await supabase.from("transporter_assignments").insert({
         order_id: orderId,
-        transporter_id: transporter.id,
+        transporter_id: bestTransporter.id,
         status: "assigned",
         assigned_at: new Date().toISOString(),
       })
 
-      // Mark transporter as unavailable
-      await supabase.from("transporters").update({ is_available: false }).eq("id", transporter.id)
+      // 5. Mark transporter as busy
+      await supabase.from("transporters").update({ availability_status: "busy" }).eq("id", bestTransporter.id)
 
-      return { success: true, transporter }
+      return { success: true, transporter: bestTransporter }
     } catch (error: any) {
       console.error("[OrderService] Transporter assignment error:", error)
       return { success: false, error: error.message }

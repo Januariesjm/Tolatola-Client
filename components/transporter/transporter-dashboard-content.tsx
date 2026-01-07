@@ -28,6 +28,43 @@ export function TransporterDashboardContent({
   withdrawals,
 }: TransporterDashboardContentProps) {
   const router = useRouter()
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false)
+  const [locationStatus, setLocationStatus] = useState<"updated" | "error" | "idle">("idle")
+
+  const updateLocation = async () => {
+    setIsUpdatingLocation(true)
+    setLocationStatus("idle")
+
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser")
+      setIsUpdatingLocation(false)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { clientApiPut } = await import("@/lib/api-client")
+          await clientApiPut("transporters/me/location", {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          })
+          setLocationStatus("updated")
+          router.refresh()
+        } catch (error) {
+          console.error("Error updating location:", error)
+          setLocationStatus("error")
+        } finally {
+          setIsUpdatingLocation(false)
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error)
+        setLocationStatus("error")
+        setIsUpdatingLocation(false)
+      }
+    )
+  }
 
   const handleLogout = async () => {
     try {
@@ -52,7 +89,7 @@ export function TransporterDashboardContent({
     }
   }
 
-  const activeAssignments = assignments.filter((a) => ["assigned", "picked_up", "in_transit"].includes(a.status))
+  const activeAssignments = assignments.filter((a) => ["assigned", "accepted", "picked_up", "in_transit"].includes(a.status))
   const completedAssignments = assignments.filter((a) => a.status === "delivered")
   const availableBalance = payments
     .filter((p) => p.status === "available")
@@ -131,6 +168,29 @@ export function TransporterDashboardContent({
                 <TrendingUp className="h-5 w-5 text-yellow-600" />
                 <span className="text-2xl font-bold">{transporter.rating || "5.00"}</span>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/50 bg-primary/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">My Location</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={updateLocation}
+                disabled={isUpdatingLocation}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                {isUpdatingLocation ? "Updating..." : "Update My Location"}
+              </Button>
+              {locationStatus === "updated" && (
+                <p className="text-[10px] text-green-600 mt-2 text-center font-medium">✓ Location synced</p>
+              )}
+              {locationStatus === "error" && (
+                <p className="text-[10px] text-red-600 mt-2 text-center font-medium">Failed to sync location</p>
+              )}
             </CardContent>
           </Card>
         </div>
