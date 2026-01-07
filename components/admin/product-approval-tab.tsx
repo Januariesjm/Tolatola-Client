@@ -52,7 +52,7 @@ export function ProductApprovalTab({ products }: ProductApprovalTabProps) {
             <Card key={product.id}>
               <div className="aspect-square bg-muted">
                 <img
-                  src={`/.jpg?key=ddwai&height=300&width=300&query=${encodeURIComponent(product.name)}`}
+                  src={product.image_url || "/placeholder.svg"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

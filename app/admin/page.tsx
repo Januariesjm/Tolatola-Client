@@ -20,12 +20,14 @@ export default async function AdminDashboardPage() {
   let adminRole: any = null
   let pendingVendors: any[] = []
   let pendingTransporters: any[] = []
+  let pendingCustomerKyc: any[] = []
   let pendingProducts: any[] = []
   let orders: any[] = []
   let transactions: any[] = []
   let tickets: any[] = []
   let payouts: any[] = []
   let promotions: any[] = []
+  let subscriptions: any[] = []
   let vendorTypesAnalytics: any = {}
   let stats = {
     totalVendors: 0,
@@ -53,7 +55,7 @@ export default async function AdminDashboardPage() {
       return <div>You need admin access to view this page.</div>
     }
 
-    const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes] =
+    const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes] =
       await Promise.all([
         serverApiGet<{ data: any[] }>("admin/vendors").catch(() => ({ data: [] })),
         serverApiGet<{ data: any[] }>("admin/products").catch(() => ({ data: [] })),
@@ -67,16 +69,20 @@ export default async function AdminDashboardPage() {
         serverApiGet<{ data: any[] }>("admin/revoke-history").catch(() => ({ data: [] })),
         serverApiGet<{ data: any[] }>("admin/transporters").catch(() => ({ data: [] })),
         serverApiGet<{ analytics: any }>("admin/vendor-types").catch(() => ({ analytics: {} })),
+        serverApiGet<{ data: any[] }>("admin/subscriptions").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/customers-kyc").catch(() => ({ data: [] })),
       ])
 
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []
     pendingTransporters = transportersRes.data?.filter((t) => t.kyc_status === "pending") || []
+    pendingCustomerKyc = kycRes.data?.filter((k: any) => k.kyc_status === "pending") || []
     pendingProducts = productsRes.data?.filter((p) => p.status === "pending") || []
     orders = ordersRes.data || []
     transactions = escrowsRes.data || []
     tickets = ticketsRes.data || []
     payouts = payoutsRes.data || []
     promotions = promosRes.data || []
+    subscriptions = subsRes.data || []
 
     stats = statsRes.stats || stats
     // map backend stats.totalEscrow to frontend stats.totalProtectedVolume if keys differ
@@ -107,13 +113,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminDashboardContent
-      adminRole={{
-        roleName: adminRole.role_name,
-        permissions: adminRole.permissions || [],
-        accessLevel: adminRole.access_level || 0,
-      }}
+      adminRole={adminRole}
       pendingVendors={pendingVendors}
       pendingTransporters={pendingTransporters}
+      pendingCustomerKyc={pendingCustomerKyc}
       pendingProducts={pendingProducts}
       orders={orders}
       transactions={transactions}
@@ -121,6 +124,7 @@ export default async function AdminDashboardPage() {
       payouts={payouts}
       stats={stats}
       promotions={promotions}
+      subscriptions={subscriptions}
       vendorTypesAnalytics={vendorTypesAnalytics}
     />
   )

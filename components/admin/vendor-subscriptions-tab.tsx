@@ -9,19 +9,37 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Crown, Eye, Sparkles, Star, Zap } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-export function VendorSubscriptionsTab() {
-  const [subscriptions, setSubscriptions] = useState<any[]>([])
+interface VendorSubscriptionsTabProps {
+  subscriptions: any[]
+}
+
+export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: VendorSubscriptionsTabProps) {
+  const [subscriptions, setSubscriptions] = useState<any[]>(initialSubscriptions || [])
   const [stats, setStats] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [selectedSubscription, setSelectedSubscription] = useState<any>(null)
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
 
   useEffect(() => {
-    loadSubscriptions()
-  }, [])
+    if (!initialSubscriptions || initialSubscriptions.length === 0) {
+      loadSubscriptions()
+    } else {
+      calculateStats(initialSubscriptions)
+    }
+  }, [initialSubscriptions])
+
+  const calculateStats = (data: any[]) => {
+    const planCounts = data.reduce((acc: any, sub: any) => {
+      const planName = sub.plan?.name || "Unknown"
+      acc[planName] = (acc[planName] || 0) + 1
+      return acc
+    }, {})
+    setStats(planCounts)
+  }
 
   const loadSubscriptions = async () => {
     const supabase = createClient()
+    setLoading(true)
 
     try {
       // Load active subscriptions with vendor and plan details

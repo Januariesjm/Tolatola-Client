@@ -25,6 +25,7 @@ import { PromotionsManagementTab } from "./promotions-management-tab"
 import { VendorManagementTab } from "./vendor-management-tab"
 import { TransporterManagementTab } from "./transporter-management-tab"
 import { CustomerManagementTab } from "./customer-management-tab"
+import { CustomerKYCApprovalTab } from "./customer-kyc-approval-tab"
 import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
 import { AdminUsersManagementTab } from "./admin-users-management-tab"
 
@@ -32,6 +33,7 @@ interface AdminDashboardContentProps {
   adminRole: any
   pendingVendors: any[]
   pendingTransporters: any[]
+  pendingCustomerKyc: any[]
   pendingProducts: any[]
   orders: any[]
   transactions: any[]
@@ -39,6 +41,7 @@ interface AdminDashboardContentProps {
   payouts: any[]
   stats: any
   promotions: any[]
+  subscriptions: any[]
   vendorTypesAnalytics?: any
 }
 
@@ -46,6 +49,7 @@ export function AdminDashboardContent({
   adminRole,
   pendingVendors,
   pendingTransporters,
+  pendingCustomerKyc,
   pendingProducts,
   orders,
   transactions,
@@ -53,6 +57,7 @@ export function AdminDashboardContent({
   payouts,
   stats,
   promotions,
+  subscriptions,
   vendorTypesAnalytics = {},
 }: AdminDashboardContentProps) {
   const router = useRouter()
@@ -146,6 +151,7 @@ export function AdminDashboardContent({
               <TabsTrigger value="analytics" className="px-6">Analytics</TabsTrigger>
               {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="kyc" className="px-6">Vendor KYC ({pendingVendors.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="transporter-kyc" className="px-6">Transporter KYC ({pendingTransporters.length})</TabsTrigger>}
+              {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="customer-kyc" className="px-6">User KYC ({pendingCustomerKyc.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_products") && <TabsTrigger value="products" className="px-6">Products ({pendingProducts.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_orders") && <TabsTrigger value="orders" className="px-6">Orders</TabsTrigger>}
               {(adminRole?.permissions.includes("manage_escrow") || adminRole?.permissions.includes("manage_transactions")) && (
@@ -171,7 +177,11 @@ export function AdminDashboardContent({
           </TabsContent>
 
           <TabsContent value="transporter-kyc" className="border-none p-0 outline-none">
-            <TransporterKYCApprovalTab pendingTransporters={pendingTransporters} />
+            <TransporterKYCApprovalTab transporters={pendingTransporters} />
+          </TabsContent>
+
+          <TabsContent value="customer-kyc" className="border-none p-0 outline-none">
+            <CustomerKYCApprovalTab customers={pendingCustomerKyc} />
           </TabsContent>
 
           <TabsContent value="products" className="border-none p-0 outline-none">
@@ -211,7 +221,7 @@ export function AdminDashboardContent({
           </TabsContent>
 
           <TabsContent value="subscriptions" className="border-none p-0 outline-none">
-            <VendorSubscriptionsTab />
+            <VendorSubscriptionsTab subscriptions={subscriptions} />
           </TabsContent>
 
           {showAdminManagement && (
