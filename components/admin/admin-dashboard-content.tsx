@@ -23,6 +23,8 @@ import { PayoutApprovalTab } from "./payout-approval-tab"
 import { SupportTicketsTab } from "./support-tickets-tab"
 import { PromotionsManagementTab } from "./promotions-management-tab"
 import { VendorManagementTab } from "./vendor-management-tab"
+import { TransporterManagementTab } from "./transporter-management-tab"
+import { CustomerManagementTab } from "./customer-management-tab"
 import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
 import { AdminUsersManagementTab } from "./admin-users-management-tab"
 
@@ -153,6 +155,8 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("manage_support") && <TabsTrigger value="support" className="px-6">Support ({pendingTickets.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_promotions") && <TabsTrigger value="promotions" className="px-6">Promotions</TabsTrigger>}
               {adminRole?.permissions.includes("manage_vendors") && <TabsTrigger value="vendors" className="px-6">Vendors</TabsTrigger>}
+              {adminRole?.permissions.includes("manage_transporters") && <TabsTrigger value="transporters" className="px-6">Transporters</TabsTrigger>}
+              {adminRole?.permissions.includes("manage_customers") && <TabsTrigger value="customers" className="px-6">Customers</TabsTrigger>}
               {adminRole?.permissions.includes("manage_subscriptions") && <TabsTrigger value="subscriptions" className="px-6">Subscriptions</TabsTrigger>}
               {showAdminManagement && <TabsTrigger value="admins" className="px-6">Admin Users</TabsTrigger>}
             </TabsList>
@@ -196,6 +200,14 @@ export function AdminDashboardContent({
 
           <TabsContent value="vendors" className="border-none p-0 outline-none">
             <VendorManagementTab />
+          </TabsContent>
+
+          <TabsContent value="transporters" className="border-none p-0 outline-none">
+            <TransporterManagementTab />
+          </TabsContent>
+
+          <TabsContent value="customers" className="border-none p-0 outline-none">
+            <CustomerManagementTab />
           </TabsContent>
 
           <TabsContent value="subscriptions" className="border-none p-0 outline-none">
