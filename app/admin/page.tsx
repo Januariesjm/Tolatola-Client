@@ -58,20 +58,20 @@ export default async function AdminDashboardPage() {
 
     const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes] =
       await Promise.all([
-        serverApiGet<{ data: any[] }>("admin/vendors").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/products").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/orders").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/escrows").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/tickets").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/payouts").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("promotions").catch(() => ({ data: [] })),
-        serverApiGet<{ stats: any }>("admin/stats").catch(() => ({ stats: {} })),
-        serverApiGet<{ admins: any[] }>("admin/users").catch(() => ({ admins: [] })),
-        serverApiGet<{ data: any[] }>("admin/revoke-history").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/transporters").catch(() => ({ data: [] })),
-        serverApiGet<{ analytics: any }>("admin/vendor-types").catch(() => ({ analytics: {} })),
-        serverApiGet<{ data: any[] }>("admin/subscriptions").catch(() => ({ data: [] })),
-        serverApiGet<{ data: any[] }>("admin/customers-kyc").catch(() => ({ data: [] })),
+        serverApiGet<{ data: any[] }>("admin/vendors").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching vendors:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/products").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching products:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/orders").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching orders:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/escrows").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching escrows:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/tickets").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching tickets:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/payouts").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching payouts:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("promotions").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching promotions:", err); return { data: [] }; }),
+        serverApiGet<{ stats: any }>("admin/stats").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching stats:", err); return { stats: {} }; }),
+        serverApiGet<{ admins: any[] }>("admin/users").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching admin users:", err); return { admins: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/revoke-history").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching revoke history:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/transporters").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching transporters:", err); return { data: [] }; }),
+        serverApiGet<{ analytics: any }>("admin/vendor-types").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching vendor types:", err); return { analytics: {} }; }),
+        serverApiGet<{ data: any[] }>("admin/subscriptions").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching subscriptions:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/customers-kyc").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching customer kyc:", err); return { data: [] }; }),
       ])
 
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []

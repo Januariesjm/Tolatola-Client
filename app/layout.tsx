@@ -5,6 +5,7 @@ import "./globals.css"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { LanguageProvider } from "@/lib/i18n/language-context"
 import { JsonLd } from "@/components/seo/json-ld"
+import { GlobalErrorLogger } from "@/components/utils/global-error-logger"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -87,6 +88,7 @@ export default function RootLayout({
       <body className="font-sans flex flex-col min-h-screen">
         <JsonLd />
         <LanguageProvider>
+          <GlobalErrorLogger />
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </LanguageProvider>

@@ -32,7 +32,14 @@ async function request<T>(
 
   if (!res.ok) {
     const errorBody = await res.text()
-    throw new Error(`API ${res.status}: ${errorBody}`)
+    const errorMessage = `API ${res.status}: ${errorBody}`
+    console.error("[API Error]", {
+      url,
+      method: options.method || "GET",
+      status: res.status,
+      error: errorBody,
+    })
+    throw new Error(errorMessage)
   }
 
   return res.json()
