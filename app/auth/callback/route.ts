@@ -52,8 +52,8 @@ export async function GET(request: Request) {
 
       // Get user profile from database to check user type
       // We check the database INSTEAD of just metadata because metadata might be out of sync
-      const { data: profile, error: profileError } = await (supabase
-        .from("users")
+      const { data: profile, error: profileError } = await ((supabase
+        .from("users") as any)
         .select("user_type")
         .eq("id", user.id) as any)
         .maybeSingle()
@@ -64,9 +64,54 @@ export async function GET(request: Request) {
 
       const typedProfile = profile as { user_type: string } | null
 
-      // If user doesn't have a record in users table or missing user_type, redirect to profile completion
+      // If user doesn't have a record in users table or missing user_type, check by email (for account linking)
       if (!typedProfile || !typedProfile.user_type) {
-        console.log('[AUTH CALLBACK] User needs profile completion (no profile or missing user_type)')
+        console.log('[AUTH CALLBACK] User type missing, checking for existing profile by email:', user.email)
+
+        const { data: emailProfile, error: emailProfileError } = await ((supabase
+          .from("users") as any)
+          .select("user_type, id")
+          .eq("email", user.email!) as any)
+          .maybeSingle()
+
+        if (emailProfile && emailProfile.user_type) {
+          console.log('[AUTH CALLBACK] Found existing profile by email with type:', emailProfile.user_type)
+
+          // Trigger backend rebinding
+          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+          if (apiBase) {
+            console.log('[AUTH CALLBACK] Triggering backend ID rebinding...')
+            try {
+              await fetch(`${apiBase}/users/${user.id}`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${data.session.access_token}`
+                },
+                body: JSON.stringify({
+                  user_type: emailProfile.user_type,
+                  full_name: user.user_metadata?.full_name
+                })
+              })
+              console.log('[AUTH CALLBACK] Backend rebinding triggered successfully')
+            } catch (fetchError) {
+              console.error('[AUTH CALLBACK] Failed to trigger backend rebinding:', fetchError)
+            }
+          }
+
+          let redirectTo = next && next !== "/" ? (next.startsWith('http') ? next : `${appUrl}${next}`) : null
+          if (!redirectTo) {
+            if (emailProfile.user_type === "admin") redirectTo = `${appUrl}/admin`
+            else if (emailProfile.user_type === "vendor") redirectTo = `${appUrl}/vendor/dashboard`
+            else if (emailProfile.user_type === "transporter") redirectTo = `${appUrl}/transporter/dashboard`
+            else redirectTo = `${appUrl}/shop`
+          }
+
+          console.log('[AUTH CALLBACK] Redirecting existing email user to:', redirectTo)
+          return NextResponse.redirect(redirectTo)
+        }
+
+        console.log('[AUTH CALLBACK] No existing profile found by ID or email. Redirecting to profile completion.')
 
         // Preserve the 'next' parameter if it exists
         const completeProfileUrl = new URL(`${appUrl}/auth/complete-profile`)
