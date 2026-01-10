@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import {
   ShoppingCart,
+  Heart,
   User,
   LogOut,
   Menu,
