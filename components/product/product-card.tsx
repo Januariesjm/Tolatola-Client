@@ -154,7 +154,7 @@ export function ProductCard({
                         </div>
                         <div className="flex items-center gap-1">
                             <Truck className="h-3 w-3 text-primary/60" />
-                            <span>Delivery: {product.delivery_available ? "Yes" : "No"}</span>
+                            <span>Delivery: {product.delivery_available !== false ? "Yes" : "No"}</span>
                         </div>
                     </div>
                 </div>

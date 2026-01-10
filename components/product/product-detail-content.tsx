@@ -330,7 +330,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               <Truck className="h-5 w-5 text-primary mb-3" />
               <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Logistics</p>
               <p className="text-xs font-bold text-stone-900 mt-1">
-                {product.delivery_available ? "Door-to-Door Delivery Available" : "Self-Collection Only"}
+                {product.delivery_available !== false ? "Door-to-Door Delivery Available" : "Self-Collection Only"}
               </p>
             </div>
             <div className="p-6 rounded-3xl bg-stone-50 border border-stone-100 group hover:border-primary/20 transition-all">
