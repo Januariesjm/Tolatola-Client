@@ -8,6 +8,8 @@ export const metadata = {
   description: "View and manage your conversations with sellers",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function MessagesPage() {
   const supabase = await createClient()
 

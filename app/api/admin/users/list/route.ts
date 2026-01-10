@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     const supabase = await createClient()
@@ -53,10 +55,10 @@ export async function GET() {
         u.admin_role_id && rolesMap.has(u.admin_role_id)
           ? rolesMap.get(u.admin_role_id)
           : {
-              role_name: "Super Admin",
-              access_level: 100,
-              description: "Full system access (default)",
-            },
+            role_name: "Super Admin",
+            access_level: 100,
+            description: "Full system access (default)",
+          },
     }))
 
     return NextResponse.json({ users: usersWithRoles || [] })

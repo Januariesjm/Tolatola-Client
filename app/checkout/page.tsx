@@ -6,8 +6,10 @@ import { cookies, headers } from "next/headers"
 import type { Database } from "@/lib/types"
 import { serverApiGet } from "@/lib/api-server"
 
+export const dynamic = "force-dynamic"
+
 export default async function CheckoutPage() {
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies, headers } as any)
 
   const {
     data: { user },

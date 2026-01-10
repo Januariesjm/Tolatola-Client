@@ -2,6 +2,8 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import ProfileContent from "@/components/profile/profile-content"
 
+export const dynamic = "force-dynamic"
+
 export default async function ProfilePage() {
   const supabase = await createClient()
 
@@ -14,13 +16,13 @@ export default async function ProfilePage() {
   }
 
   // Fetch user profile
-  const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
+  const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
 
   // Fetch KYC status
-  const { data: kyc } = await supabase.from("customer_kyc").select("*").eq("user_id", user.id).maybeSingle()
+  const { data: kyc } = await (supabase.from("customer_kyc").select("*").eq("user_id", user.id) as any).maybeSingle()
 
   // Fetch orders
-  const { data: orders } = await supabase
+  const { data: orders } = await (supabase
     .from("orders")
     .select(
       `
@@ -34,14 +36,14 @@ export default async function ProfilePage() {
       )
     `,
     )
-    .eq("customer_id", user.id)
+    .eq("customer_id", user.id) as any)
     .order("created_at", { ascending: false })
 
   // Fetch transactions
-  const { data: transactions } = await supabase
+  const { data: transactions } = await (supabase
     .from("transactions")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user.id) as any)
     .order("created_at", { ascending: false })
     .limit(50)
 

@@ -14,6 +14,8 @@ import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
 import { redirect } from "next/navigation"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "TOLA Digital trade and Supply Chain Ecosystem | Tanzania's Premier Trading Platform",
   description:

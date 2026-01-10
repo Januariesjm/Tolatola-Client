@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { TransporterDashboardContent } from "@/components/transporter/transporter-dashboard-content"
 import { serverApiGet } from "@/lib/api-server"
 
+export const dynamic = "force-dynamic"
+
 export default async function TransporterDashboardPage() {
   const supabase = await createClient()
 

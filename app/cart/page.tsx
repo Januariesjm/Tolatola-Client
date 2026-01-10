@@ -3,6 +3,8 @@ import { CartContent } from "@/components/cart/cart-content"
 import { redirect } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
 
+export const dynamic = "force-dynamic"
+
 export default async function CartPage() {
   const supabase = await createClient()
 
@@ -14,12 +16,12 @@ export default async function CartPage() {
     redirect("/auth/login")
   }
 
-  const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
+  const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
 
-  const { data: kycData } = await supabase
+  const { data: kycData } = await (supabase
     .from("customer_kyc")
     .select("kyc_status")
-    .eq("user_id", user.id)
+    .eq("user_id", user.id) as any)
     .maybeSingle()
 
   return (

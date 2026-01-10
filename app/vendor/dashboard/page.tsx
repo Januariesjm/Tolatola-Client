@@ -5,8 +5,10 @@ import { cookies, headers } from "next/headers"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
 
+export const dynamic = "force-dynamic"
+
 export default async function VendorDashboardPage() {
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies, headers } as any)
   const {
     data: { user },
   } = await supabase.auth.getUser()

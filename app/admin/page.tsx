@@ -5,8 +5,10 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies, headers } from "next/headers"
 import type { Database } from "@/lib/types"
 
+export const dynamic = "force-dynamic"
+
 export default async function AdminDashboardPage() {
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies, headers } as any)
 
   const {
     data: { user },
