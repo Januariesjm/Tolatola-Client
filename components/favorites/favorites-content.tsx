@@ -1,3 +1,10 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Heart, ShoppingCart, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useFavorites } from "@/hooks/use-favorites"
 import { useState, useEffect } from "react"
