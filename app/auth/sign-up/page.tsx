@@ -119,7 +119,7 @@ export default function SignUpPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${appUrl}/auth/callback`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -150,7 +150,7 @@ export default function SignUpPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: `${appUrl}/auth/callback`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
           scopes: "email,public_profile",
         },
       })

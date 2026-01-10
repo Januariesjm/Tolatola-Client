@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
@@ -17,6 +17,10 @@ type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "ret
 
 export default function CompleteProfilePage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const from = searchParams.get("from")
+    const next = searchParams.get("next")
+
     const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">("customer")
     const [vendorType, setVendorType] = useState<VendorType | "">("")
     const [error, setError] = useState<string | null>(null)
@@ -30,6 +34,14 @@ export default function CompleteProfilePage() {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
                 setUserEmail(user.email || "")
+
+                // If user already has a user_type in metadata (from OAuth maybe?), pre-select it
+                if (user.user_metadata?.user_type) {
+                    setUserType(user.user_metadata.user_type)
+                    if (user.user_metadata.vendor_type) {
+                        setVendorType(user.user_metadata.vendor_type)
+                    }
+                }
             } else {
                 // If no user, redirect to login
                 router.push("/auth/login")
@@ -46,7 +58,7 @@ export default function CompleteProfilePage() {
         try {
             // Validate vendor type if user is a vendor
             if (userType === "vendor" && !vendorType) {
-                setError("Please select a vendor type")
+                setError("Please select your business type")
                 setIsLoading(false)
                 return
             }
@@ -58,7 +70,7 @@ export default function CompleteProfilePage() {
                 throw new Error("No authenticated user found")
             }
 
-            // Update user metadata
+            // 1. Update user metadata in Supabase Auth
             const { error: updateError } = await supabase.auth.updateUser({
                 data: {
                     user_type: userType,
@@ -67,35 +79,45 @@ export default function CompleteProfilePage() {
             })
 
             if (updateError) {
-                throw updateError
+                console.error("Auth metadata update warning:", updateError)
+                // We'll continue because the database update is more important
             }
 
-            // Also update the users table via API
+            // 2. Update the users table via our API
             const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
-            if (apiBase) {
-                try {
-                    const response = await fetch(`${apiBase}/users/${user.id}`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-                        },
-                        body: JSON.stringify({
-                            user_type: userType,
-                            vendor_type: userType === "vendor" ? vendorType : null
-                        })
-                    })
-
-                    if (!response.ok) {
-                        console.error("Failed to update user table, but metadata updated")
-                    }
-                } catch (err) {
-                    console.error("API update failed, but metadata updated:", err)
-                }
+            if (!apiBase) {
+                throw new Error("API base URL is not configured")
             }
 
-            // Success! Redirect to home
-            router.push("/")
+            const session = await supabase.auth.getSession()
+            const response = await fetch(`${apiBase}/users/${user.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session.data.session?.access_token}`
+                },
+                body: JSON.stringify({
+                    user_type: userType,
+                    vendor_type: userType === "vendor" ? vendorType : null,
+                    full_name: user.user_metadata?.full_name // Preserve if available
+                })
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: "Failed to update profile" }))
+                throw new Error(errorData.error || "Unable to save your profile choices")
+            }
+
+            // Success! Redirect
+            if (next) {
+                router.push(next)
+            } else if (userType === "vendor") {
+                router.push("/vendor/dashboard")
+            } else if (userType === "transporter") {
+                router.push("/transporter/dashboard")
+            } else {
+                router.push("/shop")
+            }
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "An error occurred"
             setError(errorMessage)
@@ -121,20 +143,20 @@ export default function CompleteProfilePage() {
                     <Card className="backdrop-blur-sm bg-card/95 shadow-xl border-primary/10">
                         <CardHeader className="space-y-1">
                             <CardTitle className="text-2xl font-bold">Complete Your Profile</CardTitle>
-                            <CardDescription>
-                                Welcome! Tell us a bit more about yourself to get started.
+                            <CardDescription className="text-base">
+                                Select how you want to use TOLA to continue.
                             </CardDescription>
                             {userEmail && (
-                                <p className="text-sm text-muted-foreground pt-2">
-                                    Signed in as: <span className="font-medium">{userEmail}</span>
+                                <p className="text-xs text-muted-foreground pt-1 italic">
+                                    Continue as <span className="font-bold text-primary">{userEmail}</span>
                                 </p>
                             )}
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={handleCompleteProfile}>
                                 <div className="flex flex-col gap-6">
-                                    <div className="grid gap-2">
-                                        <Label>I want to</Label>
+                                    <div className="grid gap-4">
+                                        <Label className="text-sm font-black uppercase tracking-widest text-stone-400">I want to</Label>
                                         <RadioGroup
                                             value={userType}
                                             onValueChange={(value) => {
@@ -144,25 +166,27 @@ export default function CompleteProfilePage() {
                                                     setVendorType("")
                                                 }
                                             }}
+                                            className="gap-3"
                                         >
-                                            <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
-                                                <RadioGroupItem value="customer" id="customer" />
-                                                <Label htmlFor="customer" className="font-normal cursor-pointer flex-1">
-                                                    Buy products (Consumer)
+                                            <div className="flex items-center space-x-3 p-4 rounded-xl border border-stone-100 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group">
+                                                <RadioGroupItem value="customer" id="customer" className="text-primary" />
+                                                <Label htmlFor="customer" className="font-bold cursor-pointer flex-1 text-stone-700 group-hover:text-primary transition-colors capitalize">
+                                                    shop for products
                                                 </Label>
                                             </div>
+
                                             <div className="space-y-2">
-                                                <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
+                                                <div className="flex items-center space-x-3 p-4 rounded-xl border border-stone-100 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group">
                                                     <RadioGroupItem value="vendor" id="vendor" />
-                                                    <Label htmlFor="vendor" className="font-normal cursor-pointer flex-1">
-                                                        Sell products (Vendor)
+                                                    <Label htmlFor="vendor" className="font-bold cursor-pointer flex-1 text-stone-700 group-hover:text-primary transition-colors capitalize">
+                                                        sell my products
                                                     </Label>
                                                 </div>
                                                 {userType === "vendor" && (
-                                                    <div className="ml-8 pr-3 pb-2">
+                                                    <div className="ml-9 pr-3 pb-2 animate-in slide-in-from-left-2 duration-300">
                                                         <Select value={vendorType} onValueChange={(value) => setVendorType(value as VendorType)}>
-                                                            <SelectTrigger id="vendorType" className="transition-all focus:scale-[1.02]">
-                                                                <SelectValue placeholder="Select your vendor type" />
+                                                            <SelectTrigger id="vendorType" className="h-11 border-stone-200 focus:ring-primary/20">
+                                                                <SelectValue placeholder="Select your business type" />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 <SelectItem value="producer">Producer</SelectItem>
@@ -175,28 +199,39 @@ export default function CompleteProfilePage() {
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex items-center space-x-2 p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer">
+
+                                            <div className="flex items-center space-x-3 p-4 rounded-xl border border-stone-100 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group">
                                                 <RadioGroupItem value="transporter" id="transporter" />
-                                                <Label htmlFor="transporter" className="font-normal cursor-pointer flex-1">
-                                                    Transport products (Transporter)
+                                                <Label htmlFor="transporter" className="font-bold cursor-pointer flex-1 text-stone-700 group-hover:text-primary transition-colors capitalize">
+                                                    provide transport services
                                                 </Label>
                                             </div>
                                         </RadioGroup>
                                     </div>
                                     {error && (
-                                        <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md animate-shake">{error}</p>
+                                        <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 animate-shake">
+                                            <p className="text-sm text-destructive text-center font-medium">{error}</p>
+                                        </div>
                                     )}
                                     <Button
                                         type="submit"
-                                        className="w-full transition-all hover:scale-[1.02]"
+                                        className="w-full h-12 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
                                         disabled={isLoading}
                                     >
-                                        {isLoading ? "Completing profile..." : "Complete Profile"}
+                                        {isLoading ? (
+                                            <span className="flex items-center gap-2">
+                                                <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                                                Finalizing Account...
+                                            </span>
+                                        ) : "Start Using Tolatola"}
                                     </Button>
                                 </div>
                             </form>
                         </CardContent>
                     </Card>
+                    <p className="text-center text-xs text-stone-400">
+                        By continuing, you agree to our Terms of Service and Privacy Policy.
+                    </p>
                 </div>
             </div>
         </div>

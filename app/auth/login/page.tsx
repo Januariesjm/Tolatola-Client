@@ -60,10 +60,10 @@ export default function LoginPage() {
         return
       }
 
-      const { data: profile } = await supabase
+      const { data: profile } = await (supabase
         .from("users")
         .select("user_type")
-        .eq("id", userData.id)
+        .eq("id", userData.id) as any)
         .maybeSingle()
 
       if (profile?.user_type === "admin") {
@@ -94,7 +94,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${appUrl}/auth/callback`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -125,7 +125,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: `${appUrl}/auth/callback`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
           scopes: "email,public_profile",
         },
       })

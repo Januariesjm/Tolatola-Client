@@ -47,39 +47,51 @@ export async function GET(request: Request) {
     }
 
     if (data?.session) {
-      console.log('[AUTH CALLBACK] OAuth successful, user:', data.session.user.email)
+      const { user } = data.session
+      console.log('[AUTH CALLBACK] OAuth successful, user:', user.email)
 
-      // Check if this is a new user without profile completion
-      const userMetadata = data.session.user.user_metadata
-      const userType = userMetadata?.user_type
+      // Get user profile from database to check user type
+      // We check the database INSTEAD of just metadata because metadata might be out of sync
+      const { data: profile, error: profileError } = await (supabase
+        .from("users")
+        .select("user_type")
+        .eq("id", user.id) as any)
+        .maybeSingle()
 
-      // If user doesn't have a user_type, redirect to profile completion
-      if (!userType) {
-        console.log('[AUTH CALLBACK] New OAuth user needs profile completion')
-        return NextResponse.redirect(`${appUrl}/auth/complete-profile?from=oauth`)
+      if (profileError) {
+        console.error('[AUTH CALLBACK] Error fetching user profile:', profileError)
+      }
+
+      const typedProfile = profile as { user_type: string } | null
+
+      // If user doesn't have a record in users table or missing user_type, redirect to profile completion
+      if (!typedProfile || !typedProfile.user_type) {
+        console.log('[AUTH CALLBACK] User needs profile completion (no profile or missing user_type)')
+
+        // Preserve the 'next' parameter if it exists
+        const completeProfileUrl = new URL(`${appUrl}/auth/complete-profile`)
+        completeProfileUrl.searchParams.set('from', 'oauth')
+        if (next && next !== '/') {
+          completeProfileUrl.searchParams.set('next', next)
+        }
+
+        return NextResponse.redirect(completeProfileUrl.toString())
       }
 
       // Existing user with complete profile - redirect to appropriate dashboard
-      console.log('[AUTH CALLBACK] Existing OAuth user, checking dashboard redirect...')
-
-      // Get user profile from database to check user type
-      const { data: profile } = await supabase
-        .from("users")
-        .select("user_type")
-        .eq("id", data.session.user.id)
-        .maybeSingle()
+      console.log('[AUTH CALLBACK] Existing user detected with type:', typedProfile.user_type)
 
       // Determine redirect based on user type
       let redirectTo = appUrl
 
       if (next && next !== "/") {
         // If there's a specific next parameter, use it
-        redirectTo = next
-      } else if (profile?.user_type === "admin") {
+        redirectTo = next.startsWith('http') ? next : `${appUrl}${next}`
+      } else if (typedProfile.user_type === "admin") {
         redirectTo = `${appUrl}/admin`
-      } else if (profile?.user_type === "vendor") {
+      } else if (typedProfile.user_type === "vendor") {
         redirectTo = `${appUrl}/vendor/dashboard`
-      } else if (profile?.user_type === "transporter") {
+      } else if (typedProfile.user_type === "transporter") {
         redirectTo = `${appUrl}/transporter/dashboard`
       } else {
         // Customer or default - go to shop
