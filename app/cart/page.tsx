@@ -12,18 +12,24 @@ export default async function CartPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  let profile = null
+  let kycStatus = null
 
-  const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
+  if (user) {
+    const { data: profileData } = await (supabase.from("users").select("*").eq("id", user.id as string) as any).single()
+    profile = profileData
 
-  const { data: kycData } = await (supabase
-    .from("customer_kyc")
-    .select("kyc_status")
-    .eq("user_id", user.id) as any)
-    .maybeSingle()
+    const { data: kycData } = await (supabase
+      .from("customer_kyc")
+      .select("kyc_status")
+      .eq("user_id", user.id as string) as any)
+      .maybeSingle()
+    kycStatus = kycData?.kyc_status
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader user={user} profile={profile} kycStatus={kycData?.kyc_status} />
+      <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
       <CartContent />
     </div>
   )

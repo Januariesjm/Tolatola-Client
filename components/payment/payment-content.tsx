@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { clientApiPost } from "@/lib/api-client"
+import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -15,11 +16,14 @@ interface PaymentContentProps {
   user: any
 }
 
-export function PaymentContent({ order, user }: PaymentContentProps) {
+export function PaymentContent({ order: initialOrder, user }: PaymentContentProps) {
   const router = useRouter()
+  const { toast } = useToast()
+  const [order, setOrder] = useState(initialOrder)
   // If order is already paid or it's COD, we consider payment "completed" visually for this page
   const [paymentCompleted, setPaymentCompleted] = useState(order.payment_status === "paid" || order.payment_method === "cash-on-delivery")
   const [error, setError] = useState<string | null>(null)
+  const [isConfirming, setIsConfirming] = useState(false)
 
   const handlePaymentSuccess = (transactionId: string) => {
     setPaymentCompleted(true)
@@ -31,6 +35,28 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
 
   const handleCashOnDelivery = () => {
     setPaymentCompleted(true)
+  }
+
+  const handleConfirmDelivery = async () => {
+    setIsConfirming(true)
+    try {
+      await clientApiPost(`orders/${order.id}/confirm-delivery`)
+      toast({
+        title: "Delivery Confirmed",
+        description: "Thank you for confirming the delivery! Funds have been released to the vendor and transporter.",
+      })
+      // Refresh order data
+      setOrder({ ...order, status: "delivered" })
+    } catch (err) {
+      console.error("Error confirming delivery:", err)
+      toast({
+        title: "Error",
+        description: "Failed to confirm delivery. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsConfirming(false)
+    }
   }
 
   const OrderStatusProgress = ({ status }: { status: string }) => {
@@ -213,7 +239,7 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
                           </div>
                           <div className="space-y-0.5">
                             <p className="text-[10px] font-bold text-stone-400 uppercase">Recipient</p>
-                            <p className="font-black text-stone-900">{order.shipping_address?.full_name || user.email}</p>
+                            <p className="font-black text-stone-900">{order.shipping_address?.full_name || (user?.email || "Guest")}</p>
                           </div>
                         </div>
 
@@ -257,12 +283,22 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 pt-8">
-                  <Button
-                    onClick={() => router.push(`/dashboard`)}
-                    className="flex-1 h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
-                  >
-                    View Order Details
-                  </Button>
+                  {order.status === "dispatched" || order.status === "shipped" || order.status === "on_the_way" ? (
+                    <Button
+                      onClick={handleConfirmDelivery}
+                      disabled={isConfirming}
+                      className="flex-1 h-14 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold text-lg shadow-xl shadow-green-200/20 transition-all active:scale-[0.98] group"
+                    >
+                      {isConfirming ? "Confirming..." : "Confirm Delivery"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => router.push(user ? `/orders` : "/shop")}
+                      className="flex-1 h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
+                    >
+                      {user ? "View Order History" : "Continue Shopping"}
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     onClick={() => router.push("/")}
@@ -278,7 +314,7 @@ export function PaymentContent({ order, user }: PaymentContentProps) {
             <div className="flex items-center justify-center gap-3 animate-pulse">
               <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-stone-400">
-                Confirmation email dispatched to {user.email}
+                {user ? `Updates sent to ${user.email}` : "Keep this page open to track your order"}
               </p>
             </div>
           </div>

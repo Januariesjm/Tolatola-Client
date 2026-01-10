@@ -237,7 +237,15 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
             {authUser ? (
               <div className="flex items-center gap-2 md:gap-4">
                 <NotificationPopover />
-                <CartPopover />
+
+                <div className="flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
+                  <Link href="/favorites">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <CartPopover />
+                </div>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -323,6 +331,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     Sign Up
                   </Button>
                 </Link>
+                <div className="flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
+                  <Link href="/favorites">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                  <CartPopover />
+                </div>
               </div>
             )}
 

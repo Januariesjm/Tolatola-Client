@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers"
 import { PaymentContent } from "@/components/payment/payment-content"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
+import SiteHeader from "@/components/layout/site-header"
 
 export default async function PaymentPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params
@@ -20,12 +21,26 @@ export default async function PaymentPage({ params }: { params: Promise<{ orderI
     const order = orderRes.data
 
     if (!order) {
-      redirect("/orders")
+      redirect("/")
     }
 
-    return <PaymentContent order={order} user={user} />
+    let profile = null
+    let kycStatus = null
+    if (user) {
+      const { data: profileData } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
+      profile = profileData
+      const { data: kyc } = await (supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id) as any).maybeSingle()
+      kycStatus = kyc?.kyc_status
+    }
+
+    return (
+      <div className="min-h-screen bg-background">
+        <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
+        <PaymentContent order={order} user={user} />
+      </div>
+    )
   } catch (error) {
     console.error("Error fetching order:", error)
-    redirect("/orders")
+    redirect("/")
   }
 }
