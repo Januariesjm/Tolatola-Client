@@ -1,23 +1,53 @@
-"use client"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Heart, ShoppingCart, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { useFavorites } from "@/hooks/use-favorites"
+import { useState, useEffect } from "react"
+import { clientApiGet } from "@/lib/api-client"
 
 interface FavoritesContentProps {
   likes: any[]
 }
 
-export function FavoritesContent({ likes }: FavoritesContentProps) {
+export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps) {
+  const [displayLikes, setDisplayLikes] = useState<any[]>(initialLikes)
+  const [isLoading, setIsLoading] = useState(false)
+  const { toggleFavorite, favorites } = useFavorites()
   const router = useRouter()
 
-  const handleRemove = async (likeId: string) => {
-    const supabase = createClient()
-    await supabase.from("product_likes").delete().eq("id", likeId)
-    router.refresh()
+  useEffect(() => {
+    const loadGuestFavorites = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        setIsLoading(true)
+        try {
+          // If guest, fetch product details for each favorite ID
+          const productPromises = favorites.map(id => clientApiGet<{ data: any }>(`products/${id}`))
+          const results = await Promise.allSettled(productPromises)
+          const guestLikes = results
+            .filter((r): r is PromiseFulfilledResult<{ data: any }> => r.status === 'fulfilled')
+            .map(r => ({
+              id: r.value.data.id,
+              products: r.value.data
+            }))
+          setDisplayLikes(guestLikes)
+        } catch (error) {
+          console.error("Error loading guest favorites:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else {
+        setDisplayLikes(initialLikes)
+      }
+    }
+
+    loadGuestFavorites()
+  }, [favorites, initialLikes])
+
+  const handleRemove = async (productId: string) => {
+    await toggleFavorite(productId)
+    // Local update of UI
+    setDisplayLikes(prev => prev.filter(l => (l.product_id || l.id) !== productId))
   }
 
   const handleAddToCart = (product: any) => {
@@ -46,7 +76,11 @@ export function FavoritesContent({ likes }: FavoritesContentProps) {
           <p className="text-muted-foreground">Products you've saved for later</p>
         </div>
 
-        {likes.length === 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Heart className="h-12 w-12 animate-pulse text-primary/20" />
+          </div>
+        ) : displayLikes.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -58,7 +92,7 @@ export function FavoritesContent({ likes }: FavoritesContentProps) {
           </Card>
         ) : (
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {likes.map((like) => {
+            {displayLikes.map((like) => {
               const product = like.products
               return (
                 <Card key={like.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -86,7 +120,7 @@ export function FavoritesContent({ likes }: FavoritesContentProps) {
                           <ShoppingCart className="h-4 w-4 mr-2" />
                           Add to Cart
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleRemove(like.id)}>
+                        <Button variant="outline" size="sm" onClick={() => handleRemove(product.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

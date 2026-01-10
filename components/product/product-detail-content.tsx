@@ -31,6 +31,7 @@ import { ChatButton } from "@/components/messaging/chat-button"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Check } from "lucide-react"
+import { useFavorites } from "@/hooks/use-favorites"
 
 interface ProductDetailContentProps {
   product: any
@@ -40,7 +41,8 @@ interface ProductDetailContentProps {
 
 export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked }: ProductDetailContentProps) {
   const [quantity, setQuantity] = useState(1)
-  const [isLiked, setIsLiked] = useState(initialIsLiked)
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const isLiked = isFavorite(product.id)
   const [isInCart, setIsInCart] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -70,30 +72,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
 
   const handleLike = async () => {
     setIsLoading(true)
-    const supabase = createClient()
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push("/auth/login")
-        return
-      }
-
-      if (isLiked) {
-        await supabase.from("product_likes").delete().eq("user_id", user.id).eq("product_id", product.id)
-        setIsLiked(false)
-      } else {
-        await (supabase.from("product_likes") as any).insert({
-          user_id: user.id,
-          product_id: product.id,
-        })
-        setIsLiked(true)
-      }
-    } catch (error) {
-      console.error("[v0] Error toggling like:", error)
-    } finally {
-      setIsLoading(false)
-    }
+    await toggleFavorite(product.id)
+    setIsLoading(false)
   }
 
   const handleAddToCart = async () => {

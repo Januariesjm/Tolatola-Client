@@ -7,15 +7,12 @@ import type { Database } from "@/lib/types"
 
 export default async function PaymentPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
 
   try {
     // Fetch order details from backend API

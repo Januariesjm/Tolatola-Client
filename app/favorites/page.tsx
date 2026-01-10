@@ -12,42 +12,45 @@ export default async function FavoritesPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  let profile = null
+  let kycData = null
+  let likes: any[] = []
 
-  const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
+  if (user) {
+    const { data: profileData } = await (supabase.from("users").select("*").eq("id", user.id as string) as any).single()
+    profile = profileData
 
-  const { data: kycData } = await (supabase
-    .from("customer_kyc")
-    .select("kyc_status")
-    .eq("user_id", user.id) as any)
-    .maybeSingle()
+    const { data: kyc } = await (supabase
+      .from("customer_kyc")
+      .select("kyc_status")
+      .eq("user_id", user.id as string) as any)
+      .maybeSingle()
+    kycData = kyc
 
-  // Get user's liked products
-  const { data: likes } = await supabase
-    .from("product_likes")
-    .select(
-      `
-      *,
-      products (
+    // Get user's liked products from DB
+    const { data: dbLikes } = await (supabase
+      .from("product_likes")
+      .select(`
         *,
-        shops (
-          name,
-          vendors (
-            business_name
+        products (
+          *,
+          shops (
+            name,
+            vendors (
+              business_name
+            )
           )
         )
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+      `) as any)
+      .eq("user_id", user.id as string)
+      .order("created_at", { ascending: false })
+    likes = dbLikes || []
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycData?.kyc_status} />
-      <FavoritesContent likes={likes || []} />
+      <FavoritesContent likes={likes} />
     </div>
   )
 }

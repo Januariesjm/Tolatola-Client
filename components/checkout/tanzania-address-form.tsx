@@ -37,7 +37,7 @@ interface TanzaniaAddressFormProps {
   value: AddressData
   onChange: (address: AddressData) => void
   onAddressComplete: (fullAddress: string, coordinates?: { lat: number; lng: number }) => void
-  userId: string
+  userId?: string
 }
 
 export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId }: TanzaniaAddressFormProps) {

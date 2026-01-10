@@ -515,7 +515,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         value={addressData}
                         onChange={setAddressData}
                         onAddressComplete={handleAddressComplete}
-                        userId={user.id}
+                        userId={user?.id}
                       />
                     </div>
 

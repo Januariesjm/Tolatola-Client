@@ -164,7 +164,7 @@ export function CartContent() {
                     </div>
                   </div>
                   <Button className="w-full" size="lg" onClick={handleCheckout} disabled={isCheckingAuth}>
-                    {isCheckingAuth ? "Loading..." : isAuthenticated ? "Proceed to Checkout" : "Login to Checkout"}
+                    {isCheckingAuth ? "Loading..." : "Proceed to Checkout"}
                   </Button>
                   <Link href="/shop">
                     <Button variant="outline" className="w-full bg-transparent">

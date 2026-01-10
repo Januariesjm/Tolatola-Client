@@ -12,9 +12,6 @@ export default async function CartPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
 
   const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
 
