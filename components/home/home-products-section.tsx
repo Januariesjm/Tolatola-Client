@@ -21,6 +21,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
   const featuredScrollRef = useRef<HTMLDivElement>(null)
   const dealsScrollRef = useRef<HTMLDivElement>(null)
   const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set())
+  const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
   const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -31,28 +32,44 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
       if (user) {
         setUserId(user.id)
         const { data: likes } = await supabase.from("product_likes").select("product_id").eq("user_id", user.id)
-        if (likes) setLikedProducts(new Set(likes.map((like) => like.product_id)))
+        if (likes) setLikedProducts(new Set(likes.map((like: any) => like.product_id)))
       }
     }
+
+    const loadCart = () => {
+      const items = JSON.parse(localStorage.getItem("cart") || "[]")
+      setCartItems(items)
+    }
+
     fetchUserAndLikes()
+    loadCart()
+
+    window.addEventListener("cartUpdated", loadCart)
+    return () => window.removeEventListener("cartUpdated", loadCart)
   }, [])
 
   const handleAddToCart = (product: any) => {
-    const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existingItem = cartItems.find((item: any) => item.product_id === product.id)
+    const currentCart = JSON.parse(localStorage.getItem("cart") || "[]")
+    const existingItem = currentCart.find((item: any) => item.product_id === product.id)
 
     if (existingItem) {
       existingItem.quantity += 1
     } else {
-      cartItems.push({
+      currentCart.push({
         product_id: product.id,
         quantity: 1,
         product: { ...product, shops: product.shops },
       })
     }
 
-    localStorage.setItem("cart", JSON.stringify(cartItems))
-    router.push("/cart")
+    localStorage.setItem("cart", JSON.stringify(currentCart))
+    setCartItems(currentCart)
+    window.dispatchEvent(new Event("cartUpdated"))
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    })
   }
 
   const handleToggleLike = async (productId: string) => {
@@ -74,7 +91,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
         await supabase.from("product_likes").delete().eq("user_id", userId).eq("product_id", productId)
         toast({ title: "Removed", description: "Product removed from wishlist" })
       } else {
-        await supabase.from("product_likes").insert({ user_id: userId, product_id: productId })
+        await (supabase.from("product_likes") as any).insert({ user_id: userId, product_id: productId })
         toast({ title: "Added", description: "Product added to wishlist" })
       }
     } catch {
@@ -129,6 +146,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
                     product={product}
                     badge={{ text: "HOT", variant: "new" }}
                     isLiked={likedProducts.has(product.id)}
+                    isInCart={cartItems.some((item) => item.product_id === product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}
                   />
@@ -203,6 +221,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
                     product={product}
                     badge={{ text: "OFFER", variant: "deal" }}
                     isLiked={likedProducts.has(product.id)}
+                    isInCart={cartItems.some((item) => item.product_id === product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}
                   />

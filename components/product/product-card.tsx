@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
     product: any
@@ -21,7 +22,9 @@ interface ProductCardProps {
     onToggleLike?: (productId: string) => void
     onCopyLink?: (product: any) => void
     onSocialShare?: (product: any, platform: string) => void
+    isSocialShare?: boolean
     isLiked?: boolean
+    isInCart?: boolean
 }
 
 export function ProductCard({
@@ -33,6 +36,7 @@ export function ProductCard({
     onCopyLink,
     onSocialShare,
     isLiked: initialIsLiked,
+    isInCart,
 }: ProductCardProps) {
     const { toast } = useToast()
     const [shareOpen, setShareOpen] = useState(false)
@@ -186,11 +190,25 @@ export function ProductCard({
                 <div className="flex gap-2 pt-2 border-t border-stone-50">
                     <Button
                         size="sm"
-                        className="flex-1 rounded-xl font-black text-xs shadow-md hover:shadow-primary/20 transition-all active:scale-95 h-10"
+                        className={cn(
+                            "flex-1 rounded-xl font-black text-xs shadow-md transition-all active:scale-95 h-10",
+                            isInCart
+                                ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
+                                : "hover:shadow-primary/20"
+                        )}
                         onClick={() => onAddToCart && onAddToCart(product)}
                     >
-                        <ShoppingCart className="h-3.5 w-3.5 mr-2" />
-                        Add to Cart
+                        {isInCart ? (
+                            <>
+                                <Check className="h-3.5 w-3.5 mr-2 text-green-600" />
+                                In Cart
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="h-3.5 w-3.5 mr-2" />
+                                Add to Cart
+                            </>
+                        )}
                     </Button>
                     <Button
                         variant="outline"

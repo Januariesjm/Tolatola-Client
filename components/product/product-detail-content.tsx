@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +29,8 @@ import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { ChatButton } from "@/components/messaging/chat-button"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+import { Check } from "lucide-react"
 
 interface ProductDetailContentProps {
   product: any
@@ -39,12 +41,32 @@ interface ProductDetailContentProps {
 export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked }: ProductDetailContentProps) {
   const [quantity, setQuantity] = useState(1)
   const [isLiked, setIsLiked] = useState(initialIsLiked)
+  const [isInCart, setIsInCart] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const router = useRouter()
+  const { toast } = useToast()
 
   const averageRating = reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length : 0
+
+  useState(() => {
+    // Initial check for cart
+    if (typeof window !== "undefined") {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+      setIsInCart(cart.some((item: any) => item.product_id === product.id))
+    }
+  })
+
+  useEffect(() => {
+    const loadCart = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+      setIsInCart(cart.some((item: any) => item.product_id === product.id))
+    }
+
+    window.addEventListener("cartUpdated", loadCart)
+    return () => window.removeEventListener("cartUpdated", loadCart)
+  }, [product.id])
 
   const handleLike = async () => {
     setIsLoading(true)
@@ -75,14 +97,6 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   }
 
   const handleAddToCart = async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      router.push("/auth/login")
-      return
-    }
-
     const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
     const existingItem = cartItems.find((item: any) => item.product_id === product.id)
 
@@ -101,7 +115,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     }
 
     localStorage.setItem("cart", JSON.stringify(cartItems))
-    router.push("/cart")
+    setIsInCart(true)
+    window.dispatchEvent(new Event("cartUpdated"))
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    })
   }
 
   return (
@@ -254,11 +274,25 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
 
             <div className="grid gap-3">
               <Button
-                className="h-16 rounded-2xl bg-stone-950 hover:bg-stone-800 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl shadow-stone-200 transition-all hover:-translate-y-1"
+                className={cn(
+                  "h-16 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl transition-all hover:-translate-y-1",
+                  isInCart
+                    ? "bg-stone-100 text-stone-600 hover:bg-stone-200 shadow-stone-100 border border-stone-200"
+                    : "bg-stone-950 hover:bg-stone-800 text-white shadow-stone-200"
+                )}
                 onClick={handleAddToCart}
               >
-                <ShoppingCart className="h-5 w-5 text-primary" />
-                Initiate Secure Purchase
+                {isInCart ? (
+                  <>
+                    <Check className="h-5 w-5 text-green-600" />
+                    In Your Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-5 w-5 text-primary" />
+                    Initiate Secure Purchase
+                  </>
+                )}
               </Button>
 
               <div className="flex gap-3">

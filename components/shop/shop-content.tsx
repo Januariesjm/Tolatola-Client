@@ -19,6 +19,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set())
+  const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
   const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -33,23 +34,32 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         const { data: likes } = await supabase.from("product_likes").select("product_id").eq("user_id", user.id)
 
         if (likes) {
-          setLikedProducts(new Set(likes.map((like) => like.product_id)))
+          setLikedProducts(new Set(likes.map((like: any) => like.product_id)))
         }
       }
     }
 
+    const loadCart = () => {
+      const items = JSON.parse(localStorage.getItem("cart") || "[]")
+      setCartItems(items)
+    }
+
     fetchUserAndLikes()
+    loadCart()
+
+    window.addEventListener("cartUpdated", loadCart)
+    return () => window.removeEventListener("cartUpdated", loadCart)
   }, [])
 
   const handleAddToCart = (product: any) => {
-    const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existingItem = cartItems.find((item: any) => item.product_id === product.id)
+    const currentCart = JSON.parse(localStorage.getItem("cart") || "[]")
+    const existingItem = currentCart.find((item: any) => item.product_id === product.id)
     const quantityToAdd = product.quantity || 1
 
     if (existingItem) {
       existingItem.quantity += quantityToAdd
     } else {
-      cartItems.push({
+      currentCart.push({
         product_id: product.id,
         quantity: quantityToAdd,
         product: {
@@ -60,9 +70,14 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
       })
     }
 
-    localStorage.setItem("cart", JSON.stringify(cartItems))
+    localStorage.setItem("cart", JSON.stringify(currentCart))
+    setCartItems(currentCart)
     window.dispatchEvent(new Event("cartUpdated"))
-    router.push("/cart")
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    })
   }
 
   const handleToggleLike = async (productId: string) => {
@@ -96,7 +111,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
           description: "Product removed from your wishlist",
         })
       } else {
-        await supabase.from("product_likes").insert({ user_id: userId, product_id: productId })
+        await (supabase.from("product_likes") as any).insert({ user_id: userId, product_id: productId })
         toast({
           title: "Added to wishlist",
           description: "Product added to your wishlist",
@@ -128,29 +143,30 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
 
         {/* Products Grid */}
         <main className="w-full">
-            {products.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <p className="text-gray-600">No products found</p>
-                  {searchQuery && (
-                    <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
-                  )}
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    isLiked={likedProducts.has(product.id)}
-                    onAddToCart={handleAddToCart}
-                    onToggleLike={handleToggleLike}
-                  />
-                ))}
-              </div>
-            )}
-          </main>
+          {products.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-gray-600">No products found</p>
+                {searchQuery && (
+                  <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isLiked={likedProducts.has(product.id)}
+                  isInCart={cartItems.some((item) => item.product_id === product.id)}
+                  onAddToCart={handleAddToCart}
+                  onToggleLike={handleToggleLike}
+                />
+              ))}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   )
