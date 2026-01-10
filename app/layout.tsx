@@ -74,6 +74,8 @@ export const metadata: Metadata = {
   generator: 'v0.app'
 }
 
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
+
 export default function RootLayout({
   children,
 }: {
@@ -89,8 +91,9 @@ export default function RootLayout({
         <JsonLd />
         <LanguageProvider>
           <GlobalErrorLogger />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pb-16 lg:pb-0">{children}</main>
           <SiteFooter />
+          <MobileBottomNav />
         </LanguageProvider>
       </body>
     </html>
