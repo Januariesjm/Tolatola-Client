@@ -81,6 +81,9 @@ export default async function HomePage() {
     health: "/category-health-beauty.jpg",
     services: "/category-services.jpg",
     business: "/category-services.jpg",
+    vehicles: "/category-vehicles.jpg",
+    cars: "/category-vehicles.jpg",
+    transport: "/category-vehicles.jpg",
     // Fallback to local images if category doesn't match
     default: "/abstract-categories.png",
   }
