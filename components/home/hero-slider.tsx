@@ -112,9 +112,9 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                       <Link href="/shop" className="flex-none">
                         <Button
                           size="lg"
-                          className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-4 md:px-8"
+                          className="w-auto h-8 sm:h-10 md:h-12 text-[10px] sm:text-xs md:text-base lg:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-2 sm:px-4 md:px-8"
                         >
-                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          <ShoppingCart className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           Start Shopping
                         </Button>
                       </Link>
@@ -122,9 +122,9 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                         <Button
                           size="lg"
                           variant="outline"
-                          className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
+                          className="w-auto h-8 sm:h-10 md:h-12 text-[10px] sm:text-xs md:text-base lg:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 sm:px-4 md:px-8"
                         >
-                          <Store className="mr-2 h-4 w-4" />
+                          <Store className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           Become a Seller
                         </Button>
                       </Link>
@@ -132,9 +132,9 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                         <Button
                           size="lg"
                           variant="outline"
-                          className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
+                          className="w-auto h-8 sm:h-10 md:h-12 text-[10px] sm:text-xs md:text-base lg:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 sm:px-4 md:px-8"
                         >
-                          <Truck className="mr-2 h-4 w-4" />
+                          <Truck className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                           Become a Transporter
                         </Button>
                       </Link>
@@ -153,7 +153,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                             <Button
                               size="lg"
                               variant={isPrimary ? "default" : "outline"}
-                              className={`w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group px-4 md:px-8 ${!isPrimary ? "bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950" : "bg-primary text-white hover:bg-primary/90"}`}
+                              className={`w-auto h-8 sm:h-10 md:h-12 text-[10px] sm:text-xs md:text-base lg:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group px-2 sm:px-4 md:px-8 ${!isPrimary ? "bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950" : "bg-primary text-white hover:bg-primary/90"}`}
                             >
                               {text}
                             </Button>
