@@ -1,31 +1,22 @@
--- Run this in your Supabase SQL Editor to fix the upload error
+-- POLICY FIX:
+-- The error "must be owner of table objects" likely happened because of the "ALTER TABLE" command.
+-- storage.objects usually already has RLS enabled, so we can skip that line.
 
--- 1. Enable RLS on storage.objects (usually enabled by default)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Run these commands to enable uploads:
 
--- 2. Allow authenticated users (Admins) to upload to the 'promotions' bucket
+-- 1. Create Policy for Uploads (Authenticated Users)
 CREATE POLICY "Allow authenticated uploads to promotions"
 ON storage.objects
 FOR INSERT
 TO authenticated
 WITH CHECK ( bucket_id = 'promotions' );
 
--- 3. Allow everyone (Public) to view the images
+-- 2. Create Policy for Viewing (Public)
 CREATE POLICY "Allow public viewing of promotions"
 ON storage.objects
 FOR SELECT
 TO public
 USING ( bucket_id = 'promotions' );
 
--- 4. Allow authenticated users to update/delete (Optional, for managing files)
-CREATE POLICY "Allow authenticated updates to promotions"
-ON storage.objects
-FOR UPDATE
-TO authenticated
-USING ( bucket_id = 'promotions' );
-
-CREATE POLICY "Allow authenticated deletes from promotions"
-ON storage.objects
-FOR DELETE
-TO authenticated
-USING ( bucket_id = 'promotions' );
+-- NOTE: If you still get an error, you can also create these policies manually in the Supabase Dashboard:
+-- Go to Storage -> Configuration -> Policies -> "promotions" bucket -> "New Policy"
