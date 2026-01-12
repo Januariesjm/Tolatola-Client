@@ -43,7 +43,7 @@ export function ProductCard({
     const [copied, setCopied] = useState(false)
 
     const shop = product.shops
-    const locationParts = [shop?.district, shop?.region].filter(Boolean)
+    const locationParts = [shop?.region, shop?.district].filter(Boolean)
     const locationLabel = locationParts.length > 0 ? locationParts.join(", ") : null
 
     const handleCopyLinkInternal = async () => {
@@ -175,6 +175,12 @@ export function ProductCard({
                             <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black text-primary bg-primary/5 px-1.5 py-0.5 rounded-full">
                                 <MapPin className="h-2 w-2 md:h-2.5 md:w-2.5" />
                                 <span>{product.distance_km < 1 ? '< 1 km' : `${Math.round(product.distance_km)} km`}</span>
+                            </div>
+                        )}
+                        {locationLabel && (
+                            <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-bold text-muted-foreground/60">
+                                <MapPin className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                                <span className="truncate max-w-[60px] md:max-w-[80px]">{locationLabel}</span>
                             </div>
                         )}
                     </div>
