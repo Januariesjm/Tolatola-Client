@@ -14,6 +14,8 @@ export function SiteFooter() {
       { name: "Our Blog", href: "/blog" },
       { name: "Privacy Policy", href: "/privacy" },
       { name: "Terms & Conditions", href: "/terms" },
+      { name: "Vendor SLA", href: "/legal/sla-vendor" },
+      { name: "Transporter SLA", href: "/legal/sla-transporter" },
     ],
     support: [
       { name: "FAQ", href: "/faq" },
