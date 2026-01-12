@@ -33,14 +33,14 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
     description:
       "Discover amazing products from verified sellers. Secure payments, fast delivery, and trusted service.",
     image_url: "https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=2070&auto=format&fit=crop",
-    background_color: "transparent",
+    background_color: "#0f766e",
     text_color: "white",
     button_text: "Start Shopping",
     button_link: "/shop",
     display_order: -1,
   }
 
-  const allSlides = [defaultSlide, ...promotions.sort((a, b) => a.display_order - b.display_order)]
+  const allSlides = promotions.length > 0 ? promotions.sort((a, b) => a.display_order - b.display_order) : [defaultSlide]
 
   useEffect(() => {
     if (allSlides.length <= 1) return
@@ -63,6 +63,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
           key={slide.id}
           className={`transition-all duration-1000 ease-in-out ${index === currentSlide ? "opacity-100 block" : "opacity-0 hidden"
             }`}
+          style={{ backgroundColor: slide.background_color }}
         >
           <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 md:py-12">
             <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center">
@@ -115,7 +116,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                       {slide.button_text || "Start Shopping"}
                     </Button>
                   </Link>
-                  {slide.id === "welcome" && (
+                  {(slide.id === "welcome" || slide.button_link === "SPECIAL_VENDOR_ACTIONS") && (
                     <>
                       <Link href="/auth/sign-up?userType=vendor" className="flex-none">
                         <Button

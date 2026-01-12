@@ -49,7 +49,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
     title: "",
     description: "",
     image_url: "",
-    background_color: "#1a1a1a",
+    background_color: "#0f766e",
     text_color: "#ffffff",
     button_text: "Learn More",
     button_link: "",
@@ -296,6 +296,9 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                     onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
                     placeholder="/shop or https://..."
                   />
+                  <p className="text-[10px] text-muted-foreground pt-1">
+                    Tip: Use <strong>SPECIAL_VENDOR_ACTIONS</strong> to show "Become a Seller" & "Become a Transporter" buttons.
+                  </p>
                 </div>
               </div>
 

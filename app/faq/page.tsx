@@ -55,7 +55,7 @@ export default async function FAQPage() {
         { q: "How do I become a vendor?", a: "Click 'Become a Vendor' on the homepage, create an account, and complete the KYC verification process. You'll need to provide your TIN, NIDA, and business license. Once approved, you can start listing products." },
         { q: "What documents do I need for KYC?", a: "You need: (1) Tax Identification Number (TIN), (2) National ID (NIDA), and (3) Business License. All documents must be valid and clearly legible." },
         { q: "When do I receive payment for my sales?", a: "Payments are released after the buyer confirms delivery. You can then request a payout to your mobile money account. Payouts are typically processed within 24-48 hours." },
-        { q: "What are the fees for selling?", a: "We charge a small commission on each sale to maintain the platform. There are no upfront fees or monthly subscription charges." }
+        { q: "What are the fees for selling?", a: "We charge a small maintanance fee on each sale to maintain the platform. There are no upfront fees or monthly subscription charges." }
       ]
     },
     {
