@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "@/components/product/product-card"
-import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { useFavorites } from "@/hooks/use-favorites"
 
 interface ShopContentProps {
   products: any[]
@@ -18,33 +18,15 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set())
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchUserAndLikes = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (user) {
-        setUserId(user.id)
-        const { data: likes } = await supabase.from("product_likes").select("product_id").eq("user_id", user.id)
-
-        if (likes) {
-          setLikedProducts(new Set(likes.map((like: any) => like.product_id)))
-        }
-      }
-    }
-
     const loadCart = () => {
       const items = JSON.parse(localStorage.getItem("cart") || "[]")
       setCartItems(items)
     }
 
-    fetchUserAndLikes()
     loadCart()
 
     window.addEventListener("cartUpdated", loadCart)
@@ -80,62 +62,14 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
     })
   }
 
-  const handleToggleLike = async (productId: string) => {
-    if (!userId) {
-      toast({
-        title: "Login Required",
-        description: "Please login to add products to your wishlist",
-        variant: "destructive",
-      })
-      router.push("/auth/login?returnUrl=" + window.location.pathname)
-      return
-    }
-
-    const supabase = createClient()
-    const isLiked = likedProducts.has(productId)
-
-    // Optimistic update
-    const newLikedProducts = new Set(likedProducts)
-    if (isLiked) {
-      newLikedProducts.delete(productId)
-    } else {
-      newLikedProducts.add(productId)
-    }
-    setLikedProducts(newLikedProducts)
-
-    try {
-      if (isLiked) {
-        await supabase.from("product_likes").delete().eq("user_id", userId).eq("product_id", productId)
-        toast({
-          title: "Removed from wishlist",
-          description: "Product removed from your wishlist",
-        })
-      } else {
-        await (supabase.from("product_likes") as any).insert({ user_id: userId, product_id: productId })
-        toast({
-          title: "Added to wishlist",
-          description: "Product added to your wishlist",
-        })
-      }
-    } catch (error) {
-      // Revert on error
-      setLikedProducts(likedProducts)
-      toast({
-        title: "Error",
-        description: "Failed to update wishlist",
-        variant: "destructive",
-      })
-    }
-  }
-
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
         {/* Search Results Header */}
         {searchQuery && (
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="mb-4 md:mb-6">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
               {products.length} {products.length === 1 ? "product" : "products"} found for "{searchQuery}"
             </h1>
           </div>
@@ -153,15 +87,15 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
-                  isLiked={likedProducts.has(product.id)}
+                  isLiked={isFavorite(product.id)}
                   isInCart={cartItems.some((item) => item.product_id === product.id)}
                   onAddToCart={handleAddToCart}
-                  onToggleLike={handleToggleLike}
+                  onToggleLike={toggleFavorite}
                 />
               ))}
             </div>

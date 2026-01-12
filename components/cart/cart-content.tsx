@@ -79,9 +79,9 @@ export function CartContent() {
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
                 <Card key={item.product_id}>
-                  <CardContent className="p-6">
-                    <div className="flex gap-4">
-                      <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                  <CardContent className="p-3 md:p-6 relative">
+                    <div className="flex gap-3 md:gap-4">
+                      <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                         <img
                           src={
                             item.product.images && item.product.images.length > 0
@@ -92,40 +92,49 @@ export function CartContent() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{item.product.name}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-semibold text-sm md:text-base mb-1 truncate pr-8">{item.product.name}</h3>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 md:h-8 md:w-8 absolute top-3 right-3 md:static text-destructive hover:bg-destructive/10 -mt-1 md:mt-0"
+                            onClick={() => removeItem(item.product_id)}
+                          >
+                            <Trash2 className="h-4 w-4 md:h-5 md:w-5" />
+                          </Button>
+                        </div>
+                        <p className="text-xs md:text-sm text-muted-foreground mb-2 truncate">
                           by{" "}
                           {item.product.shops?.vendors?.business_name || item.product.shops?.name || "Unknown Vendor"}
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
                           <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
                               size="sm"
+                              className="h-7 w-7 md:h-8 md:w-8 p-0"
                               onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
                             >
-                              <Minus className="h-4 w-4" />
+                              <Minus className="h-3 w-3 md:h-4 md:w-4" />
                             </Button>
-                            <span className="w-12 text-center font-semibold">{item.quantity}</span>
+                            <span className="w-8 md:w-12 text-center font-semibold text-sm md:text-base">{item.quantity}</span>
                             <Button
                               variant="outline"
                               size="sm"
+                              className="h-7 w-7 md:h-8 md:w-8 p-0"
                               onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                               disabled={item.quantity >= item.product.stock_quantity}
                             >
-                              <Plus className="h-4 w-4" />
+                              <Plus className="h-3 w-3 md:h-4 md:w-4" />
                             </Button>
                           </div>
-                          <span className="text-lg font-semibold">
+                          <span className="text-sm md:text-lg font-semibold text-primary">
                             TZS {(item.product.price * item.quantity).toLocaleString()}
                           </span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => removeItem(item.product_id)}>
-                        <Trash2 className="h-5 w-5 text-destructive" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>

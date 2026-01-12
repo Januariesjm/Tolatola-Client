@@ -127,71 +127,65 @@ export function ProductCard({
             </Link>
 
             {/* Details Section */}
-            <div className="p-6 flex-grow flex flex-col gap-3">
+            <div className="p-3 md:p-6 flex-grow flex flex-col gap-2 md:gap-3">
                 <div className="space-y-1">
                     <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary">
-                            <CheckCircle2 className="h-3 w-3" />
-                            <span>Verified by TOLA</span>
+                        <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary">
+                            <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
+                            <span>Verified</span>
                         </div>
                         {product.quality_grade && (
-                            <div className="px-2 py-0.5 rounded-md bg-stone-100 text-[9px] font-black uppercase text-stone-600">
+                            <div className="px-1.5 py-0.5 rounded-md bg-stone-100 text-[8px] md:text-[9px] font-black uppercase text-stone-600">
                                 Grade {product.quality_grade}
                             </div>
                         )}
                     </div>
 
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="text-lg font-black tracking-tight line-clamp-1 hover:text-primary transition-colors cursor-pointer leading-tight">
+                        <h3 className="text-sm md:text-lg font-black tracking-tight line-clamp-2 hover:text-primary transition-colors cursor-pointer leading-tight h-10 md:h-auto">
                             {product.name}
                         </h3>
                     </Link>
 
-                    <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground/60">
+                    <div className="hidden md:flex items-center gap-4 text-[10px] font-bold text-muted-foreground/60">
                         <div className="flex items-center gap-1">
                             <ShoppingBag className="h-3 w-3 text-primary/60" />
                             <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Truck className="h-3 w-3 text-primary/60" />
-                            <span>Delivery: {product.delivery_available !== false ? "Yes" : "No"}</span>
+                            <span>Del: {product.delivery_available !== false ? "Yes" : "No"}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-auto">
                     <div className="space-y-0.5">
-                        <p className="text-xl font-black text-primary tracking-tight leading-none">
-                            {product.price.toLocaleString()} <span className="text-xs uppercase">TZS</span>
+                        <p className="text-sm md:text-xl font-black text-primary tracking-tight leading-none">
+                            {product.price.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">TZS</span>
                         </p>
                         {product.compare_at_price > product.price && (
-                            <p className="text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">
+                            <p className="text-[10px] md:text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">
                                 {product.compare_at_price.toLocaleString()} TZS
                             </p>
                         )}
                     </div>
                     <div className="flex flex-col items-end gap-1">
                         {product.distance_km !== undefined && product.distance_km !== Infinity && (
-                            <div className="flex items-center gap-1 text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-full">
-                                <MapPin className="h-2.5 w-2.5" />
-                                <span>{product.distance_km < 1 ? '< 1 km' : `${Math.round(product.distance_km)} km`} away</span>
-                            </div>
-                        )}
-                        {locationLabel && (
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60">
-                                <MapPin className="h-3 w-3" />
-                                <span className="truncate max-w-[80px]">{locationLabel}</span>
+                            <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black text-primary bg-primary/5 px-1.5 py-0.5 rounded-full">
+                                <MapPin className="h-2 w-2 md:h-2.5 md:w-2.5" />
+                                <span>{product.distance_km < 1 ? '< 1 km' : `${Math.round(product.distance_km)} km`}</span>
                             </div>
                         )}
                     </div>
                 </div>
 
                 {/* Quick Actions Bar */}
-                <div className="flex gap-2 pt-2 border-t border-stone-50">
+                <div className="flex gap-1.5 md:gap-2 pt-2 border-t border-stone-50">
                     <Button
                         size="sm"
                         className={cn(
-                            "flex-1 rounded-xl font-black text-xs shadow-md transition-all active:scale-95 h-10",
+                            "flex-1 rounded-xl font-black text-[10px] md:text-xs shadow-md transition-all active:scale-95 h-8 md:h-10 px-0 md:px-4",
                             isInCart
                                 ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
                                 : "hover:shadow-primary/20"
@@ -200,35 +194,35 @@ export function ProductCard({
                     >
                         {isInCart ? (
                             <>
-                                <Check className="h-3.5 w-3.5 mr-2 text-green-600" />
-                                In Cart
+                                <Check className="h-3.5 w-3.5 md:mr-2 text-green-600" />
+                                <span className="hidden md:inline">In Cart</span>
                             </>
                         ) : (
                             <>
-                                <ShoppingCart className="h-3.5 w-3.5 mr-2" />
-                                Add to Cart
+                                <ShoppingCart className="h-3.5 w-3.5 md:mr-2" />
+                                <span className="hidden md:inline">Add</span>
                             </>
                         )}
                     </Button>
                     <Button
                         variant="outline"
                         size="icon"
-                        className={`h-10 w-10 rounded-xl border-stone-100 hover:border-destructive hover:bg-destructive/5 transition-all ${initialIsLiked ? "bg-destructive/10 border-destructive text-destructive" : "text-muted-foreground"}`}
+                        className={`h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 hover:border-destructive hover:bg-destructive/5 transition-all ${initialIsLiked ? "bg-destructive/10 border-destructive text-destructive" : "text-muted-foreground"}`}
                         onClick={() => onToggleLike && onToggleLike(product.id)}
                     >
-                        <Heart className={`h-4 w-4 ${initialIsLiked ? "fill-current" : ""}`} />
+                        <Heart className={`h-3.5 w-3.5 md:h-4 md:w-4 ${initialIsLiked ? "fill-current" : ""}`} />
                     </Button>
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-10 w-10 rounded-xl border-stone-100 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all"
+                        className="h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all hidden sm:flex"
                         onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
                             setShareOpen(true)
                         }}
                     >
-                        <Share2 className="h-4 w-4" />
+                        <Share2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     </Button>
                 </div>
             </div>
