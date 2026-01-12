@@ -285,17 +285,23 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                     id="button_text"
                     value={formData.button_text}
                     onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
+                    placeholder="e.g. Shop Now | Learn More"
                   />
+                  <p className="text-[10px] text-muted-foreground pt-1">
+                    Tip: Use <strong>|</strong> to separate multiple buttons (e.g. "Buy | View")
+                  </p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="button_link">Button Link</Label>
                   <Input
                     id="button_link"
-                    value={formData.button_link}
                     onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
-                    placeholder="/shop or https://..."
+                    placeholder="/shop | /about"
                   />
+                  <p className="text-[10px] text-muted-foreground pt-1">
+                    Tip: Use <strong>|</strong> to separate multiple links (order must match button text)
+                  </p>
                   <p className="text-[10px] text-muted-foreground pt-1">
                     Tip: Use <strong>SPECIAL_VENDOR_ACTIONS</strong> to show "Become a Seller" & "Become a Transporter" buttons.
                   </p>
