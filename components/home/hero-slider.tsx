@@ -68,13 +68,13 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
           <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 md:py-12">
             <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center">
               {/* Image Section - Left Side */}
-              <div className="w-[35%] md:w-1/2 lg:w-2/5 h-[160px] sm:h-[280px] md:h-[360px] lg:h-[400px] relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl flex-shrink-0">
+              <div className="w-[45%] md:w-1/2 lg:w-2/5 h-[200px] sm:h-[280px] md:h-[360px] lg:h-[400px] relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl flex-shrink-0">
                 {slide.image_url ? (
                   <Image
                     src={slide.image_url}
                     alt={slide.title}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     priority={index === 0}
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
