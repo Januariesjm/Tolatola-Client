@@ -52,11 +52,7 @@ export function CartContent() {
   const total = subtotal + deliveryFee
 
   const handleCheckout = () => {
-    if (!isAuthenticated) {
-      router.push("/auth/login?returnUrl=/checkout")
-    } else {
-      router.push("/checkout")
-    }
+    router.push("/checkout")
   }
 
   return (
