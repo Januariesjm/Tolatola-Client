@@ -74,14 +74,16 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
       })
 
       if (!response.ok) {
-        throw new Error("Upload failed")
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Upload failed details:", errorData)
+        throw new Error(errorData.details || errorData.error || "Upload failed")
       }
 
       const data = await response.json()
       setFormData((prev) => ({ ...prev, image_url: data.url }))
     } catch (error) {
       console.error("Error uploading image:", error)
-      alert("Failed to upload image")
+      alert(`Failed to upload image: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setUploading(false)
     }

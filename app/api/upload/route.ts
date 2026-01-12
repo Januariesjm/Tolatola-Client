@@ -24,25 +24,30 @@ export async function POST(request: NextRequest) {
       .upload(filePath, file)
 
     if (error) {
-      console.error("Supabase storage upload error:", error)
-      // If bucket doesn't exist, try 'public' or 'images' as fallback? 
-      // Or just fail and rely on user creating the bucket.
-      return NextResponse.json({ error: "Upload failed: " + error.message }, { status: 500 })
+      console.error("Supabase storage upload error object:", JSON.stringify(error, null, 2))
+      return NextResponse.json({
+        error: "Upload to Supabase failed",
+        details: error.message || "Unknown error",
+        code: (error as any).statusCode || "500"
+      }, { status: 500 })
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: publicUrlData } = supabase.storage
       .from('promotions')
       .getPublicUrl(filePath)
 
     return NextResponse.json({
-      url: publicUrl,
+      url: publicUrlData.publicUrl,
       filename: fileName,
       size: file.size,
       type: file.type,
     })
   } catch (error) {
-    console.error("Upload handler error:", error)
-    return NextResponse.json({ error: "Upload failed internal" }, { status: 500 })
+    console.error("Upload handler caught exception:", error)
+    return NextResponse.json({
+      error: "Internal Server Error in Upload Handler",
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 })
   }
 }
