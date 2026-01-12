@@ -132,7 +132,7 @@ export function ProductCard({
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary">
                             <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                            <span>Verified</span>
+                            <span>Verified by TOLA</span>
                         </div>
                         {product.quality_grade && (
                             <div className="px-1.5 py-0.5 rounded-md bg-stone-100 text-[8px] md:text-[9px] font-black uppercase text-stone-600">
@@ -185,7 +185,7 @@ export function ProductCard({
                     <Button
                         size="sm"
                         className={cn(
-                            "flex-1 rounded-xl font-black text-[10px] md:text-xs shadow-md transition-all active:scale-95 h-8 md:h-10 px-0 md:px-4",
+                            "flex-1 rounded-xl font-black text-[10px] md:text-xs shadow-md transition-all active:scale-95 h-8 md:h-10 px-2 md:px-4",
                             isInCart
                                 ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
                                 : "hover:shadow-primary/20"
@@ -194,13 +194,13 @@ export function ProductCard({
                     >
                         {isInCart ? (
                             <>
-                                <Check className="h-3.5 w-3.5 md:mr-2 text-green-600" />
-                                <span className="hidden md:inline">In Cart</span>
+                                <Check className="h-3.5 w-3.5 mr-1.5 md:mr-2 text-green-600" />
+                                <span>In Cart</span>
                             </>
                         ) : (
                             <>
-                                <ShoppingCart className="h-3.5 w-3.5 md:mr-2" />
-                                <span className="hidden md:inline">Add</span>
+                                <ShoppingCart className="h-3.5 w-3.5 mr-1.5 md:mr-2" />
+                                <span>Cart</span>
                             </>
                         )}
                     </Button>
@@ -215,7 +215,7 @@ export function ProductCard({
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all hidden sm:flex"
+                        className="h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all flex"
                         onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
