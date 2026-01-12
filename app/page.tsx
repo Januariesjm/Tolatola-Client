@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "TOLA Digital trade and Supply Chain Ecosystem | Tanzania's Premier Trading Platform",
   description:
-    "Experience the future of trade in Tanzania. TOLA combines secure escrow, verified vendors, and mobile money convenience in one premium Digital trade and Supply Chain Ecosystem.",
+    "Experience the future of trade in Tanzania. TOLA combines secure payments, verified vendors, and mobile money convenience in one premium Digital trade and Supply Chain Ecosystem.",
   alternates: {
     canonical: "https://tolatola.co",
   },

@@ -47,9 +47,9 @@ export default async function PrivacyPage() {
       content: "By using our platform, you explicitly consent to the collection of transactional and profile data. We use this strictly for order fulfillment, fraud prevention, and platform optimization. We never sell your data to third parties."
     },
     {
-      title: "Escrow & Financial Safety",
-      icon: <Lock className="h-8 w-8 text-primary" />,
-      content: "Our integrated escrow system ensures that financial data is handled with the highest level of security. We partner with verified mobile money providers (M-Pesa, Tigo Pesa, Airtel Money) to maintain a transparent audit trail."
+      title: "Secure Financial Safety",
+      icon: <Lock className="h-6 w-6" />,
+      content: "Our integrated payment system ensures that financial data is handled with the highest level of security. We partner with verified mobile money providers (M-Pesa, Tigo Pesa, Airtel Money) to maintain a transparent audit trail."
     },
     {
       title: "KYC Compliance",

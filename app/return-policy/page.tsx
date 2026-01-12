@@ -6,7 +6,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Return Policy | Tola Digital trade and Supply Chain Ecosystem",
-  description: "Learn about Tola's hassle-free return policy. We protect our buyers with a secure escrow system and clear return guidelines for every transaction.",
+  description: "Learn about Tola's hassle-free return policy. We protect our buyers with a secure payment system and clear return guidelines for every transaction.",
   alternates: {
     canonical: "https://tolatola.co/return-policy",
   },
@@ -39,7 +39,7 @@ export default async function ReturnPolicyPage() {
     { title: "Initiate Request", desc: "Start the process via your dashboard within 7 days.", icon: <Mail /> },
     { title: "Review & Verify", desc: "Vendors review photos and details of your claim.", icon: <ClipboardCheck /> },
     { title: "Secure Return", desc: "Ship the item back in its original condition.", icon: <RefreshCcw /> },
-    { title: "Instant Payout", desc: "Funds are released from escrow to your wallet.", icon: <CheckCircle2 /> }
+    { title: "Instant Payout", desc: "Funds are released to your wallet.", icon: <CheckCircle2 /> }
   ]
 
   return (
@@ -59,7 +59,7 @@ export default async function ReturnPolicyPage() {
             </div>
             <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">Hassle-Free <span className="text-primary underline decoration-primary decoration-4 underline-offset-8">Returns</span></h1>
             <p className="text-stone-300 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
-              Shopping on TOLA is risk-free. Our escrow-backed returns guarantee your money is safe until you're satisfied.
+              Shopping on TOLA is risk-free. Our protected payment system guarantees your money is safe until you're satisfied.
             </p>
           </div>
         </section>
@@ -127,7 +127,7 @@ export default async function ReturnPolicyPage() {
             <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] translate-x-1/3 -translate-y-1/3" />
             <div className="grid lg:grid-cols-2 gap-16 relative z-10 items-center">
               <div>
-                <h2 className="text-5xl font-black text-white mb-8 tracking-tighter">Secure Escrow Payouts</h2>
+                <h2 className="text-5xl font-black text-white mb-8 tracking-tighter">Secure Payouts</h2>
                 <p className="text-stone-400 text-xl leading-relaxed mb-12 italic">
                   Your refund isn't just a promise. It's built into our code. Once a return is verified, funds are automatically released back to your mobile money wallet.
                 </p>

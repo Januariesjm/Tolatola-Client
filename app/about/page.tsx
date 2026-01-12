@@ -94,7 +94,7 @@ export default async function AboutPage() {
                   Founded on the principles of <strong>transparency and accessibility</strong>, TOLA emerged from a need to solve the fundamental challenges facing Tanzanian commerce. We recognized that small and medium enterprises (SMEs) were often excluded from the digital revolution due to payment complexities and lack of trust.
                 </p>
                 <p className="text-xl text-muted-foreground leading-relaxed">
-                  By integrating a <strong>secure escrow system</strong> and high-vetted <strong>KYC protocols</strong>, we've created a safe haven for both buyers and sellers. Today, TOLA serves as a vital bridge, connecting artisans from Dodoma to traders in Dar Es Salaam, and beyond.
+                  By integrating a <strong>secure payment system</strong> and high-vetted <strong>KYC protocols</strong>, we've created a safe haven for both buyers and sellers. Today, TOLA serves as a vital bridge, connecting artisans from Dodoma to traders in Dar Es Salaam, and beyond.
                 </p>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default async function AboutPage() {
           <h2 className="text-center text-4xl font-black mb-16 tracking-tight">Our Core Values</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: <Shield />, title: "Trust First", desc: "Our escrow system ensures transactions are safe and verified every single time." },
+              { icon: <Shield />, title: "Trust First", desc: "Our secure payment system ensures transactions are safe and verified every single time." },
               { icon: <Heart />, title: "Local Impact", desc: "We prioritize the growth of Tanzanian entrepreneurs and local artisans." },
               { icon: <Zap />, title: "Agility", desc: "We ship fast, adapt quickly, and use the latest tech to stay at the forefront." },
               { icon: <Award />, title: "Excellence", desc: "We maintain high standards for product quality and vendor participation." }

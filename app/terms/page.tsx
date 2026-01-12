@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, AlertCircle, ShieldCheck, Globe, Zap } from "lucide-react"
+import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, AlertCircle, ShieldCheck, Globe, Zap, CheckCircle2 } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default async function TermsPage() {
     {
       title: "Agreement to Terms",
       icon: <Gavel />,
-      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Digital trade and Supply Chain Ecosystem. These terms govern your use of our digital infrastructure, escrow services, and community interactions."
+      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Digital trade and Supply Chain Ecosystem. These terms govern your use of our digital infrastructure, secure payment services, and community interactions."
     },
     {
       title: "User Obligations",
@@ -56,9 +56,9 @@ export default async function TermsPage() {
       content: "Vendors are required to undergo NIDA & TIN verification. By listing products, vendors guarantee product authenticity, accurate pricing, and commitment to the TOLA delivery timeline."
     },
     {
-      title: "Escrow Mastery",
-      icon: <Wallet />,
-      content: "TOLA facilitates commerce through a secure escrow system. Funds are released only upon delivery confirmation. We act as a neutral intermediary in all transactional flows."
+      title: "Secure Transactions",
+      icon: <CheckCircle2 className="h-6 w-6" />,
+      content: "TOLA facilitates commerce through a secure payment processing system. Funds are released by licensed PSPs only upon delivery confirmation. We act as a neutral intermediary in all transactional flows."
     }
   ]
 
@@ -121,12 +121,12 @@ export default async function TermsPage() {
                 <h2 className="text-5xl font-black text-white tracking-tighter sticky top-24">Dispute Resolution</h2>
                 <div className="space-y-8">
                   <p className="text-stone-300 text-xl leading-relaxed italic">
-                    TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses transactional data and escrow logs to determine a fair outcome.
+                    TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses transactional data and system logs to determine a fair outcome.
                   </p>
                   <div className="flex items-center gap-4 py-6 px-8 bg-primary rounded-[2rem]">
                     <ShieldCheck className="h-10 w-10 text-white" />
                     <div className="text-white">
-                      <p className="font-black text-xl tracking-tight">Escrow Backed</p>
+                      <p className="font-black text-xl tracking-tight">Protected Payments</p>
                       <p className="text-sm opacity-80">Final settlement is governed by delivery proof.</p>
                     </div>
                   </div>

@@ -49,7 +49,7 @@ export default async function BlogPage() {
     },
     {
       id: 2,
-      title: "Escrow: Why Security is Non-Negotiable",
+      title: "Secure Payments: Why Security is Non-Negotiable",
       excerpt: "Deep dive into our payment infrastructure and why we believe safe trade is the backbone of African commerce.",
       author: "Tech Team",
       date: "Jan 10, 2025",

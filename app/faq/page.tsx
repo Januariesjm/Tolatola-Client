@@ -8,7 +8,7 @@ import type { Metadata } from "next"
 export const metadata: Metadata = {
   title: "FAQ | Tola Digital trade and Supply Chain Ecosystem Support",
   description:
-    "Frequently asked questions about Tola Digital trade and Supply Chain Ecosystem. Find answers about buying, selling, payments, escrow system, KYC verification, and more.",
+    "Frequently asked questions about Tola Digital trade and Supply Chain Ecosystem. Find answers about buying, selling, payments, secure transactions, KYC verification, and more.",
   alternates: {
     canonical: "https://tolatola.co/faq",
   },
@@ -43,9 +43,9 @@ export default async function FAQPage() {
       icon: <ShoppingBag />,
       questions: [
         { q: "How do I create an account?", a: "Click on 'Sign Up' in the top right corner, fill in your details including email, password, and phone number. You'll receive a confirmation email to verify your account." },
-        { q: "What payment methods do you accept?", a: "We accept M-Pesa, Tigo Pesa, and Airtel Money. All payments are processed through our secure escrow system to protect both buyers and sellers." },
-        { q: "How does the escrow system work?", a: "When you make a purchase, your payment is held securely in escrow. The funds are only released to the vendor after you confirm that you've received your order. This protects you from fraud and ensures you get what you paid for." },
-        { q: "What if I don't receive my order?", a: "If you don't receive your order within the expected timeframe, contact our support team. Since your payment is held in escrow, we can investigate and issue a refund if necessary." }
+        { q: "What payment methods do you accept?", a: "We accept M-Pesa, Tigo Pesa, and Airtel Money. All payments are processed through our secure payment system to protect both buyers and sellers." },
+        { q: "How does the payment protection work?", a: "When you make a purchase, your payment is held securely by a licensed PSP. The funds are only released to the vendor after you confirm that you've received your order. This protects you from fraud and ensures you get what you paid for." },
+        { q: "What if I don't receive my order?", a: "If you don't receive your order within the expected timeframe, contact our support team. Since your payment is securely held, we can investigate and issue a refund if necessary." }
       ]
     },
     {
@@ -54,7 +54,7 @@ export default async function FAQPage() {
       questions: [
         { q: "How do I become a vendor?", a: "Click 'Become a Vendor' on the homepage, create an account, and complete the KYC verification process. You'll need to provide your TIN, NIDA, and business license. Once approved, you can start listing products." },
         { q: "What documents do I need for KYC?", a: "You need: (1) Tax Identification Number (TIN), (2) National ID (NIDA), and (3) Business License. All documents must be valid and clearly legible." },
-        { q: "When do I receive payment for my sales?", a: "Payments are released from escrow after the buyer confirms delivery. You can then request a payout to your mobile money account. Payouts are typically processed within 24-48 hours." },
+        { q: "When do I receive payment for my sales?", a: "Payments are released after the buyer confirms delivery. You can then request a payout to your mobile money account. Payouts are typically processed within 24-48 hours." },
         { q: "What are the fees for selling?", a: "We charge a small commission on each sale to maintain the platform. There are no upfront fees or monthly subscription charges." }
       ]
     },
