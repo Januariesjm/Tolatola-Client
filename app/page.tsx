@@ -184,7 +184,7 @@ export default async function HomePage() {
         </section>
 
         {/* Trending Categories */}
-        <section className="py-12 md:py-24 container mx-auto px-4">
+        <section className="py-6 md:py-12 container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-16 gap-6">
             <div className="space-y-2 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-widest text-xs">
@@ -282,7 +282,7 @@ export default async function HomePage() {
         </section>
 
         {/* Why Tola - Modern Cards */}
-        <section className="py-16 md:py-32 bg-stone-50 overflow-hidden relative">
+        <section className="py-8 md:py-16 bg-stone-50 overflow-hidden relative">
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-4">
               <h2 className="text-3xl md:text-7xl font-black tracking-tighter">Engineered for <span className="text-primary italic">Trust</span></h2>
@@ -304,7 +304,7 @@ export default async function HomePage() {
         </section>
 
         {/* Seller CTA */}
-        <section className="py-12 md:py-24 container mx-auto px-4">
+        <section className="py-6 md:py-12 container mx-auto px-4">
           <div className="bg-primary rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden text-center md:text-left">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
             <div className="relative z-10 grid md:grid-cols-2 gap-10 md:gap-16 items-center">

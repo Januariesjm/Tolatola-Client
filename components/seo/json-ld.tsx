@@ -43,37 +43,64 @@ export function JsonLd() {
                 "@type": "SiteNavigationElement",
                 "position": 1,
                 "name": "Home Page",
+                "description": "TOLA - Tanzania's Premier Trade Ecosystem",
                 "url": "https://tolatola.co"
             },
             {
                 "@type": "SiteNavigationElement",
                 "position": 2,
-                "name": "Become a Vendor",
-                "url": "https://tolatola.co/vendor/register"
+                "name": "Start Shopping",
+                "description": "Browse products from verified vendors across Tanzania",
+                "url": "https://tolatola.co/shop"
             },
             {
                 "@type": "SiteNavigationElement",
                 "position": 3,
-                "name": "Sign In",
-                "url": "https://tolatola.co/auth/login"
+                "name": "Become a Vendor",
+                "description": "Join 500+ verified merchants and grow your business",
+                "url": "https://tolatola.co/vendor/register"
             },
             {
                 "@type": "SiteNavigationElement",
                 "position": 4,
-                "name": "Shop Page",
-                "url": "https://tolatola.co/products"
+                "name": "Become a Transporter",
+                "description": "Join our logistics network and earn with deliveries",
+                "url": "https://tolatola.co/transporter/register"
             },
             {
                 "@type": "SiteNavigationElement",
                 "position": 5,
-                "name": "Trending Products",
-                "url": "https://tolatola.co/trending"
+                "name": "Sign In",
+                "description": "Access your TOLA account",
+                "url": "https://tolatola.co/auth/sign-in"
             },
             {
                 "@type": "SiteNavigationElement",
                 "position": 6,
-                "name": "Support",
+                "name": "Sign Up",
+                "description": "Create your TOLA account",
+                "url": "https://tolatola.co/auth/sign-up"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 7,
+                "name": "About Us",
+                "description": "Learn about TOLA's mission and vision",
+                "url": "https://tolatola.co/about"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 8,
+                "name": "Contact",
+                "description": "Get in touch with our support team",
                 "url": "https://tolatola.co/contact"
+            },
+            {
+                "@type": "SiteNavigationElement",
+                "position": 9,
+                "name": "FAQ",
+                "description": "Frequently asked questions",
+                "url": "https://tolatola.co/faq"
             }
         ]
     }
