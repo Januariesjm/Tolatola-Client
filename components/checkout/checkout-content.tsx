@@ -267,6 +267,29 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       return
     }
 
+    // Validate payment details based on payment method
+    if (["airtel-money", "halopesa", "mixx-by-yas", "ezypesa"].includes(paymentMethod)) {
+      if (!paymentPhoneNumber || paymentPhoneNumber.trim() === "") {
+        toast({
+          title: "Phone Number Required",
+          description: "Please enter your phone number for mobile money payment",
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
+    if (["visa", "mastercard", "unionpay"].includes(paymentMethod)) {
+      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
+        toast({
+          title: "Card Details Required",
+          description: "Please enter your complete card details",
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
     setIsLoading(true)
     setError(null)
 
