@@ -130,7 +130,7 @@ export function ProductCard({
             <div className="p-3 md:p-6 flex-grow flex flex-col gap-2 md:gap-3">
                 <div className="space-y-1">
                     <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary">
+                        <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-[#16A34A]">
                             <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
                             <span>Verified by TOLA</span>
                         </div>
@@ -142,26 +142,26 @@ export function ProductCard({
                     </div>
 
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="text-sm md:text-lg font-black tracking-tight line-clamp-2 hover:text-primary transition-colors cursor-pointer leading-tight h-10 md:h-auto">
+                        <h3 className="text-sm md:text-lg font-black tracking-tight line-clamp-2 text-stone-900 hover:text-primary transition-colors cursor-pointer leading-tight h-10 md:h-auto">
                             {product.name}
                         </h3>
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-4 text-[10px] font-bold text-muted-foreground/60">
-                        <div className="flex items-center gap-1">
-                            <ShoppingBag className="h-3 w-3 text-primary/60" />
+                    <div className="hidden md:flex items-center gap-4 text-[10px] font-bold">
+                        <div className="flex items-center gap-1 text-[#2563EB]">
+                            <ShoppingBag className="h-3 w-3" />
                             <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                            <Truck className="h-3 w-3 text-primary/60" />
-                            <span>Del: {product.delivery_available !== false ? "Yes" : "No"}</span>
+                        <div className="flex items-center gap-1 text-[#16A34A]">
+                            <Truck className="h-3.5 w-3.5" />
+                            <span>Delivery: {product.delivery_available !== false ? "Available" : "No"}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-auto">
                     <div className="space-y-0.5">
-                        <p className="text-sm md:text-xl font-black text-primary tracking-tight leading-none">
+                        <p className="text-sm md:text-xl font-black text-[#0B5ED7] tracking-tight leading-none">
                             {product.price.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">TZS</span>
                         </p>
                         {product.compare_at_price > product.price && (
@@ -194,7 +194,7 @@ export function ProductCard({
                             "flex-1 rounded-xl font-black text-[10px] md:text-xs shadow-md transition-all active:scale-95 h-8 md:h-10 px-2 md:px-4",
                             isInCart
                                 ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
-                                : "hover:shadow-primary/20"
+                                : "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
                         )}
                         onClick={() => onAddToCart && onAddToCart(product)}
                     >
