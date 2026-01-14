@@ -147,6 +147,8 @@ export async function calculateDeliveryDistance(
 export async function calculateDeliveryDistanceByCoords(
   lat: number,
   lng: number,
+  originLat?: number,
+  originLng?: number
 ): Promise<DistanceResult | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
@@ -155,12 +157,15 @@ export async function calculateDeliveryDistanceByCoords(
     return null
   }
 
-  console.log("[v0] Calculating delivery with coords:", { lat, lng })
+  const origin = (originLat && originLng) ? `${originLat},${originLng}` : encodeURIComponent(BASE_LOCATION.address)
+  const originCoords = (originLat && originLng) ? { lat: originLat, lng: originLng } : { lat: BASE_LOCATION.lat, lng: BASE_LOCATION.lng }
+
+  console.log("[v0] Calculating delivery from", origin, "to", { lat, lng })
 
   try {
     // Try Distance Matrix API first
     const distanceResponse = await fetch(
-      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(BASE_LOCATION.address)}&destinations=${lat},${lng}&units=metric&key=${apiKey}`,
+      `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${lat},${lng}&units=metric&key=${apiKey}`,
     )
 
     const distanceData = await distanceResponse.json()
@@ -179,7 +184,7 @@ export async function calculateDeliveryDistanceByCoords(
     }
 
     // Fallback to Haversine
-    const distanceKm = calculateHaversineDistance(BASE_LOCATION.lat, BASE_LOCATION.lng, lat, lng)
+    const distanceKm = calculateHaversineDistance(originCoords.lat, originCoords.lng, lat, lng)
     const estimatedRoadDistance = distanceKm * 1.3 // 30% buffer for road vs air
     const deliveryFee = calculateDeliveryFee(estimatedRoadDistance)
 

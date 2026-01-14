@@ -50,31 +50,17 @@ export function CreateShopDialog({ open, onOpenChange, vendorId, onSuccess }: Cr
       return
     }
 
-    if (!location.street || !location.village) {
-      setError("Please provide Street/Building and Village/Mtaa for your shop location")
+    if (!location.street) {
+      setError("Please provide at least a Street or Building name for your shop location")
+      return
+    }
+
+    if (!location.latitude || !location.longitude) {
+      setError("Please select a specific location from the search or provide details until GPS coordinates are found.")
       return
     }
 
     let finalLocation = { ...location }
-    if (!location.latitude || !location.longitude) {
-      setError("Getting GPS coordinates...")
-      const { geocodeAddress } = await import("@/app/actions/maps")
-      const result = await geocodeAddress(location.address)
-
-      if (!result) {
-        setError(
-          "Could not determine GPS coordinates. Please try using the address search above or check your location details.",
-        )
-        return
-      }
-
-      finalLocation = {
-        ...location,
-        latitude: result.latitude,
-        longitude: result.longitude,
-      }
-      setLocation(finalLocation)
-    }
 
     setIsLoading(true)
     setError(null)

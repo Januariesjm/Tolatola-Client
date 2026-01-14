@@ -1,46 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, Loader2, CheckCircle } from "lucide-react"
-import { geocodeAddress } from "@/app/actions/maps"
-
-// Tanzania regions
-const TANZANIA_REGIONS = [
-  "Arusha",
-  "Dar es Salaam",
-  "Dodoma",
-  "Geita",
-  "Iringa",
-  "Kagera",
-  "Katavi",
-  "Kigoma",
-  "Kilimanjaro",
-  "Lindi",
-  "Manyara",
-  "Mara",
-  "Mbeya",
-  "Morogoro",
-  "Mtwara",
-  "Mwanza",
-  "Njombe",
-  "Pemba North",
-  "Pemba South",
-  "Pwani",
-  "Rukwa",
-  "Ruvuma",
-  "Shinyanga",
-  "Simiyu",
-  "Singida",
-  "Songwe",
-  "Tabora",
-  "Tanga",
-  "Zanzibar North",
-  "Zanzibar South and Central",
-  "Zanzibar West",
-]
+import { MapPin, CheckCircle, AlertCircle } from "lucide-react"
+import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
 
 interface ShopLocationFormProps {
   value: {
@@ -57,155 +19,90 @@ interface ShopLocationFormProps {
 }
 
 export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
-  const [isGeocodingManual, setIsGeocodingManual] = useState(false)
+  // Check if location is ready (has coordinates and basic address)
+  const isLocationReady =
+    value.latitude &&
+    value.longitude &&
+    value.region &&
+    value.district &&
+    value.street
 
-  // Check if manual entry is complete
-  const hasCompleteLocation = value.region && value.district && value.ward && value.village && value.street
+  const handleAddressChange = (addressData: any) => {
+    onChange({
+      ...value,
+      ...addressData
+    })
+  }
 
-  const handleFieldChange = async (field: string, fieldValue: string) => {
-    const newValue = { ...value, [field]: fieldValue }
-
-    // Build full address from components
-    const addressParts = []
-    if (newValue.street) addressParts.push(newValue.street)
-    if (newValue.village) addressParts.push(newValue.village)
-    if (newValue.ward) addressParts.push(`${newValue.ward} Ward`)
-    if (newValue.district) addressParts.push(`${newValue.district} District`)
-    if (newValue.region) addressParts.push(`${newValue.region} Region`)
-    addressParts.push("Tanzania")
-
-    newValue.address = addressParts.join(", ")
-
-    onChange(newValue)
-
-    if (newValue.region && newValue.district && newValue.ward && newValue.street && newValue.village) {
-      setIsGeocodingManual(true)
-      try {
-        const result = await geocodeAddress(newValue.address)
-        if (result) {
-          onChange({
-            ...newValue,
-            latitude: result.latitude,
-            longitude: result.longitude,
-          })
-        }
-      } catch (error) {
-        console.error("Failed to geocode address:", error)
-      } finally {
-        setIsGeocodingManual(false)
-      }
-    }
+  const handleAddressComplete = (fullAddress: string, coordinates?: { lat: number; lng: number }) => {
+    onChange({
+      ...value,
+      address: fullAddress,
+      latitude: coordinates?.lat || null,
+      longitude: coordinates?.lng || null
+    })
   }
 
   return (
-    <div className="space-y-4">
-      <Label className="flex items-center gap-2 text-base font-semibold">
-        <MapPin className="h-5 w-5" />
-        Shop Location in Tanzania
-      </Label>
-
-      <p className="text-sm text-muted-foreground">
-        Enter your shop's complete address. GPS coordinates will be automatically obtained for delivery fee
-        calculations.
-      </p>
-
-      {isGeocodingManual && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2 text-blue-700 text-sm">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Getting GPS coordinates for your location...
-        </div>
-      )}
-
-      {hasCompleteLocation && value.latitude && value.longitude && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
-          <div className="flex items-center gap-2 text-green-700 font-medium">
-            <CheckCircle className="h-5 w-5" />
-            Location Ready
-          </div>
-          <div className="text-sm text-green-800">
-            <p>
-              <strong>Full Address:</strong> {value.address}
-            </p>
-          </div>
-          <p className="text-xs text-green-600">
-            GPS Coordinates: {value.latitude.toFixed(6)}, {value.longitude.toFixed(6)}
-          </p>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="region">Region *</Label>
-            <Select value={value.region} onValueChange={(val) => handleFieldChange("region", val)}>
-              <SelectTrigger id="region">
-                <SelectValue placeholder="Select region" />
-              </SelectTrigger>
-              <SelectContent>
-                {TANZANIA_REGIONS.map((region) => (
-                  <SelectItem key={region} value={region}>
-                    {region}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="district">District *</Label>
-            <Input
-              id="district"
-              value={value.district}
-              onChange={(e) => handleFieldChange("district", e.target.value)}
-              placeholder="e.g., Kinondoni"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="ward">Ward *</Label>
-            <Input
-              id="ward"
-              value={value.ward}
-              onChange={(e) => handleFieldChange("ward", e.target.value)}
-              placeholder="e.g., Mwananyamala"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="village">Village/Mtaa *</Label>
-            <Input
-              id="village"
-              value={value.village || ""}
-              onChange={(e) => handleFieldChange("village", e.target.value)}
-              placeholder="e.g., Kijitonyama"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="street">Street/Building *</Label>
-          <Input
-            id="street"
-            value={value.street || ""}
-            onChange={(e) => handleFieldChange("street", e.target.value)}
-            placeholder="e.g., Ali Hassan Mwinyi Road, Building No. 5"
-          />
-        </div>
-
-        {value.address && !hasCompleteLocation && (
-          <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-            <span className="font-medium">Current Address:</span> {value.address}
-          </div>
-        )}
+    <div className="space-y-6">
+      <div className="flex flex-col gap-1">
+        <Label className="flex items-center gap-2 text-lg font-bold text-stone-900">
+          <MapPin className="h-5 w-5 text-primary" />
+          Shop Location Details
+        </Label>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 ml-7">
+          Logistics Engine Integration
+        </p>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {hasCompleteLocation && value.latitude && value.longitude
-          ? "✓ Location is ready! You can now save your shop details."
-          : "Please fill in all location fields. GPS coordinates will be fetched automatically for delivery calculations."}
-      </p>
+      {isLocationReady ? (
+        <div className="bg-green-50/50 border border-green-100 rounded-[2rem] p-6 space-y-3 animate-in fade-in zoom-in duration-500">
+          <div className="flex items-center gap-2 text-green-700 font-black uppercase tracking-wider text-[10px]">
+            <CheckCircle className="h-4 w-4" />
+            Coordinates Sync Active
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-green-900 leading-tight">
+              {value.address || `${value.street}, ${value.ward}, ${value.district}, ${value.region}`}
+            </p>
+            <div className="flex gap-4">
+              <p className="text-[10px] font-black text-green-600/80 uppercase">
+                LAT: {value.latitude?.toFixed(6)}
+              </p>
+              <p className="text-[10px] font-black text-green-600/80 uppercase">
+                LNG: {value.longitude?.toFixed(6)}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-stone-50 border border-stone-100 rounded-[2rem] p-6 flex items-start gap-4">
+          <div className="h-10 w-10 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-stone-100">
+            <AlertCircle className="h-5 w-5 text-amber-500" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-black text-stone-900">Location Incomplete</p>
+            <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wide leading-relaxed">
+              Search for your shop location below. This is critical for delivery logistics.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="px-1">
+        <TanzaniaAddressForm
+          value={{
+            country: "Tanzania",
+            region: value.region,
+            district: value.district,
+            ward: value.ward,
+            village: value.village,
+            street: value.street,
+          }}
+          onChange={handleAddressChange}
+          onAddressComplete={handleAddressComplete}
+        />
+      </div>
     </div>
   )
 }

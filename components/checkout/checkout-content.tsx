@@ -49,13 +49,16 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   })
   const [transportMethods, setTransportMethods] = useState<TransportMethod[]>([])
   const [selectedTransportId, setSelectedTransportId] = useState<string>("")
-  const [deliveryInfo, setDeliveryInfo] = useState<{
+  const [shopDeliveries, setShopDeliveries] = useState<Record<string, {
     distanceKm: number
     deliveryFee: number
     duration?: string
     transportMethod?: string
     transportMethodId?: string
-  } | null>(null)
+    shopName: string
+    shopLat: number
+    shopLng: number
+  }>>({})
   const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -87,83 +90,111 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     setFullAddress(address)
     setDeliveryError(null)
 
-    if (!coordinates) {
-      // Manual entry or incomplete data - do not calculate delivery fee
-      // We rely on the autocomplete for accurate logistics
-      return
-    }
+    if (!coordinates) return
 
     setIsCalculatingDelivery(true)
+    const newShopDeliveries: Record<string, any> = {}
 
     try {
-      const result = await calculateDeliveryDistanceByCoords(coordinates.lat, coordinates.lng)
+      // Group items and weight by shop
+      const shopsData: Record<string, { weight: number; lat: number; lng: number; name: string }> = {}
 
-      if (result) {
-        if (selectedTransportId) {
-          const totalWeight = cartItems.reduce((sum, item) => sum + (item.product.weight || 1) * item.quantity, 0)
-          const method =
-            transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
-            transportMethods[0]
-          let deliveryFeeCalc = 0
-          if (method?.rate_per_kg) {
-            deliveryFeeCalc = totalWeight * (method.rate_per_kg || 0)
-          } else if (method?.rate_per_km) {
-            deliveryFeeCalc = result.distanceKm * (method.rate_per_km || 0)
+      cartItems.forEach((item) => {
+        const sId = item.product.shop_id
+        if (!shopsData[sId]) {
+          const shop = item.product.shops
+          shopsData[sId] = {
+            weight: 0,
+            lat: shop?.latitude || -6.7924, // Default to Dar if missing
+            lng: shop?.longitude || 39.2083,
+            name: shop?.name || "Unknown Shop",
           }
-          setDeliveryInfo({
+        }
+        shopsData[sId].weight += (item.product.weight || 1) * item.quantity
+      })
+
+      const method =
+        transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
+        transportMethods[0]
+
+      for (const sId in shopsData) {
+        const shop = shopsData[sId]
+        const result = await calculateDeliveryDistanceByCoords(
+          coordinates.lat,
+          coordinates.lng,
+          shop.lat,
+          shop.lng
+        )
+
+        if (result) {
+          let fee = 0
+          if (method?.rate_per_kg) {
+            fee = shop.weight * (method.rate_per_kg || 0)
+          } else if (method?.rate_per_km) {
+            fee = result.distanceKm * (method.rate_per_km || 0)
+          }
+
+          newShopDeliveries[sId] = {
             ...result,
             lat: coordinates.lat,
             lng: coordinates.lng,
-            deliveryFee: Math.round(deliveryFeeCalc),
+            deliveryFee: Math.round(fee),
             transportMethod: method?.name,
             transportMethodId: method?.id,
-          })
-        } else {
-          setDeliveryInfo({
-            ...result,
-            lat: coordinates.lat,
-            lng: coordinates.lng,
-          })
+            shopName: shop.name,
+            shopLat: shop.lat,
+            shopLng: shop.lng,
+          }
         }
+      }
+
+      if (Object.keys(newShopDeliveries).length > 0) {
+        setShopDeliveries(newShopDeliveries)
       } else {
-        setDeliveryError("Logistics Engine could not determine a route to this coordinate bundle.")
-        setDeliveryInfo(null)
+        setDeliveryError("Logistics Engine could not determine routes to your location from the shops.")
       }
     } catch (error) {
       setDeliveryError("Logistics calculation failed. Please retry location selection.")
-      setDeliveryInfo(null)
+      setShopDeliveries({})
     } finally {
       setIsCalculatingDelivery(false)
     }
   }
 
   useEffect(() => {
-    if (deliveryInfo && selectedTransportId && cartItems.length > 0) {
-      const totalWeight = cartItems.reduce((sum, item) => sum + (item.product.weight || 1) * item.quantity, 0)
+    if (Object.keys(shopDeliveries).length > 0 && selectedTransportId && cartItems.length > 0) {
       const method =
         transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
         transportMethods[0]
-      let deliveryFeeCalc = 0
-      if (method?.rate_per_kg) {
-        deliveryFeeCalc = totalWeight * (method.rate_per_kg || 0)
-      } else if (method?.rate_per_km) {
-        deliveryFeeCalc = deliveryInfo.distanceKm * (method.rate_per_km || 0)
+
+      const updatedDeliveries = { ...shopDeliveries }
+      const shopsWeight: Record<string, number> = {}
+
+      cartItems.forEach((item) => {
+        const sId = item.product.shop_id
+        shopsWeight[sId] = (shopsWeight[sId] || 0) + (item.product.weight || 1) * item.quantity
+      })
+
+      for (const sId in updatedDeliveries) {
+        let fee = 0
+        if (method?.rate_per_kg) {
+          fee = (shopsWeight[sId] || 0) * (method.rate_per_kg || 0)
+        } else if (method?.rate_per_km) {
+          fee = updatedDeliveries[sId].distanceKm * (method.rate_per_km || 0)
+        }
+        updatedDeliveries[sId] = {
+          ...updatedDeliveries[sId],
+          deliveryFee: Math.round(fee),
+          transportMethod: method?.name,
+          transportMethodId: method?.id,
+        }
       }
-      setDeliveryInfo((prev) =>
-        prev
-          ? {
-            ...prev,
-            deliveryFee: Math.round(deliveryFeeCalc),
-            transportMethod: method?.name,
-            transportMethodId: method?.id,
-          }
-          : null,
-      )
+      setShopDeliveries(updatedDeliveries)
     }
   }, [selectedTransportId, cartItems])
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  const deliveryFee = deliveryInfo?.deliveryFee || 0
+  const deliveryFee = Object.values(shopDeliveries).reduce((sum, d) => sum + d.deliveryFee, 0)
   const total = subtotal + deliveryFee
 
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
@@ -249,10 +280,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       return
     }
 
-    if (!deliveryInfo) {
+    if (Object.keys(shopDeliveries).length === 0) {
       toast({
-        title: "Delivery Fee Not Calculated",
-        description: "Please wait for delivery fee calculation to complete",
+        title: "Logistics Required",
+        description: "Please select a delivery address using the autocomplete search to calculate shipping costs.",
         variant: "destructive",
       })
       return
@@ -294,12 +325,27 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     setError(null)
 
     try {
-      const items = cartItems.map((item) => ({
-        product_id: item.product_id || item.product?.id,
-        quantity: item.quantity,
-        price: item.product.price,
-        shop_id: item.product.shop_id,
-      }))
+      const shopAssignedFee: Record<string, boolean> = {}
+
+      const items = cartItems.map((item) => {
+        const sId = item.product.shop_id
+        const dInfo = shopDeliveries[sId]
+
+        // Only assign the fee to the first item from this shop to avoid double counting in totals
+        const feeToAssign = !shopAssignedFee[sId] ? (dInfo?.deliveryFee || 0) : 0
+        shopAssignedFee[sId] = true
+
+        return {
+          product_id: item.product_id || item.product?.id,
+          quantity: item.quantity,
+          price: item.product.price,
+          shop_id: sId,
+          delivery_fee: feeToAssign,
+          delivery_distance_km: dInfo?.distanceKm || 0,
+          pickup_latitude: dInfo?.shopLat,
+          pickup_longitude: dInfo?.shopLng,
+        }
+      })
 
       const orderPayload = {
         items,
@@ -313,10 +359,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           ward: addressData.ward,
           village: addressData.village,
           street: addressData.street,
-          latitude: deliveryInfo.lat, // Added from deliveryInfo or coordinates
-          longitude: deliveryInfo.lng, // Added from deliveryInfo or coordinates
-          delivery_distance_km: deliveryInfo.distanceKm,
-          delivery_duration: deliveryInfo.duration,
+          latitude: Object.values(shopDeliveries)[0]?.lat, // Customer delivery coordinates
+          longitude: Object.values(shopDeliveries)[0]?.lng,
+          delivery_distance_km: deliveryFee > 0 ? Object.values(shopDeliveries).reduce((sum, d) => sum + d.distanceKm, 0) : 0,
           delivery_fee: deliveryFee,
         },
         totalAmount: total,
@@ -329,7 +374,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           expiryDate: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.expiry : undefined,
           cvv: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.cvv : undefined,
         },
-        transportMethodId: deliveryInfo?.transportMethodId || selectedTransportId || null,
+        transportMethodId: Object.values(shopDeliveries)[0]?.transportMethodId || selectedTransportId || null,
         deliveryFee,
       }
 
@@ -556,20 +601,40 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       </div>
                     )}
 
-                    {deliveryInfo && (
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 space-y-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Distance</p>
-                          <p className="text-sm font-black text-stone-900">{deliveryInfo.distanceKm} KM</p>
+                    {Object.keys(shopDeliveries).length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                          <MapPin className="h-3 w-3" />
+                          <span>Delivery Logistics Breakdown</span>
                         </div>
-                        <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 space-y-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Time</p>
-                          <p className="text-sm font-black text-stone-900">{deliveryInfo.duration || "Fast"}</p>
-                        </div>
-                        <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 space-y-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Fee</p>
-                          <p className="text-sm font-black text-primary">TZS {deliveryInfo.deliveryFee.toLocaleString()}</p>
-                        </div>
+                        {Object.entries(shopDeliveries).map(([shopId, info]) => (
+                          <div key={shopId} className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
+                                <p className="text-sm font-black text-stone-900">{info.shopName}</p>
+                              </div>
+                              <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[10px] font-black text-stone-500 uppercase">
+                                {info.transportMethod}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
+                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Distance</p>
+                                <p className="text-xs font-black text-stone-800">{info.distanceKm} KM</p>
+                              </div>
+                              <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
+                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Time</p>
+                                <p className="text-xs font-black text-stone-800">{info.duration || "Fast"}</p>
+                              </div>
+                              <div className="p-3 bg-[#2563EB]/5 rounded-2xl border border-[#2563EB]/10 space-y-1">
+                                <p className="text-[8px] font-bold uppercase tracking-wide text-[#2563EB]">Fee</p>
+                                <p className="text-xs font-black text-[#2563EB]">TZS {info.deliveryFee.toLocaleString()}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>

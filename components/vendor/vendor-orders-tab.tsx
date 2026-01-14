@@ -95,9 +95,22 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                         <span>
                           {item.products.name} x {item.quantity}
                         </span>
-                        <span className="font-medium">TZS {item.total_price.toLocaleString()}</span>
+                        <div className="text-right">
+                          <p className="font-medium">TZS {(item.unit_price * item.quantity).toLocaleString()}</p>
+                          {item.delivery_fee > 0 && (
+                            <p className="text-[10px] text-green-600 font-bold uppercase tracking-tight">
+                              + Delivery: TZS {item.delivery_fee.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
+                    <div className="border-t pt-2 flex justify-between items-center">
+                      <span className="text-xs font-bold text-stone-500 uppercase tracking-widest">Shipment Total</span>
+                      <span className="text-lg font-black text-primary">
+                        TZS {order.items.reduce((sum: number, item: any) => sum + item.total_price + (item.delivery_fee || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Shipping Address */}
