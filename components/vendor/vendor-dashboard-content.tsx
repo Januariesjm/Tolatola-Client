@@ -9,7 +9,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import Image from "next/image"
-import { CreateShopDialog } from "./create-shop-dialog"
 import { AddProductDialog } from "./add-product-dialog"
 import { EditProductDialog } from "./edit-product-dialog"
 import { VendorOrdersTab } from "./vendor-orders-tab"
@@ -25,7 +24,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { EditShopDialog } from "./edit-shop-dialog"
 import { NotificationPopover } from "../layout/notification-popover"
 
 interface VendorDashboardContentProps {
@@ -41,14 +39,12 @@ const hasShopLocation = (shop: any): boolean => {
 
 export function VendorDashboardContent({ vendor, shop, products }: VendorDashboardContentProps) {
   const router = useRouter()
-  const [showCreateShop, setShowCreateShop] = useState(false)
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditProduct, setShowEditProduct] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [productToDelete, setProductToDelete] = useState<any>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [showEditShop, setShowEditShop] = useState(false)
   // State for location warning dialog
   const [showLocationWarning, setShowLocationWarning] = useState(false)
 
@@ -153,7 +149,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
               <CardDescription>Set up your shop to start selling products</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => setShowCreateShop(true)}>
+              <Button onClick={() => router.push("/vendor/shop/create")}>
                 <Store className="h-4 w-4 mr-2" />
                 Create Shop
               </Button>
@@ -175,7 +171,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                       </div>
                     </div>
                     <Button
-                      onClick={() => setShowEditShop(true)}
+                      onClick={() => router.push("/vendor/shop/edit")}
                       variant="outline"
                       className="border-amber-500 text-amber-700 hover:bg-amber-100"
                     >
@@ -315,7 +311,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                       <CardTitle>Shop Settings</CardTitle>
                       <CardDescription>Manage your shop information and location</CardDescription>
                     </div>
-                    <Button onClick={() => setShowEditShop(true)} variant="outline" size="sm">
+                    <Button onClick={() => router.push("/vendor/shop/edit")} variant="outline" size="sm">
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Shop
                     </Button>
@@ -369,12 +365,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
         )}
       </div>
 
-      <CreateShopDialog
-        open={showCreateShop}
-        onOpenChange={setShowCreateShop}
-        vendorId={vendor.id}
-        onSuccess={() => router.refresh()}
-      />
+      {/* Standalone pages now handle shop create/edit */}
       <AddProductDialog
         open={showAddProduct}
         onOpenChange={setShowAddProduct}
@@ -424,7 +415,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
             <AlertDialogAction
               onClick={() => {
                 setShowLocationWarning(false)
-                setShowEditShop(true)
+                router.push("/vendor/shop/edit")
               }}
             >
               Add Shop Location
@@ -432,12 +423,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <EditShopDialog
-        open={showEditShop}
-        onOpenChange={setShowEditShop}
-        shop={shop}
-        onSuccess={() => router.refresh()}
-      />
+      {/* EditShopDialog removed in favor of standalone page */}
     </div>
   )
 }
