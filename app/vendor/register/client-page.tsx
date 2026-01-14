@@ -31,6 +31,7 @@ export default function VendorRegisterPageClient() {
   const [repPhone, setRepPhone] = useState("")
   const [repTin, setRepTin] = useState("")
   const [repNationalId, setRepNationalId] = useState("")
+  const [repPosition, setRepPosition] = useState("")
 
   const [isUploadingLicense, setIsUploadingLicense] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,21 +46,17 @@ export default function VendorRegisterPageClient() {
         data: { user },
       } = await supabase.auth.getUser()
 
-      console.log("[v0] Vendor register - User:", user?.id)
-
       if (!user) {
         router.push("/auth/login")
         return
       }
       setUser(user)
 
-      const { data: existingVendor, error: vendorError } = await supabase
+      const { data: existingVendor } = await supabase
         .from("vendors")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle()
-
-      console.log("[v0] Vendor register - Existing vendor:", existingVendor, "Error:", vendorError)
 
       if (existingVendor) {
         router.push("/vendor/dashboard")
@@ -76,14 +73,11 @@ export default function VendorRegisterPageClient() {
     setIsLoading(true)
     setError(null)
 
-    console.log("[v0] Vendor register - Starting submission...")
-
     try {
       let businessLicenseUrl = ""
 
       if (businessLicense) {
         setIsUploadingLicense(true)
-        console.log("[v0] Vendor register - Uploading business license...")
         const formData = new FormData()
         formData.append("file", businessLicense)
 
@@ -100,10 +94,8 @@ export default function VendorRegisterPageClient() {
         const { url } = await uploadResponse.json()
         businessLicenseUrl = url
         setIsUploadingLicense(false)
-        console.log("[v0] Vendor register - Business license uploaded:", businessLicenseUrl)
       }
 
-      console.log("[v0] Vendor register - Creating vendor record...")
       const vendorData: any = {
         user_id: user.id,
         kyc_type: kycType,
@@ -115,33 +107,22 @@ export default function VendorRegisterPageClient() {
         kyc_status: "pending",
       }
 
-      // Add company representative fields if company type
       if (kycType === "company") {
         vendorData.representative_full_name = repFullName
         vendorData.representative_phone = repPhone
         vendorData.representative_tin = repTin
         vendorData.representative_national_id = repNationalId
+        vendorData.representative_position = repPosition
       }
 
-      console.log("[v0] Vendor register - Vendor data:", vendorData)
-
-      const { data: createdVendor, error: vendorError } = await supabase
+      const { error: vendorError } = await supabase
         .from("vendors")
         .insert(vendorData)
-        .select()
-        .single()
 
-      console.log("[v0] Vendor register - Created vendor:", createdVendor, "Error:", vendorError)
+      if (vendorError) throw vendorError
 
-      if (vendorError) {
-        console.error("[v0] Vendor register - Error details:", JSON.stringify(vendorError, null, 2))
-        throw vendorError
-      }
-
-      console.log("[v0] Vendor register - Success! Redirecting to KYC pending...")
       router.push("/vendor/kyc-pending")
     } catch (error: unknown) {
-      console.error("[v0] Vendor register - Caught error:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
       setIsUploadingLicense(false)
     } finally {
@@ -169,7 +150,6 @@ export default function VendorRegisterPageClient() {
             <CardContent>
               <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-6">
-
                   {/* KYC Type Selection */}
                   <div className="grid gap-4">
                     <Label className="text-base font-bold">Select KYC Type *</Label>
@@ -208,7 +188,7 @@ export default function VendorRegisterPageClient() {
                     </RadioGroup>
                   </div>
 
-                  {/* Common Fields */}
+                  {/* Business Information */}
                   <div className="grid gap-4 pt-4 border-t">
                     <h3 className="font-bold text-sm uppercase tracking-wide text-stone-500">Business Information</h3>
 
@@ -332,6 +312,18 @@ export default function VendorRegisterPageClient() {
 
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="grid gap-2">
+                          <Label htmlFor="repPosition">Position *</Label>
+                          <Input
+                            id="repPosition"
+                            type="text"
+                            placeholder="e.g. Director, CEO, Manager"
+                            required={kycType === "company"}
+                            value={repPosition}
+                            onChange={(e) => setRepPosition(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="grid gap-2">
                           <Label htmlFor="repTin">TIN Number *</Label>
                           <Input
                             id="repTin"
@@ -342,18 +334,18 @@ export default function VendorRegisterPageClient() {
                             onChange={(e) => setRepTin(e.target.value)}
                           />
                         </div>
+                      </div>
 
-                        <div className="grid gap-2">
-                          <Label htmlFor="repNationalId">National ID *</Label>
-                          <Input
-                            id="repNationalId"
-                            type="text"
-                            placeholder="NIDA Number"
-                            required={kycType === "company"}
-                            value={repNationalId}
-                            onChange={(e) => setRepNationalId(e.target.value)}
-                          />
-                        </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="repNationalId">National ID *</Label>
+                        <Input
+                          id="repNationalId"
+                          type="text"
+                          placeholder="NIDA Number"
+                          required={kycType === "company"}
+                          value={repNationalId}
+                          onChange={(e) => setRepNationalId(e.target.value)}
+                        />
                       </div>
                     </div>
                   )}

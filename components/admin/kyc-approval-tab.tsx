@@ -167,6 +167,10 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                         <span className="font-medium">{vendor.representative_tin || "N/A"}</span>
                       </div>
                       <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rep. Position:</span>
+                        <span className="font-medium">{vendor.representative_position || "N/A"}</span>
+                      </div>
+                      <div className="flex justify-between">
                         <span className="text-muted-foreground">Rep. National ID:</span>
                         <span className="font-medium">{vendor.representative_national_id || "N/A"}</span>
                       </div>
