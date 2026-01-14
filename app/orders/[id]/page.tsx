@@ -2,9 +2,21 @@ import { createClient } from "@/lib/supabase/server"
 import { OrderDetailContent } from "@/components/orders/order-detail-content"
 import { redirect, notFound } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
+import { Metadata } from "next"
 
-export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export const metadata: Metadata = {
+  title: "Order Details | TOLA",
+  description: "View your order details and status.",
+}
+
+interface OrderDetailPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+  const { id } = params
   const supabase = await createClient()
 
   const {
@@ -24,7 +36,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     .maybeSingle()
 
   // Get order with items
-  const { data: order } = await supabase
+  const { data: order, error } = await supabase
     .from("orders")
     .select(
       `
@@ -35,6 +47,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           name,
           price,
           images,
+          primary_image_url,
           shops (
             name,
             logo_url,
@@ -56,7 +69,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     .eq("customer_id", user.id)
     .single()
 
-  if (!order) {
+  if (error || !order) {
+    console.error("Error fetching order or order not found:", error)
     notFound()
   }
 
