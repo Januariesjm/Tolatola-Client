@@ -4,19 +4,23 @@ import { redirect, notFound } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
 import { Metadata } from "next"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Order Details | TOLA",
   description: "View your order details and status.",
 }
 
 interface OrderDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const { id } = params
+  // Await params to handle both Next.js 14 (sync/async transition) and 15 (async) safely
+  const { id } = await params
+
   const supabase = await createClient()
 
   const {
@@ -70,7 +74,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     .single()
 
   if (error || !order) {
-    console.error("Error fetching order or order not found:", error)
+    console.error("Error fetching order:", error)
     notFound()
   }
 
