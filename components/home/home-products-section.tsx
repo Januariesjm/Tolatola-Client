@@ -9,6 +9,7 @@ import { useRef, useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { ProductCard } from "@/components/product/product-card"
+import { useFavorites } from "@/hooks/use-favorites"
 
 interface HomeProductsSectionProps {
   featuredProducts: any[]
@@ -20,28 +21,15 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
   const { toast } = useToast()
   const featuredScrollRef = useRef<HTMLDivElement>(null)
   const dealsScrollRef = useRef<HTMLDivElement>(null)
-  const [likedProducts, setLikedProducts] = useState<Set<string>>(new Set())
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchUserAndLikes = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        setUserId(user.id)
-        const { data: likes } = await supabase.from("product_likes").select("product_id").eq("user_id", user.id)
-        if (likes) setLikedProducts(new Set(likes.map((like: any) => like.product_id)))
-      }
-    }
-
     const loadCart = () => {
       const items = JSON.parse(localStorage.getItem("cart") || "[]")
       setCartItems(items)
     }
 
-    fetchUserAndLikes()
     loadCart()
 
     window.addEventListener("cartUpdated", loadCart)
@@ -73,31 +61,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
   }
 
   const handleToggleLike = async (productId: string) => {
-    if (!userId) {
-      toast({ title: "Login Required", description: "Please login to add to wishlist", variant: "destructive" })
-      router.push("/auth/login?returnUrl=" + window.location.pathname)
-      return
-    }
-
-    const supabase = createClient()
-    const isLiked = likedProducts.has(productId)
-
-    const newLikedProducts = new Set(likedProducts)
-    isLiked ? newLikedProducts.delete(productId) : newLikedProducts.add(productId)
-    setLikedProducts(newLikedProducts)
-
-    try {
-      if (isLiked) {
-        await supabase.from("product_likes").delete().eq("user_id", userId).eq("product_id", productId)
-        toast({ title: "Removed", description: "Product removed from wishlist" })
-      } else {
-        await (supabase.from("product_likes") as any).insert({ user_id: userId, product_id: productId })
-        toast({ title: "Added", description: "Product added to wishlist" })
-      }
-    } catch {
-      setLikedProducts(likedProducts)
-      toast({ title: "Error", description: "Failed to update wishlist", variant: "destructive" })
-    }
+    await toggleFavorite(productId)
   }
 
   const scroll = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
@@ -145,7 +109,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
                   <ProductCard
                     product={product}
                     badge={{ text: "HOT", variant: "new" }}
-                    isLiked={likedProducts.has(product.id)}
+                    isLiked={isFavorite(product.id)}
                     isInCart={cartItems.some((item) => item.product_id === product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}
@@ -220,7 +184,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
                   <ProductCard
                     product={product}
                     badge={{ text: "OFFER", variant: "deal" }}
-                    isLiked={likedProducts.has(product.id)}
+                    isLiked={isFavorite(product.id)}
                     isInCart={cartItems.some((item) => item.product_id === product.id)}
                     onAddToCart={handleAddToCart}
                     onToggleLike={handleToggleLike}

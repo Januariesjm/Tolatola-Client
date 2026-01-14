@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
@@ -9,33 +9,40 @@ export function useFavorites() {
     const [isLoading, setIsLoading] = useState(true)
     const { toast } = useToast()
 
-    useEffect(() => {
-        const loadFavorites = async () => {
-            const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
+    const loadFavorites = useCallback(async () => {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
 
-            if (user) {
-                // Fetch from Supabase
-                const { data, error } = await supabase
-                    .from("product_likes")
-                    .select("product_id")
-                    .eq("user_id", user.id)
+        if (user) {
+            // Fetch from Supabase
+            const { data, error } = await supabase
+                .from("product_likes")
+                .select("product_id")
+                .eq("user_id", user.id)
 
-                if (!error && data) {
-                    setFavorites(data.map(f => f.product_id))
-                }
-            } else {
-                // Fetch from localStorage
-                const stored = localStorage.getItem("favorites")
-                if (stored) {
-                    setFavorites(JSON.parse(stored))
-                }
+            if (!error && data) {
+                setFavorites(data.map(f => f.product_id))
             }
-            setIsLoading(false)
+        } else {
+            // Fetch from localStorage
+            const stored = localStorage.getItem("favorites")
+            if (stored) {
+                setFavorites(JSON.parse(stored))
+            }
+        }
+        setIsLoading(false)
+    }, [])
+
+    useEffect(() => {
+        loadFavorites()
+
+        const handleFavoritesUpdated = () => {
+            loadFavorites()
         }
 
-        loadFavorites()
-    }, [])
+        window.addEventListener("favoritesUpdated", handleFavoritesUpdated)
+        return () => window.removeEventListener("favoritesUpdated", handleFavoritesUpdated)
+    }, [loadFavorites])
 
     const toggleFavorite = async (productId: string) => {
         const supabase = createClient()
@@ -43,6 +50,21 @@ export function useFavorites() {
         const isLiked = favorites.includes(productId)
 
         try {
+            // Optimistic update locally first
+            let newFavorites: string[]
+            if (isLiked) {
+                newFavorites = favorites.filter(id => id !== productId)
+            } else {
+                newFavorites = [...favorites, productId]
+            }
+
+            // Update state immediately
+            setFavorites(newFavorites)
+            localStorage.setItem("favorites", JSON.stringify(newFavorites))
+
+            // Dispatch event for other components to update
+            window.dispatchEvent(new Event("favoritesUpdated"))
+
             if (user) {
                 if (isLiked) {
                     await supabase
@@ -58,17 +80,6 @@ export function useFavorites() {
                 }
             }
 
-            // Always update localStorage for guests or as a backup/quick access
-            let newFavorites: string[]
-            if (isLiked) {
-                newFavorites = favorites.filter(id => id !== productId)
-            } else {
-                newFavorites = [...favorites, productId]
-            }
-
-            setFavorites(newFavorites)
-            localStorage.setItem("favorites", JSON.stringify(newFavorites))
-
             toast({
                 title: isLiked ? "Removed from favorites" : "Added to favorites",
                 description: isLiked ? "Product removed from your favorites list." : "Product added to your favorites list.",
@@ -77,6 +88,8 @@ export function useFavorites() {
             return !isLiked
         } catch (error) {
             console.error("Error toggling favorite:", error)
+            // Revert changes on error (reload from source)
+            loadFavorites()
             toast({
                 title: "Error",
                 description: "Failed to update favorites. Please try again.",

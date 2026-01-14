@@ -48,6 +48,7 @@ import { clientApiGet } from "@/lib/api-client"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useFavorites } from "@/hooks/use-favorites"
 
 interface SiteHeaderProps {
   user: any
@@ -64,6 +65,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClientComponentClient<Database>()
+  const { favorites } = useFavorites()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -240,9 +242,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 <NotificationPopover />
 
                 <div className="hidden lg:flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
-                  <Link href="/favorites">
+                  <Link href="/favorites" className="relative">
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
                       <Heart className="h-5 w-5" />
+                      {favorites.length > 0 && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
+                          {favorites.length}
+                        </Badge>
+                      )}
                     </Button>
                   </Link>
                   <CartPopover />
@@ -333,9 +340,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   </Button>
                 </Link>
                 <div className="hidden lg:flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
-                  <Link href="/favorites">
+                  <Link href="/favorites" className="relative">
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
                       <Heart className="h-5 w-5" />
+                      {favorites.length > 0 && (
+                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
+                          {favorites.length}
+                        </Badge>
+                      )}
                     </Button>
                   </Link>
                   <CartPopover />
