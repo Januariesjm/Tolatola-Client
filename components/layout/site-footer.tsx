@@ -157,13 +157,35 @@ export function SiteFooter() {
       {/* Copyright Architecture */}
       <div className="border-t border-teal-800/50 bg-teal-950/80">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/60">
-              © {currentYear} TOLA Digital Trade and Supply Chain Ecosystem. Precision Engineered in Tanzania.
-            </p>
-            <div className="flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-cyan-300/60">System Status: Operational</span>
+          <div className="flex flex-col gap-6">
+            {/* Company Registration Info */}
+            <div className="text-center space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/80">
+                Owned and Operated by DAN'G GROUP OF COMPANIES LIMITED
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[9px] font-bold uppercase tracking-widest text-cyan-300/60">
+                <span>Company Reg: 165214285</span>
+                <span className="hidden sm:inline">•</span>
+                <span>TIN: 165-214-285</span>
+                <span className="hidden sm:inline">•</span>
+                <span>NSSF: 1042932</span>
+                <span className="hidden sm:inline">•</span>
+                <span>Business Name Reg: 627634</span>
+              </div>
+              <p className="text-[9px] font-medium tracking-wider text-cyan-300/50">
+                P.O. Box 372, Kibaha-Pwani, Tanzania
+              </p>
+            </div>
+
+            {/* Copyright and Status */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-teal-800/30">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300/60">
+                © {currentYear} TOLA Digital Trade and Supply Chain Ecosystem. Precision Engineered in Tanzania.
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-cyan-300/60">System Status: Operational</span>
+              </div>
             </div>
           </div>
         </div>

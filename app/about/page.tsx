@@ -158,6 +158,75 @@ export default async function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* Company Information Section */}
+        <section className="py-24 bg-muted/30">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-black mb-4 tracking-tight">Company Information</h2>
+              <p className="text-muted-foreground text-lg">Official registration and legal details</p>
+            </div>
+
+            <Card className="border-none shadow-2xl rounded-[3rem] bg-white p-8 md:p-12">
+              <div className="space-y-6">
+                <div className="pb-6 border-b border-stone-200">
+                  <h3 className="text-2xl font-black mb-4 text-primary">Legal Entity</h3>
+                  <p className="text-lg leading-relaxed">
+                    TOLA Digital Trade & Supply Chain Ecosystem is owned and operated by <strong>DAN'G GROUP OF COMPANIES LIMITED</strong>
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Company Name</p>
+                      <p className="font-bold text-lg">DAN'G GROUP OF COMPANIES LIMITED</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Business Name</p>
+                      <p className="font-bold text-lg">TOLA DIGITAL TRADE & SUPPLY CHAIN ECOSYSTEM</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Certificate of Incorporation No</p>
+                      <p className="font-bold text-lg">165214285</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Business Name Reg No</p>
+                      <p className="font-bold text-lg">627634</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Taxpayer Identification Number (TIN)</p>
+                      <p className="font-bold text-lg">165-214-285</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">NSSF Registration Number</p>
+                      <p className="font-bold text-lg">1042932</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Postal Address</p>
+                      <p className="font-bold text-lg">P.O. Box 372</p>
+                      <p className="text-muted-foreground">Kibaha-Pwani, Tanzania</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-stone-200 text-center">
+                  <p className="text-sm text-muted-foreground italic">
+                    All business operations are conducted in accordance with Tanzanian law and regulations
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
       </main>
     </div>
   )
