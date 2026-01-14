@@ -239,9 +239,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
             {authUser ? (
               <div className="flex items-center gap-2 md:gap-4">
-                <NotificationPopover />
-
-                <div className="hidden lg:flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
+                <div className="hidden lg:flex items-center gap-2 border-r border-stone-200 pr-4 mr-2">
                   <Link href="/favorites" className="relative">
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
                       <Heart className="h-5 w-5" />
@@ -254,6 +252,8 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   </Link>
                   <CartPopover />
                 </div>
+
+                <NotificationPopover />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -329,17 +329,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               </div>
             ) : (
               <div className="flex items-center gap-2 md:gap-4 animate-in fade-in slide-in-from-right-4 duration-700">
-                <Link href="/auth/login">
-                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/auth/sign-up">
-                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
-                    Sign Up
-                  </Button>
-                </Link>
-                <div className="hidden lg:flex items-center gap-2 border-l border-stone-200 pl-4 ml-2">
+                <div className="hidden lg:flex items-center gap-2 border-r border-stone-200 pr-4 mr-2">
                   <Link href="/favorites" className="relative">
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
                       <Heart className="h-5 w-5" />
@@ -352,6 +342,16 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   </Link>
                   <CartPopover />
                 </div>
+                <Link href="/auth/login">
+                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/auth/sign-up">
+                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
+                    Sign Up
+                  </Button>
+                </Link>
               </div>
             )}
 
