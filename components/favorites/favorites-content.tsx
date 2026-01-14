@@ -17,53 +17,88 @@ interface FavoritesContentProps {
 }
 
 export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps) {
+  const { toggleFavorite, favorites } = useFavorites() // favorites contains product_ids
+  // Map product_id -> complete product object (initialized from server data)
+  const [productMap, setProductMap] = useState<Record<string, any>>(() => {
+    const map: Record<string, any> = {}
+    initialLikes.forEach(like => {
+      if (like.products) {
+        map[like.products.id] = like.products
+      }
+    })
+    return map
+  })
+
   const [displayLikes, setDisplayLikes] = useState<any[]>(initialLikes)
   const [isLoading, setIsLoading] = useState(false)
-  const { toggleFavorite, favorites } = useFavorites()
   const router = useRouter()
 
   useEffect(() => {
-    const loadGuestFavorites = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+    const syncFavorites = async () => {
+      // 1. Identify which favorites we already have data for vs missing
+      const missingIds = favorites.filter(id => !productMap[id])
 
-      if (!user) {
+      if (missingIds.length > 0) {
         setIsLoading(true)
         try {
-          // Only fetch if we have favorites and no initial data mismatch
-          if (favorites.length > 0) {
-            const productPromises = favorites.map(id => clientApiGet<{ data: any }>(`products/${id}`))
-            const results = await Promise.allSettled(productPromises)
-            const guestLikes = results
-              .filter((r): r is PromiseFulfilledResult<{ data: any }> => r.status === 'fulfilled')
-              .map(r => ({
-                id: r.value.data.id, // Use product ID as the 'like' ID effectively for guest view mapping
-                products: r.value.data
-              }))
-            setDisplayLikes(guestLikes)
-          } else {
-            setDisplayLikes([])
-          }
+          const productPromises = missingIds.map(id => clientApiGet<{ data: any }>(`products/${id}`))
+          const results = await Promise.allSettled(productPromises)
+
+          const newProductsMap = { ...productMap }
+
+          results.forEach(r => {
+            if (r.status === 'fulfilled') {
+              newProductsMap[r.value.data.id] = r.value.data
+            }
+          })
+
+          setProductMap(newProductsMap)
+          // Update display list: Map current favorites IDs to objects derived from our map
+          // We use the same structure { id: '...', products: productObj } to match existing render
+          const newDisplayList = favorites
+            .filter(id => newProductsMap[id]) // Ensure we have the product
+            .map(id => ({
+              id: id, // or generated ID
+              products: newProductsMap[id]
+            }))
+          setDisplayLikes(newDisplayList)
+
         } catch (error) {
-          console.error("Error loading guest favorites:", error)
+          console.error("Error syncing favorites:", error)
         } finally {
           setIsLoading(false)
         }
       } else {
-        // If logged in, initialLikes from server component are source of truth, but we sync with local state for immediate feedback
-        setDisplayLikes(initialLikes)
+        // We have all data, just filter/re-order based on 'favorites' list
+        const newDisplayList = favorites
+          .filter(id => productMap[id])
+          .map(id => ({
+            id: id,
+            products: productMap[id]
+          }))
+        setDisplayLikes(newDisplayList)
       }
     }
 
-    loadGuestFavorites()
-  }, [favorites, initialLikes])
+    syncFavorites()
+  }, [favorites]) // Only run when favorites ID list changes specifically
+
+  // Update map if initialLikes changes (e.g. fresh server navigation)
+  useEffect(() => {
+    setProductMap(prev => {
+      const next = { ...prev }
+      initialLikes.forEach(like => {
+        if (like.products) next[like.products.id] = like.products
+      })
+      return next
+    })
+  }, [initialLikes])
+
 
   const handleRemove = async (e: React.MouseEvent, productId: string) => {
     e.preventDefault() // Prevent navigation if on card link
     e.stopPropagation()
     await toggleFavorite(productId)
-    // Optimistic UI update
-    setDisplayLikes(prev => prev.filter(l => (l.product_id || l.products?.id) !== productId))
   }
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
