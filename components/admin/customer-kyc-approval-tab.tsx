@@ -17,6 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
+import { ExternalLink, FileText } from "lucide-react"
 import { clientApiPost } from "@/lib/api-client"
 
 interface CustomerKYCApprovalTabProps {
@@ -209,15 +210,55 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
 
             {/* Document Viewer Dialog */}
             <Dialog open={viewDocumentDialog} onOpenChange={setViewDocumentDialog}>
-                <DialogContent className="max-w-3xl">
-                    <DialogHeader>
-                        <DialogTitle>ID Document</DialogTitle>
+                <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-4">
+                    <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <div>
+                            <DialogTitle>ID Document Preview</DialogTitle>
+                            <DialogDescription>
+                                Full size preview of the uploaded identity document
+                            </DialogDescription>
+                        </div>
+                        <div className="flex gap-2 mr-6">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9"
+                                onClick={() => window.open(documentUrl, '_blank')}
+                            >
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Open Original
+                            </Button>
+                        </div>
                     </DialogHeader>
-                    <div className="relative w-full h-[500px] bg-muted rounded-lg overflow-hidden">
-                        {documentUrl && (
-                            <Image src={documentUrl || "/placeholder.svg"} alt="ID Document" fill className="object-contain" />
+                    <div className="relative flex-1 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
+                        {documentUrl ? (
+                            documentUrl.toLowerCase().endsWith('.pdf') ? (
+                                <iframe
+                                    src={`${documentUrl}#toolbar=0`}
+                                    className="w-full h-full border-none"
+                                    title="PDF Document Viewer"
+                                />
+                            ) : (
+                                <div className="w-full h-full overflow-auto flex items-center justify-center p-4">
+                                    <img
+                                        src={documentUrl}
+                                        alt="Document"
+                                        className="max-w-full h-auto shadow-2xl rounded-sm"
+                                    />
+                                </div>
+                            )
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3">
+                                <FileText className="h-12 w-12 opacity-20" />
+                                <p>No document selected</p>
+                            </div>
                         )}
                     </div>
+                    <DialogFooter className="pt-4">
+                        <Button variant="secondary" onClick={() => setViewDocumentDialog(false)}>
+                            Close Preview
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
