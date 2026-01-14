@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { Upload, Building2, User, CheckCircle } from "lucide-react"
+import { Upload, Building2, User, CheckCircle, MapPin } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
+import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
 
 type KYCType = "individual" | "company"
 
@@ -23,7 +24,16 @@ export default function VendorRegisterPageClient() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [businessName, setBusinessName] = useState("")
   const [tinNumber, setTinNumber] = useState("")
-  const [location, setLocation] = useState("")
+  const [location, setLocation] = useState({
+    address: "",
+    region: "",
+    district: "",
+    ward: "",
+    village: "",
+    street: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+  })
   const [businessLicense, setBusinessLicense] = useState<File | null>(null)
 
   // Company representative fields
@@ -102,7 +112,14 @@ export default function VendorRegisterPageClient() {
         phone_number: phoneNumber,
         business_name: businessName,
         tin_number: tinNumber,
-        location: location,
+        location: location.address || `${location.street}, ${location.ward}, ${location.district}, ${location.region}`,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        region: location.region,
+        district: location.district,
+        ward: location.ward,
+        street: location.street,
+        village: location.village,
         business_license_url: businessLicenseUrl,
         kyc_status: "pending",
       }
@@ -231,16 +248,36 @@ export default function VendorRegisterPageClient() {
                         />
                       </div>
 
-                      <div className="grid gap-2">
-                        <Label htmlFor="location">Location *</Label>
-                        <Input
-                          id="location"
-                          type="text"
-                          placeholder="City, Region"
-                          required
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                        />
+                      <div className="pt-4 border-t">
+                        <div className="flex flex-col gap-1 mb-6">
+                          <Label className="flex items-center gap-2 text-lg font-bold text-stone-900">
+                            <MapPin className="h-5 w-5 text-primary" />
+                            Business Location Details *
+                          </Label>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 ml-7">
+                            Google Maps & Logistics Integration
+                          </p>
+                        </div>
+
+                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 shadow-sm">
+                          <TanzaniaAddressForm
+                            value={{
+                              country: "Tanzania",
+                              region: location.region,
+                              district: location.district,
+                              ward: location.ward,
+                              village: location.village,
+                              street: location.street,
+                            }}
+                            onChange={(addr) => setLocation(prev => ({ ...prev, ...addr }))}
+                            onAddressComplete={(full, coords) => setLocation(prev => ({
+                              ...prev,
+                              address: full,
+                              latitude: coords?.lat || null,
+                              longitude: coords?.lng || null
+                            }))}
+                          />
+                        </div>
                       </div>
                     </div>
 

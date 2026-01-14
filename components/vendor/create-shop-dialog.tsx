@@ -104,7 +104,14 @@ export function CreateShopDialog({ open, onOpenChange, vendorId, onSuccess }: Cr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-2xl max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => {
+          if ((e.target as HTMLElement)?.closest('.pac-container')) {
+            e.preventDefault()
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Create Your Shop</DialogTitle>
           <DialogDescription>

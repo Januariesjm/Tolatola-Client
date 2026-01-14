@@ -89,7 +89,7 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
         </div>
       )}
 
-      <div className="px-1">
+      <div className="p-8 bg-stone-50 rounded-[2.5rem] border border-stone-100 shadow-inner">
         <TanzaniaAddressForm
           value={{
             country: "Tanzania",
