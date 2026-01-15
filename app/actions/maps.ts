@@ -21,11 +21,13 @@ const BASE_LOCATION = {
 
 // Calculate delivery fee based on distance
 function calculateDeliveryFee(distanceKm: number): number {
+  // Tanzania baseline: 3,000 for local delivery, scaling with distance
   if (distanceKm <= 5) return 3000
-  if (distanceKm <= 10) return 5000
-  if (distanceKm <= 20) return 8000
-  if (distanceKm <= 30) return 12000
-  return 15000
+  if (distanceKm <= 15) return 5000
+  if (distanceKm <= 30) return 10000
+  if (distanceKm <= 100) return 25000
+  // Regional/Long distance
+  return 25000 + (distanceKm - 100) * 150
 }
 
 export async function getGoogleMapsScriptUrl(): Promise<string | null> {
@@ -160,7 +162,10 @@ export async function calculateDeliveryDistanceByCoords(
   const origin = (originLat && originLng) ? `${originLat},${originLng}` : encodeURIComponent(BASE_LOCATION.address)
   const originCoords = (originLat && originLng) ? { lat: originLat, lng: originLng } : { lat: BASE_LOCATION.lat, lng: BASE_LOCATION.lng }
 
-  console.log("[v0] Calculating delivery from", origin, "to", { lat, lng })
+  console.log(`[MAPS] Calculating delivery from origin: ${origin} to destination: ${lat},${lng}`)
+  if (!originLat || !originLng) {
+    console.warn("[MAPS] Shop coordinates (origin) missing, falling back to base location.")
+  }
 
   try {
     // Try Distance Matrix API first

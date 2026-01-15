@@ -119,6 +119,28 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         }
       })
 
+      const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
+        if (!isAvailable) return 0
+        const rateKm = Number(method?.rate_per_km) || 0
+        const rateKg = Number(method?.rate_per_kg) || 0
+
+        let fee = 0
+        if (rateKg > 0) {
+          fee = weightKg * rateKg
+        } else if (rateKm > 0) {
+          fee = distanceKm * rateKm
+        } else {
+          // Fallback to a distance-based baseline if method rates are missing
+          if (distanceKm <= 5) fee = 3000
+          else if (distanceKm <= 15) fee = 5000
+          else fee = distanceKm * 500
+        }
+
+        // Ground methods (no kg rate) have a 3,000 TZS minimum
+        if (rateKg === 0 && fee < 3000) fee = 3000
+        return Math.round(fee)
+      }
+
       const method =
         transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
         transportMethods[0]
@@ -133,20 +155,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         )
 
         if (result) {
-          let fee = 0
-          if (shop.deliveryAvailable) {
-            if (method?.rate_per_kg) {
-              fee = shop.weight * (method.rate_per_kg || 0)
-            } else if (method?.rate_per_km) {
-              fee = result.distanceKm * (method.rate_per_km || 0)
-            }
-          }
+          const fee = calculateFee(method, result.distanceKm, shop.weight, shop.deliveryAvailable)
 
           newShopDeliveries[sId] = {
             ...result,
             lat: coordinates.lat,
             lng: coordinates.lng,
-            deliveryFee: Math.round(fee),
+            deliveryFee: fee,
             transportMethod: shop.deliveryAvailable ? method?.name : "Store Pickup",
             transportMethodId: shop.deliveryAvailable ? method?.id : null,
             shopName: shop.name,
@@ -176,6 +191,26 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
         transportMethods[0]
 
+      const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
+        if (!isAvailable) return 0
+        const rateKm = Number(method?.rate_per_km) || 0
+        const rateKg = Number(method?.rate_per_kg) || 0
+
+        let fee = 0
+        if (rateKg > 0) {
+          fee = weightKg * rateKg
+        } else if (rateKm > 0) {
+          fee = distanceKm * rateKm
+        } else {
+          if (distanceKm <= 5) fee = 3000
+          else if (distanceKm <= 15) fee = 5000
+          else fee = distanceKm * 500
+        }
+
+        if (rateKg === 0 && fee < 3000) fee = 3000
+        return Math.round(fee)
+      }
+
       const updatedDeliveries = { ...shopDeliveries }
       const shopsWeight: Record<string, number> = {}
 
@@ -185,20 +220,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       })
 
       for (const sId in updatedDeliveries) {
-        let fee = 0
         const isDeliverable = updatedDeliveries[sId].deliveryAvailable !== false
-
-        if (isDeliverable) {
-          if (method?.rate_per_kg) {
-            fee = (shopsWeight[sId] || 0) * (method.rate_per_kg || 0)
-          } else if (method?.rate_per_km) {
-            fee = updatedDeliveries[sId].distanceKm * (method.rate_per_km || 0)
-          }
-        }
+        const fee = calculateFee(method, updatedDeliveries[sId].distanceKm, shopsWeight[sId] || 0, isDeliverable)
 
         updatedDeliveries[sId] = {
           ...updatedDeliveries[sId],
-          deliveryFee: Math.round(fee),
+          deliveryFee: fee,
           transportMethod: isDeliverable ? method?.name : "Store Pickup",
           transportMethodId: isDeliverable ? method?.id : null,
         }
