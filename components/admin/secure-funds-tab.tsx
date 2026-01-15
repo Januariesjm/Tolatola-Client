@@ -32,7 +32,7 @@ export function SecureFundsManagementTab({ transactions }: SecureFundsManagement
                         <CardDescription>Protected assets awaiting fulfillment</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-bold text-yellow-600">TZS {totalHeld.toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-yellow-600">TZS {(totalHeld || 0).toLocaleString()}</p>
                     </CardContent>
                 </Card>
 
@@ -42,7 +42,7 @@ export function SecureFundsManagementTab({ transactions }: SecureFundsManagement
                         <CardDescription>Funds successfully released to vendors</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-bold text-green-600">TZS {totalReleased.toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-green-600">TZS {(totalReleased || 0).toLocaleString()}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -71,7 +71,7 @@ export function SecureFundsManagementTab({ transactions }: SecureFundsManagement
                                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                                     <div>
                                         <p className="text-muted-foreground mb-1">Amount</p>
-                                        <p className="font-medium text-lg">TZS {transaction.amount.toLocaleString()}</p>
+                                        <p className="font-medium text-lg">TZS {(transaction.amount || 0).toLocaleString()}</p>
                                     </div>
                                     <div>
                                         <p className="text-muted-foreground mb-1">Created</p>

@@ -141,7 +141,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {stats.totalGMV.toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {(stats.totalGMV || 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total sales volume</p>
             </div>
           </CardContent>
@@ -156,7 +156,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {stats.totalSecureHold.toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {(stats.totalSecureHold || 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Assets secured for fulfillment</p>
             </div>
           </CardContent>
@@ -171,7 +171,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {stats.totalPayouts.toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {(stats.totalPayouts || 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Paid to vendors</p>
             </div>
           </CardContent>
@@ -276,7 +276,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold">
-                  TZS {stats.totalOrders > 0 ? Math.round(stats.totalGMV / stats.totalOrders).toLocaleString() : 0}
+                  TZS {stats.totalOrders > 0 ? (Math.round((stats.totalGMV || 0) / stats.totalOrders) || 0).toLocaleString() : 0}
                 </p>
               </div>
             </div>
@@ -290,7 +290,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
                 <p className="text-2xl font-bold">
                   TZS{" "}
                   {stats.totalDeliveries > 0
-                    ? Math.round(stats.totalDeliveryFees / stats.totalDeliveries).toLocaleString()
+                    ? (Math.round((stats.totalDeliveryFees || 0) / stats.totalDeliveries) || 0).toLocaleString()
                     : 0}
                 </p>
               </div>
@@ -338,9 +338,9 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
 
                       <div className="p-4 bg-muted rounded-lg">
                         <p className="text-sm text-muted-foreground mb-1">Total Sales</p>
-                        <p className="text-2xl font-bold">TZS {analytics.totalSales.toLocaleString()}</p>
+                        <p className="text-2xl font-bold">TZS {(analytics.totalSales || 0).toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {analytics.completedSales.toLocaleString()} completed
+                          {(analytics.completedSales || 0).toLocaleString()} completed
                         </p>
                       </div>
 
@@ -348,7 +348,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
                         <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
                         <p className="text-2xl font-bold">{analytics.totalOrders}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Avg: TZS {analytics.averageOrderValue.toLocaleString()}
+                          Avg: TZS {(analytics.averageOrderValue || 0).toLocaleString()}
                         </p>
                       </div>
                     </div>

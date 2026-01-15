@@ -40,6 +40,7 @@ export default async function AdminDashboardPage() {
     completedOrders: 0,
     totalGMV: 0,
     totalProtectedVolume: 0,
+    totalSecureHold: 0,
     totalPayouts: 0,
     totalTransporters: 0,
     activeTransporters: 0,
@@ -87,8 +88,8 @@ export default async function AdminDashboardPage() {
     promotions = promosRes.data || []
     subscriptions = subsRes.data || []
 
-    stats = statsRes.stats || stats
-    // map backend stats.totalEscrow to frontend stats.totalProtectedVolume if keys differ
+    stats = { ...stats, ...statsRes.stats }
+    // map backend stats.totalEscrow to frontend stats.totalSecureHold if keys differ
     // assuming backend still returns totalEscrow for now
     if ((stats as any).totalEscrow) {
       (stats as any).totalSecureHold = (stats as any).totalEscrow
