@@ -918,9 +918,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       </span>
                       <span className={cn(
                         "font-bold tracking-tight",
-                        deliveryInfo ? "text-stone-900" : "text-primary italic animate-pulse"
+                        (Object.keys(shopDeliveries).length > 0) ? "text-stone-900" : "text-primary italic animate-pulse"
                       )}>
-                        {deliveryInfo ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
+                        {(Object.keys(shopDeliveries).length > 0) ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
                       </span>
                     </div>
                     <div className="pt-4 border-t border-stone-100 flex justify-between items-end">
@@ -936,7 +936,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <Button
                     type="submit"
                     className="w-full h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
-                    disabled={isLoading || !deliveryInfo || isCalculatingDelivery || paymentMethod === "m-pesa"}
+                    disabled={isLoading || (Object.keys(shopDeliveries).length === 0) || isCalculatingDelivery || paymentMethod === "m-pesa"}
                   >
                     {isLoading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
