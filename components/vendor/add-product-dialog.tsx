@@ -289,7 +289,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
               <Label htmlFor="delivery_available" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Delivery Available from Seller
+                Delivery available handled by Tola
               </Label>
             </div>
             <div className="space-y-2">

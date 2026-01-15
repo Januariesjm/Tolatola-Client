@@ -93,7 +93,7 @@ export default function VendorSLAPage() {
                             <section className="space-y-4">
                                 <h3 className="text-xl font-bold text-stone-900">7. Funds & Liability Disclaimer</h3>
                                 <div className="p-4 bg-orange-50 border-l-4 border-orange-400 text-orange-800 rounded-r-lg">
-                                    <p>TOLA is not a bank, wallet, or escrow provider. Funds are held by licensed PSPs.</p>
+                                    <p>TOLA is not a bank, wallet, or secure funds provider. Funds are held by licensed PSPs.</p>
                                 </div>
                             </section>
 

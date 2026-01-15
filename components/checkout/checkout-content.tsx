@@ -108,9 +108,15 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             lat: shop?.latitude || -6.7924, // Default to Dar if missing
             lng: shop?.longitude || 39.2083,
             name: shop?.name || "Unknown Shop",
+            deliveryAvailable: true, // Start with true
           }
         }
         shopsData[sId].weight += (item.product.weight || 1) * item.quantity
+
+        // If any product in this shop's cart items doesn't allow delivery, the whole shop portion is pickup only
+        if (item.product.delivery_available === false) {
+          shopsData[sId].deliveryAvailable = false
+        }
       })
 
       const method =
@@ -128,10 +134,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
         if (result) {
           let fee = 0
-          if (method?.rate_per_kg) {
-            fee = shop.weight * (method.rate_per_kg || 0)
-          } else if (method?.rate_per_km) {
-            fee = result.distanceKm * (method.rate_per_km || 0)
+          if (shop.deliveryAvailable) {
+            if (method?.rate_per_kg) {
+              fee = shop.weight * (method.rate_per_kg || 0)
+            } else if (method?.rate_per_km) {
+              fee = result.distanceKm * (method.rate_per_km || 0)
+            }
           }
 
           newShopDeliveries[sId] = {
@@ -139,11 +147,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             lat: coordinates.lat,
             lng: coordinates.lng,
             deliveryFee: Math.round(fee),
-            transportMethod: method?.name,
-            transportMethodId: method?.id,
+            transportMethod: shop.deliveryAvailable ? method?.name : "Store Pickup",
+            transportMethodId: shop.deliveryAvailable ? method?.id : null,
             shopName: shop.name,
             shopLat: shop.lat,
             shopLng: shop.lng,
+            deliveryAvailable: shop.deliveryAvailable,
           }
         }
       }
@@ -177,16 +186,21 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
       for (const sId in updatedDeliveries) {
         let fee = 0
-        if (method?.rate_per_kg) {
-          fee = (shopsWeight[sId] || 0) * (method.rate_per_kg || 0)
-        } else if (method?.rate_per_km) {
-          fee = updatedDeliveries[sId].distanceKm * (method.rate_per_km || 0)
+        const isDeliverable = updatedDeliveries[sId].deliveryAvailable !== false
+
+        if (isDeliverable) {
+          if (method?.rate_per_kg) {
+            fee = (shopsWeight[sId] || 0) * (method.rate_per_kg || 0)
+          } else if (method?.rate_per_km) {
+            fee = updatedDeliveries[sId].distanceKm * (method.rate_per_km || 0)
+          }
         }
+
         updatedDeliveries[sId] = {
           ...updatedDeliveries[sId],
           deliveryFee: Math.round(fee),
-          transportMethod: method?.name,
-          transportMethodId: method?.id,
+          transportMethod: isDeliverable ? method?.name : "Store Pickup",
+          transportMethodId: isDeliverable ? method?.id : null,
         }
       }
       setShopDeliveries(updatedDeliveries)
@@ -625,14 +639,23 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                 <p className="text-xs font-black text-stone-800">{info.distanceKm} KM</p>
                               </div>
                               <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
-                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Time</p>
-                                <p className="text-xs font-black text-stone-800">{info.duration || "Fast"}</p>
+                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Status</p>
+                                <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
+                                  {info.deliveryAvailable !== false ? (info.duration || "Fast") : "Pickup"}
+                                </p>
                               </div>
-                              <div className="p-3 bg-[#2563EB]/5 rounded-2xl border border-[#2563EB]/10 space-y-1">
-                                <p className="text-[8px] font-bold uppercase tracking-wide text-[#2563EB]">Fee</p>
-                                <p className="text-xs font-black text-[#2563EB]">TZS {info.deliveryFee.toLocaleString()}</p>
+                              <div className={cn("p-3 rounded-2xl border space-y-1", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
+                                <p className={cn("text-[8px] font-bold uppercase tracking-wide", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
+                                <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
+                                  {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
+                                </p>
                               </div>
                             </div>
+                            {info.deliveryAvailable === false && (
+                              <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after payment.
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>

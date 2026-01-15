@@ -18,7 +18,7 @@ import { KYCApprovalTab } from "./kyc-approval-tab"
 import { TransporterKYCApprovalTab } from "./transporter-kyc-approval-tab"
 import { ProductApprovalTab } from "./product-approval-tab"
 import { OrdersManagementTab } from "./orders-management-tab"
-import { EscrowManagementTab } from "./escrow-management-tab"
+import { SecureFundsManagementTab } from "./secure-funds-tab"
 import { PayoutApprovalTab } from "./payout-approval-tab"
 import { SupportTicketsTab } from "./support-tickets-tab"
 import { PromotionsManagementTab } from "./promotions-management-tab"
@@ -154,8 +154,8 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="customer-kyc" className="px-6">User KYC ({pendingCustomerKyc.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_products") && <TabsTrigger value="products" className="px-6">Products ({pendingProducts.length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_orders") && <TabsTrigger value="orders" className="px-6">Orders</TabsTrigger>}
-              {(adminRole?.permissions.includes("manage_escrow") || adminRole?.permissions.includes("manage_transactions")) && (
-                <TabsTrigger value="transactions" className="px-6">Transactions</TabsTrigger>
+              {(adminRole?.permissions.includes("manage_transactions")) && (
+                <TabsTrigger value="transactions" className="px-6">Secure Settlements</TabsTrigger>
               )}
               {adminRole?.permissions.includes("manage_payouts") && <TabsTrigger value="payouts" className="px-6">Payouts ({payouts.filter(p => p.status === 'pending').length})</TabsTrigger>}
               {adminRole?.permissions.includes("manage_support") && <TabsTrigger value="support" className="px-6">Support ({pendingTickets.length})</TabsTrigger>}
@@ -193,7 +193,7 @@ export function AdminDashboardContent({
           </TabsContent>
 
           <TabsContent value="transactions" className="border-none p-0 outline-none">
-            <EscrowManagementTab escrows={transactions} />
+            <SecureFundsManagementTab transactions={transactions} />
           </TabsContent>
 
           <TabsContent value="payouts" className="border-none p-0 outline-none">

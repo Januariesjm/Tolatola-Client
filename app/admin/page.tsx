@@ -58,12 +58,12 @@ export default async function AdminDashboardPage() {
       return <div>You need admin access to view this page.</div>
     }
 
-    const [vendorsRes, productsRes, ordersRes, escrowsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes] =
+    const [vendorsRes, productsRes, ordersRes, secureFundsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes] =
       await Promise.all([
         serverApiGet<{ data: any[] }>("admin/vendors").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching vendors:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/products").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching products:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/orders").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching orders:", err); return { data: [] }; }),
-        serverApiGet<{ data: any[] }>("admin/escrows").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching escrows:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/escrows").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching secure funds:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/tickets").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching tickets:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/payouts").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching payouts:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("promotions").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching promotions:", err); return { data: [] }; }),
@@ -81,7 +81,7 @@ export default async function AdminDashboardPage() {
     pendingCustomerKyc = kycRes.data?.filter((k: any) => k.kyc_status === "pending") || []
     pendingProducts = productsRes.data?.filter((p) => p.status === "pending") || []
     orders = ordersRes.data || []
-    transactions = escrowsRes.data || []
+    transactions = secureFundsRes.data || []
     tickets = ticketsRes.data || []
     payouts = payoutsRes.data || []
     promotions = promosRes.data || []
@@ -91,7 +91,7 @@ export default async function AdminDashboardPage() {
     // map backend stats.totalEscrow to frontend stats.totalProtectedVolume if keys differ
     // assuming backend still returns totalEscrow for now
     if ((stats as any).totalEscrow) {
-      stats.totalProtectedVolume = (stats as any).totalEscrow
+      (stats as any).totalSecureHold = (stats as any).totalEscrow
     }
 
     vendorTypesAnalytics = vendorTypesRes.analytics || {}
