@@ -42,13 +42,14 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
     if (allSlides.length === 0) return null
 
     return (
-        <section className="relative w-full overflow-hidden bg-stone-950">
+        <section className="relative w-full overflow-hidden">
             {/* Slides Container */}
             {allSlides.map((slide, index) => (
                 <div
                     key={slide.id}
                     className={`transition-all duration-1000 ease-in-out ${index === currentSlide ? "opacity-100 block" : "opacity-0 hidden"
                         }`}
+                    style={{ backgroundColor: slide.background_color || "#0c0a09" }}
                 >
                     <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-6 md:py-8">
                         <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center">
@@ -64,7 +65,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                         sizes="(max-width: 768px) 100vw, 50vw"
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-900" />
+                                    <div className="w-full h-full bg-stone-800/50" />
                                 )}
                             </div>
 
@@ -77,25 +78,65 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                 </div>
 
                                 {/* Title */}
-                                <h1 className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-tight tracking-tight line-clamp-2 md:line-clamp-none">
+                                <h1
+                                    className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight line-clamp-2 md:line-clamp-none"
+                                    style={{ color: slide.text_color || "#ffffff" }}
+                                >
                                     {slide.title}
                                 </h1>
 
                                 {/* Description */}
-                                <p className="text-white/90 text-[10px] sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none">
+                                <p
+                                    className="text-[10px] sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none opacity-90"
+                                    style={{ color: slide.text_color || "#ffffff" }}
+                                >
                                     {slide.description || "Discover amazing deals and shop from trusted sellers."}
                                 </p>
 
                                 {/* Action Buttons */}
                                 <div className="flex flex-wrap gap-2 pt-1">
-                                    <Link href={slide.button_link || "/shop"} className="flex-none">
-                                        <Button
-                                            size="sm"
-                                            className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-6"
-                                        >
-                                            {slide.button_text || "Start Shopping"}
-                                        </Button>
-                                    </Link>
+                                    {slide.button_link === "SPECIAL_VENDOR_ACTIONS" ? (
+                                        <>
+                                            <Link href="/auth/sign-up?userType=vendor" className="flex-none">
+                                                <Button
+                                                    size="sm"
+                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-6"
+                                                >
+                                                    <Store className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                                    Become a Seller
+                                                </Button>
+                                            </Link>
+                                            <Link href="/auth/sign-up?userType=transporter" className="flex-none">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-6"
+                                                >
+                                                    <Truck className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                                    Become a Transporter
+                                                </Button>
+                                            </Link>
+                                        </>
+                                    ) : (
+                                        (() => {
+                                            const labels = (slide.button_text || "Start Shopping").split("|").map(s => s.trim());
+                                            const links = (slide.button_link || "/shop").split("|").map(s => s.trim());
+
+                                            return labels.map((label, i) => (
+                                                <Link key={i} href={links[i] || links[0]} className="flex-none">
+                                                    <Button
+                                                        size="sm"
+                                                        className={`w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group px-3 md:px-6 ${i === 0
+                                                            ? "bg-primary text-white hover:bg-primary/90"
+                                                            : "bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950"
+                                                            }`}
+                                                    >
+                                                        {label}
+                                                    </Button>
+                                                </Link>
+                                            ));
+                                        })()
+                                    )}
                                 </div>
                             </div>
                         </div>
