@@ -26,21 +26,7 @@ interface HeroSliderProps {
 export function HeroSlider({ promotions }: HeroSliderProps) {
     const [currentSlide, setCurrentSlide] = useState(0)
 
-    // Default welcome slide
-    const defaultSlide = {
-        id: "welcome",
-        title: "Shop with Confidence",
-        description:
-            "Discover amazing products from verified sellers. Secure payments, fast delivery, and trusted service.",
-        image_url: "https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=2070&auto=format&fit=crop",
-        background_color: "transparent",
-        text_color: "white",
-        button_text: "Start Shopping",
-        button_link: "/shop",
-        display_order: -1,
-    }
-
-    const allSlides = [defaultSlide, ...promotions.sort((a, b) => a.display_order - b.display_order)]
+    const allSlides = [...promotions.sort((a, b) => a.display_order - b.display_order)]
 
     useEffect(() => {
         if (allSlides.length <= 1) return
@@ -53,7 +39,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % allSlides.length)
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + allSlides.length) % allSlides.length)
 
-    const currentSlideData = allSlides[currentSlide]
+    if (allSlides.length === 0) return null
 
     return (
         <section className="relative w-full overflow-hidden bg-stone-950">
@@ -64,10 +50,10 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                     className={`transition-all duration-1000 ease-in-out ${index === currentSlide ? "opacity-100 block" : "opacity-0 hidden"
                         }`}
                 >
-                    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 md:py-12">
+                    <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-6 md:py-8">
                         <div className="flex flex-row gap-4 sm:gap-6 md:gap-8 lg:gap-12 items-center">
                             {/* Image Section - Left Side */}
-                            <div className="w-[35%] md:w-1/2 lg:w-2/5 h-[160px] sm:h-[280px] md:h-[360px] lg:h-[400px] relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl flex-shrink-0">
+                            <div className="w-[35%] md:w-1/2 lg:w-2/5 h-[120px] sm:h-[200px] md:h-[260px] lg:h-[300px] relative rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl flex-shrink-0">
                                 {slide.image_url ? (
                                     <Image
                                         src={slide.image_url}
@@ -83,62 +69,33 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                             </div>
 
                             {/* Content Section - Right Side */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-center space-y-2 sm:space-y-5 md:space-y-6">
+                            <div className="flex-1 min-w-0 flex flex-col justify-center space-y-1 sm:space-y-3 md:space-y-4">
                                 {/* Badge */}
-                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm w-fit">
-                                    <Sparkles className="h-3 w-3" />
-                                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Special Offer</span>
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm w-fit">
+                                    <Sparkles className="h-2.5 w-2.5" />
+                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Special Offer</span>
                                 </div>
 
                                 {/* Title */}
-                                <h1 className="text-lg sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight line-clamp-2 md:line-clamp-none">
-                                    {slide.id === "welcome" ? (
-                                        <>Shop with <span className="text-primary">Confidence</span></>
-                                    ) : (
-                                        slide.title
-                                    )}
+                                <h1 className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-tight tracking-tight line-clamp-2 md:line-clamp-none">
+                                    {slide.title}
                                 </h1>
 
                                 {/* Description */}
-                                <p className="text-white/90 text-xs sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none">
+                                <p className="text-white/90 text-[10px] sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none">
                                     {slide.description || "Discover amazing deals and shop from trusted sellers."}
                                 </p>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-wrap gap-2 pt-1 md:pt-2">
+                                <div className="flex flex-wrap gap-2 pt-1">
                                     <Link href={slide.button_link || "/shop"} className="flex-none">
                                         <Button
-                                            size="lg"
-                                            className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-4 md:px-8"
+                                            size="sm"
+                                            className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-6"
                                         >
-                                            {slide.id === "welcome" ? <ShoppingCart className="mr-2 h-4 w-4" /> : null}
                                             {slide.button_text || "Start Shopping"}
                                         </Button>
                                     </Link>
-                                    {slide.id === "welcome" && (
-                                        <>
-                                            <Link href="/auth/sign-up?userType=vendor" className="flex-none">
-                                                <Button
-                                                    size="lg"
-                                                    variant="outline"
-                                                    className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
-                                                >
-                                                    <Store className="mr-2 h-4 w-4" />
-                                                    Become a Seller
-                                                </Button>
-                                            </Link>
-                                            <Link href="/auth/sign-up?userType=transporter" className="flex-none">
-                                                <Button
-                                                    size="lg"
-                                                    variant="outline"
-                                                    className="w-auto h-10 md:h-12 text-xs md:text-base sm:text-lg font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-4 md:px-8"
-                                                >
-                                                    <Truck className="mr-2 h-4 w-4" />
-                                                    Become a Transporter
-                                                </Button>
-                                            </Link>
-                                        </>
-                                    )}
                                 </div>
                             </div>
                         </div>
