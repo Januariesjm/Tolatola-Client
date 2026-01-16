@@ -8,7 +8,7 @@ import { cookies, headers } from "next/headers"
 import SiteHeader from "@/components/layout/site-header"
 import { HomeProductsSection } from "@/components/home/home-products-section"
 import { CategoriesNav } from "@/components/layout/categories-nav"
-import { HeroSlider } from "@/components/home/hero-slider"
+import { PromotionalBanner } from "@/components/home/promotional-banner"
 import { ProductSearch } from "@/components/layout/product-search"
 import type { Metadata } from "next"
 import { serverApiGet } from "@/lib/api-server"
@@ -159,7 +159,7 @@ export default async function HomePage() {
 
       <main className="flex-1">
         {/* Promotions Banner Section */}
-        <HeroSlider promotions={promotions || []} />
+        <PromotionalBanner promotions={promotions || []} />
 
         {/* Featured Products Section - Handpicked for You */}
         <HomeProductsSection featuredProducts={featuredProducts} bestDeals={bestDeals} />
