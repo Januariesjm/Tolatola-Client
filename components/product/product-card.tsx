@@ -89,10 +89,10 @@ export function ProductCard({
     }
 
     return (
-        <Card className="group relative flex-shrink-0 w-full overflow-hidden border-none bg-white rounded-[2rem] shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
+        <Card className="group relative flex-shrink-0 w-full overflow-hidden border-none bg-white rounded-[1.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
             {/* Image Section */}
             <Link href={`/product/${product.id}`}>
-                <div className="relative aspect-[4/5] overflow-hidden bg-stone-100 cursor-pointer">
+                <div className="relative aspect-[4/3] overflow-hidden bg-stone-100 cursor-pointer">
                     {product.images?.[0] ? (
                         <Image
                             src={product.images[0]}
@@ -127,10 +127,10 @@ export function ProductCard({
             </Link>
 
             {/* Details Section */}
-            <div className="p-3 md:p-6 flex-grow flex flex-col gap-2 md:gap-3">
-                <div className="space-y-1">
-                    <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-[#16A34A]">
+            <div className="p-3 flex-grow flex flex-col gap-1.5">
+                <div className="space-y-0.5">
+                    <div className="flex items-center justify-between mb-0.5">
+                        <div className="flex items-center gap-1 text-[8px] md:text-[9px] font-bold uppercase tracking-wider text-[#16A34A]">
                             <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
                             <span>Verified by TOLA</span>
                         </div>
@@ -142,7 +142,7 @@ export function ProductCard({
                     </div>
 
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="text-sm md:text-lg font-black tracking-tight line-clamp-2 text-stone-900 hover:text-primary transition-colors cursor-pointer leading-tight h-10 md:h-auto">
+                        <h3 className="text-sm font-semibold tracking-tight line-clamp-2 text-stone-900 hover:text-primary transition-colors cursor-pointer leading-tight h-9">
                             {product.name}
                         </h3>
                     </Link>
@@ -161,8 +161,8 @@ export function ProductCard({
 
                 <div className="flex items-end justify-between mt-auto">
                     <div className="space-y-0.5">
-                        <p className="text-sm md:text-xl font-black text-[#0B5ED7] tracking-tight leading-none">
-                            {product.price.toLocaleString()} <span className="text-[10px] md:text-xs uppercase">TZS</span>
+                        <p className="text-lg font-bold text-[#0B5ED7] tracking-tight leading-none">
+                            {product.price.toLocaleString()} <span className="text-[10px] uppercase font-medium">TZS</span>
                         </p>
                         {product.compare_at_price > product.price && (
                             <p className="text-[10px] md:text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">

@@ -183,23 +183,23 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Trending Categories */}
-        <section className="py-6 md:py-12 container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-16 gap-6">
-            <div className="space-y-2 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-widest text-xs">
-                <Sparkles className="h-4 w-4" />
+        {/* Trending Categories - Redesigned for density */}
+        <section className="py-4 md:py-8 container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 md:mb-6 gap-4">
+            <div className="space-y-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px]">
+                <Sparkles className="h-3 w-3" />
                 <span>Selections for you</span>
               </div>
-              <h2 className="text-3xl md:text-7xl font-black tracking-tighter">Shop by <span className="text-primary italic">Category</span></h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Shop by <span className="text-primary italic">Category</span></h2>
             </div>
-            <Link href="/shop" className="group flex items-center justify-center gap-2 text-lg font-bold hover:text-primary transition-colors">
-              View Entire Catalog <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <Link href="/shop" className="group flex items-center justify-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
+              View Entire Catalog <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {categories.slice(0, 8).map((cat: any, i) => {
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {categories.slice(0, 12).map((cat: any, i) => {
               // Get background image based on category slug, name, or use image_url from database
               const getCategoryImage = () => {
                 // First try database image_url
@@ -259,21 +259,20 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/shop?category=${cat.id}`}
-                  className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-stone-200 hover:shadow-2xl transition-all duration-500"
+                  className="group relative aspect-[2/1] rounded-xl overflow-hidden border border-stone-100 hover:border-primary/50 hover:shadow-md transition-all duration-300"
                 >
                   {/* Background Image */}
                   <div
-                    className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
+                    className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-80"
                     style={{ backgroundImage: `url(${backgroundImage})` }}
                   />
 
-                  {/* Overlay for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/50 to-stone-950/20" />
+                  {/* Stronger Overlay for text readability on small cards */}
+                  <div className="absolute inset-0 bg-stone-950/40 group-hover:bg-stone-950/50 transition-colors" />
 
-                  {/* Content */}
-                  <div className="absolute inset-x-0 bottom-0 p-6 md:p-8 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent flex flex-col justify-end h-1/2">
-                    <h3 className="text-white text-xl md:text-2xl font-black tracking-tight">{cat.name}</h3>
-                    <p className="text-white/70 text-xs font-bold uppercase tracking-widest mt-2 group-hover:text-primary transition-colors">Explore Now →</p>
+                  {/* Content - Centered for menu-like feel */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3">
+                    <h3 className="text-white text-sm md:text-base font-semibold tracking-tight leading-tight">{cat.name}</h3>
                   </div>
                 </Link>
               )
@@ -281,59 +280,59 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Why Tola - Modern Cards */}
-        <section className="py-8 md:py-16 bg-stone-50 overflow-hidden relative">
+        {/* Why Tola - Compact Cards */}
+        <section className="py-6 md:py-10 bg-stone-50 overflow-hidden relative">
           <div className="container mx-auto px-4 relative z-10">
-            <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20 space-y-4">
-              <h2 className="text-3xl md:text-7xl font-black tracking-tighter">Engineered for <span className="text-primary italic">Trust</span></h2>
-              <p className="text-muted-foreground text-xl italic font-medium">We've built a multi-layered security framework to protect both the buyer and the merchant.</p>
+            <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 space-y-2">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Engineered for <span className="text-primary italic">Trust</span></h2>
+              <p className="text-muted-foreground text-sm font-medium">We've built a multi-layered security framework to protect both the buyer and the merchant.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {features.map((f, i) => (
-                <Card key={i} className="border-none shadow-2xl rounded-[3rem] p-12 bg-white group hover:-translate-y-4 transition-all duration-500">
-                  <div className={`mb-8 w-20 h-20 rounded-3xl ${f.color} flex items-center justify-center text-white shadow-xl group-hover:rotate-12 transition-transform`}>
-                    {f.icon}
+                <Card key={i} className="border-none shadow-md rounded-2xl p-6 bg-white group hover:-translate-y-1 transition-all duration-300">
+                  <div className={`mb-4 w-12 h-12 rounded-xl ${f.color} flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform`}>
+                    {React.cloneElement(f.icon as any, { className: "h-6 w-6" })}
                   </div>
-                  <h3 className="text-3xl font-black mb-6 tracking-tight">{f.title}</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed italic">{f.desc}</p>
+                  <h3 className="text-lg font-bold mb-2 tracking-tight">{f.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
                 </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Seller CTA */}
-        <section className="py-6 md:py-12 container mx-auto px-4">
-          <div className="bg-primary rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-24 relative overflow-hidden text-center md:text-left">
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
-            <div className="relative z-10 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-              <div className="space-y-6 md:space-y-8">
-                <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white text-primary text-sm font-black tracking-widest uppercase">
+        {/* Seller CTA - Compact */}
+        <section className="py-4 md:py-8 container mx-auto px-4">
+          <div className="bg-primary rounded-2xl md:rounded-3xl p-6 md:p-12 relative overflow-hidden text-center md:text-left">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2" />
+            <div className="relative z-10 grid md:grid-cols-2 gap-6 md:gap-10 items-center">
+              <div className="space-y-4 md:space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white text-primary text-xs font-bold tracking-widest uppercase">
                   Open for Enrollment
                 </div>
-                <h2 className="text-3xl md:text-7xl font-black text-white leading-[1.1] tracking-tighter">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
-                <p className="text-primary-foreground/80 text-xl font-medium italic">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and payment protection for every sale.</p>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight tracking-tight">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
+                <p className="text-primary-foreground/80 text-base font-medium">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and payment protection for every sale.</p>
+                <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/vendor/register">
-                    <Button size="lg" className="w-full sm:w-auto text-xl font-black rounded-2xl bg-stone-900 text-white hover:bg-stone-950 shadow-2xl transition-all py-8 px-10">
+                    <Button size="lg" className="w-full sm:w-auto text-base font-bold rounded-xl bg-stone-900 text-white hover:bg-stone-950 shadow-lg transition-all py-6 px-8">
                       Become a seller
                     </Button>
                   </Link>
                   <Link href="/contact">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-xl font-bold rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary backdrop-blur-md py-8 px-10">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-base font-bold rounded-xl bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary backdrop-blur-md py-6 px-8">
                       Contact Sales
                     </Button>
                   </Link>
                 </div>
               </div>
               <div className="hidden md:flex justify-end relative">
-                <div className="absolute -inset-1 bg-white/20 rounded-[3rem] blur-2xl animate-pulse" />
-                <div className="relative p-12 bg-white/10 backdrop-blur-3xl rounded-[3rem] border border-white/20 transform -rotate-6 transition-transform hover:rotate-0 duration-700">
-                  <Store className="h-32 w-32 text-white" />
-                  <div className="mt-8 space-y-2">
-                    <div className="h-2 w-32 bg-white/20 rounded-full" />
-                    <div className="h-2 w-24 bg-white/10 rounded-full" />
+                <div className="absolute -inset-1 bg-white/20 rounded-3xl blur-xl animate-pulse" />
+                <div className="relative p-8 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 transform -rotate-3 transition-transform hover:rotate-0 duration-500">
+                  <Store className="h-20 w-20 text-white" />
+                  <div className="mt-6 space-y-1.5">
+                    <div className="h-1.5 w-20 bg-white/20 rounded-full" />
+                    <div className="h-1.5 w-16 bg-white/10 rounded-full" />
                   </div>
                 </div>
               </div>

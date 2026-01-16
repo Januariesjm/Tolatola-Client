@@ -72,17 +72,17 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
   }
 
   return (
-    <div className="space-y-12 md:space-y-24 py-8 md:py-12">
+    <div className="space-y-8 md:space-y-12 py-4 md:py-8">
       {/* Featured Section */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="container mx-auto px-4 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
-                <Sparkles className="h-4 w-4" />
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px]">
+                <Sparkles className="h-3.5 w-3.5" />
                 <span>Handpicked for You</span>
               </div>
-              <h2 className="text-3xl md:text-6xl font-black tracking-tighter">Featured <span className="text-primary italic">Collections</span></h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured <span className="text-primary italic">Collections</span></h2>
             </div>
             <Link href="/shop" className="group flex items-center gap-2 text-lg font-bold hover:text-primary transition-colors">
               Explore Store <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -135,15 +135,15 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
         <div className="bg-stone-950 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-20 relative overflow-hidden text-center md:text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
           <div className="relative z-10 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div className="space-y-4 md:space-y-6">
-              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter">Verified Vendors. <br /><span className="text-primary italic">Guaranteed Quality.</span></h2>
-              <p className="text-stone-400 text-lg md:text-xl font-medium italic">Every seller on TOLA undergoes rigorous KYC verification for your safety.</p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-white font-bold hover:text-primary transition-colors">
-                Learn about our vetting process <ArrowRight className="h-4 w-4" />
+            <div className="space-y-3 md:space-y-4">
+              <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">Verified Vendors. <br /><span className="text-primary italic">Guaranteed Quality.</span></h2>
+              <p className="text-stone-400 text-sm md:text-base font-medium">Every seller on TOLA undergoes rigorous KYC verification for your safety.</p>
+              <Link href="/about" className="inline-flex items-center gap-1.5 text-white font-semibold text-sm hover:text-primary transition-colors">
+                Learn about our vetting process <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <div className="hidden md:flex justify-end">
-              <div className="w-64 h-64 rounded-[2rem] border-2 border-primary/30 rotate-12 flex items-center justify-center p-8 bg-stone-900 shadow-2xl">
+              <div className="w-40 h-40 rounded-3xl border-2 border-primary/30 rotate-12 flex items-center justify-center p-6 bg-stone-900 shadow-xl">
                 <TrendingUp className="h-full w-full text-primary opacity-50" />
               </div>
             </div>
@@ -155,12 +155,12 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
       {bestDeals && bestDeals.length > 0 && (
         <section className="container mx-auto px-4 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-destructive font-black uppercase tracking-widest text-xs">
-                <TrendingUp className="h-4 w-4" />
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-destructive font-bold uppercase tracking-wider text-[10px]">
+                <TrendingUp className="h-3.5 w-3.5" />
                 <span>Unbeatable Prices</span>
               </div>
-              <h2 className="text-3xl md:text-6xl font-black tracking-tighter">Best Deals <span className="text-destructive italic">In Town</span></h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Best Deals <span className="text-destructive italic">In Town</span></h2>
             </div>
           </div>
 
