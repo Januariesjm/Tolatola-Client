@@ -97,10 +97,20 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                 <div className="flex flex-wrap gap-2 pt-1">
                                     {slide.button_link === "SPECIAL_VENDOR_ACTIONS" ? (
                                         <>
-                                            <Link href="/auth/sign-up?userType=vendor" className="flex-none">
+                                            <Link href="/shop" className="flex-none">
                                                 <Button
                                                     size="sm"
                                                     className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-6"
+                                                >
+                                                    <ShoppingCart className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                                                    Start Shopping
+                                                </Button>
+                                            </Link>
+                                            <Link href="/auth/sign-up?userType=vendor" className="flex-none">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-6"
                                                 >
                                                     <Store className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                                                     Become a Seller
