@@ -500,32 +500,50 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 </p>
                 {controlNumber && (
                   <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                      <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                        {controlNumber}
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl border-stone-200"
-                      onClick={() => {
-                        navigator.clipboard.writeText(controlNumber)
-                        toast({ title: "Copied!", description: "Control number copied to clipboard." })
-                      }}
-                    >
-                      Copy Number
-                    </Button>
-                    <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
-                      <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
-                      <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
-                        <li>Dial *150*03# (CRDB SimBanking)</li>
-                        <li>Select 'Bill Payment'</li>
-                        <li>Enter this Control Number</li>
-                        <li>Follow prompts to complete</li>
-                      </ul>
-                    </div>
+                    {controlNumber.startsWith("http") ? (
+                      <div className="space-y-4 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Payment Link</p>
+                        <Button
+                          size="lg"
+                          className="w-full rounded-xl bg-primary text-white font-bold h-12 text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
+                          onClick={() => window.open(controlNumber, "_blank")}
+                        >
+                          Complete Payment Now
+                        </Button>
+                        <p className="text-[10px] text-stone-500 max-w-xs mx-auto">
+                          Clicking this button will open a secure payment page in a new tab.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                            {controlNumber}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl border-stone-200"
+                          onClick={() => {
+                            navigator.clipboard.writeText(controlNumber)
+                            toast({ title: "Copied!", description: "Control number copied to clipboard." })
+                          }}
+                        >
+                          Copy Number
+                        </Button>
+                        <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
+                          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
+                          <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
+                            <li>Dial *150*03# (CRDB SimBanking)</li>
+                            <li>Select 'Bill Payment'</li>
+                            <li>Enter this Control Number</li>
+                            <li>Follow prompts to complete</li>
+                          </ul>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
