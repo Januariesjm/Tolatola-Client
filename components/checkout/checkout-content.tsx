@@ -121,6 +121,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
       const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
         if (!isAvailable) return 0
+        if (distanceKm < 0.1) return 0
+
         const rateKm = Number(method?.rate_per_km) || 0
         const rateKg = Number(method?.rate_per_kg) || 0
 
@@ -130,14 +132,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         } else if (rateKm > 0) {
           fee = distanceKm * rateKm
         } else {
-          // Fallback to a distance-based baseline if method rates are missing
+          // Fallback to a distance-based baseline only if no method rates are defined
           if (distanceKm <= 5) fee = 3000
           else if (distanceKm <= 15) fee = 5000
           else fee = distanceKm * 500
         }
 
-        // Ground methods (no kg rate) have a 3,000 TZS minimum
-        if (rateKg === 0 && fee < 3000) fee = 3000
         return Math.round(fee)
       }
 
@@ -193,6 +193,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
       const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
         if (!isAvailable) return 0
+        if (distanceKm < 0.1) return 0
+
         const rateKm = Number(method?.rate_per_km) || 0
         const rateKg = Number(method?.rate_per_kg) || 0
 
@@ -207,7 +209,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           else fee = distanceKm * 500
         }
 
-        if (rateKg === 0 && fee < 3000) fee = 3000
         return Math.round(fee)
       }
 
