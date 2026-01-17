@@ -136,7 +136,21 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Phone:</span>
-                    <span className="font-medium">{transporter.users?.phone || "N/A"}</span>
+                    <span className="font-medium">{transporter.phone || transporter.users?.phone || "N/A"}</span>
+                  </div>
+                  {transporter.business_name && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Business:</span>
+                      <span className="font-medium">{transporter.business_name}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Location:</span>
+                    <span className="font-medium">
+                      {(transporter.region || transporter.district)
+                        ? `${transporter.region || ''}${transporter.region && transporter.district ? ', ' : ''}${transporter.district || ''}`
+                        : "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vehicle Registration:</span>
@@ -153,29 +167,29 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
 
                   {/* Document Links */}
                   <div className="pt-2 border-t space-y-2">
-                    {transporter.license_document_url && (
+                    {(transporter.driver_license_url || transporter.license_document_url) && (
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Driver's License:</span>
                         <Button
                           variant="link"
                           size="sm"
                           className="h-auto p-0"
-                          onClick={() => handleViewDocument(transporter.license_document_url, "Driver's License")}
+                          onClick={() => handleViewDocument(transporter.driver_license_url || transporter.license_document_url, "Driver's License")}
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View
                         </Button>
                       </div>
                     )}
-                    {transporter.vehicle_registration_document_url && (
+                    {(transporter.id_document_url || transporter.vehicle_registration_document_url) && (
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Vehicle Registration:</span>
+                        <span className="text-muted-foreground">ID Document:</span>
                         <Button
                           variant="link"
                           size="sm"
                           className="h-auto p-0"
                           onClick={() =>
-                            handleViewDocument(transporter.vehicle_registration_document_url, "Vehicle Registration")
+                            handleViewDocument(transporter.id_document_url || transporter.vehicle_registration_document_url, "Identification Document")
                           }
                         >
                           <Eye className="h-4 w-4 mr-1" />

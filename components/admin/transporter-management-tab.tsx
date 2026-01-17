@@ -37,6 +37,14 @@ interface Transporter {
         full_name: string
         phone?: string
     }
+    phone?: string
+    business_name?: string
+    region?: string
+    district?: string
+    driver_license_url?: string
+    id_document_url?: string
+    license_document_url?: string
+    vehicle_registration_document_url?: string
 }
 
 export function TransporterManagementTab() {
@@ -248,7 +256,7 @@ export function TransporterManagementTab() {
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                         <Phone className="h-4 w-4" />
-                                        <span>{transporter.users?.phone || "N/A"}</span>
+                                        <span>{transporter.phone || transporter.users?.phone || "N/A"}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                         <ShieldCheck className="h-4 w-4" />
@@ -317,7 +325,21 @@ export function TransporterManagementTab() {
                             </div>
                             <div>
                                 <Label className="text-muted-foreground">Phone</Label>
-                                <p className="font-medium">{selectedTransporter.users?.phone || "N/A"}</p>
+                                <p className="font-medium">{selectedTransporter.phone || selectedTransporter.users?.phone || "N/A"}</p>
+                            </div>
+                            {selectedTransporter.business_name && (
+                                <div>
+                                    <Label className="text-muted-foreground">Business Name</Label>
+                                    <p className="font-medium">{selectedTransporter.business_name}</p>
+                                </div>
+                            )}
+                            <div>
+                                <Label className="text-muted-foreground">Location</Label>
+                                <p className="font-medium">
+                                    {(selectedTransporter.region || selectedTransporter.district)
+                                        ? `${selectedTransporter.region || ''}${selectedTransporter.region && selectedTransporter.district ? ', ' : ''}${selectedTransporter.district || ''}`
+                                        : "N/A"}
+                                </p>
                             </div>
                             <div>
                                 <Label className="text-muted-foreground">Vehicle Type</Label>
