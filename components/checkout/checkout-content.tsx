@@ -16,6 +16,13 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { calculateDeliveryDistance, calculateDeliveryDistanceByCoords } from "@/app/actions/maps"
 import type { TransportMethod } from "@/app/actions/maps"
@@ -717,44 +724,46 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <h2 className="text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  {transportMethods.map((method) => {
-                    const isActive = selectedTransportId === method.id
-                    return (
-                      <div
-                        key={method.id}
-                        onClick={() => setSelectedTransportId(method.id)}
-                        className={cn(
-                          "relative group cursor-pointer transition-all duration-300 rounded-3xl p-5 border-2 flex flex-col gap-4",
-                          isActive
-                            ? "bg-white border-primary shadow-lg -translate-y-1"
-                            : "bg-white border-transparent hover:border-stone-200"
-                        )}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-300",
-                            isActive ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
-                          )}>
-                            <Truck className="h-5 w-5" />
-                          </div>
-                          {isActive && <CheckCircle2 className="h-5 w-5 text-primary" />}
+                <div className="w-full">
+                  <Select
+                    value={selectedTransportId}
+                    onValueChange={setSelectedTransportId}
+                  >
+                    <SelectTrigger className="w-full h-16 rounded-3xl border-2 border-stone-100 bg-white px-6 focus:ring-primary/20 transition-all hover:border-stone-200 group">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                          <Truck className="h-5 w-5" />
                         </div>
-                        <div className="space-y-1">
-                          <h3 className="text-lg font-bold tracking-tight text-stone-900">{method.name}</h3>
-                          <p className="text-stone-600 text-xs font-medium line-clamp-2 leading-relaxed">{method.description}</p>
-                        </div>
-                        <div className="mt-auto pt-2 flex items-center justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Rate</span>
-                          <span className="text-base font-black text-primary tracking-tight">
-                            {method.rate_per_km
-                              ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
-                              : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
-                          </span>
+                        <div className="flex flex-col items-start">
+                          <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Selected Method</span>
+                          <SelectValue placeholder="Select a delivery method" />
                         </div>
                       </div>
-                    )
-                  })}
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-stone-100 shadow-2xl p-2">
+                      {transportMethods.map((method) => (
+                        <SelectItem
+                          key={method.id}
+                          value={method.id}
+                          className="rounded-xl py-3 px-4 focus:bg-stone-50 cursor-pointer"
+                        >
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="font-bold text-stone-900">{method.name}</span>
+                              <span className="text-primary font-black text-xs">
+                                {method.rate_per_km
+                                  ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
+                                  : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-stone-500 font-medium line-clamp-1">
+                              {method.description}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </section>
 
@@ -770,7 +779,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                       <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
                         <AccordionItem value="mobile-money" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-[#22C55E] data-[state=open]:text-white transition-all duration-300">
                             <div className="flex items-center gap-3">
                               <Smartphone className="h-5 w-5" />
                               <span className="text-lg font-bold tracking-tight">TOLA Pay</span>
@@ -924,7 +933,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             {/* Sidebar / Summary */}
             <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
               <Card className="border-none shadow-xl shadow-stone-200/50 rounded-3xl overflow-hidden bg-white">
-                <div className="bg-stone-900 p-6 text-white relative overflow-hidden">
+                <div className="bg-[#22C55E] p-6 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                   <h3 className="text-xl font-black tracking-tight relative z-10">Order Summary</h3>
                   <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mt-0.5 relative z-10">Your items</p>
