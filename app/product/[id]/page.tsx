@@ -5,6 +5,48 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies, headers } from "next/headers"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
+import type { Metadata } from "next"
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const productRes = await serverApiGet<{ data: any }>(`products/${id}`).catch(() => ({ data: null }))
+  const product = productRes.data
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    }
+  }
+
+  const imageUrl = product.images?.[0]?.url || product.image_url || "/tolalogo.jpg"
+  const description = product.description
+    ? (product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description)
+    : `Buy ${product.name} on TOLA - Tanzania's Leading Trade Platform`
+
+  return {
+    title: product.name,
+    description: description,
+    openGraph: {
+      title: product.name,
+      description: description,
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 600,
+          alt: product.name,
+        },
+      ],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: description,
+      images: [imageUrl],
+    },
+  }
+}
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
