@@ -627,170 +627,164 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-8 space-y-12">
+              <div className="space-y-4">
+                {/* Shipping Section */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+                    <h2 className="text-xl font-bold tracking-tight text-stone-900">Enter Location</h2>
+                  </div>
 
-              {/* Shipping Section */}
-              <section className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
-                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Enter Location</h2>
-                </div>
+                  <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
+                    <CardContent className="p-6 md:p-8 space-y-6">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Full Name *</Label>
+                          <Input
+                            id="fullName"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                            placeholder="Enter name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Phone Number *</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            required
+                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                            placeholder="+255..."
+                          />
+                        </div>
+                      </div>
 
-                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
-                  <CardContent className="p-6 md:p-8 space-y-6">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Full Name *</Label>
-                        <Input
-                          id="fullName"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          required
-                          className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                          placeholder="Enter name"
+                      <div className="pt-4 border-t border-stone-50">
+                        <TanzaniaAddressForm
+                          value={addressData}
+                          onChange={setAddressData}
+                          onAddressComplete={handleAddressComplete}
+                          userId={user?.id}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Phone Number *</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          required
-                          className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                          placeholder="+255..."
-                        />
-                      </div>
-                    </div>
 
-                    <div className="pt-4 border-t border-stone-50">
-                      <TanzaniaAddressForm
-                        value={addressData}
-                        onChange={setAddressData}
-                        onAddressComplete={handleAddressComplete}
-                        userId={user?.id}
-                      />
-                    </div>
-
-                    {isCalculatingDelivery && (
-                      <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <span className="font-medium text-sm">Calculating delivery fee...</span>
-                      </div>
-                    )}
-
-                    {deliveryError && (
-                      <div className="flex items-center gap-3 p-6 bg-destructive/5 rounded-[2rem] text-destructive border border-destructive/20">
-                        <Info className="h-5 w-5" />
-                        <span className="font-bold text-sm">{deliveryError}</span>
-                      </div>
-                    )}
-
-                    {Object.keys(shopDeliveries).length > 0 && (
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                          <MapPin className="h-3 w-3" />
-                          <span>Delivery Logistics Breakdown</span>
+                      {isCalculatingDelivery && (
+                        <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          <span className="font-medium text-sm">Calculating delivery fee...</span>
                         </div>
-                        {Object.entries(shopDeliveries).map(([shopId, info]) => (
-                          <div key={shopId} className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-0.5">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
-                                <p className="text-sm font-black text-stone-900">{info.shopName}</p>
-                              </div>
-                              <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[10px] font-black text-stone-500 uppercase">
-                                {info.transportMethod}
-                              </div>
-                            </div>
+                      )}
 
-                            <div className="grid grid-cols-3 gap-2">
-                              <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
-                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Distance</p>
-                                <p className="text-xs font-black text-stone-800">{info.distanceKm} KM</p>
-                              </div>
-                              <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
-                                <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Status</p>
-                                <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
-                                  {info.deliveryAvailable !== false ? (info.duration || "Fast") : "Pickup"}
-                                </p>
-                              </div>
-                              <div className={cn("p-3 rounded-2xl border space-y-1", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
-                                <p className={cn("text-[8px] font-bold uppercase tracking-wide", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
-                                <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
-                                  {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
-                                </p>
-                              </div>
-                            </div>
-                            {info.deliveryAvailable === false && (
-                              <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
-                                Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after payment.
-                              </p>
-                            )}
+                      {deliveryError && (
+                        <div className="flex items-center gap-3 p-6 bg-destructive/5 rounded-[2rem] text-destructive border border-destructive/20">
+                          <Info className="h-5 w-5" />
+                          <span className="font-bold text-sm">{deliveryError}</span>
+                        </div>
+                      )}
+
+                      {Object.keys(shopDeliveries).length > 0 && (
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                            <MapPin className="h-3 w-3" />
+                            <span>Delivery Logistics Breakdown</span>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </section>
+                          {Object.entries(shopDeliveries).map(([shopId, info]) => (
+                            <div key={shopId} className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div className="space-y-0.5">
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
+                                  <p className="text-sm font-black text-stone-900">{info.shopName}</p>
+                                </div>
+                                <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[10px] font-black text-stone-500 uppercase">
+                                  {info.transportMethod}
+                                </div>
+                              </div>
 
-              {/* Transport Section */}
-              <section className="space-y-4">
-                <div className="flex items-center gap-6">
-                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
-                  <h2 className="text-xl font-bold tracking-tight text-stone-900 ">Delivery Method</h2>
-                </div>
-
-                <div className="w-full">
-                  <Select
-                    value={selectedTransportId}
-                    onValueChange={setSelectedTransportId}
-                  >
-                    <SelectTrigger className="w-full h-24 rounded-[2.5rem] border-2 border-stone-100 bg-white px-10 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-[#22C55E]/30 shadow-sm hover:shadow-xl group relative">
-                      <div className="flex items-center gap-8">
-                        <div className="h-14 w-14 rounded-[1.25rem] bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center transition-all duration-300 group-hover:bg-[#22C55E] group-hover:text-white group-hover:scale-110 shadow-inner">
-                          <Truck className="h-7 w-7" />
+                              <div className="grid grid-cols-3 gap-2">
+                                <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
+                                  <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Distance</p>
+                                  <p className="text-xs font-black text-stone-800">{info.distanceKm} KM</p>
+                                </div>
+                                <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
+                                  <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Status</p>
+                                  <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
+                                    {info.deliveryAvailable !== false ? (info.duration || "Fast") : "Pickup"}
+                                  </p>
+                                </div>
+                                <div className={cn("p-3 rounded-2xl border space-y-1", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
+                                  <p className={cn("text-[8px] font-bold uppercase tracking-wide", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
+                                  <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
+                                    {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
+                                  </p>
+                                </div>
+                              </div>
+                              {info.deliveryAvailable === false && (
+                                <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                  Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after payment.
+                                </p>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                        <div className="flex flex-col items-start gap-1">
-                          <span className="text-[11px] font-black uppercase tracking-[0.25em] text-stone-400 group-hover:text-[#22C55E] transition-colors">Delivery Logistics</span>
-                          <div className="flex items-center gap-2">
-                            <SelectValue placeholder="Please select delivery method" className="font-black text-stone-900 text-xl" />
+                      )}
+                    </CardContent>
+                  </Card>
+                </section>
+
+                {/* Transport Section */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-6">
+                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+                    <h2 className="text-xl font-bold tracking-tight text-stone-900 ">Delivery Method</h2>
+                  </div>
+
+                  <div className="w-full">
+                    <Select
+                      value={selectedTransportId}
+                      onValueChange={setSelectedTransportId}
+                    >
+                      <SelectTrigger className="w-full h-auto py-6 rounded-2xl border-2 border-stone-200 bg-white px-6 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/30 group">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-colors">
+                            <Truck className="h-5 w-5" />
+                          </div>
+                          <div className="flex flex-col items-start text-left">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Delivery Method</span>
+                            <SelectValue placeholder="Please select delivery method" />
                           </div>
                         </div>
-                      </div>
-                      <div className="absolute right-8 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-stone-50 flex items-center justify-center border border-stone-100 transition-all group-hover:bg-[#22C55E] group-hover:text-white group-hover:rotate-180 group-hover:shadow-lg">
-                        <ChevronDown className="h-5 w-5" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="rounded-[2.5rem] border-stone-100 shadow-2xl p-4 bg-white/98 backdrop-blur-2xl mt-2">
-                      {transportMethods.map((method) => (
-                        <SelectItem
-                          key={method.id}
-                          value={method.id}
-                          className="rounded-[1.5rem] py-5 px-8 focus:bg-[#22C55E]/5 cursor-pointer mb-3 last:mb-0 transition-all hover:pl-10"
-                        >
-                          <div className="flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-10">
-                              <span className="font-black text-stone-900 text-lg tracking-tight">{method.name}</span>
-                              <div className="px-4 py-1.5 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20">
-                                <span className="text-[#22C55E] font-black text-xs">
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white">
+                        {transportMethods.map((method) => (
+                          <SelectItem
+                            key={method.id}
+                            value={method.id}
+                            className="rounded-xl py-4 px-5 focus:bg-primary/5 cursor-pointer mb-1 last:mb-0"
+                          >
+                            <div className="flex flex-col gap-1 text-left w-full">
+                              <div className="flex items-center justify-between gap-6 w-full">
+                                <span className="font-bold text-stone-900 text-sm">{method.name}</span>
+                                <span className="text-primary font-black text-xs bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10 flex-shrink-0">
                                   {method.rate_per_km
                                     ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
                                     : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
                                 </span>
                               </div>
+                              <span className="text-[10px] text-stone-500 font-medium leading-normal line-clamp-1 pr-8">
+                                {method.description}
+                              </span>
                             </div>
-                            <span className="text-sm text-stone-500 font-bold leading-relaxed max-w-md">
-                              {method.description}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </section>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </section>
+              </div>
 
               {/* Payment Section */}
               <section className="space-y-4">
