@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Shield, TrendingUp, Users, Zap, Globe, Wallet, Sparkles, ArrowRight, Store, ShoppingBag } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies, headers } from "next/headers"
 import SiteHeader from "@/components/layout/site-header"
@@ -328,13 +329,15 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="hidden md:flex justify-end relative">
-                <div className="absolute -inset-1 bg-white/20 rounded-3xl blur-xl animate-pulse" />
-                <div className="relative p-8 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 transform -rotate-3 transition-transform hover:rotate-0 duration-500">
-                  <Store className="h-20 w-20 text-white" />
-                  <div className="mt-6 space-y-1.5">
-                    <div className="h-1.5 w-20 bg-white/20 rounded-full" />
-                    <div className="h-1.5 w-16 bg-white/10 rounded-full" />
-                  </div>
+                <div className="absolute -inset-4 bg-white/20 rounded-[3rem] blur-2xl animate-pulse" />
+                <div className="relative w-full max-w-md aspect-[16/10] bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02] hover:-rotate-1">
+                  <Image
+                    src="/payment-flow.png"
+                    alt="Tola Payment Flow"
+                    fill
+                    className="object-cover opacity-90 hover:opacity-100 transition-opacity"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
                 </div>
               </div>
             </div>

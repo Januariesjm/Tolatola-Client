@@ -765,20 +765,20 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           <SelectItem
                             key={method.id}
                             value={method.id}
-                            className="rounded-[1.5rem] py-6 px-8 focus:bg-primary/5 cursor-pointer mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
+                            className="rounded-xl md:rounded-[1.5rem] md:py-6 py-4 md:px-8 px-5 focus:bg-primary/5 cursor-pointer mb-2 md:mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
                           >
-                            <div className="flex flex-col gap-2.5 text-left w-full">
-                              <div className="flex items-center justify-between gap-10 w-full">
-                                <span className="font-black text-stone-900 text-lg tracking-tight">{method.name}</span>
-                                <div className="[[data-slot=select-value]_&]:hidden px-4 py-1.5 rounded-full bg-primary/5 border border-primary/20 flex-shrink-0">
-                                  <span className="text-primary font-black text-[11px] tracking-wider uppercase">
+                            <div className="flex flex-col gap-1.5 md:gap-2.5 text-left w-full">
+                              <div className="flex items-center justify-between gap-4 md:gap-10 w-full">
+                                <span className="font-black text-stone-900 md:text-lg text-sm tracking-tight">{method.name}</span>
+                                <div className="[[data-slot=select-value]_&]:hidden px-2.5 md:px-4 py-1 md:py-1.5 rounded-full bg-primary/5 border border-primary/20 flex-shrink-0">
+                                  <span className="text-primary font-black md:text-[11px] text-[9px] tracking-wider uppercase">
                                     {method.rate_per_km
                                       ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
                                       : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
                                   </span>
                                 </div>
                               </div>
-                              <span className="text-sm text-stone-500 font-bold leading-relaxed pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
+                              <span className="md:text-sm text-xs text-stone-500 font-bold leading-relaxed pr-6 md:pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
                                 {method.description}
                               </span>
                             </div>
