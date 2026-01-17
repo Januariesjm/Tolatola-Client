@@ -47,7 +47,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     street: "",
   })
   const [fullAddress, setFullAddress] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<string>("m-pesa")
+  const [paymentMethod, setPaymentMethod] = useState<string>("airtel-money")
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
   const [cardDetails, setCardDetails] = useState({
     number: "",
@@ -729,34 +729,41 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     value={selectedTransportId}
                     onValueChange={setSelectedTransportId}
                   >
-                    <SelectTrigger className="w-full h-16 rounded-3xl border-2 border-stone-100 bg-white px-6 focus:ring-primary/20 transition-all hover:border-stone-200 group">
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                          <Truck className="h-5 w-5" />
+                    <SelectTrigger className="w-full h-20 rounded-[2rem] border-2 border-stone-100 bg-white px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/30 shadow-sm hover:shadow-md group relative">
+                      <div className="flex items-center gap-5">
+                        <div className="h-12 w-12 rounded-2xl bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center transition-colors group-hover:bg-[#22C55E] group-hover:text-white">
+                          <Truck className="h-6 w-6" />
                         </div>
-                        <div className="flex flex-col items-start">
-                          <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Selected Method</span>
-                          <SelectValue placeholder="Select a delivery method" />
+                        <div className="flex flex-col items-start gap-0.5">
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
+                          <div className="flex items-center gap-2">
+                            <SelectValue placeholder="Selection Transport Method" className="font-black text-stone-900 text-lg" />
+                          </div>
                         </div>
                       </div>
+                      <div className="absolute right-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-stone-50 flex items-center justify-center border border-stone-100 transition-all group-hover:bg-primary group-hover:text-white">
+                        <ChevronDown className="h-4 w-4" />
+                      </div>
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-stone-100 shadow-2xl p-2">
+                    <SelectContent className="rounded-[2rem] border-stone-100 shadow-2xl p-3 bg-white/95 backdrop-blur-xl">
                       {transportMethods.map((method) => (
                         <SelectItem
                           key={method.id}
                           value={method.id}
-                          className="rounded-xl py-3 px-4 focus:bg-stone-50 cursor-pointer"
+                          className="rounded-2xl py-4 px-6 focus:bg-[#22C55E]/5 cursor-pointer mb-2 last:mb-0 transition-colors"
                         >
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="font-bold text-stone-900">{method.name}</span>
-                              <span className="text-primary font-black text-xs">
-                                {method.rate_per_km
-                                  ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
-                                  : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
-                              </span>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between gap-8">
+                              <span className="font-black text-stone-900 text-base">{method.name}</span>
+                              <div className="px-3 py-1 rounded-full bg-primary/5 border border-primary/10">
+                                <span className="text-primary font-black text-xs">
+                                  {method.rate_per_km
+                                    ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
+                                    : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
+                                </span>
+                              </div>
                             </div>
-                            <span className="text-[10px] text-stone-500 font-medium line-clamp-1">
+                            <span className="text-xs text-stone-500 font-bold leading-relaxed max-w-sm">
                               {method.description}
                             </span>
                           </div>
