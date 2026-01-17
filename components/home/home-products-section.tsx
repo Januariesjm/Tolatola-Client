@@ -76,18 +76,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
       {/* Featured Section */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="container mx-auto px-4 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px]">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Handpicked for You</span>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured <span className="text-primary italic">Collections</span></h2>
-            </div>
-            <Link href="/shop" className="group flex items-center gap-2 text-lg font-bold hover:text-primary transition-colors">
-              Explore Store <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
+
 
           <div className="relative group/scroll">
             <Button
