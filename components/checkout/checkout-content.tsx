@@ -758,23 +758,25 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           </div>
                         </div>
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white">
+                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white min-w-[300px]">
                         {transportMethods.map((method) => (
                           <SelectItem
                             key={method.id}
                             value={method.id}
-                            className="rounded-xl py-4 px-5 focus:bg-primary/5 cursor-pointer mb-1 last:mb-0"
+                            className="rounded-2xl py-5 px-6 focus:bg-primary/5 cursor-pointer mb-2 last:mb-0 transition-all border border-transparent hover:border-primary/10"
                           >
-                            <div className="flex flex-col gap-1 text-left w-full">
-                              <div className="flex items-center justify-between gap-6 w-full">
-                                <span className="font-bold text-stone-900 text-sm">{method.name}</span>
-                                <span className="text-primary font-black text-xs bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10 flex-shrink-0">
-                                  {method.rate_per_km
-                                    ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
-                                    : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
-                                </span>
+                            <div className="flex flex-col gap-2 text-left w-full">
+                              <div className="flex items-center justify-between gap-8 w-full">
+                                <span className="font-black text-stone-900 text-base tracking-tight">{method.name}</span>
+                                <div className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20">
+                                  <span className="text-primary font-black text-[10px] tracking-wider uppercase">
+                                    {method.rate_per_km
+                                      ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
+                                      : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
+                                  </span>
+                                </div>
                               </div>
-                              <span className="text-[10px] text-stone-500 font-medium leading-normal line-clamp-1 pr-8">
+                              <span className="text-xs text-stone-500 font-bold leading-relaxed pr-10">
                                 {method.description}
                               </span>
                             </div>
