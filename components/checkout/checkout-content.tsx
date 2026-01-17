@@ -747,14 +747,16 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       value={selectedTransportId}
                       onValueChange={setSelectedTransportId}
                     >
-                      <SelectTrigger className="w-full h-auto py-6 rounded-2xl border-2 border-stone-200 bg-white px-6 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/30 group">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-colors">
-                            <Truck className="h-5 w-5" />
+                      <SelectTrigger className="w-full !h-auto !py-8 rounded-[2.5rem] border-2 border-stone-200 bg-white px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/40 shadow-sm hover:shadow-md group">
+                        <div className="flex items-center gap-6">
+                          <div className="h-14 w-14 shrink-0 rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-inner">
+                            <Truck className="h-7 w-7" />
                           </div>
-                          <div className="flex flex-col items-start text-left">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Delivery Method</span>
-                            <SelectValue placeholder="Please select delivery method" />
+                          <div className="flex flex-col items-start text-left gap-1.5 overflow-hidden">
+                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
+                            <div className="font-black text-stone-900 text-xl tracking-tight">
+                              <SelectValue placeholder="Please select delivery method" />
+                            </div>
                           </div>
                         </div>
                       </SelectTrigger>
@@ -763,20 +765,20 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           <SelectItem
                             key={method.id}
                             value={method.id}
-                            className="rounded-2xl py-5 px-6 focus:bg-primary/5 cursor-pointer mb-2 last:mb-0 transition-all border border-transparent hover:border-primary/10"
+                            className="rounded-[1.5rem] py-6 px-8 focus:bg-primary/5 cursor-pointer mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
                           >
-                            <div className="flex flex-col gap-2 text-left w-full">
-                              <div className="flex items-center justify-between gap-8 w-full">
-                                <span className="font-black text-stone-900 text-base tracking-tight">{method.name}</span>
-                                <div className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20">
-                                  <span className="text-primary font-black text-[10px] tracking-wider uppercase">
+                            <div className="flex flex-col gap-2.5 text-left w-full">
+                              <div className="flex items-center justify-between gap-10 w-full">
+                                <span className="font-black text-stone-900 text-lg tracking-tight">{method.name}</span>
+                                <div className="[[data-slot=select-value]_&]:hidden px-4 py-1.5 rounded-full bg-primary/5 border border-primary/20 flex-shrink-0">
+                                  <span className="text-primary font-black text-[11px] tracking-wider uppercase">
                                     {method.rate_per_km
                                       ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
                                       : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
                                   </span>
                                 </div>
                               </div>
-                              <span className="text-xs text-stone-500 font-bold leading-relaxed pr-10">
+                              <span className="text-sm text-stone-500 font-bold leading-relaxed pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
                                 {method.description}
                               </span>
                             </div>
