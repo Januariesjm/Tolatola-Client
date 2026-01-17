@@ -328,9 +328,9 @@ export default async function HomePage() {
                   </Link>
                 </div>
               </div>
-              <div className="hidden md:flex justify-end relative">
+              <div className="flex justify-center md:justify-end relative mt-8 md:mt-0">
                 <div className="absolute -inset-4 bg-white/20 rounded-[3rem] blur-2xl animate-pulse" />
-                <div className="relative w-full max-w-md aspect-[16/10] bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02] hover:-rotate-1">
+                <div className="relative w-full max-w-[320px] md:max-w-md aspect-[16/10] bg-white/10 backdrop-blur-2xl rounded-[2rem] md:rounded-[2.5rem] border border-white/20 overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02] md:hover:-rotate-1">
                   <Image
                     src="/payment-flow.png"
                     alt="Tola Payment Flow"
