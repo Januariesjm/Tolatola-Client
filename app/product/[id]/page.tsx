@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const imageUrl = product.images?.[0]?.url || product.image_url || "/tolalogo.jpg"
+  const imageUrl = product.images?.[0]?.url || product.image_url || "/logo-new.png"
   const description = product.description
     ? (product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description)
     : `Buy ${product.name} on TOLA - Tanzania's Leading Trade Platform`

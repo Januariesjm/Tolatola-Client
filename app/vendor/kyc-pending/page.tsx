@@ -36,7 +36,7 @@ export default async function KYCPendingPage() {
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <Link href="/" className="flex items-center gap-2 justify-center">
-            <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={50} className="h-10 w-auto" />
+            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-10 w-auto" />
           </Link>
           <Card>
             <CardHeader>

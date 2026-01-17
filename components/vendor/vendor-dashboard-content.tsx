@@ -123,7 +123,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
       <header className="border-b bg-background">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={50} className="h-10 w-auto" />
+            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-10 w-auto" />
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">Vendor Dashboard</span>

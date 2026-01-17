@@ -122,7 +122,7 @@ export default function CreateShopPage() {
                         <ChevronLeft className="h-5 w-5" />
                         <span className="text-sm font-bold uppercase tracking-widest">Back to Dashboard</span>
                     </Link>
-                    <Image src="/tolalogo.jpg" alt="TOLA" width={100} height={30} className="h-8 w-auto" />
+                    <Image src="/logo-new.png" alt="TOLA" width={100} height={30} className="h-8 w-auto" />
                 </div>
             </header>
 

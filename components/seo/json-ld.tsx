@@ -18,7 +18,7 @@ export function JsonLd() {
         "@type": "Organization",
         "name": "TOLA",
         "url": "https://tolatola.co",
-        "logo": "https://tolatola.co/tolalogo.jpg",
+        "logo": "https://tolatola.co/logo-new.png",
         "sameAs": [
             // Add social media links here if available
             "https://facebook.com/tolatola",

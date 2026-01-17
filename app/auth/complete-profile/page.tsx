@@ -137,7 +137,7 @@ function CompleteProfileContent() {
             <div className="w-full max-w-sm animate-fade-in-up">
                 <div className="flex flex-col gap-6">
                     <Link href="/" className="flex items-center gap-3 justify-center hover:scale-105 transition-transform">
-                        <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
+                        <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
                         <HeaderAnimatedText />
                     </Link>
                     <Card className="backdrop-blur-sm bg-card/95 shadow-xl border-primary/10">

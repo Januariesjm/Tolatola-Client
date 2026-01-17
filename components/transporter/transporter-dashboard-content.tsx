@@ -102,7 +102,7 @@ export function TransporterDashboardContent({
       <header className="border-b bg-background sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <Image src="/tolalogo.jpg" alt="TOLA" width={150} height={50} className="h-16 md:h-20 w-auto" />
+            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-16 md:h-20 w-auto" />
             <HeaderAnimatedText />
           </Link>
           <div className="flex items-center gap-4">

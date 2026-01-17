@@ -32,7 +32,7 @@ export default function AnimatedBrand() {
   return (
     <div className="flex items-center justify-center gap-6 mb-8">
       <div className="relative w-32 h-32 md:w-40 md:h-40 animate-fade-in">
-        <Image src="/tolalogo.jpg" alt="TOLA Logo" fill className="object-contain" priority />
+        <Image src="/logo-new.png" alt="TOLA Logo" fill className="object-contain" priority />
       </div>
 
       <div className="flex flex-col items-start">

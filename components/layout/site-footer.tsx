@@ -73,7 +73,7 @@ export function SiteFooter() {
           <div className="lg:col-span-4 space-y-8">
             <Link href="/" className="inline-block group">
               <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-[1.5rem] overflow-hidden shadow-2xl ring-4 ring-teal-800/50 group-hover:rotate-6 transition-transform duration-500">
-                <Image src="/tolalogo.jpg" alt="TOLA" fill className="object-cover" />
+                <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" />
               </div>
               <h2 className="mt-6 text-3xl font-black tracking-tighter text-white">TOLA<span className="text-primary">.</span></h2>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-300/70 mt-2">vivid Digital trade and Supply Chain Ecosystem infrastructure</p>

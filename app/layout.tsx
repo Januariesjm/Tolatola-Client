@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   creator: "TOLA",
   publisher: "TOLA",
   icons: {
-    icon: "/tolalogo.jpg",
+    icon: "/logo-new.png",
   },
   openGraph: {
     type: "website",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     siteName: "TOLA",
     images: [
       {
-        url: "/tolalogo.jpg",
+        url: "/logo-new.png",
         width: 1200,
         height: 630,
         alt: "TOLA - Tanzania Trade Ecosystem",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TOLA - Leading Trade & Supply Chain Platform in Tanzania",
     description: "Your trusted gateway to Tanzanian trade. Secure payments, verified vendors.",
-    images: ["/tolalogo.jpg"],
+    images: ["/logo-new.png"],
   },
   robots: {
     index: true,

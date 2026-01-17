@@ -18,7 +18,7 @@ export default function VerifiedPage() {
             <div className="w-full max-w-sm animate-fade-in-up">
                 <div className="flex flex-col gap-6">
                     <Link href="/" className="flex items-center gap-3 justify-center hover:scale-105 transition-transform">
-                        <Image src="/tolalogo.jpg" alt="TOLA" width={120} height={40} className="h-12 w-auto" />
+                        <Image src="/logo-new.png" alt="TOLA" width={120} height={40} className="h-12 w-auto" />
                         <HeaderAnimatedText />
                     </Link>
                     <Card className="backdrop-blur-sm bg-card/95 shadow-xl border-primary/10">

@@ -142,7 +142,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 <SheetHeader className="p-6 text-left bg-stone-950 text-white">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="h-12 w-12 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
-                      <Image src="/tolalogo.jpg" alt="Tola" width={48} height={48} className="object-cover" />
+                      <Image src="/logo-new.png" alt="Tola" width={48} height={48} className="object-cover" />
                     </div>
                     <div>
                       <SheetTitle className="text-2xl font-black tracking-tighter text-white">Menu</SheetTitle>
@@ -203,7 +203,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         {/* Logo & Brand Identity */}
         <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
           <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
-            <Image src="/tolalogo.jpg" alt="TOLA" fill className="object-cover" priority />
+            <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
           </div>
           <div className="hidden sm:flex flex-col">
             <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
