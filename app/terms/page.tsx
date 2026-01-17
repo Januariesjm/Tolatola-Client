@@ -1,3 +1,4 @@
+import React from "react"
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
@@ -68,66 +69,66 @@ export default async function TermsPage() {
 
       <main className="flex-1">
         {/* Vivid Hero */}
-        <section className="relative h-[550px] flex items-center justify-center bg-stone-950 overflow-hidden">
+        <section className="relative h-[300px] md:h-[400px] flex items-center justify-center bg-stone-950 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-stone-950" />
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay" />
 
           <div className="container mx-auto px-4 relative z-10 text-center">
-            <div className="inline-flex p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md mb-8">
-              <Scale className="h-10 w-10 text-primary" />
+            <div className="inline-flex p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-6">
+              <Scale className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">Legal <span className="text-primary italic underline decoration-white/20 underline-offset-8">Framework</span></h1>
-            <p className="text-stone-400 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight">Legal <span className="text-primary italic underline decoration-white/20 underline-offset-8">Framework</span></h1>
+            <p className="text-stone-400 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">
               Fairness, Security, and Transparency. Our terms are designed to protect every participant in the TOLA ecosystem.
             </p>
           </div>
         </section>
 
         {/* Highlight Grid */}
-        <section className="py-24 container mx-auto px-4 -mt-24 relative z-20">
-          <div className="grid md:grid-cols-2 gap-8">
+        <section className="py-12 md:py-16 container mx-auto px-4 -mt-12 relative z-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {sections.map((section, i) => (
-              <Card key={i} className="border-none shadow-2xl rounded-[3rem] bg-white p-12 group hover:scale-[1.02] transition-all duration-500">
-                <div className="mb-8 p-4 rounded-3xl bg-stone-50 text-stone-900 w-fit group-hover:bg-primary group-hover:text-white transition-colors">
-                  {section.icon}
+              <Card key={i} className="border-none shadow-lg rounded-[2rem] bg-white p-6 group hover:scale-[1.02] transition-all duration-500">
+                <div className="mb-4 p-3 rounded-2xl bg-stone-50 text-stone-900 w-fit group-hover:bg-primary group-hover:text-white transition-colors">
+                  {React.cloneElement(section.icon as any, { className: "h-5 w-5" })}
                 </div>
-                <h2 className="text-3xl font-black mb-6 tracking-tight">{section.title}</h2>
-                <div className="text-muted-foreground text-lg leading-relaxed italic">{section.content}</div>
+                <h2 className="text-lg font-black mb-3 tracking-tight">{section.title}</h2>
+                <div className="text-muted-foreground text-sm leading-relaxed italic">{section.content}</div>
               </Card>
             ))}
           </div>
         </section>
 
         {/* Detailed Guidelines */}
-        <section className="py-24 bg-stone-900 overflow-hidden relative">
+        <section className="py-16 bg-stone-900 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
           <div className="container mx-auto px-4 max-w-5xl relative z-10">
-            <div className="space-y-32">
-              <div className="grid md:grid-cols-2 gap-16 items-start">
-                <h2 className="text-5xl font-black text-white tracking-tighter sticky top-24">Prohibited Conduct</h2>
-                <div className="space-y-8">
-                  <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <h3 className="text-primary font-black mb-4 uppercase tracking-widest text-xs">Integrity Breach</h3>
-                    <p className="text-stone-400 leading-relaxed italic">"Any attempts to circumvent TOLA's internal messaging or payment system will result in permanent account suspension. We maintain a zero-tolerance policy for off-platform transactions."</p>
+            <div className="space-y-16">
+              <div className="grid md:grid-cols-2 gap-10 items-start">
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight sticky top-24">Prohibited Conduct</h2>
+                <div className="space-y-6">
+                  <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <h3 className="text-primary font-black mb-3 uppercase tracking-widest text-[10px]">Integrity Breach</h3>
+                    <p className="text-stone-400 leading-relaxed italic text-sm">"Any attempts to circumvent TOLA's internal messaging or payment system will result in permanent account suspension. We maintain a zero-tolerance policy for off-platform transactions."</p>
                   </div>
-                  <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <h3 className="text-primary font-black mb-4 uppercase tracking-widest text-xs">KYC Fraud</h3>
-                    <p className="text-stone-400 leading-relaxed italic">"Uploading forged NIDA, TIN, or Business Licenses is a criminal offense under Tanzanian law. We report all fraudulent activities to the relevant authorities."</p>
+                  <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <h3 className="text-primary font-black mb-3 uppercase tracking-widest text-[10px]">KYC Fraud</h3>
+                    <p className="text-stone-400 leading-relaxed italic text-sm">"Uploading forged NIDA, TIN, or Business Licenses is a criminal offense under Tanzanian law. We report all fraudulent activities to the relevant authorities."</p>
                   </div>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-16 items-start">
-                <h2 className="text-5xl font-black text-white tracking-tighter sticky top-24">Dispute Resolution</h2>
-                <div className="space-y-8">
-                  <p className="text-stone-300 text-xl leading-relaxed italic">
+              <div className="grid md:grid-cols-2 gap-10 items-start">
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight sticky top-24">Dispute Resolution</h2>
+                <div className="space-y-6">
+                  <p className="text-stone-300 text-lg leading-relaxed italic">
                     TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses transactional data and system logs to determine a fair outcome.
                   </p>
-                  <div className="flex items-center gap-4 py-6 px-8 bg-primary rounded-[2rem]">
-                    <ShieldCheck className="h-10 w-10 text-white" />
+                  <div className="flex items-center gap-4 py-4 px-6 bg-primary rounded-[1.5rem]">
+                    <ShieldCheck className="h-8 w-8 text-white" />
                     <div className="text-white">
-                      <p className="font-black text-xl tracking-tight">Protected Payments</p>
-                      <p className="text-sm opacity-80">Final settlement is governed by delivery proof.</p>
+                      <p className="font-black text-lg tracking-tight">Protected Payments</p>
+                      <p className="text-xs opacity-80">Final settlement is governed by delivery proof.</p>
                     </div>
                   </div>
                 </div>
@@ -137,16 +138,16 @@ export default async function TermsPage() {
         </section>
 
         {/* Contact Legal Section */}
-        <section className="py-32 bg-stone-50">
-          <div className="container mx-auto px-4 text-center max-w-3xl">
-            <Copyright className="h-12 w-12 text-stone-300 mx-auto mb-8" />
-            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Need legal clarification?</h2>
-            <p className="text-muted-foreground text-xl mb-12 italic">Our legal council is available to decode any part of our platform framework for you.</p>
-            <div className="flex flex-wrap justify-center gap-6">
-              <a href="mailto:legal@tolatola.co" className="px-12 py-5 bg-primary text-white rounded-3xl font-black shadow-2xl hover:scale-105 transition-all text-xl">
+        <section className="py-24 bg-stone-50">
+          <div className="container mx-auto px-4 text-center max-w-2xl">
+            <Copyright className="h-10 w-10 text-stone-300 mx-auto mb-6" />
+            <h2 className="text-2xl md:text-4xl font-black mb-4 tracking-tight">Need legal clarification?</h2>
+            <p className="text-muted-foreground text-lg mb-8 italic">Our legal council is available to decode any part of our platform framework for you.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <a href="mailto:legal@tolatola.co" className="px-8 py-3.5 bg-primary text-white rounded-2xl font-black shadow-xl hover:scale-105 transition-all text-lg">
                 legal@tolatola.co
               </a>
-              <a href="/faq" className="px-12 py-5 bg-white border border-stone-200 rounded-3xl font-black shadow-xl hover:scale-105 transition-all text-xl">
+              <a href="/faq" className="px-8 py-3.5 bg-white border border-stone-200 rounded-2xl font-black shadow-lg hover:scale-105 transition-all text-lg">
                 Visit FAQ Hub
               </a>
             </div>

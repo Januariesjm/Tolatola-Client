@@ -89,10 +89,10 @@ export function ProductCard({
     }
 
     return (
-        <Card className="group relative flex-shrink-0 w-full overflow-hidden border-none bg-white rounded-[1.5rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
+        <Card className="group relative flex-shrink-0 w-full overflow-hidden border-none bg-white rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full flex flex-col">
             {/* Image Section */}
             <Link href={`/product/${product.id}`}>
-                <div className="relative aspect-[4/3] overflow-hidden bg-stone-100 cursor-pointer">
+                <div className="relative aspect-square overflow-hidden bg-stone-100 cursor-pointer">
                     {product.images?.[0] ? (
                         <Image
                             src={product.images[0]}
@@ -102,20 +102,20 @@ export function ProductCard({
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center bg-stone-100">
-                            <ShoppingBag className="h-12 w-12 text-stone-200" />
+                            <ShoppingBag className="h-8 w-8 text-stone-200" />
                         </div>
                     )}
 
                     {/* Sophisticated Badges */}
-                    <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
+                    <div className="absolute top-2 left-2 right-2 flex justify-between items-start pointer-events-none">
                         {badge && (
-                            <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/20 ${badge.variant === "new" ? "bg-primary/90 text-white" : "bg-destructive/90 text-white"
+                            <div className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg backdrop-blur-md border border-white/20 ${badge.variant === "new" ? "bg-primary/90 text-white" : "bg-destructive/90 text-white"
                                 }`}>
                                 {badge.text}
                             </div>
                         )}
                         {product.compare_at_price > product.price && (
-                            <div className="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-destructive font-black text-[10px] shadow-xl border border-white/20">
+                            <div className="px-2 py-1 rounded-full bg-white/90 backdrop-blur-md text-destructive font-black text-[8px] shadow-lg border border-white/20">
                                 {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
                             </div>
                         )}
@@ -127,108 +127,68 @@ export function ProductCard({
             </Link>
 
             {/* Details Section */}
-            <div className="p-3 flex-grow flex flex-col gap-1.5">
+            <div className="p-2 flex-grow flex flex-col gap-1">
                 <div className="space-y-0.5">
-                    <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center gap-1 text-[8px] md:text-[9px] font-bold uppercase tracking-wider text-[#16A34A]">
-                            <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                            <span>Verified by TOLA</span>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-0.5 text-[7px] md:text-[8px] font-bold uppercase tracking-wider text-[#16A34A]">
+                            <CheckCircle2 className="h-2 w-2 md:h-2.5 md:w-2.5" />
+                            <span>Verified</span>
                         </div>
                         {product.quality_grade && (
-                            <div className="px-1.5 py-0.5 rounded-md bg-stone-100 text-[8px] md:text-[9px] font-black uppercase text-stone-600">
-                                Grade {product.quality_grade}
+                            <div className="px-1 py-0.5 rounded bg-stone-100 text-[7px] md:text-[8px] font-black uppercase text-stone-600">
+                                {product.quality_grade}
                             </div>
                         )}
                     </div>
 
                     <Link href={`/product/${product.id}`}>
-                        <h3 className="text-sm font-semibold tracking-tight line-clamp-2 text-stone-900 hover:text-primary transition-colors cursor-pointer leading-tight h-9">
+                        <h3 className="text-xs font-semibold tracking-tight line-clamp-1 text-stone-900 hover:text-primary transition-colors cursor-pointer leading-tight">
                             {product.name}
                         </h3>
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-4 text-[10px] font-bold">
-                        <div className="flex items-center gap-1 text-[#2563EB]">
-                            <ShoppingBag className="h-3 w-3" />
-                            <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[#16A34A]">
-                            <Truck className="h-3.5 w-3.5" />
-                            <span>Delivery: {product.delivery_available !== false ? "Available" : "No"}</span>
+                    <div className="hidden md:flex items-center gap-2 text-[8px] font-bold opacity-70">
+                        <div className="flex items-center gap-0.5 text-[#2563EB]">
+                            <ShoppingBag className="h-2.5 w-2.5" />
+                            <span>MOQ: {product.moq || 1}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex items-end justify-between mt-auto">
                     <div className="space-y-0.5">
-                        <p className="text-lg font-bold text-[#0B5ED7] tracking-tight leading-none">
-                            {product.price.toLocaleString()} <span className="text-[10px] uppercase font-medium">TZS</span>
+                        <p className="text-sm font-bold text-[#0B5ED7] tracking-tight leading-none">
+                            {product.price.toLocaleString()} <span className="text-[8px] uppercase font-medium">TZS</span>
                         </p>
                         {product.compare_at_price > product.price && (
-                            <p className="text-[10px] md:text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">
-                                {product.compare_at_price.toLocaleString()} TZS
+                            <p className="text-[8px] text-muted-foreground/60 line-through">
+                                {product.compare_at_price.toLocaleString()}
                             </p>
-                        )}
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                        {product.distance_km !== undefined && product.distance_km !== Infinity && (
-                            <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-black text-primary bg-primary/5 px-1.5 py-0.5 rounded-full">
-                                <MapPin className="h-2 w-2 md:h-2.5 md:w-2.5" />
-                                <span>{product.distance_km < 1 ? '< 1 km' : `${Math.round(product.distance_km)} km`}</span>
-                            </div>
-                        )}
-                        {locationLabel && (
-                            <div className="flex items-center gap-1 text-[8px] md:text-[10px] font-bold text-muted-foreground/60">
-                                <MapPin className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                                <span className="truncate max-w-[60px] md:max-w-[80px]">{locationLabel}</span>
-                            </div>
                         )}
                     </div>
                 </div>
 
                 {/* Quick Actions Bar */}
-                <div className="flex gap-1.5 md:gap-2 pt-2 border-t border-stone-50">
+                <div className="flex gap-1 pt-2 border-t border-stone-50">
                     <Button
                         size="sm"
                         className={cn(
-                            "flex-1 rounded-xl font-black text-[10px] md:text-xs shadow-md transition-all active:scale-95 h-8 md:h-10 px-2 md:px-4",
+                            "flex-1 rounded-lg font-black text-[9px] shadow-sm transition-all active:scale-95 h-7 px-2",
                             isInCart
                                 ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
                                 : "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
                         )}
                         onClick={() => onAddToCart && onAddToCart(product)}
                     >
-                        {isInCart ? (
-                            <>
-                                <Check className="h-3.5 w-3.5 mr-1.5 md:mr-2 text-green-600" />
-                                <span>In Cart</span>
-                            </>
-                        ) : (
-                            <>
-                                <ShoppingCart className="h-3.5 w-3.5 mr-1.5 md:mr-2" />
-                                <span>Cart</span>
-                            </>
-                        )}
+                        {isInCart ? <Check className="h-3 w-3" /> : <ShoppingCart className="h-3 w-3" />}
                     </Button>
                     <Button
                         variant="outline"
                         size="icon"
-                        className={`h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 hover:border-destructive hover:bg-destructive/5 transition-all ${initialIsLiked ? "bg-destructive/10 border-destructive text-destructive" : "text-muted-foreground"}`}
+                        className={`h-7 w-7 rounded-lg border-stone-100 hover:border-destructive hover:bg-destructive/5 transition-all ${initialIsLiked ? "bg-destructive/10 border-destructive text-destructive" : "text-muted-foreground"}`}
                         onClick={() => onToggleLike && onToggleLike(product.id)}
                     >
-                        <Heart className={`h-3.5 w-3.5 md:h-4 md:w-4 ${initialIsLiked ? "fill-current" : ""}`} />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8 md:h-10 md:w-10 rounded-xl border-stone-100 text-muted-foreground hover:text-primary hover:border-primary/30 transition-all flex"
-                        onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setShareOpen(true)
-                        }}
-                    >
-                        <Share2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                        <Heart className={`h-3 w-3 ${initialIsLiked ? "fill-current" : ""}`} />
                     </Button>
                 </div>
             </div>

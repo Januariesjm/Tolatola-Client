@@ -186,21 +186,21 @@ export default async function HomePage() {
         </section>
 
         {/* Trending Categories - Redesigned for density */}
-        <section className="py-4 md:py-8 container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 md:mb-6 gap-4">
-            <div className="space-y-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-1.5 text-primary font-bold uppercase tracking-wider text-[10px]">
-                <Sparkles className="h-3 w-3" />
+        <section className="py-2 md:py-4 container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-2 md:mb-4 gap-2">
+            <div className="space-y-0.5 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-1 text-primary font-bold uppercase tracking-wider text-[8px]">
+                <Sparkles className="h-2.5 w-2.5" />
                 <span>Selections for you</span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Shop by <span className="text-primary italic">Category</span></h2>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight">Shop by <span className="text-primary italic">Category</span></h2>
             </div>
-            <Link href="/shop" className="group flex items-center justify-center gap-1.5 text-sm font-semibold hover:text-primary transition-colors">
-              View Entire Catalog <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <Link href="/shop" className="group flex items-center justify-center gap-1 text-xs font-semibold hover:text-primary transition-colors">
+              View Entire Catalog <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {categories.slice(0, 12).map((cat: any, i) => {
               // Get background image based on category slug, name, or use image_url from database
               const getCategoryImage = () => {
@@ -261,7 +261,7 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/shop?category=${cat.id}`}
-                  className="group relative aspect-[2/1] rounded-xl overflow-hidden border border-stone-100 hover:border-primary/50 hover:shadow-md transition-all duration-300"
+                  className="group relative aspect-[3/1.5] rounded-xl overflow-hidden border border-stone-100 hover:border-primary/50 hover:shadow-md transition-all duration-300"
                 >
                   {/* Background Image */}
                   <div
@@ -273,8 +273,8 @@ export default async function HomePage() {
                   <div className="absolute inset-0 bg-stone-950/40 group-hover:bg-stone-950/50 transition-colors" />
 
                   {/* Content - Centered for menu-like feel */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3">
-                    <h3 className="text-white text-sm md:text-base font-semibold tracking-tight leading-tight">{cat.name}</h3>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
+                    <h3 className="text-white text-[10px] md:text-xs font-semibold tracking-tight leading-tight">{cat.name}</h3>
                   </div>
                 </Link>
               )
@@ -283,21 +283,21 @@ export default async function HomePage() {
         </section>
 
         {/* Why Tola - Compact Cards */}
-        <section className="py-6 md:py-10 bg-stone-50 overflow-hidden relative">
+        <section className="py-4 md:py-6 bg-stone-50 overflow-hidden relative">
           <div className="container mx-auto px-4 relative z-10">
-            <div className="text-center max-w-3xl mx-auto mb-8 md:mb-10 space-y-2">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Engineered for <span className="text-primary italic">Trust</span></h2>
-              <p className="text-muted-foreground text-sm font-medium">We've built a multi-layered security framework to protect both the buyer and the merchant.</p>
+            <div className="text-center max-w-3xl mx-auto mb-6 md:mb-8 space-y-1">
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight">Engineered for <span className="text-primary italic">Trust</span></h2>
+              <p className="text-muted-foreground text-[10px] font-medium">We've built a multi-layered security framework to protect both the buyer and the merchant.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid md:grid-cols-3 gap-3 md:gap-4">
               {features.map((f, i) => (
-                <Card key={i} className="border-none shadow-md rounded-2xl p-6 bg-white group hover:-translate-y-1 transition-all duration-300">
-                  <div className={`mb-4 w-12 h-12 rounded-xl ${f.color} flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform`}>
-                    {React.cloneElement(f.icon as any, { className: "h-6 w-6" })}
+                <Card key={i} className="border-none shadow-md rounded-xl p-4 bg-white group hover:-translate-y-1 transition-all duration-300">
+                  <div className={`mb-3 w-10 h-10 rounded-lg ${f.color} flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform`}>
+                    {React.cloneElement(f.icon as any, { className: "h-5 w-5" })}
                   </div>
-                  <h3 className="text-lg font-bold mb-2 tracking-tight">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
+                  <h3 className="text-base font-bold mb-1 tracking-tight">{f.title}</h3>
+                  <p className="text-muted-foreground text-[10px] leading-relaxed">{f.desc}</p>
                 </Card>
               ))}
             </div>
