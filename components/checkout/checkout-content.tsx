@@ -719,9 +719,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
               {/* Transport Section */}
               <section className="space-y-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-6">
                   <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
-                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
+                  <h2 className="text-xl font-bold tracking-tight text-stone-900 ">Delivery Method</h2>
                 </div>
 
                 <div className="w-full">
