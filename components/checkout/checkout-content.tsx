@@ -320,10 +320,28 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       return
     }
 
+    if (!fullName || fullName.trim() === "") {
+      toast({
+        title: "Name Required",
+        description: "Please enter your full name",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!phone || phone.trim() === "") {
+      toast({
+        title: "Phone Required",
+        description: "Please enter your phone number",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (!addressData.region || !addressData.district || !addressData.ward || !addressData.street) {
       toast({
         title: "Address Required",
-        description: "Please complete all required address fields",
+        description: "Please search and select your location using the search box above",
         variant: "destructive",
       })
       return
@@ -341,7 +359,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     if (!selectedTransportId) {
       toast({
         title: "Transport Method Required",
-        description: "Please select a transport method for your delivery",
+        description: "Please select a delivery method from the dropdown",
         variant: "destructive",
       })
       return
@@ -729,41 +747,41 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     value={selectedTransportId}
                     onValueChange={setSelectedTransportId}
                   >
-                    <SelectTrigger className="w-full h-20 rounded-[2rem] border-2 border-stone-100 bg-white px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/30 shadow-sm hover:shadow-md group relative">
-                      <div className="flex items-center gap-5">
-                        <div className="h-12 w-12 rounded-2xl bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center transition-colors group-hover:bg-[#22C55E] group-hover:text-white">
-                          <Truck className="h-6 w-6" />
+                    <SelectTrigger className="w-full h-24 rounded-[2.5rem] border-2 border-stone-100 bg-white px-10 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-[#22C55E]/30 shadow-sm hover:shadow-xl group relative">
+                      <div className="flex items-center gap-8">
+                        <div className="h-14 w-14 rounded-[1.25rem] bg-[#22C55E]/10 text-[#22C55E] flex items-center justify-center transition-all duration-300 group-hover:bg-[#22C55E] group-hover:text-white group-hover:scale-110 shadow-inner">
+                          <Truck className="h-7 w-7" />
                         </div>
-                        <div className="flex flex-col items-start gap-0.5">
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="text-[11px] font-black uppercase tracking-[0.25em] text-stone-400 group-hover:text-[#22C55E] transition-colors">Delivery Logistics</span>
                           <div className="flex items-center gap-2">
-                            <SelectValue placeholder="Selection Transport Method" className="font-black text-stone-900 text-lg" />
+                            <SelectValue placeholder="Please select delivery method" className="font-black text-stone-900 text-xl" />
                           </div>
                         </div>
                       </div>
-                      <div className="absolute right-6 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-stone-50 flex items-center justify-center border border-stone-100 transition-all group-hover:bg-primary group-hover:text-white">
-                        <ChevronDown className="h-4 w-4" />
+                      <div className="absolute right-8 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-stone-50 flex items-center justify-center border border-stone-100 transition-all group-hover:bg-[#22C55E] group-hover:text-white group-hover:rotate-180 group-hover:shadow-lg">
+                        <ChevronDown className="h-5 w-5" />
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="rounded-[2rem] border-stone-100 shadow-2xl p-3 bg-white/95 backdrop-blur-xl">
+                    <SelectContent className="rounded-[2.5rem] border-stone-100 shadow-2xl p-4 bg-white/98 backdrop-blur-2xl mt-2">
                       {transportMethods.map((method) => (
                         <SelectItem
                           key={method.id}
                           value={method.id}
-                          className="rounded-2xl py-4 px-6 focus:bg-[#22C55E]/5 cursor-pointer mb-2 last:mb-0 transition-colors"
+                          className="rounded-[1.5rem] py-5 px-8 focus:bg-[#22C55E]/5 cursor-pointer mb-3 last:mb-0 transition-all hover:pl-10"
                         >
-                          <div className="flex flex-col gap-2">
-                            <div className="flex items-center justify-between gap-8">
-                              <span className="font-black text-stone-900 text-base">{method.name}</span>
-                              <div className="px-3 py-1 rounded-full bg-primary/5 border border-primary/10">
-                                <span className="text-primary font-black text-xs">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-10">
+                              <span className="font-black text-stone-900 text-lg tracking-tight">{method.name}</span>
+                              <div className="px-4 py-1.5 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/20">
+                                <span className="text-[#22C55E] font-black text-xs">
                                   {method.rate_per_km
                                     ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
                                     : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
                                 </span>
                               </div>
                             </div>
-                            <span className="text-xs text-stone-500 font-bold leading-relaxed max-w-sm">
+                            <span className="text-sm text-stone-500 font-bold leading-relaxed max-w-md">
                               {method.description}
                             </span>
                           </div>
@@ -998,7 +1016,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <Button
                     type="submit"
                     className="w-full h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
-                    disabled={isLoading || (Object.keys(shopDeliveries).length === 0) || isCalculatingDelivery || paymentMethod === "m-pesa"}
+                    disabled={isLoading || isCalculatingDelivery || paymentMethod === "m-pesa"}
                   >
                     {isLoading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
