@@ -147,7 +147,7 @@ export function ProductCard({
                         </h3>
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-4 text-[10px] font-bold">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] md:text-[10px] font-bold">
                         <div className="flex items-center gap-1 text-[#2563EB]">
                             <ShoppingBag className="h-3 w-3" />
                             <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
