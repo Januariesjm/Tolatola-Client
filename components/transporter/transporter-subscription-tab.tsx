@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Crown, Sparkles, Star, Zap, ShieldCheck, Building2, Loader2, Phone, CreditCard, Truck, Users, Percent } from "lucide-react"
+import { Check, Crown, Sparkles, Star, Zap, ShieldCheck, Building2, Loader2, Phone, CreditCard, Truck, Users, Percent, Smartphone, ArrowRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -18,6 +18,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 
 interface TransporterSubscriptionTabProps {
@@ -70,6 +71,62 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
         setShowUpgradeDialog(true)
     }
 
+    const pollSubscriptionStatus = async (subscriptionId: string) => {
+        let attempts = 0
+        const maxAttempts = 40 // ~2 minutes with 3s interval
+
+        const checkStatus = async () => {
+            try {
+                const res = await clientApiGet<{ data: { status: string; click_pesa_error?: string } }>(
+                    `subscriptions/status/${subscriptionId}?type=transporter`
+                )
+                const { status } = res.data
+
+                if (status === "active") {
+                    setIsAwaitingPayment(false)
+                    toast({
+                        title: "Subscription Activated",
+                        description: `You are now on the ${selectedPlan.name} plan!`,
+                    })
+                    setShowUpgradeDialog(false)
+                    loadSubscriptionData()
+                    return true
+                }
+
+                if (status === "rejected" || status === "failed") {
+                    setIsAwaitingPayment(false)
+                    toast({
+                        title: "Payment Failed",
+                        description: res.data.click_pesa_error || "The transaction was unsuccessful. Please try again.",
+                        variant: "destructive",
+                    })
+                    return true
+                }
+
+                return false
+            } catch (err) {
+                console.error("Polling error:", err)
+                return false
+            }
+        }
+
+        const interval = setInterval(async () => {
+            attempts++
+            const finished = await checkStatus()
+            if (finished || attempts >= maxAttempts) {
+                clearInterval(interval)
+                if (attempts >= maxAttempts) {
+                    setIsAwaitingPayment(false)
+                    toast({
+                        title: "Payment Timeout",
+                        description: "We haven't received confirmation yet. Please check your status later.",
+                        variant: "destructive",
+                    })
+                }
+            }
+        }, 3000)
+    }
+
     const handleUpgrade = async () => {
         if (!selectedPlan) return
 
@@ -99,15 +156,15 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
             if (result.success) {
                 if (result.controlNumber) {
                     setControlNumber(result.controlNumber)
-                    setPaymentStatusMessage("Control number generated! Please complete the transfer to activate your account.")
+                    if (result.controlNumber.startsWith("http")) {
+                        setPaymentStatusMessage("Bank payment link generated. Click the button below to complete payment.")
+                    } else {
+                        setPaymentStatusMessage("Control number generated! Please complete the transfer to activate your account.")
+                    }
+                    pollSubscriptionStatus(result.subscription.id)
                 } else {
                     setPaymentStatusMessage("Payment initiated! Please confirm on your phone. Your account will automatically upgrade once confirmed.")
-
-                    setTimeout(() => {
-                        setShowUpgradeDialog(false)
-                        setIsAwaitingPayment(false)
-                        loadSubscriptionData()
-                    }, 5000)
+                    pollSubscriptionStatus(result.subscription.id)
                 }
             } else {
                 throw new Error(result.message || "Payment initiation failed")
@@ -189,23 +246,38 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                 </p>
                                 {controlNumber && (
                                     <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                                            <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                                                {controlNumber}
-                                            </p>
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="rounded-xl border-stone-200"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(controlNumber)
-                                                toast({ title: "Copied!", description: "Control number copied to clipboard." })
-                                            }}
-                                        >
-                                            Copy Number
-                                        </Button>
+                                        {controlNumber.startsWith("http") ? (
+                                            <div className="space-y-4 text-center">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Payment Link</p>
+                                                <Button
+                                                    size="lg"
+                                                    className="w-full rounded-xl bg-primary text-white font-bold h-12 text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
+                                                    onClick={() => window.open(controlNumber, "_blank")}
+                                                >
+                                                    Complete Payment Now
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                                                    <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                                                        {controlNumber}
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="rounded-xl border-stone-200"
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(controlNumber)
+                                                        toast({ title: "Copied!", description: "Control number copied to clipboard." })
+                                                    }}
+                                                >
+                                                    Copy Number
+                                                </Button>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -341,81 +413,155 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
 
                         <div className="space-y-3">
                             <Label className="font-black text-stone-900 ml-1">Select Payment Method</Label>
-                            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid gap-3">
-                                {[
-                                    { id: "airtel-money", name: "Airtel Money", icon: <Phone className="h-4 w-4 text-red-600" /> },
-                                    { id: "tigo-pesa", name: "Tigo Pesa", icon: <Phone className="h-4 w-4 text-blue-600" /> },
-                                    { id: "halopesa", name: "HaloPesa", icon: <Phone className="h-4 w-4 text-orange-600" /> },
-                                    { id: "visa", name: "Visa / Mastercard", icon: <CreditCard className="h-4 w-4 text-stone-900" /> },
-                                    { id: "crdb-simbanking", name: "Bank Transfer", icon: <Building2 className="h-4 w-4 text-stone-900" /> },
-                                ].map((method) => (
-                                    <div key={method.id} className={`flex items-center space-x-3 border-2 rounded-2xl p-4 transition-all duration-200 cursor-pointer ${paymentMethod === method.id ? "border-primary bg-primary/5 shadow-sm" : "border-stone-100 hover:border-stone-200"}`}>
-                                        <RadioGroupItem value={method.id} id={method.id} />
-                                        <Label htmlFor={method.id} className="flex-1 cursor-pointer font-bold flex items-center gap-3">
-                                            {method.icon} {method.name}
-                                        </Label>
-                                    </div>
-                                ))}
+                            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                                <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
+                                    <AccordionItem value="mobile-money" className="border-none">
+                                        <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-primary data-[state=open]:text-white transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <Smartphone className="h-5 w-5" />
+                                                <span className="text-lg font-bold tracking-tight">Mobile Money</span>
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-4 mt-2 space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Phone Number</Label>
+                                                <Input
+                                                    id="phone"
+                                                    type="tel"
+                                                    value={phoneNumber}
+                                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                                    className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                                                    placeholder="e.g. 2557..."
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {[
+                                                    { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
+                                                    { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
+                                                    { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
+                                                    { id: "ezypesa", name: "EzyPesa", provider: "Zantel" },
+                                                    { id: "m-pesa", name: "M-Pesa", provider: "Vodacom", maintenance: true },
+                                                ].map((p) => (
+                                                    <Label
+                                                        key={p.id}
+                                                        htmlFor={p.id}
+                                                        className={cn(
+                                                            "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
+                                                            paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
+                                                            p.maintenance && "opacity-60 grayscale-[0.5]"
+                                                        )}
+                                                    >
+                                                        <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
+                                                        <div className={cn(
+                                                            "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                                                            paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
+                                                        )}>
+                                                            <Smartphone className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="font-bold text-stone-900 text-sm">{p.name}</p>
+                                                                {p.maintenance && (
+                                                                    <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">Service Down</span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
+                                                        </div>
+                                                    </Label>
+                                                ))}
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <AccordionItem value="cards" className="border-none">
+                                        <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <CreditCard className="h-5 w-5" />
+                                                <span className="text-lg font-bold tracking-tight">Card Payment</span>
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-6 mt-4 space-y-6">
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {["visa", "mastercard", "unionpay"].map((c) => (
+                                                    <Label key={c} htmlFor={c} className={cn(
+                                                        "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                                        paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
+                                                    )}>
+                                                        <RadioGroupItem value={c} id={c} className="sr-only" />
+                                                        <div className={cn(
+                                                            "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+                                                            paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
+                                                        )}>
+                                                            <CreditCard className="h-5 w-5" />
+                                                        </div>
+                                                        <span className="font-bold uppercase tracking-wide text-[10px] text-stone-900">{c}</span>
+                                                    </Label>
+                                                ))}
+                                            </div>
+                                            <div className="space-y-3 pt-3 border-t border-stone-100">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Card Number</Label>
+                                                    <Input
+                                                        id="cardNumber"
+                                                        value={cardNumber}
+                                                        onChange={(e) => setCardNumber(e.target.value)}
+                                                        className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                                                        placeholder="0000 0000 0000 0000"
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Expiry</Label>
+                                                        <Input
+                                                            id="expiry"
+                                                            value={expiryDate}
+                                                            onChange={(e) => setExpiryDate(e.target.value)}
+                                                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                                                            placeholder="MM/YY"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">CVV / CVC</Label>
+                                                        <Input
+                                                            id="cvv"
+                                                            value={cvv}
+                                                            onChange={(e) => setCvv(e.target.value)}
+                                                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                                                            placeholder="123"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+
+                                    <AccordionItem value="bank" className="border-none">
+                                        <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <Building2 className="h-5 w-5" />
+                                                <span className="text-lg font-bold tracking-tight">Bank Transfer</span>
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-6 space-y-3 mt-4">
+                                            {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
+                                                <Label key={b} htmlFor={b} className={cn(
+                                                    "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                                    paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
+                                                )}>
+                                                    <RadioGroupItem value={b} id={b} className="sr-only" />
+                                                    <div className={cn(
+                                                        "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                                        paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
+                                                    )}>
+                                                        <Building2 className="h-5 w-5" />
+                                                    </div>
+                                                    <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
+                                                </Label>
+                                            ))}
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
                             </RadioGroup>
-                        </div>
-
-                        {/* Method Specific Inputs */}
-                        <div className="animate-in slide-in-from-top-2 duration-300">
-                            {["airtel-money", "tigo-pesa", "halopesa"].includes(paymentMethod) && (
-                                <div className="space-y-2">
-                                    <Label className="font-bold text-stone-800 ml-1">Phone Number</Label>
-                                    <Input
-                                        placeholder="07XXXXXXXX"
-                                        value={phoneNumber}
-                                        onChange={(e) => setPhoneNumber(e.target.value)}
-                                        className="h-12 rounded-xl border-stone-200"
-                                    />
-                                    <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest ml-1">USSD push will be sent</p>
-                                </div>
-                            )}
-
-                            {paymentMethod === "visa" && (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-stone-800 ml-1">Card Number</Label>
-                                        <Input
-                                            placeholder="XXXX XXXX XXXX XXXX"
-                                            value={cardNumber}
-                                            onChange={(e) => setCardNumber(e.target.value)}
-                                            className="h-12 rounded-xl border-stone-200"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="font-bold text-stone-800 ml-1">Expiry</Label>
-                                            <Input
-                                                placeholder="MM/YY"
-                                                value={expiryDate}
-                                                onChange={(e) => setExpiryDate(e.target.value)}
-                                                className="h-12 rounded-xl border-stone-200"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="font-bold text-stone-800 ml-1">CVV</Label>
-                                            <Input
-                                                placeholder="XXX"
-                                                value={cvv}
-                                                onChange={(e) => setCvv(e.target.value)}
-                                                className="h-12 rounded-xl border-stone-200"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {paymentMethod === "crdb-simbanking" && (
-                                <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
-                                    <Building2 className="h-5 w-5 text-primary" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left leading-relaxed">
-                                        Selecting Bank Transfer will generate a GePG Control Number for use with CRDB SimBanking or any TISS transfer.
-                                    </span>
-                                </div>
-                            )}
                         </div>
                     </div>
 
