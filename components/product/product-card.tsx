@@ -12,7 +12,26 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
-    product: any
+    product: {
+        id: string
+        name: string
+        price: number
+        image_url?: string
+        images?: string[]
+        rating?: number
+        category?: {
+            name: string
+        }
+        shops?: any
+        compare_at_price?: number
+        quality_grade?: string
+        moq?: number
+        unit?: string
+        delivery_available?: boolean
+        distance_km?: number
+        stock_quantity: number
+        sales_count?: number
+    }
     badge?: {
         text: string
         variant: "new" | "deal"
@@ -98,11 +117,38 @@ export function ProductCard({
                             src={product.images[0]}
                             alt={product.name}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                            className={cn(
+                                "object-cover group-hover:scale-105 transition-transform duration-700",
+                                product.stock_quantity === 0 && "grayscale opacity-60"
+                            )}
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center bg-stone-100">
                             <ShoppingBag className="h-12 w-12 text-stone-200" />
+                        </div>
+                    )}
+
+                    {/* Sold Out Overlay */}
+                    {product.stock_quantity === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                            <div className="px-4 py-2 bg-red-600/90 text-white text-xs font-black uppercase tracking-widest transform -rotate-12 border-2 border-white/20 shadow-xl backdrop-blur-md rounded-xl">
+                                Sold Out
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Sales Count Badge */}
+                    {(product.sales_count || 0) > 0 && product.stock_quantity > 0 && (
+                        <div className="absolute top-4 left-4 z-10">
+                            <div className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md shadow-lg border border-white/20 flex items-center gap-1.5">
+                                <span className="flex h-2 w-2 relative">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                                <span className="text-[9px] font-black uppercase tracking-wider text-stone-900">
+                                    {product.sales_count} Sold
+                                </span>
+                            </div>
                         </div>
                     )}
 
@@ -196,9 +242,19 @@ export function ProductCard({
                                 ? "bg-stone-100 text-stone-600 hover:bg-stone-200 border border-stone-200 shadow-none"
                                 : "bg-[#2563EB] text-white hover:bg-[#1d4ed8]"
                         )}
-                        onClick={() => onAddToCart && onAddToCart(product)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (product.stock_quantity > 0) {
+                                onAddToCart && onAddToCart(product);
+                            }
+                        }}
+                        disabled={product.stock_quantity === 0}
                     >
-                        {isInCart ? (
+                        {product.stock_quantity === 0 ? (
+                            <>
+                                <span className="opacity-50">Sold Out</span>
+                            </>
+                        ) : isInCart ? (
                             <>
                                 <Check className="h-3.5 w-3.5 mr-1.5 md:mr-2 text-green-600" />
                                 <span>In Cart</span>

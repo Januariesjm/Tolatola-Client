@@ -207,6 +207,18 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <p className="text-stone-500 text-lg leading-relaxed font-medium">
               {product.description}
             </p>
+
+            {product.stock_quantity === 0 && (
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-3">
+                <div className="h-10 w-10 bg-red-100 rounded-xl flex items-center justify-center">
+                  <ShoppingBag className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-red-700 uppercase tracking-widest">Sold Out Profile</p>
+                  <p className="text-xs font-bold text-red-600/60">This item is currently unavailable.</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="p-8 rounded-[2.5rem] bg-white border-2 border-stone-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] space-y-8">
@@ -261,8 +273,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     : "bg-stone-950 hover:bg-stone-800 text-white shadow-stone-200"
                 )}
                 onClick={handleAddToCart}
+                disabled={product.stock_quantity === 0}
               >
-                {isInCart ? (
+                {product.stock_quantity === 0 ? (
+                  <>
+                    Sold Out
+                  </>
+                ) : isInCart ? (
                   <>
                     <Check className="h-5 w-5 text-green-600" />
                     In Your Cart
