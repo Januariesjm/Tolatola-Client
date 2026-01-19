@@ -61,7 +61,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             region,
             vendors (
               business_name,
-              users (
+              users!vendors_user_id_fkey (
                 phone
               )
             )
