@@ -297,7 +297,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1.5">
                           <Phone className="h-3.5 w-3.5 text-indigo-500" />
-                          <span>{order.order_items[0].products.shops.vendors?.contact_phone || order.order_items[0].products.shops.phone || "No phone"}</span>
+                          <span>{order.order_items[0].products.shops.vendors?.users?.phone || order.order_items[0].products.shops.phone || "No phone"}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5 text-indigo-500" />
