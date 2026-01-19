@@ -51,7 +51,6 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           name,
           price,
           images,
-          primary_image_url,
           shops (
             name,
             logo_url,
