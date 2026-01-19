@@ -52,6 +52,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           price,
           images,
           shops (
+            id,
             name,
             logo_url,
             phone,
@@ -62,6 +63,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             longitude,
             vendors (
               business_name,
+              user_id,
               users!vendors_user_id_fkey (
                 phone
               )
