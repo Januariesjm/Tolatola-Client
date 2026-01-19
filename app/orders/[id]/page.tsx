@@ -76,7 +76,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         transporters (
           id,
           current_location,
-          users (
+          users!transporters_user_id_fkey (
             full_name,
             phone
           )
