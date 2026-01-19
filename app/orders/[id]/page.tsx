@@ -58,6 +58,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             address,
             district,
             region,
+            latitude,
+            longitude,
             vendors (
               business_name,
               users!vendors_user_id_fkey (
@@ -67,7 +69,19 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           )
         )
       ),
-      transport_methods (*)
+      transport_methods (*),
+      transporter_assignments (
+        id,
+        status,
+        transporters (
+          id,
+          current_location,
+          users (
+            full_name,
+            phone
+          )
+        )
+      )
     `,
     )
     .eq("id", id)

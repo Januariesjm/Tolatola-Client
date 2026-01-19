@@ -9,6 +9,8 @@ import { CheckCircle, Package, Truck, MapPin, Store, CheckCircle2, Phone, Home, 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ChatButton } from "@/components/messaging/chat-button"
+import { OrderTrackingMap } from "@/components/orders/order-tracking-map"
 
 interface OrderDetailContentProps {
   order: any
@@ -307,10 +309,14 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="ml-auto flex gap-2">
-                      Contact Seller
-                      <ArrowRight className="h-3 w-3" />
-                    </Button>
+                    <ChatButton
+                      shopId={order.order_items[0].products.shops.id}
+                      shopName={order.order_items[0].products.shops.vendors?.business_name || order.order_items[0].products.shops.name}
+                      productId={order.order_items[0].product_id}
+                      productName={order.order_items[0].products.name}
+                      receiverId={order.order_items[0].products.shops.vendors?.user_id} // We might need to ensure this field is fetched
+                      orderId={order.id}
+                    />
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground italic">Merchant details unavailable</p>
@@ -418,18 +424,54 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                         <p className="text-xs text-muted-foreground capitalize">{order.transport_methods.provider_type || "Logistics"}</p>
                       </div>
                     </div>
-                    {["shipped", "delivered"].includes(order.status) ? (
-                      <Button variant="outline" className="w-full text-xs h-8">
-                        Track Shipment
-                      </Button>
-                    ) : (
-                      <p className="text-xs text-muted-foreground bg-gray-50 p-2 rounded text-center">Tracking available after shipping</p>
-                    )}
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground italic flex items-center gap-2">
                     <Package className="h-4 w-4" />
                     To be assigned
+                  </div>
+                )}
+
+                {/* Tracking Map */}
+                {["shipped", "delivered"].includes(order.status) && order.transporter_assignments?.[0] && (
+                  <div className="mt-6">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Live Tracking
+                    </h4>
+                    <OrderTrackingMap
+                      origin={{
+                        lat: order.order_items[0].products.shops.latitude || -6.7924,
+                        lng: order.order_items[0].products.shops.longitude || 39.2083,
+                        address: order.order_items[0].products.shops.address
+                      }}
+                      destination={{
+                        lat: order.shipping_address?.latitude || -6.7924, // Fallback if not available
+                        lng: order.shipping_address?.longitude || 39.2083,
+                        address: order.shipping_address?.address
+                      }}
+                      transporterLocation={order.transporter_assignments[0].transporters?.current_location}
+                      className="w-full"
+                    />
+                    {order.transporter_assignments[0].transporters?.users && (
+                      <div className="mt-3 flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-100">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border">
+                            <Truck className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-blue-900">{order.transporter_assignments[0].transporters.users.full_name}</p>
+                            <p className="text-xs text-blue-700">Your Transporter</p>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="ghost" className="h-8 gap-2 text-blue-700 hover:text-blue-900 hover:bg-blue-100" asChild>
+                          <Link href={`tel:${order.transporter_assignments[0].transporters.users.phone}`}>
+                            <Phone className="h-3.5 w-3.5" />
+                            <span>Call</span>
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
