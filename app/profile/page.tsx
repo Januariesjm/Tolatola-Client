@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import ProfileContent from "@/components/profile/profile-content"
+import SiteHeader from "@/components/layout/site-header"
 
 export const dynamic = "force-dynamic"
 
@@ -48,6 +49,9 @@ export default async function ProfilePage() {
     .limit(50)
 
   return (
-    <ProfileContent user={user} profile={profile} kyc={kyc} orders={orders || []} transactions={transactions || []} />
+    <div className="min-h-screen bg-background flex flex-col font-sans">
+      <SiteHeader user={user} profile={profile} kycStatus={kyc?.kyc_status} />
+      <ProfileContent user={user} profile={profile} kyc={kyc} orders={orders || []} transactions={transactions || []} />
+    </div>
   )
 }
