@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
 
 interface VendorSubscriptionTabProps {
   vendorId: string

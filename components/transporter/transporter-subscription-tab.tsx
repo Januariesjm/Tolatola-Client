@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
 
 interface TransporterSubscriptionTabProps {
     transporterId: string
@@ -369,7 +370,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
                                     </li>
                                     <li className="flex items-center gap-3 text-sm font-medium text-stone-600">
                                         <Percent className="h-4 w-4 text-primary" />
-                                        <span>{plan.name === "Free" ? "15% Service Fee" : plan.name === "Elite" ? "5% Service Fee" : "10% Service Fee"}</span>
+                                        <span>{plan.name === "Free" ? "7.5% Service Fee" : "4% Service Fee"}</span>
                                     </li>
                                     {plan.has_verification_badge && (
                                         <li className="flex items-center gap-3 text-sm font-medium text-stone-600">
