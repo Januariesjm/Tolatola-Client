@@ -66,7 +66,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           )
         )
       ),
-      transport_methods:transport_method_id (*)
+      transport_methods (*)
     `,
     )
     .eq("id", id)
@@ -75,6 +75,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   if (error || !order) {
     console.error("Error fetching order:", error)
+    console.error("Order ID:", id)
+    console.error("User ID:", user.id)
     notFound()
   }
 
