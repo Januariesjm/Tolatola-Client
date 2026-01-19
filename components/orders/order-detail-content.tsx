@@ -118,7 +118,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5" />
-                      Placed on {new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: 'long', timeStyle: 'short' })}
+                      Placed on {new Date(order.created_at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
