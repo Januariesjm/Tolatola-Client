@@ -13,13 +13,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { full_name, phone } = body
+    const { full_name, phone, address } = body
 
     const { error } = await supabase
       .from("users")
       .update({
         full_name,
         phone,
+        address,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)

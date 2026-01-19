@@ -27,71 +27,95 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Package className="h-5 w-5" />
-          Order History
-        </CardTitle>
-        <CardDescription>View all your past and current orders</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {orders.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">No orders yet</p>
-            <Link href="/shop">
-              <Button>Start Shopping</Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <div key={order.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="font-semibold">Order #{order.order_number}</p>
-                    <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
-                  </div>
-                  <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
-                </div>
 
-                <div className="space-y-2 mb-4">
+    <div className="space-y-6">
+      {orders.length === 0 ? (
+        <div className="text-center py-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+          <div className="bg-white dark:bg-zinc-950 p-4 rounded-full inline-flex mb-4 shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <Package className="h-8 w-8 text-indigo-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No orders yet</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            You haven't placed any orders yet. Start exploring our marketplace to find amazing products.
+          </p>
+          <Link href="/shop">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-8">
+              Start Shopping
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <div
+              key={order.id}
+              className="group bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-md transition-all duration-200"
+            >
+              <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-gray-900 dark:text-gray-100">#{order.order_number}</span>
+                    <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    Placed on {new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">Total Amount</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">TZS {order.total_amount.toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="p-5">
+                <div className="space-y-4">
                   {order.order_items?.slice(0, 2).map((item: any) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      {item.product?.images?.[0] && (
-                        <img
-                          src={item.product.images[0] || "/placeholder.svg"}
-                          alt={item.product.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{item.product?.name}</p>
-                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    <div key={item.id} className="flex items-start gap-4">
+                      <div className="h-16 w-16 flex-shrink-0 bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                        {item.product?.images?.[0] ? (
+                          <img
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <Package className="h-6 w-6 text-zinc-300" />
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm font-semibold">TZS {item.total_price.toLocaleString()}</p>
+                      <div className="flex-1 min-w-0 py-1">
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">{item.product?.name}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Qty: {item.quantity} × TZS {item.product?.price?.toLocaleString() || "N/A"}
+                        </p>
+                      </div>
+                      <p className="font-medium text-gray-900 dark:text-gray-100 py-1">TZS {item.total_price.toLocaleString()}</p>
                     </div>
                   ))}
+
                   {order.order_items?.length > 2 && (
-                    <p className="text-sm text-muted-foreground">+{order.order_items.length - 2} more items</p>
+                    <div className="pl-20 pt-1">
+                      <p className="text-sm text-muted-foreground italic">
+                        +{order.order_items.length - 2} more items in this order
+                      </p>
+                    </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <p className="font-semibold">Total: TZS {order.total_amount.toLocaleString()}</p>
+                <div className="mt-6 flex items-center justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
                   <Link href={`/orders/${order.id}`}>
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
+                    <Button variant="outline" className="group-hover:border-indigo-200 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/10 dark:group-hover:border-indigo-800 dark:group-hover:text-indigo-300 transition-colors">
+                      <Eye className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
+                      View Order Details
                     </Button>
                   </Link>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

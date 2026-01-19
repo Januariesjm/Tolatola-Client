@@ -44,50 +44,67 @@ export default function TransactionHistoryTab({ transactions }: TransactionHisto
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" />
-          Transaction History
-        </CardTitle>
-        <CardDescription>View all your financial transactions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {transactions.length === 0 ? (
-          <div className="text-center py-12">
-            <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No transactions yet</p>
+
+    <div className="space-y-6">
+      {transactions.length === 0 ? (
+        <div className="text-center py-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
+          <div className="bg-white dark:bg-zinc-950 p-4 rounded-full inline-flex mb-4 shadow-sm border border-zinc-100 dark:border-zinc-800">
+            <CreditCard className="h-8 w-8 text-indigo-500" />
           </div>
-        ) : (
-          <div className="space-y-3">
-            {transactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-muted rounded-full">{getTransactionIcon(transaction.transaction_type)}</div>
-                  <div>
-                    <p className="font-medium capitalize">{getTransactionLabel(transaction.transaction_type)}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(transaction.created_at).toLocaleDateString()} at{" "}
-                      {new Date(transaction.created_at).toLocaleTimeString()}
-                    </p>
-                    {transaction.description && (
-                      <p className="text-sm text-muted-foreground">{transaction.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">
-                    {transaction.currency} {transaction.amount.toLocaleString()}
-                  </p>
-                  <Badge className={getStatusColor(transaction.status)} variant="secondary">
-                    {transaction.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No transactions yet</h3>
+          <p className="text-muted-foreground max-w-sm mx-auto">
+            Your financial transactions will appear here once you start buying or selling.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-zinc-50 dark:bg-zinc-900/50 text-muted-foreground border-b border-zinc-100 dark:border-zinc-800">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Transaction</th>
+                  <th className="px-6 py-4 font-medium">Date</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {transactions.map((transaction) => (
+                  <tr key={transaction.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-indigo-50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-900/20">
+                          {getTransactionIcon(transaction.transaction_type)}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                            {getTransactionLabel(transaction.transaction_type)}
+                          </p>
+                          {transaction.description && (
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{transaction.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                      <p className="font-medium">{new Date(transaction.created_at).toLocaleDateString()}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(transaction.created_at).toLocaleTimeString()}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge className={getStatusColor(transaction.status)}>{transaction.status}</Badge>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span className="font-bold text-gray-900 dark:text-gray-100">
+                        {transaction.currency} {transaction.amount.toLocaleString()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </div>
   )
 }

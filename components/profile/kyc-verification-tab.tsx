@@ -93,51 +93,66 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
   const getStatusAlert = () => {
     if (!kyc) {
       return (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Complete your KYC verification to unlock full Digital trade and Supply Chain Ecosystem features and build trust with vendors.
-          </AlertDescription>
-        </Alert>
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex gap-3">
+          <AlertCircle className="h-5 w-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-indigo-900 dark:text-indigo-300">Verification Required</h4>
+            <p className="text-sm text-indigo-700 dark:text-indigo-400/80 mt-1">
+              Complete your KYC verification to unlock full Digital trade and Supply Chain Ecosystem features and build trust with vendors.
+            </p>
+          </div>
+        </div>
       )
     }
 
     switch (kyc.kyc_status) {
       case "approved":
         return (
-          <Alert className="border-green-600 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-900">
-              Your identity has been verified. You can now enjoy full Digital trade and Supply Chain Ecosystem access.
-            </AlertDescription>
-          </Alert>
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl p-4 flex gap-3">
+            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-green-900 dark:text-green-300">Verified Account</h4>
+              <p className="text-sm text-green-700 dark:text-green-400/80 mt-1">
+                Your identity has been verified. You can now enjoy full Digital trade and Supply Chain Ecosystem access.
+              </p>
+            </div>
+          </div>
         )
       case "pending":
         return (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Your KYC application is under review. We'll notify you once it's processed.
-            </AlertDescription>
-          </Alert>
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800 rounded-xl p-4 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-yellow-900 dark:text-yellow-300">Under Review</h4>
+              <p className="text-sm text-yellow-700 dark:text-yellow-400/80 mt-1">
+                Your KYC application is under review. We'll notify you once it's processed.
+              </p>
+            </div>
+          </div>
         )
       case "rejected":
         return (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Your KYC application was rejected. {kyc.kyc_notes && `Reason: ${kyc.kyc_notes}`}
-            </AlertDescription>
-          </Alert>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl p-4 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-red-900 dark:text-red-300">Verification Failed</h4>
+              <p className="text-sm text-red-700 dark:text-red-400/80 mt-1">
+                Your KYC application was rejected. {kyc.kyc_notes && `Reason: ${kyc.kyc_notes}`}
+              </p>
+            </div>
+          </div>
         )
       case "changes_requested":
         return (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Changes requested: {kyc.kyc_notes}. Please update your information and resubmit.
-            </AlertDescription>
-          </Alert>
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-xl p-4 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-orange-900 dark:text-orange-300">Changes Requested</h4>
+              <p className="text-sm text-orange-700 dark:text-orange-400/80 mt-1">
+                {kyc.kyc_notes}. Please update your information and resubmit.
+              </p>
+            </div>
+          </div>
         )
     }
   }
@@ -157,24 +172,30 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
     required?: boolean
     description: string
   }) => (
-    <div className="space-y-2">
-      <Label htmlFor={documentType}>
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
+    <div className="space-y-3 bg-zinc-50 dark:bg-zinc-900/30 rounded-lg p-4 border border-zinc-100 dark:border-zinc-800/50">
+      <div className="flex items-center justify-between">
+        <Label htmlFor={documentType} className="text-base font-medium">
+          {label} {required && <span className="text-red-500">*</span>}
+        </Label>
+      </div>
+
+      <p className="text-xs text-muted-foreground">{description}</p>
 
       {currentUrl && (
-        <div className="relative">
-          <img
-            src={currentUrl || "/placeholder.svg"}
-            alt={label}
-            className="w-full h-48 object-cover rounded-lg border"
-          />
+        <div className="relative group">
+          <div className="h-48 w-full bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
+            <img
+              src={currentUrl || "/placeholder.svg"}
+              alt={label}
+              className="w-full h-full object-cover"
+            />
+          </div>
           {canEdit && (
             <Button
               type="button"
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={() => setFormData({ ...formData, [`${documentType}_url`]: "" })}
             >
               <X className="h-4 w-4" />
@@ -184,27 +205,27 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
       )}
 
       {canEdit && !currentUrl && (
-        <div className="space-y-2">
-          <div className="flex gap-2">
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <Button
               type="button"
               variant="outline"
-              className="flex-1 bg-transparent"
+              className="h-24 flex flex-col items-center justify-center gap-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
               disabled={uploadingDoc === documentType}
               onClick={() => document.getElementById(`${documentType}-file`)?.click()}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              {uploadingDoc === documentType ? "Uploading..." : "Choose File"}
+              <Upload className="h-6 w-6 text-muted-foreground" />
+              <span className="text-xs">Upload File</span>
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="flex-1 bg-transparent"
+              className="h-24 flex flex-col items-center justify-center gap-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
               disabled={uploadingDoc === documentType}
               onClick={() => document.getElementById(`${documentType}-camera`)?.click()}
             >
-              <Camera className="h-4 w-4 mr-2" />
-              Take Photo
+              <Camera className="h-6 w-6 text-muted-foreground" />
+              <span className="text-xs">Take Photo</span>
             </Button>
           </div>
 
@@ -230,124 +251,115 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
               if (file) handleFileUpload(file, documentType)
             }}
           />
-
-          <p className="text-sm text-muted-foreground">{description}</p>
+          {uploadingDoc === documentType && <p className="text-center text-xs text-indigo-600 animate-pulse">Uploading...</p>}
         </div>
       )}
     </div>
   )
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {getStatusAlert()}
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5" />
-                KYC Verification
-              </CardTitle>
-              <CardDescription>Verify your identity to access all Digital trade and Supply Chain Ecosystem features</CardDescription>
-            </div>
-            {kyc && (
-              <Badge
-                variant={
-                  kyc.kyc_status === "approved"
-                    ? "default"
-                    : kyc.kyc_status === "rejected"
-                      ? "destructive"
-                      : "secondary"
-                }
-              >
-                {kyc.kyc_status}
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="full_name">Full Name (as per ID)</Label>
-                <Input
-                  id="full_name"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  disabled={!canEdit}
-                  required
-                />
-              </div>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Identity Details</h3>
+          <p className="text-sm text-muted-foreground">Please provide your official identification details below.</p>
+        </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="date_of_birth">Date of Birth</Label>
-                <Input
-                  id="date_of_birth"
-                  type="date"
-                  value={formData.date_of_birth}
-                  onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                  disabled={!canEdit}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone_number">Phone Number</Label>
-                <Input
-                  id="phone_number"
-                  value={formData.phone_number}
-                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                  disabled={!canEdit}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  disabled={!canEdit}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="region">Region</Label>
-                <Input
-                  id="region"
-                  value={formData.region}
-                  onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                  disabled={!canEdit}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="postal_code">Postal Code (Optional)</Label>
-                <Input
-                  id="postal_code"
-                  value={formData.postal_code}
-                  onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                  disabled={!canEdit}
-                />
-              </div>
-            </div>
-
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="address">Full Address</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              <Label htmlFor="full_name">Full Name (as per ID)</Label>
+              <Input
+                id="full_name"
+                value={formData.full_name}
+                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 disabled={!canEdit}
                 required
+                className="h-10"
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="date_of_birth">Date of Birth</Label>
+              <Input
+                id="date_of_birth"
+                type="date"
+                value={formData.date_of_birth}
+                onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                disabled={!canEdit}
+                required
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone_number">Phone Number</Label>
+              <Input
+                id="phone_number"
+                value={formData.phone_number}
+                onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                disabled={!canEdit}
+                required
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                disabled={!canEdit}
+                required
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="region">Region</Label>
+              <Input
+                id="region"
+                value={formData.region}
+                onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                disabled={!canEdit}
+                required
+                className="h-10"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="postal_code">Postal Code (Optional)</Label>
+              <Input
+                id="postal_code"
+                value={formData.postal_code}
+                onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                disabled={!canEdit}
+                className="h-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Full Address</Label>
+            <Textarea
+              id="address"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              disabled={!canEdit}
+              required
+              className="min-h-[80px]"
+            />
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+              Identification Documents
+            </h3>
+
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="id_type">ID Type</Label>
                 <Select
@@ -355,7 +367,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
                   onValueChange={(value) => setFormData({ ...formData, id_type: value })}
                   disabled={!canEdit}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -375,24 +387,25 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
                   onChange={(e) => setFormData({ ...formData, id_number: e.target.value })}
                   disabled={!canEdit}
                   required
+                  className="h-10"
                 />
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-6">
               <DocumentUpload
-                label="ID Document (Front)"
+                label="ID Front"
                 documentType="id_document_front"
                 currentUrl={formData.id_document_front_url}
                 required
-                description="Upload a clear photo of the front of your ID document"
+                description="Clear photo of ID front"
               />
 
               <DocumentUpload
-                label="ID Document (Back)"
+                label="ID Back"
                 documentType="id_document_back"
                 currentUrl={formData.id_document_back_url}
-                description="Upload a clear photo of the back of your ID document (if applicable)"
+                description="Clear photo of ID back (if applicable)"
               />
 
               <DocumentUpload
@@ -400,18 +413,20 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
                 documentType="selfie"
                 currentUrl={formData.selfie_url}
                 required
-                description="Take a selfie holding your ID next to your face"
+                description="Your face and ID clearly visible"
               />
             </div>
+          </div>
 
-            {canEdit && (
-              <Button type="submit" disabled={isLoading || uploadingDoc !== null} className="w-full">
-                {isLoading ? "Submitting..." : kyc ? "Resubmit KYC" : "Submit KYC"}
+          {canEdit && (
+            <div className="flex justify-end pt-4">
+              <Button type="submit" disabled={isLoading || uploadingDoc !== null} className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px]">
+                {isLoading ? "Submitting..." : kyc ? "Resubmit Application" : "Submit Application"}
               </Button>
-            )}
-          </form>
-        </CardContent>
-      </Card>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   )
 }
