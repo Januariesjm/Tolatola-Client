@@ -115,34 +115,101 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
                             <CardContent className="space-y-4">
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Full Name:</span>
+                                        <span className="font-medium">{kyc.full_name || "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Email:</span>
+                                        <span className="font-medium">{kyc.users?.email || "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
                                         <span className="text-muted-foreground">Phone:</span>
-                                        <span className="font-medium">{kyc.users?.phone || "N/A"}</span>
+                                        <span className="font-medium">{kyc.phone_number || kyc.users?.phone || "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Date of Birth:</span>
+                                        <span className="font-medium">{kyc.date_of_birth ? new Date(kyc.date_of_birth).toLocaleDateString() : "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Address:</span>
+                                        <span className="font-medium text-right max-w-[200px] truncate">{kyc.address || "N/A"}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">City/Region:</span>
+                                        <span className="font-medium">{[kyc.city, kyc.region].filter(Boolean).join(", ") || "N/A"}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">ID Type:</span>
-                                        <span className="font-medium">{kyc.id_type}</span>
+                                        <span className="font-medium uppercase">{kyc.id_type || "N/A"}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">ID Number:</span>
-                                        <span className="font-medium">{kyc.id_number}</span>
+                                        <span className="font-medium">{kyc.id_number || "N/A"}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">Applied:</span>
                                         <span className="font-medium">{new Date(kyc.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    {kyc.id_document_url && (
-                                        <div className="flex justify-between items-center pt-2 border-t">
-                                            <span className="text-muted-foreground">ID Document:</span>
-                                            <Button
-                                                variant="link"
-                                                size="sm"
-                                                className="h-auto p-0"
-                                                onClick={() => handleViewDocument(kyc.id_document_url)}
-                                            >
-                                                <Eye className="h-4 w-4 mr-1" />
-                                                View Document
-                                            </Button>
-                                        </div>
+                                </div>
+
+                                {/* Document previews */}
+                                <div className="pt-2 border-t space-y-2">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {kyc.id_document_front_url && (
+                                            <div className="space-y-1">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full h-auto p-0 overflow-hidden"
+                                                    onClick={() => handleViewDocument(kyc.id_document_front_url)}
+                                                >
+                                                    <img
+                                                        src={kyc.id_document_front_url}
+                                                        alt="ID Front"
+                                                        className="w-full h-20 object-cover"
+                                                    />
+                                                </Button>
+                                                <p className="text-[10px] text-center text-muted-foreground">ID Front</p>
+                                            </div>
+                                        )}
+                                        {kyc.id_document_back_url && (
+                                            <div className="space-y-1">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full h-auto p-0 overflow-hidden"
+                                                    onClick={() => handleViewDocument(kyc.id_document_back_url)}
+                                                >
+                                                    <img
+                                                        src={kyc.id_document_back_url}
+                                                        alt="ID Back"
+                                                        className="w-full h-20 object-cover"
+                                                    />
+                                                </Button>
+                                                <p className="text-[10px] text-center text-muted-foreground">ID Back</p>
+                                            </div>
+                                        )}
+                                        {kyc.selfie_url && (
+                                            <div className="space-y-1">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="w-full h-auto p-0 overflow-hidden"
+                                                    onClick={() => handleViewDocument(kyc.selfie_url)}
+                                                >
+                                                    <img
+                                                        src={kyc.selfie_url}
+                                                        alt="Selfie with ID"
+                                                        className="w-full h-20 object-cover"
+                                                    />
+                                                </Button>
+                                                <p className="text-[10px] text-center text-muted-foreground">Selfie</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {!kyc.id_document_front_url && !kyc.id_document_back_url && !kyc.selfie_url && (
+                                        <p className="text-xs text-muted-foreground text-center py-2">No documents uploaded</p>
                                     )}
                                 </div>
 

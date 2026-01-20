@@ -51,7 +51,8 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
       })
 
       if (!response.ok) {
-        throw new Error("Upload failed")
+        const errorData = await response.json().catch(() => ({ error: "Upload failed" }))
+        throw new Error(errorData.error || "Upload failed")
       }
 
       const data = await response.json()
@@ -63,7 +64,8 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
       }))
     } catch (error) {
       console.error("Error uploading file:", error)
-      alert("Failed to upload file. Please try again.")
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload file. Please try again."
+      alert(errorMessage)
     } finally {
       setUploadingDoc(null)
     }
