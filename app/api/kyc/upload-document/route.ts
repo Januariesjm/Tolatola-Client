@@ -22,27 +22,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Ensure bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets()
-    const bucketExists = buckets?.some((b) => b.name === BUCKET_NAME)
-
-    if (!bucketExists) {
-      const { error: createBucketError } = await supabase.storage.createBucket(BUCKET_NAME, {
-        public: true,
-        fileSizeLimit: 10485760, // 10MB
-      })
-      if (createBucketError) {
-        console.error("Error creating bucket:", createBucketError)
-        // Continue anyway - bucket might exist but not visible to this user
-      }
-    }
-
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
     // Upload to Supabase Storage with organized folder structure
+    // Path format: {user_id}/{documentType}-{timestamp}-{filename}
+    // This matches the RLS policy requirement: (storage.foldername(name))[1] = auth.uid()::text
     const filename = `${user.id}/${documentType}-${Date.now()}-${file.name}`
+
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filename, buffer, {
