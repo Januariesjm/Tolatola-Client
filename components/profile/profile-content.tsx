@@ -11,10 +11,8 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  ChevronRight,
-  Menu
+  ChevronRight
 } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 import PersonalInfoTab from "./personal-info-tab"
@@ -33,7 +31,6 @@ interface ProfileContentProps {
 
 export default function ProfileContent({ user, profile, kyc, orders, transactions }: ProfileContentProps) {
   const [activeTab, setActiveTab] = useState("personal")
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const getKycStatusBadge = () => {
     if (!kyc) return <Badge variant="secondary">Not Verified</Badge>
@@ -78,10 +75,7 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => {
-              setActiveTab(item.id)
-              setIsMobileMenuOpen(false)
-            }}
+            onClick={() => setActiveTab(item.id)}
             className={cn(
               "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200",
               activeTab === item.id
@@ -105,21 +99,21 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
   )
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8">
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-white dark:bg-zinc-50">
+      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+        {/* Mobile Header - Simple title only, no hamburger */}
+        <div className="md:hidden mb-6">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">My Profile</h1>
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 border-r-0 bg-transparent shadow-none">
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm border-2 border-white shadow-sm">
+              {profile?.full_name?.[0] || user.email?.[0] || "U"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-900 truncate">{profile?.full_name || "User"}</p>
+              <p className="text-xs text-gray-600 truncate">{user.email}</p>
+            </div>
+            {getKycStatusBadge()}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-12 gap-8">
@@ -132,9 +126,9 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
 
           {/* Main Content */}
           <div className="md:col-span-8 lg:col-span-9 space-y-6">
-            <div className="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6 min-h-[400px]">
+            <div className="bg-white dark:bg-white rounded-xl border border-zinc-200 shadow-sm p-6 min-h-[400px]">
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+                <h2 className="text-2xl font-bold text-gray-900">
                   {navItems.find(i => i.id === activeTab)?.label}
                 </h2>
                 <Separator className="mt-4" />
@@ -149,6 +143,34 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 shadow-lg z-50">
+        <div className="grid grid-cols-5 gap-1 px-2 py-2">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all duration-200",
+                activeTab === item.id
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-zinc-600 hover:bg-zinc-50"
+              )}
+            >
+              <item.icon className={cn("h-5 w-5", activeTab === item.id ? "text-indigo-600" : "text-zinc-400")} />
+              <span className={cn(
+                "text-[10px] font-medium leading-tight text-center",
+                activeTab === item.id ? "text-indigo-700" : "text-zinc-600"
+              )}>
+                {item.label.split(' ').map((word, i) => (
+                  <span key={i} className="block">{word}</span>
+                ))}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
