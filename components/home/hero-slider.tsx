@@ -79,16 +79,22 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
 
                                 {/* Title */}
                                 <h1
-                                    className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight tracking-tight line-clamp-2 md:line-clamp-none"
-                                    style={{ color: slide.text_color || "#ffffff" }}
+                                    className="text-base sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight line-clamp-2 md:line-clamp-none"
+                                    style={{
+                                        color: slide.text_color || "#ffffff",
+                                        textShadow: "0 2px 4px rgba(0,0,0,0.3)"
+                                    }}
                                 >
                                     {slide.title}
                                 </h1>
 
                                 {/* Description */}
                                 <p
-                                    className="text-[10px] sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none opacity-90"
-                                    style={{ color: slide.text_color || "#ffffff" }}
+                                    className="text-[10px] sm:text-sm md:text-base lg:text-lg font-semibold leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-none"
+                                    style={{
+                                        color: slide.text_color || "#ffffff",
+                                        textShadow: "0 1px 2px rgba(0,0,0,0.3)"
+                                    }}
                                 >
                                     {slide.description || "Discover amazing deals and shop from trusted sellers."}
                                 </p>
