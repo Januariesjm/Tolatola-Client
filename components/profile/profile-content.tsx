@@ -54,81 +54,62 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-lg border-2 border-white dark:border-zinc-800 shadow-sm">
-            {profile?.full_name?.[0] || user.email?.[0] || "U"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-gray-900 dark:text-gray-100 truncate">{profile?.full_name || "User"}</h2>
-            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-          </div>
-        </div>
-        <div className="mt-4">
-          {getKycStatusBadge()}
-        </div>
-      </div>
-
-      <div className="p-4 space-y-1 flex-1">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200",
-              activeTab === item.id
-                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 shadow-sm ring-1 ring-indigo-200 dark:ring-indigo-800"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
-            )}
-          >
-            <item.icon className={cn("h-4 w-4", activeTab === item.id ? "text-indigo-600 dark:text-indigo-400" : "text-zinc-400")} />
-            {item.label}
-            {activeTab === item.id && <ChevronRight className="h-4 w-4 ml-auto text-indigo-400" />}
-          </button>
-        ))}
-      </div>
-
-      <div className="p-4 border-t border-zinc-100 dark:border-zinc-800">
-        <p className="text-xs text-center text-muted-foreground">
-          Member since {new Date(user.created_at).getFullYear()}
-        </p>
-      </div>
-    </div>
-  )
-
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-50">
-      <div className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Mobile Header - Simple title only, no hamburger */}
-        <div className="md:hidden mb-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">My Profile</h1>
-          <div className="mt-3 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm border-2 border-white shadow-sm">
+    <div className="min-h-screen bg-[#F5F5F7]">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Profile Header */}
+        <div className="mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">My Profile</h1>
+          <div className="mt-3 flex items-center gap-3 bg-white p-3 rounded-xl border border-zinc-200 shadow-sm">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm sm:text-base border-2 border-white shadow-sm">
               {profile?.full_name?.[0] || user.email?.[0] || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-900 truncate">{profile?.full_name || "User"}</p>
-              <p className="text-xs text-gray-600 truncate">{user.email}</p>
+              <p className="font-semibold text-zinc-900 truncate text-sm sm:text-base">{profile?.full_name || "User"}</p>
+              <p className="text-xs text-zinc-500 truncate">{user.email}</p>
             </div>
             {getKycStatusBadge()}
           </div>
         </div>
 
-        <div className="grid md:grid-cols-12 gap-8">
-          {/* Desktop Sidebar */}
-          <div className="hidden md:block md:col-span-4 lg:col-span-3">
-            <div className="sticky top-24">
-              <SidebarContent />
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
+          {/* Left Sidebar - Always visible */}
+          <div className="w-full sm:w-64 md:w-72 flex-shrink-0">
+            <div className="sm:sticky sm:top-24">
+              <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+                <div className="p-2 sm:p-4 space-y-1">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={cn(
+                        "w-full flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg transition-all duration-200",
+                        activeTab === item.id
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-200"
+                          : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                      )}
+                    >
+                      <item.icon className={cn("h-4 w-4", activeTab === item.id ? "text-indigo-600" : "text-zinc-400")} />
+                      <span className="truncate">{item.label}</span>
+                      {activeTab === item.id && <ChevronRight className="h-4 w-4 ml-auto text-indigo-400 hidden sm:block" />}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-4 border-t border-zinc-100 hidden sm:block">
+                  <p className="text-[10px] text-center text-zinc-400 uppercase tracking-wider">
+                    Member since {new Date(user.created_at).getFullYear()}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="md:col-span-8 lg:col-span-9 space-y-6">
-            <div className="bg-white dark:bg-white rounded-xl border border-zinc-200 shadow-sm p-6 min-h-[400px]">
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-4 sm:p-6 min-h-[400px]">
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-lg sm:text-2xl font-bold text-zinc-900">
                   {navItems.find(i => i.id === activeTab)?.label}
                 </h2>
                 <Separator className="mt-4" />
@@ -143,34 +124,6 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 shadow-lg z-50">
-        <div className="grid grid-cols-5 gap-1 px-2 py-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg transition-all duration-200",
-                activeTab === item.id
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-zinc-600 hover:bg-zinc-50"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", activeTab === item.id ? "text-indigo-600" : "text-zinc-400")} />
-              <span className={cn(
-                "text-[10px] font-medium leading-tight text-center",
-                activeTab === item.id ? "text-indigo-700" : "text-zinc-600"
-              )}>
-                {item.label.split(' ').map((word, i) => (
-                  <span key={i} className="block">{word}</span>
-                ))}
-              </span>
-            </button>
-          ))}
         </div>
       </div>
     </div>
