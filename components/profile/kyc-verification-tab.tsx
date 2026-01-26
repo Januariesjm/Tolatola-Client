@@ -159,7 +159,9 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
     }
   }
 
-  const canEdit = !kyc || kyc.kyc_status === "rejected" || kyc.kyc_status === "changes_requested"
+  // Robust check for editability: allowed if no kyc exists, or if status is rejected/changes_requested
+  const currentStatus = kyc?.kyc_status?.toLowerCase()
+  const canEdit = !kyc || currentStatus === "rejected" || currentStatus === "changes_requested"
 
   const DocumentUpload = ({
     label,
@@ -197,8 +199,8 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
               type="button"
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => setFormData({ ...formData, [`${documentType}_url`]: "" })}
+              className="absolute top-2 right-2 shadow-sm z-10"
+              onClick={() => setFormData((prev) => ({ ...prev, [`${documentType}_url`]: "" }))}
             >
               <X className="h-4 w-4" />
             </Button>
