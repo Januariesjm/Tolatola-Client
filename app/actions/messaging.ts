@@ -2,14 +2,20 @@
 
 import { createClient } from "@/lib/supabase/server"
 
-export async function getOrCreateConversation(shopId?: string, productId?: string, receiverId?: string, orderId?: string) {
+export async function getOrCreateConversation(
+  shopId?: string,
+  productId?: string,
+  receiverId?: string,
+  orderId?: string,
+  ticketId?: string,
+) {
   try {
     const supabase = await createClient()
     console.log("[Messaging] Supabase client initialized")
 
     const {
       data: { user },
-      error: authError
+      error: authError,
     } = await supabase.auth.getUser()
 
     if (authError) {
@@ -22,7 +28,69 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       return { error: "Please log in to chat with the seller" }
     }
 
-    console.log("[Messaging] getOrCreateConversation:", { shopId, productId, receiverId, orderId, userId: user.id })
+    console.log("[Messaging] getOrCreateConversation:", {
+      shopId,
+      productId,
+      receiverId,
+      orderId,
+      ticketId,
+      userId: user.id,
+    })
+
+    // Case 3: Support Ticket Conversation
+    if (ticketId) {
+      console.log("[Messaging] Handling support conversation for ticket:", ticketId)
+
+      // Check if conversation already linked to ticket
+      const { data: ticket, error: ticketError } = await (supabase as any)
+        .from("support_tickets")
+        .select("conversation_id")
+        .eq("id", ticketId)
+        .single()
+
+      if (ticketError) {
+        return { error: `Ticket not found: ${ticketError.message}` }
+      }
+
+      if (ticket?.conversation_id) {
+        // Fetch the conversation
+        const { data: existingConversation } = await (supabase as any)
+          .from("conversations")
+          .select("*")
+          .eq("id", ticket.conversation_id)
+          .single()
+
+        if (existingConversation) {
+          return { conversation: existingConversation }
+        }
+      }
+
+      // Create new support conversation
+      console.log("[Messaging] Creating new support conversation...")
+      // @ts-ignore
+      const { data: newConversation, error } = await (supabase as any)
+        .from("conversations")
+        .insert({
+          customer_id: user.id,
+          type: "support",
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error("[Messaging] Error creating support conversation:", error)
+        return { error: `Failed to create support conversation: ${error.message}` }
+      }
+
+      // Link to ticket
+      await (supabase as any)
+        .from("support_tickets")
+        .update({ conversation_id: newConversation.id })
+        .eq("id", ticketId)
+
+      console.log("[Messaging] Created new support conversation:", newConversation.id)
+      return { conversation: newConversation }
+    }
 
     // Case 1: Traditional Customer-Shop/Vendor conversation
     if (shopId) {
@@ -55,6 +123,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
         .select("*")
         .eq("customer_id", user.id)
         .eq("shop_id", shopId)
+        .eq("type", "shop")
         .maybeSingle()
 
       if (existingConversation) {
@@ -72,6 +141,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
           vendor_id: vendorUserId,
           shop_id: shopId,
           product_id: productId,
+          type: "shop",
         })
         .select()
         .single()
@@ -92,8 +162,11 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
       const { data: existingConversation } = await (supabase as any)
         .from("conversations")
         .select("*")
-        .or(`and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`)
+        .or(
+          `and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`,
+        )
         .is("shop_id", null) // Distinguish from shop chats
+        .eq("type", "direct")
         .maybeSingle()
 
       if (existingConversation) {
@@ -110,6 +183,7 @@ export async function getOrCreateConversation(shopId?: string, productId?: strin
           customer_id: user.id, // Current user (could be transporter)
           vendor_id: receiverId, // Target user (could be customer)
           order_id: orderId,
+          type: "direct",
         })
         .select()
         .single()

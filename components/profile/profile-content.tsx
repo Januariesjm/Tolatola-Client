@@ -11,7 +11,8 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Headphones
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +21,7 @@ import KycVerificationTab from "./kyc-verification-tab"
 import OrderHistoryTab from "./order-history-tab"
 import TransactionHistoryTab from "./transaction-history-tab"
 import AccountSettingsTab from "./account-settings-tab"
+import SupportTab from "./support-tab"
 
 interface ProfileContentProps {
   user: any
@@ -27,9 +29,10 @@ interface ProfileContentProps {
   kyc: any
   orders: any[]
   transactions: any[]
+  tickets: any[]
 }
 
-export default function ProfileContent({ user, profile, kyc, orders, transactions }: ProfileContentProps) {
+export default function ProfileContent({ user, profile, kyc, orders, transactions, tickets }: ProfileContentProps) {
   const [activeTab, setActiveTab] = useState("personal")
 
   const getKycStatusBadge = () => {
@@ -51,6 +54,7 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
     { id: "kyc", label: "KYC Verification", icon: ShieldCheck },
     { id: "orders", label: "Order History", icon: Package },
     { id: "transactions", label: "Transactions", icon: CreditCard },
+    { id: "support", label: "Support Tickets", icon: Headphones },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
@@ -120,6 +124,7 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
                 {activeTab === "kyc" && <KycVerificationTab kyc={kyc} userId={user.id} />}
                 {activeTab === "orders" && <OrderHistoryTab orders={orders} />}
                 {activeTab === "transactions" && <TransactionHistoryTab transactions={transactions} />}
+                {activeTab === "support" && <SupportTab tickets={tickets} />}
                 {activeTab === "settings" && <AccountSettingsTab user={user} profile={profile} />}
               </div>
             </div>

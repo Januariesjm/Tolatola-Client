@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, MessageSquare } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { ChatDialog } from "@/components/messaging/chat-dialog"
 
 interface SupportTicketsTabProps {
   tickets: any[]
@@ -13,11 +15,18 @@ interface SupportTicketsTabProps {
 
 export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
   const router = useRouter()
+  const [chatOpen, setChatOpen] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<any>(null)
 
   const handleResolve = async (ticketId: string) => {
     const supabase = createClient()
     await supabase.from("support_tickets").update({ status: "resolved" }).eq("id", ticketId)
     router.refresh()
+  }
+
+  const openChat = (ticket: any) => {
+    setSelectedTicket(ticket)
+    setChatOpen(true)
   }
 
   const statusColors: Record<string, string> = {
@@ -67,17 +76,33 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                 <p className="text-sm">{ticket.message}</p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-3">
                   <span>Created: {new Date(ticket.created_at).toLocaleDateString()}</span>
-                  {ticket.status !== "resolved" && (
-                    <Button size="sm" onClick={() => handleResolve(ticket.id)}>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Mark as Resolved
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openChat(ticket)}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Chat
                     </Button>
-                  )}
+                    {ticket.status !== "resolved" && (
+                      <Button size="sm" onClick={() => handleResolve(ticket.id)}>
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Mark as Resolved
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {selectedTicket && (
+        <ChatDialog
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          conversationId={selectedTicket.conversation_id}
+          shopName={selectedTicket.users?.full_name || "User"}
+          productName={`Ticket #${selectedTicket.id.substring(0, 8)}: ${selectedTicket.subject}`}
+        />
       )}
     </div>
   )

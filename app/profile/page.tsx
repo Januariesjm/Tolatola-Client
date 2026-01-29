@@ -48,10 +48,25 @@ export default async function ProfilePage() {
     .order("created_at", { ascending: false })
     .limit(50)
 
+  // Fetch support tickets
+  const { data: tickets } = await (supabase
+    .from("support_tickets")
+    .select("*")
+    .eq("user_id", user.id) as any)
+    .order("created_at", { ascending: false })
+
+
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <SiteHeader user={user} profile={profile} kycStatus={kyc?.kyc_status} />
-      <ProfileContent user={user} profile={profile} kyc={kyc} orders={orders || []} transactions={transactions || []} />
+      <ProfileContent
+        user={user}
+        profile={profile}
+        kyc={kyc}
+        orders={orders || []}
+        transactions={transactions || []}
+        tickets={tickets || []}
+      />
     </div>
   )
 }
