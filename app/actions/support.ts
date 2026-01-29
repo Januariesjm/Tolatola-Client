@@ -22,7 +22,7 @@ export async function createSupportTicket(
         // 1. Create Ticket
         const ticketData: any = {
             subject,
-            message,
+            description: message,
             priority,
             status: "open",
         }

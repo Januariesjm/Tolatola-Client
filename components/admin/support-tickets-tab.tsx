@@ -73,7 +73,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm">{ticket.message}</p>
+                <p className="text-sm">{ticket.description}</p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-3">
                   <span>Created: {new Date(ticket.created_at).toLocaleDateString()}</span>
                   <div className="flex gap-2">

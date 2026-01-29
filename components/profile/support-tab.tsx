@@ -152,7 +152,7 @@ export default function SupportTab({ tickets }: SupportTabProps) {
                                             <h3 className="font-semibold text-lg">{ticket.subject}</h3>
                                             <Badge className={statusColors[ticket.status]}>{ticket.status}</Badge>
                                         </div>
-                                        <p className="text-sm text-zinc-500 line-clamp-2">{ticket.message}</p>
+                                        <p className="text-sm text-zinc-500 line-clamp-2">{ticket.description}</p>
                                         <p className="text-xs text-zinc-400">Created: {new Date(ticket.created_at).toLocaleDateString()}</p>
                                     </div>
                                     <Button onClick={() => openChat(ticket)} variant={ticket.status === 'resolved' ? "outline" : "default"}>
