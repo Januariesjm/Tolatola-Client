@@ -23,28 +23,29 @@ import { useRouter } from "next/navigation"
 
 export function FloatingSupportWidget() {
     const router = useRouter()
-    const [open, setOpen] = useState(false)
     const [activeTicket, setActiveTicket] = useState<any>(null)
     const [chatOpen, setChatOpen] = useState(false)
     const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-    // Create Form State
+    // Form State
     const [subject, setSubject] = useState("")
     const [message, setMessage] = useState("")
     const [priority, setPriority] = useState("low")
+    const [guestName, setGuestName] = useState("")
+    const [guestEmail, setGuestEmail] = useState("")
     const [loading, setLoading] = useState(false)
 
-    // Auth check
+    // Auth & Guest State
     const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [guestId, setGuestId] = useState<string | null>(null)
 
     useEffect(() => {
-        const checkAuthAndFetch = async () => {
+        const init = async () => {
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
                 setIsAuthenticated(true)
-                // Check for active ticket (latest open or in_progress)
                 const { data: tickets } = await supabase
                     .from("support_tickets")
                     .select("*")
@@ -56,22 +57,39 @@ export function FloatingSupportWidget() {
                 if (tickets && tickets.length > 0) {
                     setActiveTicket(tickets[0])
                 }
+            } else {
+                const storedGuestId = localStorage.getItem("guestSupportId")
+                if (storedGuestId) {
+                    setGuestId(storedGuestId)
+                    setGuestName(localStorage.getItem("guestSupportName") || "")
+                    setGuestEmail(localStorage.getItem("guestSupportEmail") || "")
+
+                    const lastTicketId = localStorage.getItem("lastActiveSupportTicketId")
+                    if (lastTicketId) {
+                        const { data: ticket } = await supabase
+                            .from("support_tickets")
+                            .select("*")
+                            .eq("id", lastTicketId)
+                            .single()
+
+                        if (ticket && (ticket.status === 'open' || ticket.status === 'in_progress')) {
+                            setActiveTicket(ticket)
+                        }
+                    }
+                }
             }
         }
+        init()
 
-        checkAuthAndFetch()
-    }, [])
+        const handleOpenSupport = () => {
+            if (activeTicket) setChatOpen(true)
+            else setCreateDialogOpen(true)
+        }
+        window.addEventListener('open-support-chat', handleOpenSupport)
+        return () => window.removeEventListener('open-support-chat', handleOpenSupport)
+    }, [activeTicket])
 
     const handleFabClick = () => {
-        if (!isAuthenticated) {
-            toast({
-                title: "Sign in required",
-                description: "Please sign in to contact support.",
-            })
-            router.push("/auth/login")
-            return
-        }
-
         if (activeTicket) {
             setChatOpen(true)
         } else {
@@ -80,44 +98,57 @@ export function FloatingSupportWidget() {
     }
 
     const handleCreateTicket = async () => {
-        if (!subject || !message) return
+        if (!subject || !message) {
+            toast({ title: "Please fill in subject and message", variant: "destructive" })
+            return
+        }
+        if (!isAuthenticated && (!guestName || !guestEmail)) {
+            toast({ title: "Name and Email are required", variant: "destructive" })
+            return
+        }
 
         setLoading(true)
-        const result = await createSupportTicket(subject, message, priority)
+        let currentGuestId = guestId
+        if (!isAuthenticated && !currentGuestId) {
+            currentGuestId = crypto.randomUUID()
+            setGuestId(currentGuestId)
+            localStorage.setItem("guestSupportId", currentGuestId)
+            localStorage.setItem("guestSupportName", guestName)
+            localStorage.setItem("guestSupportEmail", guestEmail)
+        }
+
+        const guestInfo = !isAuthenticated ? {
+            name: guestName,
+            email: guestEmail,
+            guestId: currentGuestId!
+        } : undefined
+
+        const result = await createSupportTicket(subject, message, priority, guestInfo)
         setLoading(false)
 
         if (result.error) {
-            toast({
-                title: "Error",
-                description: result.error,
-                variant: "destructive",
-            })
+            toast({ title: "Error", description: result.error, variant: "destructive" })
         } else {
-            toast({
-                title: "Support Connected",
-                description: "Ticket created. Connecting you to an agent...",
-            })
+            toast({ title: "Support Connected" })
             setCreateDialogOpen(false)
-            // Set as active and open chat
             setActiveTicket(result.ticket)
+            if (!isAuthenticated) {
+                localStorage.setItem("lastActiveSupportTicketId", result.ticket.id)
+            }
             setChatOpen(true)
-
             setSubject("")
             setMessage("")
-            setPriority("low")
         }
     }
 
-    // If chat is closed, we might want to refresh checking for active tickets?
-    // For now simple lifecycle is fine.
-
     if (!isAuthenticated && typeof window !== 'undefined' && window.location.pathname.includes('/auth')) {
-        return null // Don't show on auth pages if not logged in
+        return null
     }
 
     return (
         <>
-            <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-1000">
+            {/* HIDDEN ON MOBILE: Use hidden md:block or hidden md:flex */}
+            <div className="hidden md:block fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-1000">
                 <Button
                     size="lg"
                     className="h-14 w-14 rounded-full shadow-2xl bg-indigo-600 hover:bg-indigo-700 text-white p-0 relative group"
@@ -135,14 +166,12 @@ export function FloatingSupportWidget() {
                         <Headphones className="h-6 w-6 text-white" />
                     )}
 
-                    {/* Tooltip-ish hint */}
                     <span className="absolute right-full mr-4 bg-white text-stone-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                         {activeTicket ? "Resume Chat" : "Need Help?"}
                     </span>
                 </Button>
             </div>
 
-            {/* Create Ticket Dialog */}
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
@@ -152,6 +181,29 @@ export function FloatingSupportWidget() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
+                        {!isAuthenticated && (
+                            <>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="guest-name">Name</Label>
+                                    <Input
+                                        id="guest-name"
+                                        placeholder="Your Name"
+                                        value={guestName}
+                                        onChange={(e) => setGuestName(e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="guest-email">Email</Label>
+                                    <Input
+                                        id="guest-email"
+                                        type="email"
+                                        placeholder="your@email.com"
+                                        value={guestEmail}
+                                        onChange={(e) => setGuestEmail(e.target.value)}
+                                    />
+                                </div>
+                            </>
+                        )}
                         <div className="grid gap-2">
                             <Label htmlFor="fab-subject">Subject/Topic</Label>
                             <Input
