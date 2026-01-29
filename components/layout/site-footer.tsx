@@ -119,10 +119,20 @@ export function SiteFooter() {
             <ul className="space-y-4">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group">
-                    <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                    {link.name}
-                  </Link>
+                  {link.name === "Contact Us" ? (
+                    <button
+                      onClick={() => window.dispatchEvent(new Event('open-support-chat'))}
+                      className="text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group w-full text-left"
+                    >
+                      <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                      Live Support
+                    </button>
+                  ) : (
+                    <Link href={link.href} className="text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group">
+                      <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

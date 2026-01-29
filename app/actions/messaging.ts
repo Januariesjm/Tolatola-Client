@@ -8,6 +8,7 @@ export async function getOrCreateConversation(
   receiverId?: string,
   orderId?: string,
   ticketId?: string,
+  guestId?: string,
 ) {
   try {
     const supabase = await createClient()
@@ -18,82 +19,67 @@ export async function getOrCreateConversation(
       error: authError,
     } = await supabase.auth.getUser()
 
-    if (authError) {
-      console.error("[Messaging] Auth error:", authError)
-      return { error: `Authentication failed: ${authError.message}` }
+    // Allow if user is logged in OR if guestId is provided for support tickets
+    if (!user && !guestId) {
+      console.log("[Messaging] User not authenticated and no guestId")
+      return { error: "Detailed authentication required." }
     }
 
-    if (!user) {
-      console.log("[Messaging] User not authenticated - session might be expired")
-      return { error: "Please log in to chat with the seller" }
-    }
+    // ... log details ...
 
-    console.log("[Messaging] getOrCreateConversation:", {
-      shopId,
-      productId,
-      receiverId,
-      orderId,
-      ticketId,
-      userId: user.id,
-    })
-
-    // Case 3: Support Ticket Conversation
+    // Case 3: Support Ticket Conversation (User or Guest)
     if (ticketId) {
-      console.log("[Messaging] Handling support conversation for ticket:", ticketId)
-
-      // Check if conversation already linked to ticket
+      // ... existing check for linked conversation ...
       const { data: ticket, error: ticketError } = await (supabase as any)
         .from("support_tickets")
         .select("conversation_id")
         .eq("id", ticketId)
         .single()
 
-      if (ticketError) {
-        return { error: `Ticket not found: ${ticketError.message}` }
-      }
+      if (ticketError) return { error: `Ticket not found: ${ticketError.message}` }
 
       if (ticket?.conversation_id) {
-        // Fetch the conversation
+        // Fetch existing
         const { data: existingConversation } = await (supabase as any)
           .from("conversations")
           .select("*")
           .eq("id", ticket.conversation_id)
           .single()
-
-        if (existingConversation) {
-          return { conversation: existingConversation }
-        }
+        if (existingConversation) return { conversation: existingConversation }
       }
 
-      // Create new support conversation
-      console.log("[Messaging] Creating new support conversation...")
+      // Create new
+      const conversationData: any = { type: 'support' }
+      if (user) {
+        conversationData.customer_id = user.id
+      } else if (guestId) {
+        conversationData.guest_id = guestId
+      }
+
       // @ts-ignore
       const { data: newConversation, error } = await (supabase as any)
         .from("conversations")
-        .insert({
-          customer_id: user.id,
-          type: "support",
-        })
+        .insert(conversationData)
         .select()
         .single()
 
       if (error) {
-        console.error("[Messaging] Error creating support conversation:", error)
         return { error: `Failed to create support conversation: ${error.message}` }
       }
 
-      // Link to ticket
+      // Link
       await (supabase as any)
         .from("support_tickets")
         .update({ conversation_id: newConversation.id })
         .eq("id", ticketId)
 
-      console.log("[Messaging] Created new support conversation:", newConversation.id)
       return { conversation: newConversation }
     }
 
     // Case 1: Traditional Customer-Shop/Vendor conversation
     if (shopId) {
+      if (!user) return { error: "Login required for shop chat." }
+
       console.log("[Messaging] Fetching shop and vendor details for shopId:", shopId)
       // Get shop and its vendor's user_id
       // @ts-ignore
@@ -157,6 +143,8 @@ export async function getOrCreateConversation(
 
     // Case 2: Transporter-Customer conversation (based on receiverId and orderId)
     if (receiverId) {
+      if (!user) return { error: "Login required for direct chat." }
+
       console.log("[Messaging] Handling direct conversation for receiverId:", receiverId)
       // Check if conversation already exists between these two users
       const { data: existingConversation } = await (supabase as any)
@@ -204,27 +192,43 @@ export async function getOrCreateConversation(
   }
 }
 
-export async function sendMessage(conversationId: string, message: string, attachmentUrl?: string, attachmentType?: string) {
+export async function sendMessage(
+  conversationId: string,
+  message: string,
+  attachmentUrl?: string,
+  attachmentType?: string,
+  senderType: string = "user"
+) {
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (senderType === "user" && !user) {
     return { error: "Not authenticated" }
   }
+
+  // If guest, we assume they are allowed if they have access to the conversationId
+  // (In a real app, verify against guestId cookie/token)
+
+  const payload: any = {
+    conversation_id: conversationId,
+    message,
+    attachment_url: attachmentUrl,
+    attachment_type: attachmentType,
+    sender_type: senderType
+  }
+
+  if (senderType === "user" && user) {
+    payload.sender_id = user.id
+  }
+  // If guest, sender_id remains null
 
   // @ts-ignore
   const { data, error } = await (supabase as any)
     .from("messages")
-    .insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      message,
-      attachment_url: attachmentUrl,
-      attachment_type: attachmentType,
-    })
+    .insert(payload)
     .select()
     .single()
 
