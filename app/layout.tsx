@@ -75,6 +75,7 @@ export const metadata: Metadata = {
 }
 
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
+import { FloatingSupportWidget } from "@/components/support/floating-support-widget"
 
 export default function RootLayout({
   children,
@@ -94,6 +95,7 @@ export default function RootLayout({
           <main className="flex-1 pb-32 lg:pb-0">{children}</main>
           <SiteFooter />
           <MobileBottomNav />
+          <FloatingSupportWidget />
         </LanguageProvider>
       </body>
     </html>
