@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 
 export async function getOrCreateConversation(
   shopId?: string,
@@ -11,7 +11,13 @@ export async function getOrCreateConversation(
   guestId?: string,
 ) {
   try {
-    const supabase = await createClient()
+    let supabase: any = await createClient()
+
+    // For support tickets or guests, we might need privileged access
+    if (ticketId || guestId) {
+      supabase = await createAdminClient()
+    }
+
     console.log("[Messaging] Supabase client initialized")
 
     const {
@@ -199,7 +205,11 @@ export async function sendMessage(
   attachmentType?: string,
   senderType: string = "user"
 ) {
-  const supabase = await createClient()
+  let supabase: any = await createClient()
+
+  if (senderType === "guest") {
+    supabase = await createAdminClient()
+  }
 
   const {
     data: { user },
@@ -273,7 +283,18 @@ export async function uploadChatFile(formData: FormData) {
 }
 
 export async function getConversationMessages(conversationId: string) {
-  const supabase = await createClient()
+  let supabase: any = await createClient()
+
+  // Find if this is a support conversation to determine if we need admin client
+  const { data: conv } = await (supabase as any)
+    .from("conversations")
+    .select("type")
+    .eq("id", conversationId)
+    .single()
+
+  if (conv?.type === 'support') {
+    supabase = await createAdminClient()
+  }
 
   // @ts-ignore
   const { data, error } = await (supabase as any)
