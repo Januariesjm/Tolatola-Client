@@ -96,9 +96,22 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
                     {assignment.shops?.district}, {assignment.shops?.region}
                   </p>
                   {isAccepted && assignment.shops?.address && (
-                    <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
-                      {assignment.shops.address}
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
+                        {assignment.shops.address}
+                      </p>
+                      {assignment.shops.latitude && assignment.shops.longitude && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${assignment.shops.latitude},${assignment.shops.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          View Pickup Location
+                        </a>
+                      )}
+                    </div>
                   )}
                   {isAccepted && assignment.shops?.phone && (
                     <a href={`tel:${assignment.shops.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
@@ -120,10 +133,23 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
                     {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
                   </p>
                   {isAccepted && assignment.orders?.shipping_address && (
-                    <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
-                      {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
-                      {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
+                        {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
+                        {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
+                      </p>
+                      {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          View Delivery Location
+                        </a>
+                      )}
+                    </div>
                   )}
                   {isAccepted && assignment.orders?.users?.phone && (
                     <a
