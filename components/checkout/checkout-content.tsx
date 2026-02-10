@@ -244,9 +244,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
   const deliveryFee = Object.values(shopDeliveries).reduce((sum, d) => sum + d.deliveryFee, 0)
-  const total = subtotal + deliveryFee
+  const insuranceFee = Math.round((subtotal + deliveryFee) * 0.015)
+  const total = subtotal + deliveryFee + insuranceFee
 
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
+
   const [paymentStatusMessage, setPaymentStatusMessage] = useState("")
   const [controlNumber, setControlNumber] = useState<string | null>(null)
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
@@ -432,6 +434,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           delivery_fee: deliveryFee,
         },
         totalAmount: total,
+        insuranceFee,
         paymentMethod,
         paymentDetails: {
           phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa"].includes(paymentMethod)
@@ -1000,6 +1003,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       )}>
                         {(Object.keys(shopDeliveries).length > 0) ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
                       </span>
+                    </div>
+                    <div className="flex justify-between items-center group">
+                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
+                        Trade Insurance (1.5%)
+                      </span>
+                      <span className="text-stone-900 font-bold tracking-tight">{insuranceFee.toLocaleString()} TZS</span>
                     </div>
                     <div className="pt-4 border-t border-stone-100 flex justify-between items-end">
                       <div className="space-y-0.5">
