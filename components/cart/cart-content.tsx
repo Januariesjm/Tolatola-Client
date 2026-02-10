@@ -106,7 +106,7 @@ export function CartContent() {
                         </div>
                         <p className="text-xs md:text-sm text-muted-foreground mb-2 truncate">
                           by{" "}
-                          {item.product.shops?.vendors?.business_name || item.product.shops?.name || "Unknown Vendor"}
+                          Tola Verified Vendor
                         </p>
                         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
                           <div className="flex items-center gap-2">

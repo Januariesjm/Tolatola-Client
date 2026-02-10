@@ -697,7 +697,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                               <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
                                   <p className="text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
-                                  <p className="text-sm font-black text-stone-900">{info.shopName}</p>
+                                  <p className="text-sm font-black text-stone-900">Tola Verified Vendor</p>
                                 </div>
                                 <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[10px] font-black text-stone-500 uppercase">
                                   {info.transportMethod}
