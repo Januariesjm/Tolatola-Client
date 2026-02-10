@@ -45,6 +45,7 @@ export default async function TransporterDashboardPage() {
         assignments={assignmentsRes.assignments || []}
         payments={paymentsRes.payments || []}
         withdrawals={withdrawalsRes.withdrawals || []}
+        user={user}
       />
     )
   } catch (error) {

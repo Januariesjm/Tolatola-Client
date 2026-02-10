@@ -4,22 +4,23 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown } from "lucide-react"
+import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
 import { TransporterAssignmentsTab } from "./transporter-assignments-tab"
 import { TransporterPaymentsTab } from "./transporter-payments-tab"
 import { TransporterWithdrawalsTab } from "./transporter-withdrawals-tab"
 import { TransporterSubscriptionTab } from "./transporter-subscription-tab"
+import { TransporterProfileTab } from "./transporter-profile-tab"
 
 interface TransporterDashboardContentProps {
   transporter: any
   assignments: any[]
   payments: any[]
   withdrawals: any[]
+  user: any
 }
 
 export function TransporterDashboardContent({
@@ -27,6 +28,7 @@ export function TransporterDashboardContent({
   assignments,
   payments,
   withdrawals,
+  user,
 }: TransporterDashboardContentProps) {
   const router = useRouter()
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false)
@@ -220,6 +222,10 @@ export function TransporterDashboardContent({
               <Crown className="h-4 w-4 mr-2" />
               Membership
             </TabsTrigger>
+            <TabsTrigger value="profile">
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="assignments">
@@ -241,6 +247,10 @@ export function TransporterDashboardContent({
 
           <TabsContent value="subscription">
             <TransporterSubscriptionTab transporterId={transporter.id} />
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <TransporterProfileTab user={user} transporter={transporter} />
           </TabsContent>
         </Tabs>
       </div>

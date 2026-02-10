@@ -1,0 +1,35 @@
+import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+
+export async function POST(request: Request) {
+    try {
+        const supabase = await createClient()
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        }
+
+        const body = await request.json()
+        const { business_name, vehicle_type, license_plate } = body
+
+        const { error } = await supabase
+            .from("transporters")
+            .update({
+                business_name,
+                vehicle_type,
+                license_plate,
+                updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", user.id)
+
+        if (error) throw error
+
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error("Error updating transporter details:", error)
+        return NextResponse.json({ error: "Failed to update transporter details" }, { status: 500 })
+    }
+}
