@@ -42,6 +42,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
   const getStatusBadge = (status: string) => {
     const variants: any = {
       assigned: "secondary",
+      ready_for_pickup: "secondary",
       accepted: "outline",
       picked_up: "default",
       in_transit: "default",
@@ -70,6 +71,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
     <div className="space-y-4">
       {assignments.map((assignment) => {
         const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status)
+        const isNotYetAccepted = ["assigned", "ready_for_pickup"].includes(assignment.status)
 
         return (
           <Card key={assignment.id} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
@@ -187,7 +189,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
               )}
 
               {/* Action Buttons */}
-              {assignment.status === "assigned" && (
+              {isNotYetAccepted && (
                 <Button
                   className="w-full bg-primary hover:bg-primary/90"
                   onClick={() => updateStatus(assignment.id, "accepted")}

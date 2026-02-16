@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign } from "lucide-react"
+import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock } from "lucide-react"
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
 
 interface VendorOrdersTabProps {
@@ -55,6 +55,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
     pending_payment: "bg-orange-500",
     confirmed: "bg-blue-500",
     processing: "bg-purple-500",
+    ready_for_pickup: "bg-green-600",
     shipped: "bg-indigo-500",
     delivered: "bg-green-500",
     cancelled: "bg-red-500",
@@ -217,7 +218,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order.id, "confirmed")}
-                          className="flex-1 sm:flex-none"
+                          className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Confirm Order
@@ -227,19 +228,29 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order.id, "processing")}
-                          className="flex-1 sm:flex-none"
+                          className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700"
                         >
+                          <Package className="h-4 w-4 mr-2" />
                           Start Processing
                         </Button>
                       )}
                       {order.status === "processing" && (
                         <Button
                           size="sm"
-                          onClick={() => updateOrderStatus(order.id, "shipped")}
-                          className="flex-1 sm:flex-none"
+                          onClick={() => updateOrderStatus(order.id, "ready_for_pickup")}
+                          className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
                         >
-                          Mark as Shipped
+                          <Truck className="h-4 w-4 mr-2" />
+                          Assign Transporter
                         </Button>
+                      )}
+                      {order.status === "ready_for_pickup" && (
+                        <div className="flex-1 sm:flex-none">
+                          <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 py-1 px-3">
+                            <Clock className="h-4 w-4 mr-2 animate-pulse" />
+                            Waiting for Transporter
+                          </Badge>
+                        </div>
                       )}
                       {order.status === "shipped" && (
                         <Button
@@ -251,7 +262,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                         </Button>
                       )}
                       {order.status === "delivered" && (
-                        <Badge className="bg-green-500">
+                        <Badge className="bg-green-500 py-1 px-3">
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Completed
                         </Badge>

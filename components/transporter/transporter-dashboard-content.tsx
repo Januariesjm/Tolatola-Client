@@ -92,7 +92,7 @@ export function TransporterDashboardContent({
     }
   }
 
-  const activeAssignments = assignments.filter((a) => ["assigned", "accepted", "picked_up", "in_transit"].includes(a.status))
+  const activeAssignments = assignments.filter((a) => ["assigned", "accepted", "picked_up", "in_transit", "ready_for_pickup"].includes(a.status))
   const completedAssignments = assignments.filter((a) => a.status === "delivered")
   const availableBalance = payments
     .filter((p) => p.status === "available")
