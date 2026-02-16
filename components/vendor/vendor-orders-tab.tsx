@@ -41,6 +41,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-500",
+    pending_payment: "bg-orange-500",
     confirmed: "bg-blue-500",
     processing: "bg-purple-500",
     shipped: "bg-indigo-500",
