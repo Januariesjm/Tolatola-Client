@@ -81,7 +81,13 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                   <div>
                     <CardTitle className="text-lg">Order #{order.order_number}</CardTitle>
                     <CardDescription>
-                      Customer: {order.users?.full_name || order.users?.email || "Unknown"}
+                      Customer: {
+                        order.users?.full_name ||
+                        order.users?.email ||
+                        order.shipping_address?.full_name ||
+                        order.shipping_address?.phone ||
+                        "Unknown"
+                      }
                     </CardDescription>
                   </div>
                   <Badge className={statusColors[order.status]}>{order.status}</Badge>
