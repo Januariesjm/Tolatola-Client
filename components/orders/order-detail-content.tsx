@@ -325,18 +325,18 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
             </Card>
 
             {/* Confirm Delivery Action */}
-            {order.status === "shipped" && (
+            {order.status === "delivered" && (
               <Card className="border-blue-200 bg-blue-50/50">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                      <h3 className="font-bold text-lg text-blue-900">Confirm Delivery</h3>
+                      <h3 className="font-bold text-lg text-blue-900">Verify Receipt</h3>
                       <p className="text-sm text-blue-700 mt-1">
-                        Have you received this order properly? Confirming releases the payment to the vendor.
+                        Please confirm you have received the order. This will release funds to the vendor and transporter.
                       </p>
                     </div>
                     <Button onClick={handleConfirmDelivery} disabled={isConfirming} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[150px]">
-                      {isConfirming ? "Procesing..." : "Confirm Receipt"}
+                      {isConfirming ? "Verifying..." : "Verify Receipt"}
                     </Button>
                   </div>
                 </CardContent>
