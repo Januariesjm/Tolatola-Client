@@ -106,51 +106,56 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
 
             return (
               <Card key={order.id} className="overflow-hidden transition-all hover:shadow-md">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <CardTitle className="text-base font-semibold">
-                          {order.order_number}
-                        </CardTitle>
-                        <Badge className={statusColors[order.status]} variant="default">
-                          {order.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-sm">
-                        {getCustomerName(order)}
-                      </CardDescription>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-lg font-bold text-primary">
-                        TZS {orderTotal.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(order.created_at).toLocaleDateString()}
+                <CardHeader className="p-4 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => toggleOrderDetails(order.id)}>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-base">{order.order_number}</span>
+                          <Badge className={statusColors[order.status]} variant="secondary">
+                            {order.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-2 pt-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleOrderDetails(order.id)}
-                      className="w-full justify-between text-sm"
-                    >
-                      <span>{isExpanded ? "Hide Details" : "View Details"}</span>
+                    <div className="flex items-center gap-4 shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <div className="text-sm font-bold">
+                          TZS {orderTotal.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {order.items.length} items
+                        </div>
+                      </div>
+
                       {isExpanded ? (
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
                       )}
-                    </Button>
+                    </div>
                   </div>
                 </CardHeader>
 
                 {isExpanded && (
-                  <CardContent className="pt-0 space-y-4 animate-in slide-in-from-top-2">
+                  <CardContent className="px-4 pb-4 pt-0 space-y-4 animate-in slide-in-from-top-2 border-t mt-2">
+                    {/* Customer Details */}
+                    <div className="pt-4 grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Customer</h4>
+                        <p className="font-medium text-sm">{getCustomerName(order)}</p>
+                      </div>
+                      <div className="space-y-1 sm:text-right">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Total Amount</h4>
+                        <p className="font-bold text-lg text-primary">TZS {orderTotal.toLocaleString()}</p>
+                      </div>
+                    </div>
+
                     {/* Order Items */}
                     <div className="space-y-2">
                       <h4 className="text-sm font-semibold flex items-center gap-2">
