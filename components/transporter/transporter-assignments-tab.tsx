@@ -39,7 +39,8 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (assignment: any) => {
+    const status = (assignment.status === "assigned" && assignment.accepted_at) ? "accepted" : assignment.status
     const variants: any = {
       assigned: "secondary",
       ready_for_pickup: "secondary",
@@ -70,8 +71,8 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
   return (
     <div className="space-y-4">
       {assignments.map((assignment) => {
-        const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status)
-        const isNotYetAccepted = ["assigned", "ready_for_pickup"].includes(assignment.status)
+        const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
+        const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
 
         return (
           <Card key={assignment.id} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
@@ -83,7 +84,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
                     {assignment.transport_methods?.name} • {assignment.distance_km} km
                   </p>
                 </div>
-                {getStatusBadge(assignment.status)}
+                {getStatusBadge(assignment)}
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -190,14 +191,24 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
 
               {/* Action Buttons */}
               {isNotYetAccepted && (
-                <Button
-                  className="w-full bg-primary hover:bg-primary/90"
-                  onClick={() => updateStatus(assignment.id, "accepted")}
-                  disabled={updating === assignment.id}
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {updating === assignment.id ? "Accepting..." : "Accept Cargo"}
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+                    onClick={() => updateStatus(assignment.id, "rejected")}
+                    disabled={updating === assignment.id}
+                  >
+                    Reject Cargo
+                  </Button>
+                  <Button
+                    className="flex-1 bg-primary hover:bg-primary/90"
+                    onClick={() => updateStatus(assignment.id, "accepted")}
+                    disabled={updating === assignment.id}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {updating === assignment.id ? "Accepting..." : "Accept Cargo"}
+                  </Button>
+                </div>
               )}
 
               {assignment.status === "accepted" && (

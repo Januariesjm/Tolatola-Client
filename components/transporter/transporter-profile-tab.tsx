@@ -99,31 +99,21 @@ export function TransporterProfileTab({ user, transporter }: TransporterProfileT
         setIsLoading(true)
 
         try {
-            // 1. Update User Profile
-            const userUpdateRes = await fetch("/api/profile/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    full_name: formData.full_name,
-                    phone: formData.phone,
-                    address: formData.address,
-                }),
-            })
+            const { clientApiPut, clientApiPost } = await import("@/lib/api-client")
 
-            if (!userUpdateRes.ok) throw new Error("Failed to update user profile")
+            // 1. Update User Profile
+            await clientApiPut("profile", {
+                full_name: formData.full_name,
+                phone: formData.phone,
+                address: formData.address,
+            })
 
             // 2. Update Transporter Details
-            const transporterUpdateRes = await fetch("/api/transporters/update", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    business_name: formData.business_name,
-                    vehicle_type: formData.vehicle_type,
-                    license_plate: formData.license_plate,
-                }),
+            await clientApiPost("transporters", {
+                business_name: formData.business_name,
+                vehicle_type: formData.vehicle_type,
+                license_plate: formData.license_plate,
             })
-
-            if (!transporterUpdateRes.ok) throw new Error("Failed to update transporter details")
 
             toast({
                 title: "Success",
