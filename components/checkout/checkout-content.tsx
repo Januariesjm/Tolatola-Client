@@ -1006,7 +1006,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     </div>
                     <div className="flex justify-between items-center group">
                       <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
-                        Trade Insurance (1.5%)
+                        Buyer Protection (1.5%)
                       </span>
                       <span className="text-stone-900 font-bold tracking-tight">{insuranceFee.toLocaleString()} TZS</span>
                     </div>
