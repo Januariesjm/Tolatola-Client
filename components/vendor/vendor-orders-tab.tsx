@@ -191,25 +191,69 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                     </div>
 
                     {/* Shipping Address */}
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Shipping Address
-                      </h4>
-                      <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
-                        <p className="font-medium">
-                          {order.shipping_address.full_name}
-                        </p>
-                        <p className="text-muted-foreground">
-                          {order.shipping_address.phone}
-                        </p>
-                        <p className="text-muted-foreground">
-                          {order.shipping_address.address}
-                        </p>
-                        <p className="text-muted-foreground">
-                          {order.shipping_address.city}, {order.shipping_address.region}
-                        </p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          Shipping Address
+                        </h4>
+                        <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
+                          <p className="font-medium">
+                            {order.shipping_address.full_name}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {order.shipping_address.phone}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {order.shipping_address.address}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {order.shipping_address.city}, {order.shipping_address.region}
+                          </p>
+                        </div>
                       </div>
+
+                      {/* Logistics Tracking */}
+                      {order.transporter_assignment && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold flex items-center gap-2">
+                            <Truck className="h-4 w-4" />
+                            Logistics Tracking
+                          </h4>
+                          <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 text-sm space-y-2">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-bold text-primary">
+                                  {order.transporter_assignment.transporters?.business_name ||
+                                    order.transporter_assignment.transporters?.users?.full_name ||
+                                    "Assigned Transporter"}
+                                </p>
+                                <p className="text-xs text-muted-foreground capitalize">
+                                  {order.transporter_assignment.transporters?.vehicle_type} • {order.transporter_assignment.transporters?.license_plate || "No Plate"}
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="bg-white">
+                                {order.transporter_assignment.status === "assigned"
+                                  ? order.transporter_assignment.accepted_at ? "Accepted" : "Searching..."
+                                  : order.transporter_assignment.status.replace("_", " ")}
+                              </Badge>
+                            </div>
+
+                            {order.transporter_assignment.transporters?.users?.phone && (
+                              <div className="flex items-center gap-2 text-xs pt-1">
+                                <Clock className="h-3 w-3 text-muted-foreground" />
+                                <span>{order.transporter_assignment.transporters.users.phone}</span>
+                              </div>
+                            )}
+
+                            {order.transporter_assignment.status === "assigned" && !order.transporter_assignment.accepted_at && (
+                              <p className="text-[10px] text-amber-600 animate-pulse font-medium">
+                                Waiting for transporter confirmation...
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Order Actions */}
@@ -228,20 +272,20 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order.id, "processing")}
-                          className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700"
+                          className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 font-bold"
                         >
                           <Package className="h-4 w-4 mr-2" />
-                          Start Processing
+                          {order.transporter_assignment ? "Transporter Assigned: Start Processing" : "Start Processing"}
                         </Button>
                       )}
                       {order.status === "processing" && (
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatus(order.id, "ready_for_pickup")}
-                          className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700"
+                          className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold"
                         >
                           <Truck className="h-4 w-4 mr-2" />
-                          Assign Transporter
+                          {order.transporter_assignment ? "Transporter Assigned: Mark Ready" : "Assign Transporter"}
                         </Button>
                       )}
                       {order.status === "ready_for_pickup" && (
