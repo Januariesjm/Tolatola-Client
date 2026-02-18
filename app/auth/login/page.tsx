@@ -145,8 +145,8 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-stretch text-slate-900 px-4 sm:px-8 lg:px-12">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center pr-8">
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-center text-slate-900 px-4 sm:px-6 lg:px-8">
+      <div className="hidden lg:flex lg:w-2/5 relative overflow-hidden items-center justify-center pr-6">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
         <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
@@ -188,8 +188,8 @@ function LoginContent() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center py-10">
-          <div className="w-full max-w-lg lg:max-w-xl animate-fade-in-up ml-auto">
+        <div className="flex-1 lg:w-3/5 flex items-center justify-center py-10">
+        <div className="w-full max-w-md lg:max-w-lg animate-fade-in-up">
             <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
               <Link href="/" className="flex items-center gap-3 justify-center">
                 <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-12 w-auto" />
