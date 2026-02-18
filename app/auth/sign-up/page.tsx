@@ -182,50 +182,54 @@ function SignUpContent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-stretch text-slate-900 px-4 sm:px-8 lg:px-12">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center pr-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
-        <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
-        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 text-slate-900 px-4 sm:px-8 lg:px-12 flex items-center">
+      <div className="mx-auto flex w-full max-w-6xl items-stretch gap-8 lg:gap-12">
+        {/* Left hero / marketing panel */}
+        <div className="hidden lg:flex w-[48%] relative overflow-hidden items-center rounded-3xl bg-gradient-to-br from-primary/10 via-sky-50 to-white px-8 py-10 shadow-sm">
+          <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
+          <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
 
-        <div className="relative z-10 max-w-md space-y-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative h-12 w-12 rounded-2xl bg-white shadow-md border border-primary/10 flex items-center justify-center">
-              <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
+          <div className="relative z-10 max-w-md space-y-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative h-12 w-12 rounded-2xl bg-white shadow-md border border-primary/10 flex items-center justify-center">
+                <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+                  TOLA DIGITAL TRADE
+                </p>
+                <p className="text-lg font-semibold tracking-tight text-slate-900">Grow your trade footprint</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-                TOLA DIGITAL TRADE
+
+            <div className="space-y-4">
+              <h1 className="text-3xl xl:text-4xl font-black tracking-tight text-slate-900">
+                Join a logistics‑ready marketplace designed for real businesses.
+              </h1>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Whether you&apos;re a buyer, vendor, or transporter, Tola connects you to secure payments, verified
+                partners, and live delivery tracking.
               </p>
-              <p className="text-lg font-semibold tracking-tight text-slate-900">Grow your trade footprint</p>
             </div>
-          </div>
 
-          <div className="space-y-4">
-            <h1 className="text-3xl xl:text-4xl font-black tracking-tight text-slate-900">
-              Join a logistics‑ready marketplace designed for real businesses.
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Whether you&apos;re a buyer, vendor, or transporter, Tola connects you to secure payments, verified
-              partners, and live delivery tracking.
-            </p>
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 px-5 py-4 flex items-start gap-4 shadow-sm">
-            <div className="mt-1 h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <ShoppingCart className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-slate-900">Built for digital trade flows</p>
-              <p className="text-[12px] text-slate-600 leading-relaxed">
-                Create one account to manage products, orders, and transport assignments across Tanzania.
-              </p>
+            <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 px-5 py-4 flex items-start gap-4 shadow-sm">
+              <div className="mt-1 h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <ShoppingCart className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-900">Built for digital trade flows</p>
+                <p className="text-[12px] text-slate-600 leading-relaxed">
+                  Create one account to manage products, orders, and transport assignments across Tanzania.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Right form panel */}
         <div className="flex-1 flex items-center justify-center py-10">
           <div className="w-full max-w-lg lg:max-w-xl animate-fade-in-up ml-auto">
+            {/* Mobile logo */}
             <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
               <Link href="/" className="flex items-center gap-3 justify-center">
                 <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-12 w-auto" />
