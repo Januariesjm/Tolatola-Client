@@ -49,8 +49,8 @@ export function CookieConsentBanner() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 sm:pb-6">
-      <Card className="max-w-xl w-full border border-slate-200 shadow-lg bg-white/95 backdrop-blur flex flex-col sm:flex-row sm:items-center gap-4 px-4 py-3 sm:px-6 sm:py-4">
+    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-3 sm:px-6 pb-4 sm:pb-8">
+      <Card className="w-full sm:w-3/4 max-w-4xl border border-white/40 bg-gradient-to-r from-white/70 via-slate-50/60 to-white/70 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row sm:items-center gap-4 px-4 py-3 sm:px-8 sm:py-5 rounded-2xl">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
             <Cookie className="h-4 w-4" />
