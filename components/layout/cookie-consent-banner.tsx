@@ -12,6 +12,7 @@ type ConsentState = "accepted" | "rejected" | "unknown"
 export function CookieConsentBanner() {
   const [consent, setConsent] = useState<ConsentState>("unknown")
   const [mounted, setMounted] = useState(false)
+  const [dismissedThisSession, setDismissedThisSession] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -26,8 +27,10 @@ export function CookieConsentBanner() {
     }
   }, [])
 
-  // If not mounted or already accepted, don't show
-  if (!mounted || consent === "accepted") return null
+  // If not mounted, or accepted globally, or dismissed for this session when rejected, hide banner
+  if (!mounted) return null
+  if (consent === "accepted") return null
+  if (consent === "rejected" && dismissedThisSession) return null
 
   const handleAccept = () => {
     try {
@@ -36,6 +39,7 @@ export function CookieConsentBanner() {
       // ignore
     }
     setConsent("accepted")
+    setDismissedThisSession(true)
   }
 
   const handleReject = () => {
@@ -44,8 +48,9 @@ export function CookieConsentBanner() {
     } catch {
       // ignore
     }
-    // Keep consent as "rejected" so banner shows again on next visit
+    // Keep consent as "rejected" (so it appears on next visit) but hide for current session
     setConsent("rejected")
+    setDismissedThisSession(true)
   }
 
   return (
