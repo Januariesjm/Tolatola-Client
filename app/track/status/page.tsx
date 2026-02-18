@@ -1,12 +1,12 @@
-"use client"
+\"use client\"
 
-import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect, Suspense } from \"react\"
+import { useRouter, useSearchParams } from \"next/navigation\"
+import Link from \"next/link\"
+import { Card, CardContent, CardHeader, CardTitle } from \"../../../components/ui/card\"
+import { Button } from \"../../../components/ui/button\"
+import { Badge } from \"../../../components/ui/badge\"
+import { Progress } from \"../../../components/ui/progress\"
 import {
   Package,
   CheckCircle2,
@@ -18,10 +18,10 @@ import {
   MessageCircle,
   AlertTriangle,
   Loader2,
-} from "lucide-react"
-import type { OrderTrackingInfo, OrderStatus } from "@/lib/types"
-import SiteHeader from "@/components/layout/site-header"
-import { OrderTrackingMap } from "@/components/orders/order-tracking-map"
+} from \"lucide-react\"
+import type { OrderTrackingInfo, OrderStatus } from \"../../../lib/types\"
+import SiteHeader from \"../../../components/layout/site-header\"
+import { OrderTrackingMap } from \"../../../components/orders/order-tracking-map\"
 
 const TIMELINE_STEPS: { id: OrderStatus; label: string }[] = [
   { id: "ORDER_RECEIVED", label: "Order Received" },

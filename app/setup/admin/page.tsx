@@ -1,15 +1,15 @@
-"use client"
+\"use client\"
 
-import type React from "react"
+import type React from \"react\"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Shield, AlertCircle, CheckCircle2 } from "lucide-react"
+import { useState } from \"react\"
+import { useRouter } from \"next/navigation\"
+import { Button } from \"../../../components/ui/button\"
+import { Input } from \"../../../components/ui/input\"
+import { Label } from \"../../../components/ui/label\"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"../../../components/ui/card\"
+import { Alert, AlertDescription } from \"../../../components/ui/alert\"
+import { Shield, AlertCircle, CheckCircle2 } from \"lucide-react\"
 
 export default function AdminSetupPage() {
   const router = useRouter()

@@ -3,24 +3,24 @@
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Button } from "../../../components/ui/button"
+import { Input } from "../../../components/ui/input"
+import { Label } from "../../../components/ui/label"
+import { Textarea } from "../../../components/ui/textarea"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+} from "../../../components/ui/select"
+import { Alert, AlertDescription } from "../../../components/ui/alert"
 import { AlertTriangle, Upload, Loader2, AlertCircle } from "lucide-react"
-import { clientApiPostPublic } from "@/lib/api-client"
-import { useToast } from "@/hooks/use-toast"
-import SiteHeader from "@/components/layout/site-header"
-import { COMPLAINT_REASON } from "@/lib/types"
+import { clientApiPostPublic } from "../../../lib/api-client"
+import { useToast } from "../../../hooks/use-toast"
+import SiteHeader from "../../../components/layout/site-header"
+import { COMPLAINT_REASON } from "../../../lib/types"
 
 function RaiseComplaintInner() {
   const router = useRouter()

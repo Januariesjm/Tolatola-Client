@@ -1,11 +1,11 @@
-"use client"
+\"use client\"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import Image from "next/image"
-import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
-import { CheckCircle2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"../../../components/ui/card\"
+import { Button } from \"../../../components/ui/button\"
+import Link from \"next/link\"
+import Image from \"next/image\"
+import { HeaderAnimatedText } from \"../../../components/layout/header-animated-text\"
+import { CheckCircle2 } from \"lucide-react\"
 
 export default function VerifiedPage() {
     return (

@@ -1,10 +1,10 @@
-"use client"
+\"use client\"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect } from \"react\"
+import { useRouter } from \"next/navigation\"
+import { createClient } from \"../../../lib/supabase/client\"
+import { Button } from \"../../../components/ui/button\"
+import { Card, CardContent, CardHeader, CardTitle } from \"../../../components/ui/card\"
 
 export default function LogoutPage() {
   const router = useRouter()
@@ -15,7 +15,7 @@ export default function LogoutPage() {
       try {
         await supabase.auth.signOut()
         try {
-          const { clientApiPost } = await import("@/lib/api-client")
+          const { clientApiPost } = await import(\"../../../lib/api-client\")
           await clientApiPost("auth/logout")
         } catch (apiError) {
           console.error("Backend logout error:", apiError)
