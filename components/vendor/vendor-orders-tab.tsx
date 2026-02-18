@@ -242,10 +242,16 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                 </Button>
               )}
               {order.status === "ready_for_pickup" && (
-                <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 py-1 px-3">
-                  <Clock className="h-4 w-4 mr-2 animate-pulse" />
-                  Waiting for Transporter
-                </Badge>
+                <div className="flex-1 sm:flex-none">
+                  <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 py-1 px-3">
+                    <Clock className="h-4 w-4 mr-2 animate-pulse" />
+                    {order.transporter_assignment?.accepted_at
+                      ? "Transporter Accepted: Waiting for Pickup"
+                      : order.transporter_assignment
+                        ? "Transporter Assigned: Waiting for Acceptance"
+                        : "Searching for Transporter..."}
+                  </Badge>
+                </div>
               )}
               {(order.status === "shipped" || order.status === "delivered") && (
                 <Badge className="bg-green-500 py-1 px-3">
