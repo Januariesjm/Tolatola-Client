@@ -26,8 +26,8 @@ export default function AdminVerifyPage() {
 
   if (loading) {
     return (
-      <div className=\"flex items-center justify-center min-h-screen\">
-        <p className=\"text-sm text-slate-600\">Verifying admin system setup...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-sm text-slate-600">Verifying admin system setup...</p>
       </div>
     )
   }
