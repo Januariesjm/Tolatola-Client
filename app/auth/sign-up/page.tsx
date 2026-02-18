@@ -182,10 +182,10 @@ function SignUpContent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 text-slate-900 px-4 sm:px-8 lg:px-12 flex items-center">
-      <div className="mx-auto flex w-full max-w-6xl items-stretch gap-8 lg:gap-12">
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 text-slate-900 px-4 sm:px-6 lg:px-8 flex items-center">
+      <div className="mx-auto flex w-full max-w-6xl items-stretch justify-between gap-8 lg:gap-10">
         {/* Left hero / marketing panel */}
-        <div className="hidden lg:flex w-[48%] relative overflow-hidden items-center rounded-3xl bg-gradient-to-br from-primary/10 via-sky-50 to-white px-8 py-10 shadow-sm">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center rounded-3xl bg-gradient-to-br from-primary/10 via-sky-50 to-white px-8 py-10 shadow-sm">
           <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
           <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
 
@@ -227,8 +227,8 @@ function SignUpContent() {
         </div>
 
         {/* Right form panel */}
-        <div className="flex-1 flex items-center justify-center py-10">
-          <div className="w-full max-w-lg lg:max-w-xl animate-fade-in-up ml-auto">
+        <div className="flex-1 lg:w-1/2 flex items-center justify-center py-10">
+          <div className="w-full max-w-md lg:max-w-lg animate-fade-in-up">
             {/* Mobile logo */}
             <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
               <Link href="/" className="flex items-center gap-3 justify-center">
