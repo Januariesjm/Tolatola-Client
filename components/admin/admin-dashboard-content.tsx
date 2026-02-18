@@ -5,8 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  LogOut, Users, Package, ShoppingCart, DollarSign,
-  MessageSquare, ShoppingBag, ShieldCheck
+  LogOut,
+  Users,
+  Package,
+  ShoppingCart,
+  DollarSign,
+  MessageSquare,
+  ShoppingBag,
+  ShieldCheck,
+  BarChart3,
+  Truck,
+  Store,
+  UserCircle2,
+  CreditCard,
+  LifeBuoy,
+  Percent,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -169,192 +182,461 @@ export function AdminDashboardContent({
           </Card>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="overflow-x-auto pb-2">
-            <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
-              <TabsTrigger
-                value="analytics"
-                className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-              >
-                Analytics
-              </TabsTrigger>
-              {adminRole?.permissions.includes("manage_kyc") && (
-                <TabsTrigger
-                  value="kyc"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+        <div className="flex gap-6 items-start">
+          {/* Sidebar navigation (desktop) */}
+          <aside className="hidden md:block w-60 shrink-0">
+            <div className="sticky top-24 space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Dashboard Sections
+              </p>
+              <div className="space-y-1">
+                <Button
+                  variant={activeTab === "analytics" ? "default" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-between rounded-xl ${
+                    activeTab === "analytics"
+                      ? "bg-primary text-white"
+                      : "text-slate-700 hover:bg-slate-100"
+                  }`}
+                  onClick={() => setActiveTab("analytics")}
                 >
-                  Vendor KYC ({pendingVendors.length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_kyc") && (
-                <TabsTrigger
-                  value="transporter-kyc"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Transporter KYC ({pendingTransporters.length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_kyc") && (
-                <TabsTrigger
-                  value="customer-kyc"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  User KYC ({pendingCustomerKyc.length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_products") && (
-                <TabsTrigger
-                  value="products"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Products ({pendingProducts.length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_orders") && (
-                <TabsTrigger
-                  value="orders"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Orders
-                </TabsTrigger>
-              )}
-              {(adminRole?.permissions.includes("manage_transactions")) && (
-                <TabsTrigger
-                  value="transactions"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Secure Settlements
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_payouts") && (
-                <TabsTrigger
-                  value="payouts"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Payouts ({payouts.filter(p => p.status === "pending").length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_support") && (
-                <TabsTrigger
-                  value="support"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Support ({pendingTickets.length})
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_promotions") && (
-                <TabsTrigger
-                  value="promotions"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Promotions
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_vendors") && (
-                <TabsTrigger
-                  value="vendors"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Vendors
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_transporters") && (
-                <TabsTrigger
-                  value="transporters"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Transporters
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_customers") && (
-                <TabsTrigger
-                  value="customers"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Customers
-                </TabsTrigger>
-              )}
-              {adminRole?.permissions.includes("manage_subscriptions") && (
-                <TabsTrigger
-                  value="subscriptions"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Subscriptions
-                </TabsTrigger>
-              )}
+                  <span className="flex items-center gap-2 text-sm font-medium">
+                    <BarChart3 className="h-4 w-4" />
+                    <span>Analytics</span>
+                  </span>
+                </Button>
+
+                {adminRole?.permissions.includes("manage_kyc") && (
+                  <Button
+                    variant={activeTab === "kyc" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "kyc"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("kyc")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Vendor KYC</span>
+                    </span>
+                    {pendingVendors.length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {pendingVendors.length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_kyc") && (
+                  <Button
+                    variant={activeTab === "transporter-kyc" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "transporter-kyc"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("transporter-kyc")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Truck className="h-4 w-4" />
+                      <span>Transporter KYC</span>
+                    </span>
+                    {pendingTransporters.length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {pendingTransporters.length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_kyc") && (
+                  <Button
+                    variant={activeTab === "customer-kyc" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "customer-kyc"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("customer-kyc")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <UserCircle2 className="h-4 w-4" />
+                      <span>User KYC</span>
+                    </span>
+                    {pendingCustomerKyc.length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {pendingCustomerKyc.length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_products") && (
+                  <Button
+                    variant={activeTab === "products" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "products"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("products")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Package className="h-4 w-4" />
+                      <span>Products</span>
+                    </span>
+                    {pendingProducts.length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {pendingProducts.length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_orders") && (
+                  <Button
+                    variant={activeTab === "orders" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "orders"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("orders")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>Orders</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_transactions") && (
+                  <Button
+                    variant={activeTab === "transactions" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "transactions"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("transactions")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Secure Settlements</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_payouts") && (
+                  <Button
+                    variant={activeTab === "payouts" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "payouts"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("payouts")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Payouts</span>
+                    </span>
+                    {payouts.filter(p => p.status === "pending").length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {payouts.filter(p => p.status === "pending").length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_support") && (
+                  <Button
+                    variant={activeTab === "support" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "support"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("support")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <LifeBuoy className="h-4 w-4" />
+                      <span>Support</span>
+                    </span>
+                    {pendingTickets.length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {pendingTickets.length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_promotions") && (
+                  <Button
+                    variant={activeTab === "promotions" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "promotions"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("promotions")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Percent className="h-4 w-4" />
+                      <span>Promotions</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_vendors") && (
+                  <Button
+                    variant={activeTab === "vendors" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "vendors"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("vendors")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Store className="h-4 w-4" />
+                      <span>Vendors</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_transporters") && (
+                  <Button
+                    variant={activeTab === "transporters" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "transporters"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("transporters")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Truck className="h-4 w-4" />
+                      <span>Transporters</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_customers") && (
+                  <Button
+                    variant={activeTab === "customers" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "customers"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("customers")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Users className="h-4 w-4" />
+                      <span>Customers</span>
+                    </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_subscriptions") && (
+                  <Button
+                    variant={activeTab === "subscriptions" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "subscriptions"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("subscriptions")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Subscriptions</span>
+                    </span>
+                  </Button>
+                )}
+
+                {showAdminManagement && (
+                  <Button
+                    variant={activeTab === "admins" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${
+                      activeTab === "admins"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveTab("admins")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <UserCircle2 className="h-4 w-4" />
+                      <span>Admin Users</span>
+                    </span>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </aside>
+
+          {/* Main tab content */}
+          <div className="flex-1">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              {/* Mobile nav: keep horizontal tabs for small screens */}
+              <div className="overflow-x-auto pb-2 md:hidden">
+                <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
+                  <TabsTrigger value="analytics" className="px-5 rounded-full text-xs font-semibold">
+                    Analytics
+                  </TabsTrigger>
+                  {adminRole?.permissions.includes("manage_kyc") && (
+                    <TabsTrigger value="kyc" className="px-5 rounded-full text-xs font-semibold">
+                      Vendor KYC ({pendingVendors.length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_kyc") && (
+                    <TabsTrigger value="transporter-kyc" className="px-5 rounded-full text-xs font-semibold">
+                      Transporter KYC ({pendingTransporters.length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_kyc") && (
+                    <TabsTrigger value="customer-kyc" className="px-5 rounded-full text-xs font-semibold">
+                      User KYC ({pendingCustomerKyc.length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_products") && (
+                    <TabsTrigger value="products" className="px-5 rounded-full text-xs font-semibold">
+                      Products ({pendingProducts.length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_orders") && (
+                    <TabsTrigger value="orders" className="px-5 rounded-full text-xs font-semibold">
+                      Orders
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_transactions") && (
+                    <TabsTrigger value="transactions" className="px-5 rounded-full text-xs font-semibold">
+                      Secure Settlements
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_payouts") && (
+                    <TabsTrigger value="payouts" className="px-5 rounded-full text-xs font-semibold">
+                      Payouts ({payouts.filter(p => p.status === "pending").length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_support") && (
+                    <TabsTrigger value="support" className="px-5 rounded-full text-xs font-semibold">
+                      Support ({pendingTickets.length})
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_promotions") && (
+                    <TabsTrigger value="promotions" className="px-5 rounded-full text-xs font-semibold">
+                      Promotions
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_vendors") && (
+                    <TabsTrigger value="vendors" className="px-5 rounded-full text-xs font-semibold">
+                      Vendors
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_transporters") && (
+                    <TabsTrigger value="transporters" className="px-5 rounded-full text-xs font-semibold">
+                      Transporters
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_customers") && (
+                    <TabsTrigger value="customers" className="px-5 rounded-full text-xs font-semibold">
+                      Customers
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_subscriptions") && (
+                    <TabsTrigger value="subscriptions" className="px-5 rounded-full text-xs font-semibold">
+                      Subscriptions
+                    </TabsTrigger>
+                  )}
+                  {showAdminManagement && (
+                    <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
+                      Admin Users
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </div>
+
+              <TabsContent value="analytics" className="border-none p-0 outline-none">
+                <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} />
+              </TabsContent>
+
+              <TabsContent value="kyc" className="border-none p-0 outline-none">
+                <KYCApprovalTab vendors={pendingVendors} />
+              </TabsContent>
+
+              <TabsContent value="transporter-kyc" className="border-none p-0 outline-none">
+                <TransporterKYCApprovalTab transporters={pendingTransporters} />
+              </TabsContent>
+
+              <TabsContent value="customer-kyc" className="border-none p-0 outline-none">
+                <CustomerKYCApprovalTab customers={pendingCustomerKyc} />
+              </TabsContent>
+
+              <TabsContent value="products" className="border-none p-0 outline-none">
+                <ProductApprovalTab products={pendingProducts} />
+              </TabsContent>
+
+              <TabsContent value="orders" className="border-none p-0 outline-none">
+                <OrdersManagementTab orders={orders} />
+              </TabsContent>
+
+              <TabsContent value="transactions" className="border-none p-0 outline-none">
+                <SecureFundsManagementTab transactions={transactions} />
+              </TabsContent>
+
+              <TabsContent value="payouts" className="border-none p-0 outline-none">
+                <PayoutApprovalTab payouts={payouts} />
+              </TabsContent>
+
+              <TabsContent value="support" className="border-none p-0 outline-none">
+                <SupportTicketsTab tickets={tickets} />
+              </TabsContent>
+
+              <TabsContent value="promotions" className="border-none p-0 outline-none">
+                <PromotionsManagementTab promotions={actualPromotions} />
+              </TabsContent>
+
+              <TabsContent value="vendors" className="border-none p-0 outline-none">
+                <VendorManagementTab />
+              </TabsContent>
+
+              <TabsContent value="transporters" className="border-none p-0 outline-none">
+                <TransporterManagementTab />
+              </TabsContent>
+
+              <TabsContent value="customers" className="border-none p-0 outline-none">
+                <CustomerManagementTab />
+              </TabsContent>
+
+              <TabsContent value="subscriptions" className="border-none p-0 outline-none">
+                <VendorSubscriptionsTab subscriptions={subscriptions} />
+              </TabsContent>
+
               {showAdminManagement && (
-                <TabsTrigger
-                  value="admins"
-                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
-                >
-                  Admin Users
-                </TabsTrigger>
+                <TabsContent value="admins" className="border-none p-0 outline-none">
+                  <AdminUsersManagementTab />
+                </TabsContent>
               )}
-            </TabsList>
+            </Tabs>
           </div>
-
-          <TabsContent value="analytics" className="border-none p-0 outline-none">
-            <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} />
-          </TabsContent>
-
-          <TabsContent value="kyc" className="border-none p-0 outline-none">
-            <KYCApprovalTab vendors={pendingVendors} />
-          </TabsContent>
-
-          <TabsContent value="transporter-kyc" className="border-none p-0 outline-none">
-            <TransporterKYCApprovalTab transporters={pendingTransporters} />
-          </TabsContent>
-
-          <TabsContent value="customer-kyc" className="border-none p-0 outline-none">
-            <CustomerKYCApprovalTab customers={pendingCustomerKyc} />
-          </TabsContent>
-
-          <TabsContent value="products" className="border-none p-0 outline-none">
-            <ProductApprovalTab products={pendingProducts} />
-          </TabsContent>
-
-          <TabsContent value="orders" className="border-none p-0 outline-none">
-            <OrdersManagementTab orders={orders} />
-          </TabsContent>
-
-          <TabsContent value="transactions" className="border-none p-0 outline-none">
-            <SecureFundsManagementTab transactions={transactions} />
-          </TabsContent>
-
-          <TabsContent value="payouts" className="border-none p-0 outline-none">
-            <PayoutApprovalTab payouts={payouts} />
-          </TabsContent>
-
-          <TabsContent value="support" className="border-none p-0 outline-none">
-            <SupportTicketsTab tickets={tickets} />
-          </TabsContent>
-
-          <TabsContent value="promotions" className="border-none p-0 outline-none">
-            <PromotionsManagementTab promotions={actualPromotions} />
-          </TabsContent>
-
-          <TabsContent value="vendors" className="border-none p-0 outline-none">
-            <VendorManagementTab />
-          </TabsContent>
-
-          <TabsContent value="transporters" className="border-none p-0 outline-none">
-            <TransporterManagementTab />
-          </TabsContent>
-
-          <TabsContent value="customers" className="border-none p-0 outline-none">
-            <CustomerManagementTab />
-          </TabsContent>
-
-          <TabsContent value="subscriptions" className="border-none p-0 outline-none">
-            <VendorSubscriptionsTab subscriptions={subscriptions} />
-          </TabsContent>
-
-          {showAdminManagement && (
-            <TabsContent value="admins" className="border-none p-0 outline-none">
-              <AdminUsersManagementTab />
-            </TabsContent>
-          )}
-        </Tabs>
+        </div>
       </main>
     </div>
   )
