@@ -224,7 +224,7 @@ function SignUpContent() {
         </div>
 
         <div className="flex-1 flex items-center justify-center py-10">
-        <div className="w-full max-w-md animate-fade-in-up">
+        <div className="w-full max-w-lg lg:max-w-xl animate-fade-in-up">
           <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
             <Link href="/" className="flex items-center gap-3 justify-center">
               <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-12 w-auto" />
