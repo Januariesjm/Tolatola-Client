@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState, Suspense } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, ShoppingCart } from "lucide-react"
 
 function LoginContent() {
   const [email, setEmail] = useState("")
@@ -145,27 +145,66 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+    <div className="min-h-screen w-full bg-slate-950 text-slate-50 flex items-stretch">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center px-12 xl:px-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-emerald-700/10 to-slate-900" />
+        <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/30 blur-3xl opacity-60" />
+        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl opacity-60" />
+
+        <div className="relative z-10 max-w-md space-y-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+              <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-[0.18em] text-emerald-300/80 uppercase">
+                TOLA DIGITAL TRADE
+              </p>
+              <p className="text-lg font-semibold tracking-tight">Your Trade Partner</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h1 className="text-3xl xl:text-4xl font-black tracking-tight">
+              Manage every order in one smart dashboard.
+            </h1>
+            <p className="text-sm text-slate-200/80 leading-relaxed">
+              Track purchases, payouts, and logistics with live updates. Tola connects vendors, transporters,
+              and buyers into a single, secure ecosystem.
+            </p>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-slate-900/40 px-5 py-4 flex items-start gap-4">
+            <div className="mt-1 h-9 w-9 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-300">
+              <ShoppingCart className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold">Built for real commerce</p>
+              <p className="text-[12px] text-slate-300/85 leading-relaxed">
+                From wholesale to last‑mile delivery, authenticate once and manage your entire supply chain
+                journey.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="w-full max-w-md animate-fade-in-up">
-        <div className="flex flex-col gap-6">
-          <Link href="/" className="flex items-center gap-3 justify-center hover:scale-105 transition-transform">
-            <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-16 md:h-16 lg:h-20 w-auto" />
-            <HeaderAnimatedText />
-          </Link>
+      <div className="flex-1 flex items-center justify-center px-4 py-10 sm:px-8 md:px-12 bg-slate-950">
+        <div className="w-full max-w-md animate-fade-in-up">
+          <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
+            <Link href="/" className="flex items-center gap-3 justify-center">
+              <Image src="/logo-new.png" alt="TOLA" width={150} height={45} className="h-12 w-auto" />
+              <HeaderAnimatedText />
+            </Link>
+          </div>
 
-          <Card className="backdrop-blur-sm bg-card/95 shadow-2xl border-primary/20">
-            <CardHeader className="space-y-2 text-center pb-6">
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Welcome Back
+          <Card className="backdrop-blur-sm bg-slate-900/80 shadow-2xl border-slate-700/60">
+            <CardHeader className="space-y-2 pb-4">
+              <CardTitle className="text-2xl font-semibold tracking-tight">
+                Sign in to TOLA
               </CardTitle>
-              <CardDescription className="text-base">
-                Sign in to your account
+              <CardDescription className="text-xs text-slate-400">
+                Access your marketplace, logistics, and payouts in one place.
               </CardDescription>
             </CardHeader>
 
