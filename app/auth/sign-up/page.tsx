@@ -179,8 +179,9 @@ function SignUpContent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-stretch text-slate-900">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center px-12 xl:px-20">
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-center px-4 sm:px-6 lg:px-10 text-slate-900">
+      <div className="mx-auto flex w-full max-w-6xl items-stretch gap-8 lg:gap-12">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center px-6 xl:px-10 rounded-3xl">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
         <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
@@ -220,9 +221,9 @@ function SignUpContent() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10 sm:px-8 md:px-12 bg-transparent">
+        <div className="flex-1 flex items-center justify-center py-10">
         <div className="w-full max-w-md animate-fade-in-up">
           <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
             <Link href="/" className="flex items-center gap-3 justify-center">
@@ -493,6 +494,7 @@ function SignUpContent() {
               </div>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>
