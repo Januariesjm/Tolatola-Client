@@ -145,42 +145,42 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-50 flex items-stretch">
+    <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 flex items-stretch text-slate-900">
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center px-12 xl:px-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-emerald-700/10 to-slate-900" />
-        <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/30 blur-3xl opacity-60" />
-        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
+        <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
+        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
 
         <div className="relative z-10 max-w-md space-y-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="relative h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <div className="relative h-12 w-12 rounded-2xl bg-white shadow-md border border-primary/10 flex items-center justify-center">
               <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-[0.18em] text-emerald-300/80 uppercase">
+              <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
                 TOLA DIGITAL TRADE
               </p>
-              <p className="text-lg font-semibold tracking-tight">Your Trade Partner</p>
+              <p className="text-lg font-semibold tracking-tight text-slate-900">Your Trade Partner</p>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h1 className="text-3xl xl:text-4xl font-black tracking-tight">
+            <h1 className="text-3xl xl:text-4xl font-black tracking-tight text-slate-900">
               Manage every order in one smart dashboard.
             </h1>
-            <p className="text-sm text-slate-200/80 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               Track purchases, payouts, and logistics with live updates. Tola connects vendors, transporters,
               and buyers into a single, secure ecosystem.
             </p>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-slate-900/40 px-5 py-4 flex items-start gap-4">
-            <div className="mt-1 h-9 w-9 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-300">
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 px-5 py-4 flex items-start gap-4 shadow-sm">
+            <div className="mt-1 h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
               <ShoppingCart className="h-5 w-5" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-semibold">Built for real commerce</p>
-              <p className="text-[12px] text-slate-300/85 leading-relaxed">
+              <p className="text-sm font-semibold text-slate-900">Built for real commerce</p>
+              <p className="text-[12px] text-slate-600 leading-relaxed">
                 From wholesale to last‑mile delivery, authenticate once and manage your entire supply chain
                 journey.
               </p>
@@ -189,7 +189,7 @@ function LoginContent() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10 sm:px-8 md:px-12 bg-slate-950">
+      <div className="flex-1 flex items-center justify-center px-4 py-10 sm:px-8 md:px-12 bg-transparent">
         <div className="w-full max-w-md animate-fade-in-up">
           <div className="flex flex-col gap-6 mb-6 lg:mb-10 lg:hidden">
             <Link href="/" className="flex items-center gap-3 justify-center">
@@ -198,12 +198,12 @@ function LoginContent() {
             </Link>
           </div>
 
-          <Card className="backdrop-blur-sm bg-slate-900/80 shadow-2xl border-slate-700/60">
+          <Card className="backdrop-blur-sm bg-white shadow-2xl border-slate-200">
             <CardHeader className="space-y-2 pb-4">
-              <CardTitle className="text-2xl font-semibold tracking-tight">
+              <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">
                 Sign in to TOLA
               </CardTitle>
-              <CardDescription className="text-xs text-slate-400">
+              <CardDescription className="text-xs text-slate-500">
                 Access your marketplace, logistics, and payouts in one place.
               </CardDescription>
             </CardHeader>
