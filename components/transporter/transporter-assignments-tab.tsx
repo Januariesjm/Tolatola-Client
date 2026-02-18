@@ -223,6 +223,18 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
                 </div>
               )}
 
+              {/* isAccepted covers ("accepted" status OR "assigned" with accepted_at) */}
+              {isAccepted && assignment.status === "assigned" && (
+                <Button
+                  className="w-full"
+                  onClick={() => updateStatus(assignment.id, "picked_up")}
+                  disabled={updating === assignment.id}
+                >
+                  <Package className="h-4 w-4 mr-2" />
+                  {updating === assignment.id ? "Updating..." : "Mark as Picked Up"}
+                </Button>
+              )}
+
               {assignment.status === "accepted" && (
                 <Button
                   className="w-full"
