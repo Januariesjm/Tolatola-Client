@@ -1,11 +1,6 @@
-// <NEW FILE> Admin verification status page
-"use client"
+\"use client\"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { useEffect, useState } from \"react\"
 
 export default function AdminVerifyPage() {
   const [status, setStatus] = useState<any>(null)
@@ -18,12 +13,12 @@ export default function AdminVerifyPage() {
   const verifySetup = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/admin/verify")
+      const response = await fetch(\"/api/admin/verify\")
       const data = await response.json()
       setStatus(data)
     } catch (error) {
-      console.error("Error verifying setup:", error)
-      setStatus({ setup: { status: "error", message: "Failed to verify setup" } })
+      console.error(\"Error verifying setup:\", error)
+      setStatus({ setup: { status: \"error\", message: \"Failed to verify setup\" } })
     } finally {
       setLoading(false)
     }
@@ -31,111 +26,56 @@ export default function AdminVerifyPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Verifying admin system setup...</p>
+      <div className=\"flex items-center justify-center min-h-screen\">
+        <p className=\"text-sm text-slate-600\">Verifying admin system setup...</p>
       </div>
     )
   }
 
-  const isSuccess = status?.setup?.status === "success"
+  const isSuccess = status?.setup?.status === \"success\"
 
   return (
-    <div className="container max-w-4xl mx-auto py-8">
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {isSuccess ? (
-                <CheckCircle className="text-green-500" />
-              ) : (
-                <AlertCircle className="text-red-500" />
-              )}
-              Admin System Setup Status
-            </CardTitle>
-            <CardDescription>Verification performed at {status?.timestamp}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+    <div className=\"min-h-screen bg-slate-50 py-10\">
+      <div className=\"mx-auto max-w-3xl space-y-6 px-4 sm:px-6\">
+        <div
+          className={`rounded-2xl border px-6 py-4 ${
+            isSuccess ? \"border-emerald-300 bg-emerald-50\" : \"border-red-300 bg-red-50\"
+          }`}
+        >
+          <div className=\"flex items-center justify-between gap-4\">
             <div>
-              <p className="font-semibold">Status: {status?.setup?.status.toUpperCase()}</p>
-              <p className="text-sm text-muted-foreground mt-1">{status?.setup?.message}</p>
+              <p className=\"text-xs font-semibold uppercase tracking-[0.18em] text-slate-500\">
+                Admin system setup status
+              </p>
+              <p className=\"mt-1 text-base font-bold text-slate-900\">
+                {isSuccess ? \"Configuration looks healthy\" : \"Attention required\"}
+              </p>
+              <p className=\"mt-1 text-sm text-slate-700\">
+                {status?.setup?.message}
+                {status?.timestamp && <span className=\"ml-1\">• Verified at {status.timestamp}</span>}
+              </p>
             </div>
-
-            <div className="flex gap-2">
-              <Button onClick={verifySetup} variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh Verification
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            <button
+              type=\"button\"
+              onClick={verifySetup}
+              className=\"inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50\"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
 
         {isSuccess && status?.statistics && (
-          <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin System Statistics</CardTitle>
-                <CardDescription>Current state of your admin setup</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Roles</p>
-                    <p className="text-2xl font-bold">{status.statistics.totalRoles}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Admins Assigned</p>
-                    <p className="text-2xl font-bold">{status.statistics.totalAdmins}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Roles Overview</CardTitle>
-                <CardDescription>All available admin roles</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {status.statistics.roles.map((role: any) => (
-                    <div key={role.id} className="flex items-center justify-between p-3 border rounded">
-                      <div>
-                        <p className="font-medium">{role.role_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {status.statistics.adminsByRole[role.role_name] || 0} admin(s) assigned
-                        </p>
-                      </div>
-                      <Badge variant="default">{role.access_level}% Access</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Current Admin Users</CardTitle>
-                <CardDescription>All users with admin roles</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {status.statistics.admins.length > 0 ? (
-                  <div className="space-y-3">
-                    {status.statistics.admins.map((admin: any) => (
-                      <div key={admin.id} className="flex items-center justify-between p-3 border rounded">
-                        <div>
-                          <p className="font-medium">{admin.email}</p>
-                          <p className="text-sm text-muted-foreground">{admin.admin_roles?.role_name}</p>
-                        </div>
-                        <Badge variant="secondary">{admin.admin_roles?.access_level}%</Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-4">No admin users assigned yet</p>
-                )}
-              </CardContent>
-            </Card>
-          </>
+          <div className=\"grid gap-4 sm:grid-cols-2\">
+            <div className=\"rounded-2xl border border-slate-200 bg-white p-4\">
+              <p className=\"text-xs font-semibold text-slate-500\">Total roles</p>
+              <p className=\"mt-1 text-2xl font-bold text-slate-900\">{status.statistics.totalRoles}</p>
+            </div>
+            <div className=\"rounded-2xl border border-slate-200 bg-white p-4\">
+              <p className=\"text-xs font-semibold text-slate-500\">Total admins assigned</p>
+              <p className=\"mt-1 text-2xl font-bold text-slate-900\">{status.statistics.totalAdmins}</p>
+            </div>
+          </div>
         )}
       </div>
     </div>
