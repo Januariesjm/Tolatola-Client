@@ -1,20 +1,23 @@
 "use client"
 
 import type React from "react"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { createClient } from "../../../lib/supabase/client"
+import { Button } from "../../../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Input } from "../../../components/ui/input"
+import { Label } from "../../../components/ui/label"
+import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
+import { Checkbox } from "../../../components/ui/checkbox"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Image from "next/image"
-import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
-import { logFailedRegistration } from "@/app/actions/registration"
+import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
+// TODO: wire this to a server action if/when available
+const logFailedRegistration = async (_payload: unknown) => {
+  // no-op in client build
+}
 import { Eye, EyeOff, ShoppingCart } from "lucide-react"
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"

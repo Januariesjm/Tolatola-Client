@@ -1,12 +1,12 @@
-\"use client\"
+"use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"../../../components/ui/card\"
-import { Button } from \"../../../components/ui/button\"
-import Link from \"next/link\"
-import { useSearchParams } from \"next/navigation\"
-import Image from \"next/image\"
-import { HeaderAnimatedText } from \"../../../components/layout/header-animated-text\"
-import { Suspense } from \"react\"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Button } from "../../../components/ui/button"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import Image from "next/image"
+import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
+import { Suspense } from "react"
 
 function SignUpSuccessContent() {
   const searchParams = useSearchParams()

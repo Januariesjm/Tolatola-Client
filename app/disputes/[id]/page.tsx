@@ -1,14 +1,14 @@
-\"use client\"
+"use client"
 
-import { useState, useEffect } from \"react\"
-import { useParams } from \"next/navigation\"
-import Link from \"next/link\"
-import { Card, CardContent, CardHeader, CardTitle } from \"../../../components/ui/card\"
-import { Button } from \"../../../components/ui/button\"
-import { Badge } from \"../../../components/ui/badge\"
-import { MessageSquare, Loader2, AlertCircle } from \"lucide-react\"
-import type { DisputeStatus } from \"../../../lib/types\"
-import SiteHeader from \"../../../components/layout/site-header\"
+import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Button } from "../../../components/ui/button"
+import { Badge } from "../../../components/ui/badge"
+import { MessageSquare, Loader2, AlertCircle } from "lucide-react"
+import type { DisputeStatus } from "../../../lib/types"
+import SiteHeader from "../../../components/layout/site-header"
 
 const STATUS_LABELS: Record<string, string> = {
   UNDER_REVIEW: "Under Review",
