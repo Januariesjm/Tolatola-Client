@@ -3,7 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
@@ -13,9 +14,21 @@ interface TransporterAssignmentsTabProps {
   transporterId: string
 }
 
+const TAB_AVAILABLE = "available"
+const TAB_ACCEPTED = "accepted"
+const TAB_IN_TRANSIT = "in_transit"
+const TAB_COMPLETED = "completed"
+
 export function TransporterAssignmentsTab({ assignments, transporterId }: TransporterAssignmentsTabProps) {
   const [updating, setUpdating] = useState<string | null>(null)
   const router = useRouter()
+
+  const availableTrips = assignments.filter(
+    (a) => ["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at
+  )
+  const acceptedTrips = assignments.filter((a) => a.status === "accepted")
+  const inTransitTrips = assignments.filter((a) => ["picked_up", "in_transit"].includes(a.status))
+  const completedTrips = assignments.filter((a) => a.status === "delivered")
 
   const updateStatus = async (assignmentId: string, newStatus: string) => {
     setUpdating(assignmentId)
@@ -57,24 +70,23 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
     )
   }
 
-  if (assignments.length === 0) {
+  const renderList = (list: any[]) => {
+    if (list.length === 0) {
+      return (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Truck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No trips in this tab</p>
+          </CardContent>
+        </Card>
+      )
+    }
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <Truck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No delivery assignments yet</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  return (
-    <div className="space-y-4">
-      {assignments.map((assignment) => {
-        const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
-        const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
-
-        return (
+      <div className="space-y-4">
+        {list.map((assignment) => {
+          const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
+          const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
+          return (
           <Card key={assignment.id} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -255,8 +267,40 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
               )}
             </CardContent>
           </Card>
-        )
-      })}
+          )
+        })}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <Tabs defaultValue={TAB_AVAILABLE} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value={TAB_AVAILABLE}>
+            <ListTodo className="h-4 w-4 mr-1.5 hidden sm:inline" />
+            Available Trips
+            {availableTrips.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{availableTrips.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value={TAB_ACCEPTED}>Accepted Trips</TabsTrigger>
+          <TabsTrigger value={TAB_IN_TRANSIT}>In Transit</TabsTrigger>
+          <TabsTrigger value={TAB_COMPLETED}>Completed</TabsTrigger>
+        </TabsList>
+        <TabsContent value={TAB_AVAILABLE} className="mt-4">
+          {renderList(availableTrips)}
+        </TabsContent>
+        <TabsContent value={TAB_ACCEPTED} className="mt-4">
+          {renderList(acceptedTrips)}
+        </TabsContent>
+        <TabsContent value={TAB_IN_TRANSIT} className="mt-4">
+          {renderList(inTransitTrips)}
+        </TabsContent>
+        <TabsContent value={TAB_COMPLETED} className="mt-4">
+          {renderList(completedTrips)}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

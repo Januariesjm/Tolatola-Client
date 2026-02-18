@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { clientApiPost } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
@@ -133,12 +134,12 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
 
                 <div className="space-y-2 relative z-10">
                   <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-                    Order <span className="opacity-80">Confirmed.</span>
+                    Payment <span className="opacity-80">received.</span>
                   </h1>
                   <p className="text-white/80 font-medium text-lg max-w-md mx-auto">
                     {order.payment_method === "cash-on-delivery"
                       ? "Success! We've received your order. Please prepare cash for delivery."
-                      : "Payment verified successfully. Your package is now in safe hands!"}
+                      : "Your payment is secured. We've sent tracking details via SMS."}
                   </p>
                 </div>
               </div>
@@ -154,9 +155,15 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
                   {/* Order Details */}
                   <div className="space-y-6">
                     <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Transaction ID</p>
-                      <p className="text-lg font-black text-stone-900">#{order.order_number}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Order Number</p>
+                      <p className="text-lg font-black text-stone-900 tabular-nums">{order.order_number || `TOLA-${new Date().getFullYear()}-${String(order.id || "").slice(-8).toUpperCase().padStart(8, "0")}`}</p>
                     </div>
+                    {order.tracking_code && (
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Tracking Code</p>
+                        <p className="text-lg font-black text-stone-900 tabular-nums">{order.tracking_code}</p>
+                      </div>
+                    )}
 
                     <div className="space-y-4 bg-stone-50 rounded-[2rem] p-6 border border-stone-100">
                       <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">Receipt Items</h4>
@@ -283,6 +290,12 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 pt-8">
+                  <Button
+                    onClick={() => router.push("/track")}
+                    className="flex-1 h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
+                  >
+                    Track Order
+                  </Button>
                   {order.status === "dispatched" || order.status === "shipped" || order.status === "on_the_way" ? (
                     <Button
                       onClick={handleConfirmDelivery}
@@ -294,7 +307,7 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
                   ) : (
                     <Button
                       onClick={() => router.push(user ? `/orders` : "/shop")}
-                      className="flex-1 h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
+                      className="flex-1 h-14 rounded-2xl border-2 border-stone-200 hover:bg-stone-50 text-stone-900 font-bold text-lg transition-all active:scale-[0.98]"
                     >
                       {user ? "View Order History" : "Continue Shopping"}
                     </Button>

@@ -4,6 +4,11 @@ import { api } from "./api"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "./types"
 
+/** Call API without auth (e.g. tracking request-otp, verify-otp) */
+export async function clientApiPostPublic<T>(path: string, body?: unknown): Promise<T> {
+  return api.post<T>(path, body, undefined)
+}
+
 export async function clientApiGet<T>(path: string) {
   const token = await getToken()
   return api.get<T>(path, token || undefined)
