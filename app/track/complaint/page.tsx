@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "../../../components/ui/select"
 import { Alert, AlertDescription } from "../../../components/ui/alert"
-import { AlertTriangle, Upload, Loader2, AlertCircle } from "lucide-react"
+import { Upload } from "lucide-react"
 import { clientApiPostPublic } from "../../../lib/api-client"
 import { useToast } from "../../../hooks/use-toast"
 import SiteHeader from "../../../components/layout/site-header"
@@ -86,7 +86,6 @@ function RaiseComplaintInner() {
         <SiteHeader user={null} profile={null} kycStatus={null} />
         <main className="container max-w-lg mx-auto px-4 py-12">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error || "Invalid link."}</AlertDescription>
           </Alert>
           <Button asChild className="mt-4">
@@ -112,8 +111,8 @@ function RaiseComplaintInner() {
         <Card className="border-2 shadow-xl rounded-2xl overflow-hidden">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-destructive" />
+              <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive text-lg font-bold">
+                !
               </div>
               <div>
                 <CardTitle className="text-xl font-black">Raise a complaint</CardTitle>
@@ -165,19 +164,11 @@ function RaiseComplaintInner() {
               </div>
               {error && (
                 <Alert variant="destructive" className="rounded-xl">
-                  <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
               <Button type="submit" className="w-full h-12 rounded-xl font-bold" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting…
-                  </>
-                ) : (
-                  "Submit complaint"
-                )}
+                {loading ? "Submitting…" : "Submit complaint"}
               </Button>
             </form>
           </CardContent>

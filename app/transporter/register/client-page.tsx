@@ -1,18 +1,18 @@
-"use client"
+\"use client\"
 
-import type React from "react"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
-import { Upload, CheckCircle } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
+import type React from \"react\"
+import { createClient } from \"../../../lib/supabase/client\"
+import { Button } from \"../../../components/ui/button\"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"../../../components/ui/card\"
+import { Input } from \"../../../components/ui/input\"
+import { Label } from \"../../../components/ui/label\"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from \"../../../components/ui/select\"
+import { useRouter } from \"next/navigation\"
+import { useState, useEffect } from \"react\"
+import { Upload, CheckCircle } from \"lucide-react\"
+import Link from \"next/link\"
+import Image from \"next/image\"
+import { HeaderAnimatedText } from \"../../../components/layout/header-animated-text\"
 
 export default function TransporterRegisterClient() {
   const [businessName, setBusinessName] = useState("")
@@ -117,7 +117,7 @@ export default function TransporterRegisterClient() {
       setIsUploading(false)
 
       // Create transporter via backend API
-      const { clientApiPost } = await import("@/lib/api-client")
+      const { clientApiPost } = await import(\"../../../lib/api-client\")
       const transporterData = {
         business_name: businessName,
         vehicle_type: vehicleType,
