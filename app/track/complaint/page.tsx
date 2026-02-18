@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "../../../components/ui/select"
 import { Alert, AlertDescription } from "../../../components/ui/alert"
-import { Upload } from "lucide-react"
+import { Upload, Loader2 } from "lucide-react"
 import { clientApiPostPublic } from "../../../lib/api-client"
 import { useToast } from "../../../hooks/use-toast"
 import SiteHeader from "../../../components/layout/site-header"
