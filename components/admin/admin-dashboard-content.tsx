@@ -76,14 +76,18 @@ export function AdminDashboardContent({
   const actualPromotions = promotions.filter(p => !p._adminUsers && !p.id?.includes('_'))
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/40">
       {/* Header */}
-      <header className="border-b bg-background sticky top-0 z-50">
+      <header className="border-b bg-white/90 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <ShoppingBag className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold tracking-tighter">TOLATOLA <span className="text-muted-foreground font-light">ADMIN</span></span>
+              <div className="h-9 w-9 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center">
+                <ShoppingBag className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-2xl font-semibold tracking-tight text-slate-900">
+                TOLATOLA <span className="text-primary">ADMIN</span>
+              </span>
             </Link>
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
               <ShieldCheck className="h-3 w-3" />
@@ -100,71 +104,196 @@ export function AdminDashboardContent({
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-none shadow-sm bg-background">
+          <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total GMV</CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Total GMV
+              </CardTitle>
+              <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                <DollarSign className="h-4 w-4 text-emerald-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black">TZS {stats.totalGMV?.toLocaleString() || 0}</div>
-              <p className="text-[10px] text-muted-foreground mt-1">Lifetime platform volume</p>
+              <div className="text-3xl font-bold text-slate-900">
+                TZS {stats.totalGMV?.toLocaleString() || 0}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Lifetime platform volume</p>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-background">
+          <Card className="shadow-sm rounded-xl border border-primary/15 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Active Orders</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Active Orders
+              </CardTitle>
+              <div className="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center">
+                <ShoppingCart className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black">{orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length}</div>
-              <p className="text-[10px] text-muted-foreground mt-1">Currently being processed</p>
+              <div className="text-3xl font-bold text-slate-900">
+                {orders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Currently being processed</p>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-background">
+          <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Pending KYC</CardTitle>
-              <Users className="h-4 w-4 text-amber-600" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Pending KYC
+              </CardTitle>
+              <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
+                <Users className="h-4 w-4 text-amber-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black">{pendingVendors.length + pendingTransporters.length}</div>
-              <p className="text-[10px] text-muted-foreground mt-1">Awaiting verification</p>
+              <div className="text-3xl font-bold text-slate-900">
+                {pendingVendors.length + pendingTransporters.length}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Awaiting verification</p>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-background">
+          <Card className="shadow-sm rounded-xl border border-red-100 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">Open Tickets</CardTitle>
-              <MessageSquare className="h-4 w-4 text-red-600" />
+              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Open Tickets
+              </CardTitle>
+              <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-red-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black">{pendingTickets.length}</div>
-              <p className="text-[10px] text-muted-foreground mt-1">Requires support attention</p>
+              <div className="text-3xl font-bold text-slate-900">
+                {pendingTickets.length}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">Requires support attention</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="overflow-x-auto pb-2">
-            <TabsList className="bg-background/50 border h-12 inline-flex whitespace-nowrap">
-              <TabsTrigger value="analytics" className="px-6">Analytics</TabsTrigger>
-              {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="kyc" className="px-6">Vendor KYC ({pendingVendors.length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="transporter-kyc" className="px-6">Transporter KYC ({pendingTransporters.length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_kyc") && <TabsTrigger value="customer-kyc" className="px-6">User KYC ({pendingCustomerKyc.length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_products") && <TabsTrigger value="products" className="px-6">Products ({pendingProducts.length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_orders") && <TabsTrigger value="orders" className="px-6">Orders</TabsTrigger>}
-              {(adminRole?.permissions.includes("manage_transactions")) && (
-                <TabsTrigger value="transactions" className="px-6">Secure Settlements</TabsTrigger>
+            <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
+              <TabsTrigger
+                value="analytics"
+                className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+              >
+                Analytics
+              </TabsTrigger>
+              {adminRole?.permissions.includes("manage_kyc") && (
+                <TabsTrigger
+                  value="kyc"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Vendor KYC ({pendingVendors.length})
+                </TabsTrigger>
               )}
-              {adminRole?.permissions.includes("manage_payouts") && <TabsTrigger value="payouts" className="px-6">Payouts ({payouts.filter(p => p.status === 'pending').length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_support") && <TabsTrigger value="support" className="px-6">Support ({pendingTickets.length})</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_promotions") && <TabsTrigger value="promotions" className="px-6">Promotions</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_vendors") && <TabsTrigger value="vendors" className="px-6">Vendors</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_transporters") && <TabsTrigger value="transporters" className="px-6">Transporters</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_customers") && <TabsTrigger value="customers" className="px-6">Customers</TabsTrigger>}
-              {adminRole?.permissions.includes("manage_subscriptions") && <TabsTrigger value="subscriptions" className="px-6">Subscriptions</TabsTrigger>}
-              {showAdminManagement && <TabsTrigger value="admins" className="px-6">Admin Users</TabsTrigger>}
+              {adminRole?.permissions.includes("manage_kyc") && (
+                <TabsTrigger
+                  value="transporter-kyc"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Transporter KYC ({pendingTransporters.length})
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_kyc") && (
+                <TabsTrigger
+                  value="customer-kyc"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  User KYC ({pendingCustomerKyc.length})
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_products") && (
+                <TabsTrigger
+                  value="products"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Products ({pendingProducts.length})
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_orders") && (
+                <TabsTrigger
+                  value="orders"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Orders
+                </TabsTrigger>
+              )}
+              {(adminRole?.permissions.includes("manage_transactions")) && (
+                <TabsTrigger
+                  value="transactions"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Secure Settlements
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_payouts") && (
+                <TabsTrigger
+                  value="payouts"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Payouts ({payouts.filter(p => p.status === "pending").length})
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_support") && (
+                <TabsTrigger
+                  value="support"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Support ({pendingTickets.length})
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_promotions") && (
+                <TabsTrigger
+                  value="promotions"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Promotions
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_vendors") && (
+                <TabsTrigger
+                  value="vendors"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Vendors
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_transporters") && (
+                <TabsTrigger
+                  value="transporters"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Transporters
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_customers") && (
+                <TabsTrigger
+                  value="customers"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Customers
+                </TabsTrigger>
+              )}
+              {adminRole?.permissions.includes("manage_subscriptions") && (
+                <TabsTrigger
+                  value="subscriptions"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Subscriptions
+                </TabsTrigger>
+              )}
+              {showAdminManagement && (
+                <TabsTrigger
+                  value="admins"
+                  className="px-5 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-xs font-semibold"
+                >
+                  Admin Users
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
 
