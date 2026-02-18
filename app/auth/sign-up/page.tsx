@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
@@ -36,6 +37,7 @@ function SignUpContent() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false)
 
   useEffect(() => {
     if (userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam)) {
@@ -63,6 +65,12 @@ function SignUpContent() {
         return
       }
 
+      if (!acceptedPolicies) {
+        setError("You must agree to the Legal & Risk Policies to create an account.")
+        setIsLoading(false)
+        return
+      }
+
       const response = await fetch(`${apiBase}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -72,6 +80,7 @@ function SignUpContent() {
           fullName,
           userType,
           vendorType: userType === "vendor" ? vendorType : undefined,
+          acceptedPolicies: true,
         }),
       })
 
@@ -216,6 +225,29 @@ function SignUpContent() {
                     onChange={(e) => setFullName(e.target.value)}
                     className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Onboarding Consent</Label>
+                  <div className="flex items-start gap-3 rounded-xl border border-border/70 bg-muted/40 px-3 py-3">
+                    <Checkbox
+                      id="accepted-policies"
+                      checked={acceptedPolicies}
+                      onCheckedChange={(v) => setAcceptedPolicies(Boolean(v))}
+                      className="mt-1"
+                    />
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <label htmlFor="accepted-policies" className="font-medium text-foreground text-sm leading-snug">
+                        I agree to the{" "}
+                        <Link href="/legal/compliance" className="text-primary underline-offset-2 hover:underline font-semibold">
+                          Legal &amp; Risk Policies of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM
+                        </Link>.
+                      </label>
+                      <p className="italic">
+                        Unakubaliana na sera za kisheria na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
