@@ -1,10 +1,10 @@
-\"use client\"
+"use client"
 
-import { useEffect } from \"react\"
-import { useRouter } from \"next/navigation\"
-import { createClient } from \"../../../lib/supabase/client\"
-import { Button } from \"../../../components/ui/button\"
-import { Card, CardContent, CardHeader, CardTitle } from \"../../../components/ui/card\"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "../../../lib/supabase/client"
+import { Button } from "../../../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
 
 export default function LogoutPage() {
   const router = useRouter()

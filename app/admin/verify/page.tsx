@@ -1,6 +1,6 @@
-\"use client\"
+"use client"
 
-import { useEffect, useState } from \"react\"
+import { useEffect, useState } from "react"
 
 export default function AdminVerifyPage() {
   const [status, setStatus] = useState<any>(null)
@@ -36,7 +36,7 @@ export default function AdminVerifyPage() {
 
   return (
     <div className=\"min-h-screen bg-slate-50 py-10\">
-      <div className=\"mx-auto max-w-3xl space-y-6 px-4 sm:px-6\">
+      <div className="mx-auto max-w-3xl space-y-6 px-4 sm:px-6">
         <div
           className={`rounded-2xl border px-6 py-4 ${
             isSuccess ? \"border-emerald-300 bg-emerald-50\" : \"border-red-300 bg-red-50\"
