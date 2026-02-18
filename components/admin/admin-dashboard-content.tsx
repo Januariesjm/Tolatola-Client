@@ -117,7 +117,6 @@ export function AdminDashboardContent({
               <div className="text-3xl font-bold text-slate-900">
                 TZS {stats.totalGMV?.toLocaleString() || 0}
               </div>
-              <p className="text-[11px] text-slate-500 mt-1">Lifetime platform volume</p>
             </CardContent>
           </Card>
 
@@ -134,7 +133,6 @@ export function AdminDashboardContent({
               <div className="text-3xl font-bold text-slate-900">
                 {orders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
               </div>
-              <p className="text-[11px] text-slate-500 mt-1">Currently being processed</p>
             </CardContent>
           </Card>
 
@@ -151,7 +149,6 @@ export function AdminDashboardContent({
               <div className="text-3xl font-bold text-slate-900">
                 {pendingVendors.length + pendingTransporters.length}
               </div>
-              <p className="text-[11px] text-slate-500 mt-1">Awaiting verification</p>
             </CardContent>
           </Card>
 
@@ -168,7 +165,6 @@ export function AdminDashboardContent({
               <div className="text-3xl font-bold text-slate-900">
                 {pendingTickets.length}
               </div>
-              <p className="text-[11px] text-slate-500 mt-1">Requires support attention</p>
             </CardContent>
           </Card>
         </div>
