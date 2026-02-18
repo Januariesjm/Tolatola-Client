@@ -14,12 +14,13 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname()
   const isAdmin = pathname?.startsWith("/admin")
+  const isAuth = pathname?.startsWith("/auth")
 
   return (
     <>
       <main className="flex-1 pb-32 lg:pb-0">{children}</main>
-      {!isAdmin && <SiteFooter />}
-      {!isAdmin && <MobileBottomNav />}
+      {!isAdmin && !isAuth && <SiteFooter />}
+      {!isAdmin && !isAuth && <MobileBottomNav />}
       <FloatingSupportWidget />
       {/* Cookie banner is global but respects prior consent */}
       <CookieConsentBanner />
