@@ -44,6 +44,25 @@ function SignUpSuccessContent() {
                     <strong>Note:</strong> The verification link expires in 24 hours. If you don&apos;t see the email, check your spam folder.
                   </p>
                 </div>
+                <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 px-4 py-3 space-y-1">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-[0.18em]">
+                    Legal &amp; Risk Policies
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    By creating an account you confirm that you have read and agree to the{" "}
+                    <Link
+                      href="/legal/compliance"
+                      className="text-primary font-semibold underline-offset-2 hover:underline"
+                    >
+                      Legal &amp; Risk Policies of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM
+                    </Link>
+                    , including our liability, insurance and risk transfer framework.
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/80 italic">
+                    Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN
+                    ECOSYSTEM.
+                  </p>
+                </div>
               </div>
               {returnUrl ? (
                 <Link href={`/auth/login?returnUrl=${encodeURIComponent(returnUrl)}`}>
