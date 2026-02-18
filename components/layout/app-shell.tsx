@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
 import { FloatingSupportWidget } from "@/components/support/floating-support-widget"
+import { CookieConsentBanner } from "@/components/layout/cookie-consent-banner"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -20,6 +21,8 @@ export function AppShell({ children }: AppShellProps) {
       {!isAdmin && <SiteFooter />}
       {!isAdmin && <MobileBottomNav />}
       <FloatingSupportWidget />
+      {/* Cookie banner is global but respects prior consent */}
+      <CookieConsentBanner />
     </>
   )
 }
