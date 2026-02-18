@@ -228,29 +228,6 @@ function SignUpContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Onboarding Consent</Label>
-                  <div className="flex items-start gap-3 rounded-xl border border-border/70 bg-muted/40 px-3 py-3">
-                    <Checkbox
-                      id="accepted-policies"
-                      checked={acceptedPolicies}
-                      onCheckedChange={(v) => setAcceptedPolicies(Boolean(v))}
-                      className="mt-1"
-                    />
-                    <div className="space-y-1 text-xs text-muted-foreground">
-                      <label htmlFor="accepted-policies" className="font-medium text-foreground text-sm leading-snug">
-                        I agree to the{" "}
-                        <Link href="/legal/compliance" className="text-primary underline-offset-2 hover:underline font-semibold">
-                          Legal &amp; Risk Policies of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM
-                        </Link>.
-                      </label>
-                      <p className="italic">
-                        Unakubaliana na sera za kisheria na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                   <Input
                     id="email"
@@ -345,6 +322,37 @@ function SignUpContent() {
                       </Label>
                     </div>
                   </RadioGroup>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Onboarding Consent</Label>
+                  <div className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-primary/5/40 px-3 py-3 md:px-4 md:py-3.5">
+                    <Checkbox
+                      id="accepted-policies"
+                      checked={acceptedPolicies}
+                      onCheckedChange={(v) => setAcceptedPolicies(Boolean(v))}
+                      className="mt-1 border-primary/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
+                    <div className="space-y-1 text-xs text-muted-foreground leading-relaxed">
+                      <label
+                        htmlFor="accepted-policies"
+                        className="font-medium text-foreground text-[13px] leading-snug"
+                      >
+                        I confirm that I have read and agree to the{" "}
+                        <Link
+                          href="/legal/compliance"
+                          className="text-primary underline-offset-2 hover:underline font-semibold"
+                        >
+                          Legal &amp; Risk Policies
+                        </Link>{" "}
+                        of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
+                      </label>
+                      <p className="italic text-[11px]">
+                        Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY
+                        CHAIN ECOSYSTEM.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {error && (
