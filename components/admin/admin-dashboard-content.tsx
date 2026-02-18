@@ -11,7 +11,6 @@ import {
   ShoppingCart,
   DollarSign,
   MessageSquare,
-  ShoppingBag,
   ShieldCheck,
   BarChart3,
   Truck,
@@ -22,6 +21,7 @@ import {
   Percent,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
@@ -95,8 +95,14 @@ export function AdminDashboardContent({
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center">
-                <ShoppingBag className="h-5 w-5 text-primary" />
+              <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-primary/20 bg-white">
+                <Image
+                  src="/logo-new.png"
+                  alt="TolaTola"
+                  fill
+                  className="object-contain p-1.5"
+                  priority
+                />
               </div>
               <span className="text-2xl font-semibold tracking-tight text-slate-900">
                 TOLATOLA <span className="text-primary">ADMIN</span>

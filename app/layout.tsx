@@ -2,7 +2,6 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
-import { SiteFooter } from "@/components/layout/site-footer"
 import { LanguageProvider } from "@/lib/i18n/language-context"
 import { JsonLd } from "@/components/seo/json-ld"
 import { GlobalErrorLogger } from "@/components/utils/global-error-logger"
@@ -74,8 +73,7 @@ export const metadata: Metadata = {
   generator: 'v0.app'
 }
 
-import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-import { FloatingSupportWidget } from "@/components/support/floating-support-widget"
+import { AppShell } from "@/components/layout/app-shell"
 
 export default function RootLayout({
   children,
@@ -92,10 +90,7 @@ export default function RootLayout({
         <JsonLd />
         <LanguageProvider>
           <GlobalErrorLogger />
-          <main className="flex-1 pb-32 lg:pb-0">{children}</main>
-          <SiteFooter />
-          <MobileBottomNav />
-          <FloatingSupportWidget />
+          <AppShell>{children}</AppShell>
         </LanguageProvider>
       </body>
     </html>

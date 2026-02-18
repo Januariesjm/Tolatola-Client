@@ -1,0 +1,26 @@
+"use client"
+
+import type React from "react"
+import { usePathname } from "next/navigation"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
+import { FloatingSupportWidget } from "@/components/support/floating-support-widget"
+
+interface AppShellProps {
+  children: React.ReactNode
+}
+
+export function AppShell({ children }: AppShellProps) {
+  const pathname = usePathname()
+  const isAdmin = pathname?.startsWith("/admin")
+
+  return (
+    <>
+      <main className="flex-1 pb-32 lg:pb-0">{children}</main>
+      {!isAdmin && <SiteFooter />}
+      {!isAdmin && <MobileBottomNav />}
+      <FloatingSupportWidget />
+    </>
+  )
+}
+
