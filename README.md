@@ -158,13 +158,27 @@ Tolatola-Client/
 
 ## Contributing
 
-### 1. Get the code and set up
+We use a **branch-from-main → PR → review → merge** flow to keep **main** stable and reduce bugs. Always work from the latest **main** and get **at least one review** before merging.
 
-- Clone the repo, create a branch from **main**, install dependencies, and configure [environment variables](#environment-variables).
+### 1. Get the code and pull latest from main
+
+- Clone the repo (if you haven’t already) and install dependencies:
+  ```bash
+  git clone <repository-url>
+  cd Tolatola-Client
+  npm install
+  ```
+- **Pull the latest from main** and create your branch from it:
+  ```bash
+  git checkout main
+  git pull origin main
+  git checkout -b feature/your-feature   # or fix/your-fix
+  ```
+- Configure [environment variables](#environment-variables) in `.env.local`.
 
 ### 2. Make changes
 
-- Implement on a **feature or fix branch** (e.g. `git checkout -b feature/your-feature`).
+- Do all work on your **feature or fix branch** (never commit directly to **main**).
 - Follow existing patterns: App Router under `app/`, shared components under `components/`, API helpers in `lib/`.
 - Prefer **Server Components** unless you need interactivity; use **client** only where necessary (`"use client"`).
 - For **backend calls**, use `serverApiGet` / `serverApiPost` etc. in server code and `clientApiGet` / `clientApiPatch` etc. in client code (see `lib/api-server.ts` and `lib/api-client.ts`).
@@ -175,16 +189,17 @@ Tolatola-Client/
 - Build: `npm run build`.
 - Lint: `npm run lint`.
 
-### 4. Commit and open a pull request
+### 4. Open a pull request and get a review
 
 - Write clear commit messages (e.g. “Add profile avatar upload to backend API”, “Fix login redirect for transporters”).
-- Push your branch and open a **pull request** into **main**.
-- In the PR, describe what changed and how to test it. A maintainer will review and merge when ready.
+- Push your branch and **open a pull request into main**.
+- In the PR, describe what changed and how to test it.
+- **Ask for at least one review** before merging. Do not merge into **main** until at least one reviewer has approved. This helps catch bugs and keep **main** stable.
 
 ### What to avoid
 
 - Do **not** commit `.env.local` or any file with real API keys or secrets.
-- Do **not** push directly to **main** without a review if your team uses PRs.
+- Do **not** push directly to **main** or merge your own PR without at least one review.
 - Do **not** add large binary assets to the repo; use a CDN or Supabase Storage and reference them by URL.
 
 ---
