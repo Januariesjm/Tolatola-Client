@@ -34,6 +34,49 @@ export async function clientApiDelete<T>(path: string) {
   return api.delete<T>(path, token || undefined)
 }
 
+/** Returns full response for profile update so caller can handle 400/401. Does not throw. */
+export async function clientApiPatchProfile(body: { full_name?: string; phone?: string }): Promise<{
+  ok: boolean
+  status: number
+  data: { success?: boolean; profile?: any; error?: string; readOnlyFields?: string[] }
+}> {
+  const token = await getToken()
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
+  const path = "profile"
+  const url = `${baseUrl}/${path.replace(/^\//, "")}`
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json().catch(() => ({}))
+  return { ok: res.ok, status: res.status, data: data as any }
+}
+
+/** Returns full response for avatar upload so caller can handle 400/401. Does not throw. */
+export async function clientApiPostProfileAvatar(image: string): Promise<{
+  ok: boolean
+  status: number
+  data: { success?: boolean; profile?: any; profile_image_url?: string; error?: string }
+}> {
+  const token = await getToken()
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
+  const url = `${baseUrl}/profile/avatar`
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ image }),
+  })
+  const data = await res.json().catch(() => ({}))
+  return { ok: res.ok, status: res.status, data: data as any }
+}
+
 async function getToken() {
   const supabase = createClientComponentClient<Database>()
   // Verify user is authenticated with server

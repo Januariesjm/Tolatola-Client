@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import ProfileContent from "@/components/profile/profile-content"
 import SiteHeader from "@/components/layout/site-header"
+import { serverApiGet } from "@/lib/api-server"
 
 export const dynamic = "force-dynamic"
 
@@ -16,10 +17,25 @@ export default async function ProfilePage() {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
+  // Fetch profile from backend API (GET /api/profile) — returns { profile, editableFields?, readOnlyFields? }
+  let profile: any = null
+  let editableFields: string[] | undefined
+  let readOnlyFields: string[] | undefined
+  try {
+    const res = await serverApiGet<{ profile: any; editableFields?: string[]; readOnlyFields?: string[] }>("profile")
+    profile = res.profile
+    editableFields = res.editableFields
+    readOnlyFields = res.readOnlyFields
+  } catch (err) {
+    // 401 or network: redirect to login
+    redirect("/auth/login")
+  }
 
-  // Fetch KYC status
+  if (!profile) {
+    redirect("/auth/login")
+  }
+
+  // Fetch KYC status (from Supabase; not part of profile API)
   const { data: kyc } = await (supabase.from("customer_kyc").select("*").eq("user_id", user.id) as any).maybeSingle()
 
   // Fetch orders
@@ -66,6 +82,8 @@ export default async function ProfilePage() {
         orders={orders || []}
         transactions={transactions || []}
         tickets={tickets || []}
+        editableFields={editableFields}
+        readOnlyFields={readOnlyFields}
       />
     </div>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -30,9 +31,12 @@ interface ProfileContentProps {
   orders: any[]
   transactions: any[]
   tickets: any[]
+  editableFields?: string[]
+  readOnlyFields?: string[]
 }
 
-export default function ProfileContent({ user, profile, kyc, orders, transactions, tickets }: ProfileContentProps) {
+export default function ProfileContent({ user, profile, kyc, orders, transactions, tickets, editableFields, readOnlyFields }: ProfileContentProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("personal")
 
   const getKycStatusBadge = () => {
@@ -120,7 +124,7 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
               </div>
 
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {activeTab === "personal" && <PersonalInfoTab profile={profile} kycStatus={kyc?.kyc_status} />}
+                {activeTab === "personal" && <PersonalInfoTab profile={profile} kycStatus={kyc?.kyc_status} editableFields={editableFields} readOnlyFields={readOnlyFields} onProfileUpdated={() => router.refresh()} />}
                 {activeTab === "kyc" && <KycVerificationTab kyc={kyc} userId={user.id} />}
                 {activeTab === "orders" && <OrderHistoryTab orders={orders} />}
                 {activeTab === "transactions" && <TransactionHistoryTab transactions={transactions} />}

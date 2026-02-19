@@ -101,11 +101,10 @@ export function TransporterProfileTab({ user, transporter }: TransporterProfileT
         try {
             const { clientApiPut, clientApiPost } = await import("@/lib/api-client")
 
-            // 1. Update User Profile
+            // 1. Update user profile (backend only allows full_name and phone)
             await clientApiPut("profile", {
                 full_name: formData.full_name,
                 phone: formData.phone,
-                address: formData.address,
             })
 
             // 2. Update Transporter Details
