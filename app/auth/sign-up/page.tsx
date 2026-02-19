@@ -183,7 +183,7 @@ function SignUpContent() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-primary/5 via-slate-50 to-accent/10 text-slate-900 px-4 sm:px-6 lg:px-8 flex items-center">
-      <div className="mx-auto flex w-full max-w-6xl items-stretch justify-between gap-8 lg:gap-10">
+      <div className="mx-auto flex w-full items-stretch justify-between gap-8 lg:gap-10">
         {/* Left hero / marketing panel */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center rounded-3xl bg-gradient-to-br from-primary/10 via-sky-50 to-white px-8 py-10 shadow-sm">
           <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
