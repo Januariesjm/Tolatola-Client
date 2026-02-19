@@ -7,7 +7,7 @@ async function request<T>(
     body?: any
     headers?: Record<string, string>
     accessToken?: string
-    nextOptions?: RequestInit
+    nextOptions?: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } }
   } = {},
 ): Promise<T> {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
@@ -22,12 +22,13 @@ async function request<T>(
     headers.Authorization = `Bearer ${options.accessToken}`
   }
 
+  const useNextCache = options.nextOptions?.next != null
   const res = await fetch(url, {
     method: options.method || "GET",
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
-    cache: "no-store",
-    ...(options.nextOptions || {}),
+    ...(useNextCache ? { next: options.nextOptions!.next } : { cache: "no-store" as RequestCache }),
+    ...(options.nextOptions && !useNextCache ? options.nextOptions : {}),
   })
 
   if (!res.ok) {
@@ -46,7 +47,7 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(path: string, accessToken?: string, nextOptions?: RequestInit) =>
+  get: <T>(path: string, accessToken?: string, nextOptions?: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } }) =>
     request<T>(path, { method: "GET", accessToken, nextOptions }),
   post: <T>(path: string, body?: any, accessToken?: string) =>
     request<T>(path, { method: "POST", body, accessToken }),

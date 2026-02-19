@@ -48,9 +48,12 @@ export default async function HomePage() {
     }
   }
 
-  const categoriesRes = await serverApiGet<{ data: any[] }>("categories").catch(() => ({ data: [] }))
-  const promotionsRes = await serverApiGet<{ data: any[] }>("promotions").catch(() => ({ data: [] }))
-  const productsRes = await serverApiGet<{ data: any[] }>("products").catch(() => ({ data: [] }))
+  const revalidate60 = { next: { revalidate: 60 } as const }
+  const [categoriesRes, promotionsRes, productsRes] = await Promise.all([
+    serverApiGet<{ data: any[] }>("categories", revalidate60).catch(() => ({ data: [] })),
+    serverApiGet<{ data: any[] }>("promotions", revalidate60).catch(() => ({ data: [] })),
+    serverApiGet<{ data: any[] }>("products", revalidate60).catch(() => ({ data: [] })),
+  ])
 
   const categories = categoriesRes.data || []
   const promotions = promotionsRes.data || []

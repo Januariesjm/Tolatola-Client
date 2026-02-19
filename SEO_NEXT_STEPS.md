@@ -21,6 +21,9 @@ This file is the single checklist for maximizing search visibility and performan
 - **Dynamic imports:** `FloatingSupportWidget` and `CookieConsentBanner` loaded client-side only (`ssr: false`) to reduce initial JS.
 - **Bundle:** `optimizePackageImports: ["lucide-react"]` in Next.js config for faster dev/build and smaller client bundles.
 - **Hero image:** First slide uses `priority` for LCP.
+- **Data fetching:** Public GETs support ISR-style revalidation (`serverApiGet(path, { next: { revalidate: 60 } })`). Homepage loads categories, promotions, and products in parallel with 60s revalidate. Shop page caches categories with 60s revalidate.
+- **Caching:** Static assets get long-lived `Cache-Control: public, max-age=31536000, immutable`. API GETs can opt into Next.js data cache via `next: { revalidate }`.
+- **Security headers:** `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` set in `next.config.mjs`. Gzip/Brotli compression enabled.
 
 ---
 

@@ -51,7 +51,7 @@ export default async function ShopPage({
   const minPrice = searchParams.minPrice ? parseInt(searchParams.minPrice) : undefined
   const maxPrice = searchParams.maxPrice ? parseInt(searchParams.maxPrice) : undefined
 
-  const categoriesRes = await serverApiGet<{ data: any[] }>("categories").catch(() => ({ data: [] }))
+  const categoriesRes = await serverApiGet<{ data: any[] }>("categories", { next: { revalidate: 60 } }).catch(() => ({ data: [] }))
   const categories = categoriesRes.data || []
 
   let productsUrl = "products"

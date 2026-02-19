@@ -17,9 +17,12 @@ async function getSessionToken() {
   return session?.access_token
 }
 
-export async function serverApiGet<T>(path: string) {
+export async function serverApiGet<T>(
+  path: string,
+  fetchOptions?: { next?: { revalidate?: number | false; tags?: string[] } }
+) {
   const token = await getSessionToken()
-  return api.get<T>(path, token || undefined)
+  return api.get<T>(path, token || undefined, fetchOptions)
 }
 
 export async function serverApiPost<T>(path: string, body?: any) {
