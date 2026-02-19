@@ -9,68 +9,77 @@ import { GlobalErrorLogger } from "@/components/utils/global-error-logger"
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
 })
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tolatola.co"),
   title: {
-    default: "TOLA - Tanzania's Leading Supply Chain & Trade Platform",
-    template: "%s | TOLA",
+    default: "TOLA Tanzania | Online Shopping, Marketplace & Ecommerce for Vendors",
+    template: "%s | TOLA Tanzania",
   },
   description:
-    "TOLA (TolaTola) is Tanzania's premier trade ecosystem. Connect with vendors, shop verified products, and experience secure supply chain solutions across Tanzania.",
+    "TOLA is Tanzania's online marketplace ✔ Shop from verified vendors, sell online, and manage logistics ✔ Ecommerce in Tanzania with M-Pesa & Tigo Pesa ✔ Secure escrow, best prices, wholesale to last-mile delivery.",
   keywords: [
+    "online shops in Tanzania",
+    "marketplace Tanzania",
+    "vendors Tanzania",
+    "ecommerce Tanzania",
+    "online shopping Tanzania",
     "TOLA",
     "TolaTola",
-    "Tola Tanzania",
-    "Tanzania Digital trade and Supply Chain Ecosystem",
-    "multivendor platform",
     "buy online Tanzania",
-    "sell products Tanzania",
-    "Tanzanian vendors",
-    "mobile money payments",
-    "M-Pesa",
+    "sell online Tanzania",
+    "Tanzanian marketplace",
+    "multivendor platform Tanzania",
+    "M-Pesa Tanzania",
     "Tigo Pesa",
-    "online shopping Tanzania",
-    "TOLA Digital trade and Supply Chain Ecosystem",
+    "verified vendors Tanzania",
+    "digital trade Tanzania",
+    "supply chain Tanzania",
   ],
-  authors: [{ name: "TOLA" }],
+  authors: [{ name: "TOLA", url: "https://tolatola.co" }],
   creator: "TOLA",
   publisher: "TOLA",
   icons: {
     icon: "/logo-new.png",
+    apple: "/logo-new.png",
   },
   openGraph: {
     type: "website",
     url: "https://tolatola.co",
-    title: "TOLA - Tanzania's Premier Trade Ecosystem",
-    description: "Shop from verified vendors in Tanzania. TOLA: Secure, Fast, and Reliable Trade.",
-    siteName: "TOLA",
+    title: "TOLA Tanzania | Online Shopping, Marketplace & Ecommerce",
+    description: "Tanzania's online marketplace ✔ Shop from verified vendors, secure payments, M-Pesa & Tigo Pesa. Best prices, escrow protection.",
+    siteName: "TOLA Tanzania",
+    locale: "en_TZ",
     images: [
       {
         url: "/logo-new.png",
         width: 1200,
         height: 630,
-        alt: "TOLA - Tanzania Trade Ecosystem",
+        alt: "TOLA Tanzania - Online Marketplace & Ecommerce",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TOLA - Leading Trade & Supply Chain Platform in Tanzania",
-    description: "Your trusted gateway to Tanzanian trade. Secure payments, verified vendors.",
+    title: "TOLA Tanzania | Online Shopping, Marketplace & Ecommerce",
+    description: "Shop from verified vendors in Tanzania. Secure payments, M-Pesa, best prices. Tanzania's marketplace for buyers and sellers.",
     images: ["/logo-new.png"],
   },
   robots: {
     index: true,
     follow: true,
   },
-  generator: 'v0.app'
+  alternates: {
+    canonical: "https://tolatola.co",
+  },
 }
 
 import { AppShell } from "@/components/layout/app-shell"
@@ -81,9 +90,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html suppressHydrationWarning className={`${inter.variable} ${playfair.variable} antialiased`}>
+    <html suppressHydrationWarning className={`${inter.variable} ${playfair.variable} antialiased`} lang="en">
       <head>
-        <link rel="canonical" href="https://tolatola.co" />
+        <meta name="theme-color" content="#0f766e" />
+        <link rel="preconnect" href="https://tolatola.co" />
+        <link rel="dns-prefetch" href="https://tolatola.co" />
       </head>
 
       <body className="font-sans flex flex-col min-h-screen">

@@ -5,7 +5,7 @@ import { Shield, Lock, Eye, FileText, UserCheck, Mail, Globe, ShieldAlert, Finge
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Tola Digital trade and Supply Chain Ecosystem",
+  title: "Privacy Policy | TOLA Tanzania - Marketplace & Ecommerce",
   description: "Transparency, trust, and security. Learn how Tola protects your data and ensures a safe trading environment for all Tanzanian entrepreneurs and consumers.",
   alternates: {
     canonical: "https://tolatola.co/privacy",

@@ -7,8 +7,18 @@ import { ProductSearch } from "@/components/layout/product-search"
 import { serverApiGet } from "@/lib/api-server"
 import { cookies, headers } from "next/headers"
 import type { Database } from "@/lib/types"
+import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
+
+export const metadata: Metadata = {
+  title: "Shop | Online Shopping Tanzania - Verified Vendors & Best Prices",
+  description:
+    "Shop from verified vendors in Tanzania. Browse fashion, electronics, home goods and more. Secure checkout with M-Pesa & Tigo Pesa. Best prices on TOLA Tanzania marketplace.",
+  alternates: {
+    canonical: "https://tolatola.co/shop",
+  },
+}
 
 export default async function ShopPage({
   searchParams,

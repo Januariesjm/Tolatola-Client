@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     // Priority 5: Sign In
     {
-      url: `${baseUrl}/auth/sign-in`,
+      url: `${baseUrl}/auth/login`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,

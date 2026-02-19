@@ -6,7 +6,7 @@ import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, Ale
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Tola Digital trade and Supply Chain Ecosystem",
+  title: "Terms & Conditions | TOLA Tanzania - Marketplace & Ecommerce",
   description: "Legal framework for using the Tola Digital trade and Supply Chain Ecosystem. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
   alternates: {
     canonical: "https://tolatola.co/terms",

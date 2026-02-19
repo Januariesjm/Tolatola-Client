@@ -5,9 +5,9 @@ import { Calendar, User, ArrowRight, BookOpen, Clock, Tag } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Blog | Tola Digital trade and Supply Chain Ecosystem Insights",
+  title: "Blog | TOLA Tanzania - Marketplace, Selling & Ecommerce Tips",
   description:
-    "Tips, guides, and updates from the Tola team. Learn how to sell successfully, understand our platform features, and stay updated with Digital trade and Supply Chain Ecosystem news.",
+    "Tips, guides, and updates from TOLA Tanzania. Selling online, marketplace best practices, M-Pesa, vendor success, and ecommerce in Tanzania.",
   alternates: {
     canonical: "https://tolatola.co/blog",
   },

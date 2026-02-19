@@ -7,8 +7,8 @@ import { Metadata } from "next"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Order Details | TOLA",
-  description: "View your order details and status.",
+  title: "Order Details | TOLA Tanzania",
+  description: "View your order details, tracking, and delivery status. TOLA Tanzania marketplace.",
 }
 
 interface OrderDetailPageProps {

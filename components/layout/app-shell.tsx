@@ -1,11 +1,20 @@
 "use client"
 
 import type React from "react"
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-import { FloatingSupportWidget } from "@/components/support/floating-support-widget"
-import { CookieConsentBanner } from "@/components/layout/cookie-consent-banner"
+
+const FloatingSupportWidget = dynamic(
+  () => import("@/components/support/floating-support-widget").then((m) => ({ default: m.FloatingSupportWidget })),
+  { ssr: false }
+)
+
+const CookieConsentBanner = dynamic(
+  () => import("@/components/layout/cookie-consent-banner").then((m) => ({ default: m.CookieConsentBanner })),
+  { ssr: false }
+)
 
 interface AppShellProps {
   children: React.ReactNode

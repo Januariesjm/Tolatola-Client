@@ -19,9 +19,9 @@ import { redirect } from "next/navigation"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "TOLA Digital trade and Supply Chain Ecosystem | Tanzania's Premier Trading Platform",
+  title: "TOLA Tanzania | Online Shopping, Marketplace & Ecommerce for Vendors",
   description:
-    "Experience the future of trade in Tanzania. TOLA combines secure payments, verified vendors, and mobile money convenience in one premium Digital trade and Supply Chain Ecosystem.",
+    "TOLA is Tanzania's online marketplace ✔ Shop from verified vendors, sell online, and manage logistics ✔ Ecommerce in Tanzania with M-Pesa & Tigo Pesa ✔ Secure escrow, best prices.",
   alternates: {
     canonical: "https://tolatola.co",
   },

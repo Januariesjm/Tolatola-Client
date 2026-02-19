@@ -1,4 +1,5 @@
 import { ProductDetailContent } from "@/components/product/product-detail-content"
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld"
 import { notFound } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
@@ -21,11 +22,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const imageUrl = product.images?.[0]?.url || product.image_url || "/logo-new.png"
   const description = product.description
     ? (product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description)
-    : `Buy ${product.name} on TOLA - Tanzania's Leading Trade Platform`
+    : `Buy ${product.name} on TOLA Tanzania. Verified vendors, secure checkout, M-Pesa & Tigo Pesa.`
 
   return {
     title: product.name,
     description: description,
+    alternates: {
+      canonical: `https://tolatola.co/product/${id}`,
+    },
     openGraph: {
       title: product.name,
       description: description,
@@ -89,8 +93,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     }
   }
 
+  const breadcrumbs = [
+    { name: "Home", url: "https://tolatola.co" },
+    { name: "Shop", url: "https://tolatola.co/shop" },
+    { name: product.name, url: `https://tolatola.co/product/${id}` },
+  ]
+
   return (
     <div className="min-h-screen bg-white">
+      <BreadcrumbJsonLd items={breadcrumbs} />
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
       <ProductDetailContent product={product} reviews={reviews || []} isLiked={isLiked} />
     </div>

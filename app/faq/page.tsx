@@ -2,13 +2,14 @@ import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card, CardContent } from "@/components/ui/card"
+import { FAQJsonLd } from "@/components/seo/faq-json-ld"
 import { HelpCircle, ShoppingBag, Store, ShieldCheck, Wallet, Truck, MessageCircle, AlertCircle } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "FAQ | Tola Digital trade and Supply Chain Ecosystem Support",
+  title: "FAQ | TOLA Tanzania - Marketplace, Shopping & Selling",
   description:
-    "Frequently asked questions about Tola Digital trade and Supply Chain Ecosystem. Find answers about buying, selling, payments, secure transactions, KYC verification, and more.",
+    "FAQ about TOLA Tanzania. Online shopping, selling as a vendor, payments with M-Pesa and Tigo Pesa, escrow, delivery, and account verification. Ecommerce in Tanzania.",
   alternates: {
     canonical: "https://tolatola.co/faq",
   },
@@ -68,8 +69,11 @@ export default async function FAQPage() {
     }
   ]
 
+  const faqItems = faqCategories.flatMap((c) => c.questions.map((q) => ({ q: q.q, a: q.a })))
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <FAQJsonLd items={faqItems} />
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
       <main className="flex-1">

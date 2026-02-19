@@ -4,8 +4,8 @@ import SiteHeader from "@/components/layout/site-header"
 import { MessagesContent } from "@/components/messaging/messages-content"
 
 export const metadata = {
-  title: "Messages - TOLA",
-  description: "View and manage your conversations with sellers",
+  title: "Messages | TOLA Tanzania",
+  description: "View and manage your conversations with vendors. TOLA Tanzania marketplace.",
 }
 
 export const dynamic = "force-dynamic"

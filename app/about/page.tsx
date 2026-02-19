@@ -5,9 +5,9 @@ import { Shield, Target, Globe, Phone, Mail, MapPin, Building2, CheckCircle2, Al
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "About Us | TOLA - Digital Trade & Supply Chain Ecosystem",
+  title: "About Us | TOLA - Online Marketplace & Ecommerce Tanzania",
   description:
-    "TOLA is a digital trade and supply chain ecosystem designed to simplify, connect, and empower businesses across Tanzania and beyond.",
+    "TOLA is Tanzania's online marketplace and ecommerce platform. Connect vendors, buyers, and transporters. Secure payments, verified sellers, M-Pesa & Tigo Pesa. Learn about our mission.",
   alternates: {
     canonical: "https://tolatola.co/about",
   },

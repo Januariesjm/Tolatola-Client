@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Legal & Compliance | TOLA Digital trade and Supply Chain Ecosystem",
+  title: "Legal & Compliance | TOLA Tanzania - Marketplace & Ecommerce",
   description:
-    "Legal framework, insurance structure, and risk management for the TOLA Digital trade and Supply Chain Ecosystem, including platform liability, risk transfer and mandatory insurance.",
+    "Legal framework, insurance, and risk management for TOLA Tanzania. Platform liability, risk transfer, and mandatory insurance for our marketplace.",
   alternates: {
     canonical: "https://tolatola.co/legal/compliance",
   },
