@@ -12,9 +12,9 @@ import type { Metadata } from "next"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Shop | Online Shopping Tanzania - Verified Vendors & Best Prices",
+  title: "Shop | TOLA Digital Trade & Supply Chain Ecosystem",
   description:
-    "Shop from verified vendors in Tanzania. Browse fashion, electronics, home goods and more. Secure checkout with M-Pesa & Tigo Pesa. Best prices on TOLA Tanzania marketplace.",
+    "Shop from verified vendors within TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure checkout with M-Pesa & Tigo Pesa, integrated logistics and verified businesses.",
   alternates: {
     canonical: "https://tolatola.co/shop",
   },

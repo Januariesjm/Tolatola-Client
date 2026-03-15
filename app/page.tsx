@@ -19,9 +19,9 @@ import { redirect } from "next/navigation"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "TOLA Tanzania | Online Shopping, Marketplace & Ecommerce for Vendors",
+  title: "TOLA Tanzania | Digital Trade and Supply Chain Ecosystem",
   description:
-    "TOLA is Tanzania's online marketplace ✔ Shop from verified vendors, sell online, and manage logistics ✔ Ecommerce in Tanzania with M-Pesa & Tigo Pesa ✔ Secure escrow, best prices.",
+    "TOLA Tanzania – Tanzania's Digital Trade and Supply Chain Ecosystem ✔ Registered with TRA, BRELA & TCRA ✔ Buy from verified vendors, sell online, ship & pay with M-Pesa & Tigo Pesa ✔ Secure escrow & nationwide logistics.",
   alternates: {
     canonical: "https://tolatola.co",
   },
@@ -145,7 +145,8 @@ export default async function HomePage() {
               },
               "query-input": "required name=search_term_string",
             },
-            description: "Tanzania's premier multivendor Digital trade and Supply Chain Ecosystem",
+            description:
+              "Tanzania's Digital Trade and Supply Chain Ecosystem. Registered with TRA, BRELA and TCRA. Buy from verified vendors, sell online, ship and pay with M-Pesa and Tigo Pesa.",
           }),
         }}
       />

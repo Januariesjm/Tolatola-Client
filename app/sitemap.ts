@@ -11,12 +11,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 1.0,
     },
-    // Priority 2: Start Shopping (main product page)
+    // Priority 2: Shop (main product listing)
     {
       url: `${baseUrl}/shop`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.95,
+    },
+    // Track order – key user action, supports sitelinks
+    {
+      url: `${baseUrl}/track`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.88,
     },
     // Priority 3: Become a Vendor
     {

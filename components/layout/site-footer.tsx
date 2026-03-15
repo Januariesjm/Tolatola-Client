@@ -18,6 +18,7 @@ export function SiteFooter() {
       { name: "Transporter SLA", href: "/legal/sla-transporter" },
     ],
     support: [
+      { name: "Track Order", href: "/track" },
       { name: "FAQ", href: "/faq" },
       { name: "Contact Us", href: "/contact" },
       { name: "Return Policy", href: "/return-policy" },

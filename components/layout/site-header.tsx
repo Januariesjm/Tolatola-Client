@@ -35,7 +35,8 @@ import {
   Sparkles,
   Zap,
   Globe,
-  ArrowRight
+  ArrowRight,
+  Truck
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -156,6 +157,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     {[
                       { href: "/", label: "Home", icon: Home },
                       { href: "/shop", label: "Shop", icon: ShoppingBag },
+                      { href: "/track", label: "Track Order", icon: Truck },
                       { href: "/profile", label: "Profile", icon: User },
                       { href: "/orders", label: "Orders", icon: Package },
                       { href: "/favorites", label: "Favorites", icon: Sparkles }
@@ -228,6 +230,16 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               <span className={cn(
                 "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
                 pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
+              )} />
+            </Link>
+            <Link href="/track" className={cn(
+              "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
+              pathname?.startsWith("/track") ? "text-primary" : "text-stone-500"
+            )}>
+              Track Order
+              <span className={cn(
+                "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
+                pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
               )} />
             </Link>
           </div>
