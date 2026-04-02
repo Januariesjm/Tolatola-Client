@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock, Wallet } from "lucide-react"
+import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock, Wallet, Loader2 } from "lucide-react"
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
+import { useToast } from "@/hooks/use-toast"
 
 interface VendorOrdersTabProps {
   shopId: string
@@ -22,6 +23,9 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
   const [orders, setOrders] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set())
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState(TAB_NEW)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchOrders()
@@ -48,12 +52,43 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
     setExpandedOrders(newExpanded)
   }
 
+  const statusToTab: Record<string, string> = {
+    processing: TAB_PREPARING,
+    ready_for_pickup: TAB_READY,
+    shipped: TAB_COMPLETED,
+    delivered: TAB_COMPLETED,
+    confirmed: TAB_NEW,
+  }
+
+  const statusLabels: Record<string, string> = {
+    confirmed: "Order Confirmed",
+    processing: "Preparing",
+    ready_for_pickup: "Ready for Pickup",
+    shipped: "Shipped",
+    delivered: "Delivered",
+  }
+
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    setUpdatingOrderId(orderId)
     try {
       await clientApiPatch(`vendors/orders/${orderId}/status`, { status: newStatus })
-      fetchOrders()
+      toast({
+        title: "Order Updated ✓",
+        description: `Order moved to "${statusLabels[newStatus] || newStatus}"`,
+      })
+      await fetchOrders()
+      // Auto-switch to the destination tab
+      const destTab = statusToTab[newStatus]
+      if (destTab) setActiveTab(destTab)
     } catch (err) {
       console.error("Failed to update order", err)
+      toast({
+        title: "Update Failed",
+        description: "Could not update the order status. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setUpdatingOrderId(null)
     }
   }
 
@@ -224,20 +259,20 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
             )}
             <div className="flex gap-2 flex-wrap pt-2">
               {order.status === "pending" && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "confirmed")} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700">
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                <Button size="sm" onClick={() => updateOrderStatus(order.id, "confirmed")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700">
+                  {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
                   Confirm Order
                 </Button>
               )}
               {order.status === "confirmed" && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "processing")} className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 font-bold">
-                  <Package className="h-4 w-4 mr-2" />
+                <Button size="sm" onClick={() => updateOrderStatus(order.id, "processing")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 font-bold">
+                  {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Package className="h-4 w-4 mr-2" />}
                   Start Processing
                 </Button>
               )}
               {order.status === "processing" && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold">
-                  <Truck className="h-4 w-4 mr-2" />
+                <Button size="sm" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold">
+                  {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Truck className="h-4 w-4 mr-2" />}
                   Mark Ready for Pickup
                 </Button>
               )}
@@ -283,7 +318,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
         <Badge variant="secondary">{orders.length} Total</Badge>
       </div>
 
-      <Tabs defaultValue={TAB_NEW} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-5 lg:flex lg:flex-wrap">
           <TabsTrigger value={TAB_NEW}>
             New Orders

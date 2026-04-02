@@ -11,6 +11,7 @@ import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import Image from "next/image"
 import { AddProductDialog } from "./add-product-dialog"
 import { EditProductDialog } from "./edit-product-dialog"
+import { EditVendorProfileDialog } from "./edit-vendor-profile-dialog"
 import { VendorOrdersTab } from "./vendor-orders-tab"
 import { VendorWalletTab } from "./vendor-wallet-tab"
 import { VendorSubscriptionTab } from "./vendor-subscription-tab"
@@ -41,6 +42,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
   const router = useRouter()
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditProduct, setShowEditProduct] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [productToDelete, setProductToDelete] = useState<any>(null)
@@ -311,10 +313,16 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                       <CardTitle>Shop Settings</CardTitle>
                       <CardDescription>Manage your shop information and location</CardDescription>
                     </div>
-                    <Button onClick={() => router.push("/vendor/shop/edit")} variant="outline" size="sm">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Shop
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button onClick={() => setShowEditProfile(true)} variant="outline" size="sm">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                      <Button onClick={() => router.push("/vendor/shop/edit")} variant="outline" size="sm">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Shop
+                      </Button>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -325,6 +333,23 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                       <div>
                         <p className="text-sm font-medium">Description</p>
                         <p className="text-sm text-muted-foreground">{shop.description || "No description"}</p>
+                      </div>
+                      <div className="border-t pt-4">
+                        <p className="text-sm font-semibold mb-2">Business Contact (Vendor)</p>
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <span className="font-medium">Business Name:</span>
+                            <span className="text-muted-foreground ml-2">{vendor.business_name}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Phone:</span>
+                            <span className="text-muted-foreground ml-2">{vendor.phone || "No phone added"}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Business Description:</span>
+                            <span className="text-muted-foreground ml-2">{vendor.description || "No description added"}</span>
+                          </div>
+                        </div>
                       </div>
                       <div className="border-t pt-4">
                         <p className="text-sm font-semibold mb-2">Shop Location</p>
@@ -376,6 +401,12 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
         open={showEditProduct}
         onOpenChange={setShowEditProduct}
         product={selectedProduct}
+        onSuccess={() => router.refresh()}
+      />
+      <EditVendorProfileDialog
+        open={showEditProfile}
+        onOpenChange={setShowEditProfile}
+        vendor={vendor}
         onSuccess={() => router.refresh()}
       />
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

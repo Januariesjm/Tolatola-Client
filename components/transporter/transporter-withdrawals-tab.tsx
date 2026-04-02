@@ -111,12 +111,12 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                   <span>TZS {Number(amount).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-stone-600">
-                  <span>Service Fee (5%):</span>
-                  <span>- TZS {(Number(amount) * 0.05).toLocaleString()}</span>
+                  <span>Service Fee (3.5%):</span>
+                  <span>- TZS {(Number(amount) * 0.035).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t border-green-200">
                   <span>You Receive:</span>
-                  <span className="text-green-700">TZS {(Number(amount) * 0.95).toLocaleString()}</span>
+                  <span className="text-green-700">TZS {(Number(amount) * 0.965).toLocaleString()}</span>
                 </div>
               </div>
             )}

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { clientApiPost } from "@/lib/api-client"
+import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,39 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
   const [paymentCompleted, setPaymentCompleted] = useState(order.payment_status === "paid" || order.payment_method === "cash-on-delivery")
   const [error, setError] = useState<string | null>(null)
   const [isConfirming, setIsConfirming] = useState(false)
+
+  // Auto-poll payment status if not yet confirmed (handles race condition where checkout redirects before webhook processes)
+  useEffect(() => {
+    if (paymentCompleted) return
+    if (order.payment_method === "cash-on-delivery") return
+
+    let attempts = 0
+    const maxAttempts = 40
+
+    const interval = setInterval(async () => {
+      attempts++
+      try {
+        const res = await clientApiGet<{ data: { payment_status: string; status: string } }>(
+          `payments/status/${order.id}`
+        )
+        if (res.data?.payment_status === "paid" || res.data?.status === "confirmed") {
+          setPaymentCompleted(true)
+          setOrder((prev: any) => ({ ...prev, payment_status: "paid", status: res.data.status }))
+          clearInterval(interval)
+        } else if (res.data?.payment_status === "failed") {
+          setError("Payment failed. Please try again.")
+          clearInterval(interval)
+        }
+      } catch (err) {
+        // Silently continue polling
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(interval)
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [paymentCompleted, order.id, order.payment_method])
 
   const handlePaymentSuccess = (transactionId: string) => {
     setPaymentCompleted(true)
