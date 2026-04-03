@@ -14,6 +14,7 @@ import { TransporterPaymentsTab } from "./transporter-payments-tab"
 import { TransporterWithdrawalsTab } from "./transporter-withdrawals-tab"
 import { TransporterSubscriptionTab } from "./transporter-subscription-tab"
 import { TransporterProfileTab } from "./transporter-profile-tab"
+import { NotificationPopover } from "@/components/layout/notification-popover"
 
 interface TransporterDashboardContentProps {
   transporter: any
@@ -115,6 +116,7 @@ export function TransporterDashboardContent({
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground capitalize">{transporter.vehicle_type} Driver</span>
+            <NotificationPopover />
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
