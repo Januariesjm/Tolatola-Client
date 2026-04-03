@@ -47,7 +47,7 @@ function LoginContent() {
         throw new Error(errorData.error || "Incorrect email or password")
       }
 
-      const { user: userData, session } = await response.json()
+      const { user: userData, session, otp_required } = await response.json()
 
       const supabase = createClient()
       if (session) {
@@ -55,6 +55,18 @@ function LoginContent() {
           access_token: session.access_token,
           refresh_token: session.refresh_token,
         })
+      }
+
+      // If OTP verification is required, redirect to OTP page with phone and redirect target
+      if (otp_required) {
+        const otpPhone = (userData as any)?.phone || ""
+        const redirectTarget = returnUrl || "/shop"
+        const search = new URLSearchParams({
+          phone: otpPhone,
+          redirect: redirectTarget,
+        }).toString()
+        router.push(`/auth/otp?${search}`)
+        return
       }
 
       if (returnUrl) {
