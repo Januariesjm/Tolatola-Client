@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 
 export function NotificationPopover() {
+    const [notifications, setNotifications] = useState<any[]>([])
     const [conversations, setConversations] = useState<any[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
     const supabase = createClient()
@@ -23,12 +24,32 @@ export function NotificationPopover() {
             // For now, we simulate unread count based on conversations with no last_message_at or just some logic
             // Ideally, the backend would return an unread count per conversation
             const count = result.conversations.filter((c: any) => c.unread_count > 0).length
-            setUnreadCount(count)
+            setUnreadCount((prev) => Math.max(prev, count))
         }
+    }
+
+    const loadSystemNotifications = async () => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data } = await supabase
+            .from("notifications")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(20)
+
+        const rows = data || []
+        setNotifications(rows)
+        const unread = rows.filter((n: any) => !n.is_read).length
+        setUnreadCount((prev) => Math.max(prev, unread))
     }
 
     useEffect(() => {
         loadConversations()
+        loadSystemNotifications()
 
         // Subscribe to new messages for any conversation the user is part of
         const channel = supabase
@@ -42,6 +63,17 @@ export function NotificationPopover() {
                 },
                 () => {
                     loadConversations()
+                },
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "notifications",
+                },
+                () => {
+                    loadSystemNotifications()
                 },
             )
             .subscribe()
@@ -69,13 +101,36 @@ export function NotificationPopover() {
                     {unreadCount > 0 && <span className="text-xs text-muted-foreground">{unreadCount} unread</span>}
                 </div>
                 <ScrollArea className="h-80">
-                    {conversations.length === 0 ? (
+                    {conversations.length === 0 && notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full py-8 text-center text-muted-foreground">
                             <Bell className="h-8 w-8 mb-2 opacity-20" />
                             <p className="text-sm">No notifications yet</p>
                         </div>
                     ) : (
                         <div className="flex flex-col">
+                            {notifications.map((note) => (
+                                <Link
+                                    key={`n-${note.id}`}
+                                    href={note?.data?.orderId ? `/orders/${note.data.orderId}` : "/orders"}
+                                    className="flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors border-b last:border-0"
+                                >
+                                    <Avatar className="h-10 w-10 flex-shrink-0">
+                                        <AvatarFallback>
+                                            <Bell className="h-4 w-4" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <p className="text-sm font-medium truncate">{note.title || "Notification"}</p>
+                                            {!note.is_read && <div className="h-2 w-2 rounded-full bg-primary mt-1.5" />}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground truncate">{note.message}</p>
+                                        <span className="text-[10px] text-muted-foreground mt-1 block">
+                                            {note.created_at ? new Date(note.created_at).toLocaleDateString() : "Just now"}
+                                        </span>
+                                    </div>
+                                </Link>
+                            ))}
                             {conversations.map((conv) => (
                                 <Link
                                     key={conv.id}

@@ -259,16 +259,18 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
     const checkStatus = async () => {
       try {
-        const res = await clientApiGet<{ data: { payment_status: string; status: string; click_pesa_error?: string } }>(
+        const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string }; payment_status?: string; status?: string; click_pesa_error?: string }>(
           `payments/status/${orderId}`
         )
-        const { payment_status, status } = res.data
+        const payload = (res as any)?.data ?? res
+        const payment_status = payload?.payment_status
+        const status = payload?.status
 
-        if (payment_status === "paid" || status === "confirmed") {
+        if (payment_status === "paid" || ["confirmed", "processing", "preparing"].includes(String(status))) {
           setIsAwaitingPayment(false)
           toast({
             title: "Payment Successful",
-            description: "Your order has been confirmed successfully!",
+            description: "Your order has been created successfully.",
           })
           localStorage.removeItem("cart")
           window.dispatchEvent(new Event("cartUpdated"))
@@ -280,7 +282,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           setIsAwaitingPayment(false)
           toast({
             title: "Payment Failed",
-            description: res.data.click_pesa_error || "The transaction was unsuccessful. Please check your balance or try another method.",
+            description: payload?.click_pesa_error || "The transaction was unsuccessful. Please check your balance or try another method.",
             variant: "destructive",
           })
           return true

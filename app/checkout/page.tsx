@@ -15,6 +15,11 @@ export default async function CheckoutPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Require authentication for checkout
+  if (!user) {
+    redirect("/auth/login?redirect=/checkout")
+  }
+
 
   let userData = null
   let kycStatus = null

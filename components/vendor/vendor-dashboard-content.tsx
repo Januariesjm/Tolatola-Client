@@ -190,6 +190,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                 <TabsTrigger value="wallet">Wallet</TabsTrigger>
                 <TabsTrigger value="subscription">Subscription</TabsTrigger>
                 <TabsTrigger value="shop">Shop Settings</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
               </TabsList>
 
               <TabsContent value="products" className="space-y-4">
@@ -357,6 +358,21 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                         )}
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="profile">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Profile Settings</CardTitle>
+                    <CardDescription>Update your account profile information</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button onClick={() => router.push("/profile")} variant="outline">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
                   </CardContent>
                 </Card>
               </TabsContent>

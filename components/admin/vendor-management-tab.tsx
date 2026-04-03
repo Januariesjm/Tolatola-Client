@@ -40,6 +40,7 @@ interface Vendor {
     phone?: string
     vendor_type?: string
   }
+  phone?: string
   shops?: Array<{
     id: string
     name: string
@@ -82,7 +83,9 @@ export function VendorManagementTab() {
             v.users?.email?.toLowerCase().includes(query) ||
             v.users?.full_name?.toLowerCase().includes(query) ||
             v.tin_number?.toLowerCase().includes(query) ||
-            v.nida_number?.toLowerCase().includes(query)
+                            v.nida_number?.toLowerCase().includes(query) ||
+                            v.users?.phone?.toLowerCase().includes(query) ||
+                            v.phone?.toLowerCase().includes(query)
         )
       )
     }
@@ -272,10 +275,10 @@ export function VendorManagementTab() {
                       <span>{vendorTypeLabels[vendor.users.vendor_type] || vendor.users.vendor_type}</span>
                     </div>
                   )}
-                  {vendor.users?.phone && (
+                  {(vendor.users?.phone || vendor.phone) && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Phone className="h-4 w-4" />
-                      <span>{vendor.users.phone}</span>
+                      <span>{vendor.users?.phone || vendor.phone}</span>
                     </div>
                   )}
                   {vendor.address && (
@@ -353,7 +356,7 @@ export function VendorManagementTab() {
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Phone</Label>
-                  <p className="font-medium">{selectedVendor.users?.phone || "N/A"}</p>
+                  <p className="font-medium">{selectedVendor.users?.phone || selectedVendor.phone || "N/A"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">Vendor Type</Label>

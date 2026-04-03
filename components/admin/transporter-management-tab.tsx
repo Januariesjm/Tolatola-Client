@@ -72,7 +72,9 @@ export function TransporterManagementTab() {
                         t.users?.full_name?.toLowerCase().includes(query) ||
                         t.users?.email?.toLowerCase().includes(query) ||
                         t.vehicle_registration?.toLowerCase().includes(query) ||
-                        t.license_number?.toLowerCase().includes(query)
+                        t.license_number?.toLowerCase().includes(query) ||
+                        t.phone?.toLowerCase().includes(query) ||
+                        t.users?.phone?.toLowerCase().includes(query)
                 )
             )
         }

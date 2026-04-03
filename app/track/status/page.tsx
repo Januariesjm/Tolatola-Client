@@ -32,6 +32,25 @@ const TIMELINE_STEPS: { id: OrderStatus; label: string }[] = [
   { id: "DELIVERED", label: "Delivered" },
 ]
 
+const STATUS_INDEX_MAP: Record<string, number> = {
+  ORDER_RECEIVED: 0,
+  pending: 0,
+  confirmed: 0,
+  PAYMENT_SECURED: 1,
+  paid: 1,
+  payment_received: 1,
+  VENDOR_PREPARING: 2,
+  processing: 2,
+  preparing: 2,
+  PICKED_UP: 3,
+  picked_up: 3,
+  IN_TRANSIT: 4,
+  in_transit: 4,
+  shipped: 4,
+  DELIVERED: 5,
+  delivered: 5,
+}
+
 function StatusDashboardInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -52,7 +71,17 @@ function StatusDashboardInner() {
         if (!r.ok) throw new Error(r.status === 401 ? "Session expired. Please verify again." : "Failed to load status.")
         return r.json()
       })
-      .then((d) => setData(d.data || d))
+      .then((d) => {
+        const normalized = d?.data || d
+        const order = normalized?.order || normalized
+        if (!order) {
+          throw new Error("Order status data not found.")
+        }
+        setData({
+          ...normalized,
+          order,
+        } as any)
+      })
       .catch((e) => setError(e?.message || "Failed to load order status."))
       .finally(() => setLoading(false))
   }, [token])
@@ -86,7 +115,7 @@ function StatusDashboardInner() {
 
   const order = data.order
   const timeline = data.timeline || []
-  const currentIndex = TIMELINE_STEPS.findIndex((s) => s.id === order.status)
+  const currentIndex = STATUS_INDEX_MAP[String(order.status)] ?? TIMELINE_STEPS.findIndex((s) => s.id === order.status)
   const progressPercent = currentIndex >= 0 ? ((currentIndex + 1) / TIMELINE_STEPS.length) * 100 : 0
 
   return (

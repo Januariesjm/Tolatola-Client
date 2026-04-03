@@ -14,6 +14,8 @@ interface VendorWalletTabProps {
   vendorId: string
 }
 
+const COMMISSION_RATE = 0.035
+
 export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
   const [balance, setBalance] = useState(0)
   const [pendingBalance, setPendingBalance] = useState(0)
@@ -194,12 +196,12 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                 <span>TZS {Number(payoutAmount).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-stone-600">
-                <span>Service Fee (5%):</span>
-                <span>- TZS {(Number(payoutAmount) * 0.05).toLocaleString()}</span>
+                <span>Service Fee (3.5%):</span>
+                <span>- TZS {(Number(payoutAmount) * COMMISSION_RATE).toLocaleString()}</span>
               </div>
               <div className="flex justify-between font-bold text-lg pt-2 border-t border-stone-200">
                 <span>You Receive:</span>
-                <span className="text-green-600">TZS {(Number(payoutAmount) * 0.95).toLocaleString()}</span>
+                <span className="text-green-600">TZS {(Number(payoutAmount) * (1 - COMMISSION_RATE)).toLocaleString()}</span>
               </div>
             </div>
           )}

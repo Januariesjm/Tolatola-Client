@@ -77,15 +77,16 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
   }
 
   const getOrderTotal = (order: any) => {
-    return order.items.reduce((sum: number, item: any) =>
-      sum + item.total_price + (item.delivery_fee || 0), 0
-    )
+    return (order.items || []).reduce((sum: number, item: any) => {
+      const line = Number(item.total_price ?? ((item.unit_price ?? item.price ?? 0) * (item.quantity ?? 0)))
+      return sum + line + Number(item.delivery_fee || 0)
+    }, 0)
   }
 
-  const newOrders = orders.filter((o) => ["pending", "pending_payment", "confirmed"].includes(o.status))
-  const preparingOrders = orders.filter((o) => o.status === "processing")
+  const newOrders = orders.filter((o) => ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status))
+  const preparingOrders = orders.filter((o) => ["processing", "preparing"].includes(o.status))
   const readyOrders = orders.filter((o) => o.status === "ready_for_pickup")
-  const completedOrders = orders.filter((o) => o.status === "delivered" || o.status === "shipped")
+  const completedOrders = orders.filter((o) => ["delivered", "shipped", "completed"].includes(o.status))
   const totalEarnings = completedOrders.reduce((sum, o) => sum + (getOrderTotal(o) || 0), 0)
 
   const renderOrderList = (list: any[]) => {
@@ -235,7 +236,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
                   Start Processing
                 </Button>
               )}
-              {order.status === "processing" && (
+              {(order.status === "processing" || order.status === "preparing") && (
                 <Button size="sm" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold">
                   <Truck className="h-4 w-4 mr-2" />
                   Mark Ready for Pickup
