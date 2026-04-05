@@ -25,6 +25,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
+import { NotificationPopover } from "../layout/notification-popover"
 
 import { AnalyticsTab } from "./analytics-tab"
 import { KYCApprovalTab } from "./kyc-approval-tab"
@@ -113,10 +114,13 @@ export function AdminDashboardContent({
               {adminRole?.roleName || "Administrator"}
             </Badge>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-4">
+            <NotificationPopover />
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -199,11 +203,10 @@ export function AdminDashboardContent({
                 <Button
                   variant={activeTab === "analytics" ? "default" : "ghost"}
                   size="sm"
-                  className={`w-full justify-between rounded-xl ${
-                    activeTab === "analytics"
+                  className={`w-full justify-between rounded-xl ${activeTab === "analytics"
                       ? "bg-primary text-white"
                       : "text-slate-700 hover:bg-slate-100"
-                  }`}
+                    }`}
                   onClick={() => setActiveTab("analytics")}
                 >
                   <span className="flex items-center gap-2 text-sm font-medium">
@@ -216,11 +219,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "kyc" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "kyc"
+                    className={`w-full justify-between rounded-xl ${activeTab === "kyc"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("kyc")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -239,11 +241,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "transporter-kyc" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "transporter-kyc"
+                    className={`w-full justify-between rounded-xl ${activeTab === "transporter-kyc"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("transporter-kyc")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -262,11 +263,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "customer-kyc" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "customer-kyc"
+                    className={`w-full justify-between rounded-xl ${activeTab === "customer-kyc"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("customer-kyc")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -285,11 +285,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "products" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "products"
+                    className={`w-full justify-between rounded-xl ${activeTab === "products"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("products")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -308,11 +307,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "orders" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "orders"
+                    className={`w-full justify-between rounded-xl ${activeTab === "orders"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("orders")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -326,11 +324,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "transactions" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "transactions"
+                    className={`w-full justify-between rounded-xl ${activeTab === "transactions"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("transactions")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -344,11 +341,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "payouts" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "payouts"
+                    className={`w-full justify-between rounded-xl ${activeTab === "payouts"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("payouts")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -367,11 +363,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "support" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "support"
+                    className={`w-full justify-between rounded-xl ${activeTab === "support"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("support")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -390,11 +385,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "promotions" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "promotions"
+                    className={`w-full justify-between rounded-xl ${activeTab === "promotions"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("promotions")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -408,11 +402,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "vendors" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "vendors"
+                    className={`w-full justify-between rounded-xl ${activeTab === "vendors"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("vendors")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -426,11 +419,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "transporters" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "transporters"
+                    className={`w-full justify-between rounded-xl ${activeTab === "transporters"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("transporters")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -444,11 +436,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "customers" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "customers"
+                    className={`w-full justify-between rounded-xl ${activeTab === "customers"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("customers")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -462,11 +453,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "subscriptions" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "subscriptions"
+                    className={`w-full justify-between rounded-xl ${activeTab === "subscriptions"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("subscriptions")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -480,11 +470,10 @@ export function AdminDashboardContent({
                   <Button
                     variant={activeTab === "admins" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${
-                      activeTab === "admins"
+                    className={`w-full justify-between rounded-xl ${activeTab === "admins"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                      }`}
                     onClick={() => setActiveTab("admins")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
