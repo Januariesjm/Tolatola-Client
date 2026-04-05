@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, ShieldCheck, AlertCircle } from "lucide-react"
 
-export default function OtpPage() {
+function OtpPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -201,3 +201,14 @@ export default function OtpPage() {
   )
 }
 
+export default function OtpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <OtpPageContent />
+    </Suspense>
+  )
+}
