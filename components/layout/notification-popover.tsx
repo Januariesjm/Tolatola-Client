@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Bell, MessageSquare } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
@@ -100,13 +100,17 @@ export function NotificationPopover() {
   }, [loadData, supabase])
 
   // Hover handling
-  let hoverTimeout: NodeJS.Timeout
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const handleMouseEnter = () => {
-    clearTimeout(hoverTimeout)
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+    }
     setOpen(true)
   }
+
   const handleMouseLeave = () => {
-    hoverTimeout = setTimeout(() => {
+    hoverTimeoutRef.current = setTimeout(() => {
       setOpen(false)
     }, 300)
   }
@@ -120,6 +124,7 @@ export function NotificationPopover() {
           className="relative h-12 w-12 rounded-2xl bg-stone-50 hover:bg-stone-100 transition-all hover:scale-110 active:scale-95"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onClick={() => setOpen(true)}
         >
           <Bell className="h-6 w-6 text-stone-600" />
           {unreadCount > 0 && (
