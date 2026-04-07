@@ -20,6 +20,7 @@ export function SiteFooter() {
     support: [
       { name: "Track Order", href: "/track" },
       { name: "FAQ", href: "/faq" },
+      { name: "Account Deletion Request", href: "/account-deletion-request" },
       { name: "Contact Us", href: "/contact" },
       { name: "Return Policy", href: "/return-policy" },
       { name: "Site Map", href: "/sitemap" },

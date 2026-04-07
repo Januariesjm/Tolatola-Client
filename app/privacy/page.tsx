@@ -130,6 +130,14 @@ export default async function PrivacyPage() {
               <a href="mailto:privacy@tolatola.co" className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-xl hover:scale-105 transition-all">
                 Contact Privacy Team
               </a>
+              <div className="mt-4">
+                <a
+                  href="/account-deletion-request"
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white hover:text-stone-900 transition-all"
+                >
+                  Account Deletion Request
+                </a>
+              </div>
             </div>
           </div>
         </section>
