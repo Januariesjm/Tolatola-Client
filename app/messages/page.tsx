@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
@@ -32,7 +33,16 @@ export default async function MessagesPage() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycData?.kyc_status} />
-      <MessagesContent />
+      <Suspense fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">Messages</h1>
+            <p className="text-muted-foreground">Loading conversations...</p>
+          </div>
+        </div>
+      }>
+        <MessagesContent />
+      </Suspense>
     </div>
   )
 }
