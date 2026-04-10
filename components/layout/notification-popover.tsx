@@ -32,8 +32,14 @@ export function NotificationPopover() {
     setLoading(true)
     try {
       const [notifList, convResult] = await Promise.all([
-        fetchNotifications({ limit: 20 }),
-        getUserConversations()
+        fetchNotifications({ limit: 20 }).catch(err => {
+          console.error("Error fetching notifications:", err)
+          return []
+        }),
+        getUserConversations().catch(err => {
+          console.error("Error fetching conversations:", err)
+          return { conversations: [] }
+        })
       ])
 
       setNotifications(notifList)
@@ -45,24 +51,34 @@ export function NotificationPopover() {
       const unreadNotes = notifList.filter(n => !n.is_read).length
       const unreadConvs = (convResult.conversations || []).reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0)
       setUnreadCount(unreadNotes + unreadConvs)
+    } catch (error) {
+      console.error("Critical error in loadData:", error)
     } finally {
       setLoading(false)
     }
   }, [])
 
   const handleMarkRead = async (id: string) => {
-    await markNotificationRead(id)
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
-    // Recalculate unread count locally for speed
-    setUnreadCount(prev => Math.max(0, prev - 1))
+    try {
+      await markNotificationRead(id)
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+      // Recalculate unread count
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+    }
   }
 
   const handleMarkAll = async () => {
-    await markAllNotificationsRead()
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
-    // Recalculate unread count
-    const unreadConvs = conversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)
-    setUnreadCount(unreadConvs)
+    try {
+      await markAllNotificationsRead()
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+      // Recalculate unread count (only conversations might still have unread)
+      const unreadConvs = conversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)
+      setUnreadCount(unreadConvs)
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error)
+    }
   }
 
   useEffect(() => {
@@ -115,8 +131,15 @@ export function NotificationPopover() {
     }, 300)
   }
 
+  const handleToggle = (newOpen: boolean) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+    }
+    setOpen(newOpen)
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleToggle}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -124,7 +147,7 @@ export function NotificationPopover() {
           className="relative h-12 w-12 rounded-2xl bg-stone-50 hover:bg-stone-100 transition-all hover:scale-110 active:scale-95"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={() => setOpen(true)}
+          onClick={() => handleToggle(!open)}
         >
           <Bell className="h-6 w-6 text-stone-600" />
           {unreadCount > 0 && (
@@ -195,7 +218,10 @@ export function NotificationPopover() {
                   <Link
                     key={`n-${note.id}`}
                     href={note?.data?.orderId || note?.data?.order_id ? `/orders/${note.data.orderId || note.data.order_id}` : note?.data?.url || "/orders"}
-                    onClick={() => !note.is_read && handleMarkRead(note.id)}
+                    onClick={() => {
+                      if (!note.is_read) handleMarkRead(note.id)
+                      setOpen(false)
+                    }}
                     className={cn(
                       "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
                       !note.is_read && "bg-primary/[0.03]"
@@ -223,7 +249,8 @@ export function NotificationPopover() {
                 {(activeTab === "all" || activeTab === "messages") && conversations.map((conv) => (
                   <Link
                     key={conv.id}
-                    href="/messages"
+                    href={`/messages?id=${conv.id}`}
+                    onClick={() => setOpen(false)}
                     className={cn(
                       "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
                       conv.unread_count > 0 && "bg-amber-500/[0.03]"
@@ -259,7 +286,7 @@ export function NotificationPopover() {
           </div>
         </ScrollArea>
         <div className="p-4 bg-stone-50 border-t border-stone-100">
-          <Link href="/messages">
+          <Link href="/messages" onClick={() => setOpen(false)}>
             <Button className="w-full h-12 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-stone-200 transition-all hover:-translate-y-0.5">
               Messenger Hub
             </Button>

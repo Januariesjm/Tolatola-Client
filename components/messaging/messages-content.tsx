@@ -5,6 +5,7 @@ import { MessageSquare } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getUserConversations } from "@/app/actions/messaging"
+import { useSearchParams } from "next/navigation"
 import { ChatDialog } from "./chat-dialog"
 import { createClient } from "@/lib/supabase/client"
 
@@ -18,6 +19,9 @@ interface Conversation {
 }
 
 export function MessagesContent() {
+  const searchParams = useSearchParams()
+  const conversationIdFromUrl = searchParams.get("id")
+
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [selectedShopName, setSelectedShopName] = useState("")
@@ -58,15 +62,29 @@ export function MessagesContent() {
     const result = await getUserConversations()
     if (result.conversations) {
       setConversations(result.conversations)
+
+      // Handle deep linking from URL
+      if (conversationIdFromUrl) {
+        const linkedConv = result.conversations.find((c: any) => c.id === conversationIdFromUrl)
+        if (linkedConv) {
+          handleOpenChat(linkedConv, result.conversations)
+        }
+      }
     }
     setLoading(false)
   }
 
-  const handleOpenChat = (conversation: Conversation) => {
+  const handleOpenChat = (conversation: Conversation, currentConvs?: Conversation[]) => {
     setSelectedConversation(conversation.id)
-    const isCustomer = conversation.customer.id === currentUserId
-    const otherUser = isCustomer ? conversation.vendor : conversation.customer
-    setSelectedShopName(conversation.shop?.name || otherUser?.full_name || "Chat")
+
+    // We need currentUserId to determine which name to show
+    // If it's not set yet (async load), we'll have to rely on the data
+    const convs = currentConvs || conversations
+    const foundConv = convs.find(c => c.id === conversation.id) || conversation
+
+    // Fallback logic for shop name
+    const shopName = foundConv.shop?.name || foundConv.vendor?.full_name || foundConv.customer?.full_name || "Chat"
+    setSelectedShopName(shopName)
   }
 
   if (loading) {
