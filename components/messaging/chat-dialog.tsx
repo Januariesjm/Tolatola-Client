@@ -176,7 +176,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0">
+        <DialogContent className="sm:max-w-[500px] w-[calc(100vw-32px)] h-[min(600px,calc(100vh-100px))] flex flex-col p-0 overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b">
             <div className="flex items-center justify-between">
               <div>
