@@ -108,7 +108,7 @@ export default function TransporterSLAPage() {
                                 <p>Payouts executed via licensed PSP upon delivery confirmation.</p>
                                 <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
                                     <h3 className="font-bold text-primary mb-2">7.1 Platform Coordination Fee</h3>
-                                    <p className="text-sm">A <strong>3% fee</strong> is deducted from the transaction value for coordination, matching, and tracking services. This is processed automatically via the PSP.</p>
+                                    <p className="text-sm">A <strong>3.5% fee</strong> is deducted from the transaction value for coordination, matching, and tracking services. This is processed automatically via the PSP.</p>
                                 </div>
                             </section>
 
