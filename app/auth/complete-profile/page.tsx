@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Label } from "../../../components/ui/label"
 import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
+import { Checkbox } from "../../../components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Image from "next/image"
@@ -26,6 +27,7 @@ function CompleteProfileContent() {
     const [error, setError] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [userEmail, setUserEmail] = useState<string>("")
+    const [acceptedPolicies, setAcceptedPolicies] = useState(false)
 
     useEffect(() => {
         // Get current user to display their email
@@ -59,6 +61,12 @@ function CompleteProfileContent() {
             // Validate vendor type if user is a vendor
             if (userType === "vendor" && !vendorType) {
                 setError("Please select your business type")
+                setIsLoading(false)
+                return
+            }
+
+            if (!acceptedPolicies) {
+                setError("You must agree to the Legal & Risk Policies to continue.")
                 setIsLoading(false)
                 return
             }
@@ -99,7 +107,8 @@ function CompleteProfileContent() {
                 body: JSON.stringify({
                     user_type: userType,
                     vendor_type: userType === "vendor" ? vendorType : null,
-                    full_name: user.user_metadata?.full_name // Preserve if available
+                    full_name: user.user_metadata?.full_name, // Preserve if available
+                    accepted_policies: true
                 })
             })
 
@@ -208,6 +217,38 @@ function CompleteProfileContent() {
                                             </div>
                                         </RadioGroup>
                                     </div>
+
+                                    <div className="space-y-2 pt-2">
+                                        <Label className="text-sm font-medium">Onboarding Consent</Label>
+                                        <div className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-primary/5/40 px-3 py-3 md:px-4 md:py-3.5">
+                                            <Checkbox
+                                                id="accepted-policies"
+                                                checked={acceptedPolicies}
+                                                onCheckedChange={(v) => setAcceptedPolicies(Boolean(v))}
+                                                className="mt-1 border-primary/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                            />
+                                            <div className="space-y-1 text-xs text-muted-foreground leading-relaxed">
+                                                <label
+                                                    htmlFor="accepted-policies"
+                                                    className="font-medium text-foreground text-[13px] leading-snug"
+                                                >
+                                                    I confirm that I have read and agree to the{" "}
+                                                    <Link
+                                                        href="/legal/compliance"
+                                                        className="text-primary underline-offset-2 hover:underline font-semibold"
+                                                    >
+                                                        Legal &amp; Risk Policies
+                                                    </Link>{" "}
+                                                    of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
+                                                </label>
+                                                <p className="italic text-[11px]">
+                                                    Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY
+                                                    CHAIN ECOSYSTEM.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {error && (
                                         <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 animate-shake">
                                             <p className="text-sm text-destructive text-center font-medium">{error}</p>
