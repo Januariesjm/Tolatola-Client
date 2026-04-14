@@ -121,7 +121,7 @@ export function TransporterDashboardContent({
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground capitalize">{transporter.vehicle_type} Driver</span>
-            <NotificationPopover />
+            <NotificationPopover userType="transporter" />
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
