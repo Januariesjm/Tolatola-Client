@@ -247,41 +247,44 @@ export function NotificationPopover() {
                   </Link>
                 ))}
 
-                {(activeTab === "all" || activeTab === "messages") && conversations.map((conv) => (
-                  <Link
-                    key={conv.id}
-                    href={`/messages?id=${conv.id}`}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
-                      conv.unread_count > 0 && "bg-amber-500/[0.03]"
-                    )}
-                  >
-                    <div className="relative shrink-0 transition-transform group-hover:scale-110">
-                      <Avatar className="h-12 w-12 rounded-xl border-2 border-white shadow-sm">
-                        <AvatarImage src={conv.shop?.logo_url || conv.customer?.profile_image_url || ""} />
-                        <AvatarFallback className="bg-stone-100 text-stone-900 font-bold">
-                          {(conv.shop?.name || conv.customer?.full_name || "U").charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {conv.unread_count > 0 && (
-                        <div className="absolute -top-1 -right-1 h-4 w-4 bg-amber-500 rounded-full border-2 border-white" />
+                {(activeTab === "all" || activeTab === "messages") && conversations.map((conv) => {
+                  if (!conv) return null
+                  return (
+                    <Link
+                      key={conv.id}
+                      href={`/messages?id=${conv.id}`}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
+                        conv.unread_count > 0 && "bg-amber-500/[0.03]"
                       )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-bold text-stone-900 truncate">
-                          {conv.shop?.name || conv.customer?.full_name || conv.vendor?.full_name || "Chat"}
-                        </p>
-                        <MessageSquare className="h-3 w-3 text-stone-300 mt-1" />
+                    >
+                      <div className="relative shrink-0 transition-transform group-hover:scale-110">
+                        <Avatar className="h-12 w-12 rounded-xl border-2 border-white shadow-sm">
+                          <AvatarImage src={conv.shop?.logo_url || conv.customer?.profile_image_url || ""} />
+                          <AvatarFallback className="bg-stone-100 text-stone-900 font-bold">
+                            {(conv.shop?.name || conv.customer?.full_name || "U").charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {conv.unread_count > 0 && (
+                          <div className="absolute -top-1 -right-1 h-4 w-4 bg-amber-500 rounded-full border-2 border-white" />
+                        )}
                       </div>
-                      <p className="text-xs text-stone-500 truncate mt-0.5">{conv.last_message || "Started a conversation"}</p>
-                      <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mt-2 block">
-                        {conv.last_message_at ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Recently"}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-bold text-stone-900 truncate">
+                            {conv.shop?.name || conv.customer?.full_name || conv.vendor?.full_name || "Chat"}
+                          </p>
+                          <MessageSquare className="h-3 w-3 text-stone-300 mt-1" />
+                        </div>
+                        <p className="text-xs text-stone-500 truncate mt-0.5">{conv.last_message || "Started a conversation"}</p>
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mt-2 block">
+                          {conv.last_message_at ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Recently"}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
             )}
           </div>

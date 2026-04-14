@@ -114,7 +114,9 @@ export function MessagesContent() {
         ) : (
           <div className="space-y-4">
             {conversations.map((conversation) => {
-              const isCustomer = conversation.customer.id === currentUserId
+              if (!conversation) return null
+
+              const isCustomer = conversation.customer?.id === currentUserId
               const otherUser = isCustomer ? conversation.vendor : conversation.customer
 
               return (
@@ -125,9 +127,9 @@ export function MessagesContent() {
                 >
                   <CardContent className="flex items-start gap-4 p-4">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={conversation.shop.logo_url || otherUser.profile_image_url} />
+                      <AvatarImage src={conversation.shop?.logo_url || otherUser?.profile_image_url} />
                       <AvatarFallback>
-                        {conversation.shop.name?.charAt(0) || otherUser.full_name?.charAt(0) || "S"}
+                        {conversation.shop?.name?.charAt(0) || otherUser?.full_name?.charAt(0) || "S"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

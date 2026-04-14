@@ -199,6 +199,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
           <ScrollArea className="flex-1 px-6" ref={scrollRef}>
             <div className="space-y-4 py-4">
               {messages.map((msg) => {
+                if (!msg) return null
                 const isOwnMessage = msg.sender_id === currentUserId
                 return (
                   <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : ""}`}>
