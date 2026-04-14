@@ -158,13 +158,14 @@ export function NotificationPopover() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[380px] p-0 rounded-[2rem] border-stone-100 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300"
+        className="w-[calc(100vw-32px)] sm:w-[380px] p-0 rounded-[2rem] border-stone-100 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300"
         align="end"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         sideOffset={8}
+        collisionPadding={16}
       >
-        <div className="bg-stone-950 p-6 text-white">
+        <div className="bg-stone-950 p-6 text-white shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-black tracking-tight">Notifications</h3>
@@ -198,7 +199,7 @@ export function NotificationPopover() {
           </div>
         </div>
 
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="max-h-[min(450px,calc(100vh-280px))] overflow-y-auto">
           <div className="p-2">
             {loading && notifications.length === 0 && conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
