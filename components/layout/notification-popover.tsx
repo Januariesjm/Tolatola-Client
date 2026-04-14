@@ -219,27 +219,44 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
               </div>
             ) : (
               <div className="space-y-1">
-                {(activeTab === "all" || activeTab === "notifications") && notifications.map((note) => (
-                  <Link
-                    key={`n-${note.id}`}
-                    href={
-                      note?.data?.orderId || note?.data?.order_id
-                        ? userType === "vendor"
-                          ? `/vendor/dashboard?tab=orders&orderId=${note.data.orderId || note.data.order_id}`
-                          : userType === "transporter"
-                            ? `/transporter/dashboard?tab=assignments&orderId=${note.data.orderId || note.data.order_id}`
-                            : `/orders/${note.data.orderId || note.data.order_id}`
-                        : note?.data?.url || "/orders"
+                {(activeTab === "all" || activeTab === "notifications") && notifications.map((note) => {
+                  let baseHref = note?.data?.url || "/orders";
+                  if (note?.data?.orderId || note?.data?.order_id) {
+                     baseHref = `/orders/${note.data.orderId || note.data.order_id}`;
+                  }
+
+                  let finalHref = baseHref;
+
+                  // If it points to an order detail page, rewrite it based on user role
+                  const orderMatch = baseHref.match(/^\/orders\/([\w-]+)/);
+                  if (orderMatch) {
+                    const extractedOrderId = orderMatch[1];
+                    if (userType === "vendor") {
+                      finalHref = `/vendor/dashboard?tab=orders&orderId=${extractedOrderId}`;
+                    } else if (userType === "transporter") {
+                      finalHref = `/transporter/dashboard?tab=assignments&orderId=${extractedOrderId}`;
                     }
-                    onClick={() => {
-                      if (!note.is_read) handleMarkRead(note.id)
-                      setOpen(false)
-                    }}
-                    className={cn(
-                      "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
-                      !note.is_read && "bg-primary/[0.03]"
-                    )}
-                  >
+                  } else if (baseHref === "/orders" || baseHref.startsWith("/orders?")) {
+                    if (userType === "vendor") {
+                      finalHref = `/vendor/dashboard?tab=orders`;
+                    } else if (userType === "transporter") {
+                      finalHref = `/transporter/dashboard?tab=assignments`;
+                    }
+                  }
+
+                  return (
+                    <Link
+                      key={`n-${note.id}`}
+                      href={finalHref}
+                      onClick={() => {
+                        if (!note.is_read) handleMarkRead(note.id)
+                        setOpen(false)
+                      }}
+                      className={cn(
+                        "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
+                        !note.is_read && "bg-primary/[0.03]"
+                      )}
+                    >
                     <div className={cn(
                       "h-12 w-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
                       !note.is_read ? "bg-primary/10 text-primary" : "bg-stone-100 text-stone-400"
@@ -257,7 +274,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
                       </span>
                     </div>
                   </Link>
-                ))}
+                )})}
 
                 {(activeTab === "all" || activeTab === "messages") && conversations.map((conv) => {
                   if (!conv) return null
