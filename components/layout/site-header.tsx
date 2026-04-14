@@ -127,7 +127,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         : "h-[96px] bg-transparent border-b border-transparent"
     )}>
       <div className={cn(
-        "container mx-auto px-4 lg:px-8 flex items-center justify-between gap-4 md:gap-8 h-full transition-all duration-500"
+        "container mx-auto px-4 lg:px-8 flex items-center justify-between gap-2 md:gap-4 h-full transition-all duration-500"
       )}>
 
         {/* Mobile Hamburger Menu - First on Left */}
@@ -214,14 +214,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         </Link>
 
         {/* Search Architecture - Elite Footprint */}
-        <div className="hidden lg:flex flex-1 max-w-2xl mx-8 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
+        <div className="hidden lg:flex flex-1 max-w-2xl mx-4 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
           <ProductSearch />
         </div>
 
         {/* Navigation & User Hub */}
-        <nav className="flex items-center gap-2 md:gap-6">
+        <nav className="flex items-center gap-2 md:gap-4">
 
-          <div className="hidden xl:flex items-center gap-8 mr-4">
+          <div className="hidden xl:flex items-center gap-4 mr-2">
             <Link href="/shop" className={cn(
               "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
               pathname === "/shop" ? "text-primary" : "text-stone-500"
@@ -244,14 +244,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1.5 md:gap-3">
             <div className="hidden md:block">
               <LanguageSwitcher />
             </div>
 
             {authUser ? (
-              <div className="flex items-center gap-2 md:gap-4">
-                <div className="hidden lg:flex items-center gap-2 border-r border-stone-200 pr-4 mr-2">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="hidden lg:flex items-center gap-1.5 border-r border-stone-200 pr-2 mr-1">
                   <Link href="/favorites" className="relative">
                     <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
                       <Heart className="h-5 w-5" />
