@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Package, Store, Plus, LogOut, Edit, Trash2, PackageX, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import Image from "next/image"
 import { AddProductDialog } from "./add-product-dialog"
@@ -40,6 +40,11 @@ const hasShopLocation = (shop: any): boolean => {
 
 export function VendorDashboardContent({ vendor, shop, products }: VendorDashboardContentProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get("tab") || "products"
+  const initialOrderId = searchParams.get("orderId") || undefined
+
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showEditProduct, setShowEditProduct] = useState(false)
   const [showEditProfile, setShowEditProfile] = useState(false)
@@ -129,7 +134,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">Vendor Dashboard</span>
-            <NotificationPopover />
+            <NotificationPopover userType="vendor" />
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
@@ -185,7 +190,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
               </Card>
             )}
 
-            <Tabs defaultValue="products" className="space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList>
                 <TabsTrigger value="products">Products</TabsTrigger>
                 <TabsTrigger value="orders">Orders</TabsTrigger>
@@ -296,7 +301,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
               </TabsContent>
 
               <TabsContent value="orders">
-                <VendorOrdersTab shopId={shop.id} />
+                <VendorOrdersTab shopId={shop.id} initialOrderId={initialOrderId} />
               </TabsContent>
 
               <TabsContent value="wallet">

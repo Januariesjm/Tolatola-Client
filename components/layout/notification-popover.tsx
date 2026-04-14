@@ -19,7 +19,11 @@ import {
   markAllNotificationsRead,
 } from "@/lib/services/notifications.service"
 
-export function NotificationPopover() {
+export interface NotificationPopoverProps {
+  userType?: string
+}
+
+export function NotificationPopover({ userType }: NotificationPopoverProps) {
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [conversations, setConversations] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -218,7 +222,13 @@ export function NotificationPopover() {
                 {(activeTab === "all" || activeTab === "notifications") && notifications.map((note) => (
                   <Link
                     key={`n-${note.id}`}
-                    href={note?.data?.orderId || note?.data?.order_id ? `/orders/${note.data.orderId || note.data.order_id}` : note?.data?.url || "/orders"}
+                    href={
+                      note?.data?.orderId || note?.data?.order_id
+                        ? userType === "vendor"
+                          ? `/vendor/dashboard?tab=orders&orderId=${note.data.orderId || note.data.order_id}`
+                          : `/orders/${note.data.orderId || note.data.order_id}`
+                        : note?.data?.url || "/orders"
+                    }
                     onClick={() => {
                       if (!note.is_read) handleMarkRead(note.id)
                       setOpen(false)

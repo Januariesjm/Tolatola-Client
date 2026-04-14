@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 
 interface VendorOrdersTabProps {
   shopId: string
+  initialOrderId?: string
 }
 
 const TAB_NEW = "new"
@@ -19,7 +20,7 @@ const TAB_READY = "ready"
 const TAB_COMPLETED = "completed"
 const TAB_EARNINGS = "earnings"
 
-export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
+export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps) {
   const [orders, setOrders] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set())
@@ -30,6 +31,24 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
   useEffect(() => {
     fetchOrders()
   }, [shopId])
+
+  // Handle initial expansion if orderId is provided
+  useEffect(() => {
+    if (!isLoading && initialOrderId && orders.length > 0) {
+      const order = orders.find(o => o.id === initialOrderId)
+      if (order) {
+        setExpandedOrders(new Set([initialOrderId]))
+        // Determine correct tab
+        const destTab = statusToTab[order.status] || (["pending", "paid", "confirmed"].includes(order.status) ? TAB_NEW : TAB_NEW)
+        setActiveTab(destTab)
+
+        // Scroll into view (optional but helpful)
+        setTimeout(() => {
+          document.getElementById(`order-${initialOrderId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 500)
+      }
+    }
+  }, [isLoading, initialOrderId, orders])
 
   const fetchOrders = async () => {
     setIsLoading(true)
@@ -146,7 +165,7 @@ export function VendorOrdersTab({ shopId }: VendorOrdersTabProps) {
     const isExpanded = expandedOrders.has(order.id)
     const orderTotal = getOrderTotal(order)
     return (
-      <Card key={order.id} className="overflow-hidden transition-all hover:shadow-md">
+      <Card key={order.id} id={`order-${order.id}`} className="overflow-hidden transition-all hover:shadow-md">
         <CardHeader className="p-4 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => toggleOrderDetails(order.id)}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">

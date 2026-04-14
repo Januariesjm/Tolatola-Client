@@ -265,7 +265,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
-                <NotificationPopover />
+                <NotificationPopover userType={authProfile?.user_type} />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
