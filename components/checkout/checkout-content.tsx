@@ -46,6 +46,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     village: "",
     street: "",
   })
+  const [guestEmail, setGuestEmail] = useState("")
   const [fullAddress, setFullAddress] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<string>("airtel-money")
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
@@ -342,6 +343,15 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       return
     }
 
+    if (!user && (!guestEmail || !guestEmail.includes("@"))) {
+      toast({
+        title: "Email Required",
+        description: "Please enter a valid email address for order confirmation",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (!addressData.region || !addressData.district || !addressData.ward || !addressData.street) {
       toast({
         title: "Address Required",
@@ -430,6 +440,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           ward: addressData.ward,
           village: addressData.village,
           street: addressData.street,
+          email: guestEmail || user?.email,
           latitude: Object.values(shopDeliveries)[0]?.lat, // Customer delivery coordinates
           longitude: Object.values(shopDeliveries)[0]?.lng,
           delivery_distance_km: deliveryFee > 0 ? Object.values(shopDeliveries).reduce((sum, d) => sum + d.distanceKm, 0) : 0,
@@ -667,6 +678,22 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           />
                         </div>
                       </div>
+
+                      {!user && (
+                        <div className="space-y-2">
+                          <Label htmlFor="guestEmail" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Email Address *</Label>
+                          <Input
+                            id="guestEmail"
+                            type="email"
+                            value={guestEmail}
+                            onChange={(e) => setGuestEmail(e.target.value)}
+                            required
+                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
+                            placeholder="your@email.com"
+                          />
+                          <p className="text-[10px] text-stone-400 font-bold px-1 italic">We'll send your order confirmation and tracking details here.</p>
+                        </div>
+                      )}
 
                       <div className="pt-4 border-t border-stone-50">
                         <TanzaniaAddressForm
