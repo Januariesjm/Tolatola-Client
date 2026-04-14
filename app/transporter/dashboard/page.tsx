@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { TransporterDashboardContent } from "@/components/transporter/transporter-dashboard-content"
 import { serverApiGet } from "@/lib/api-server"
@@ -40,13 +41,15 @@ export default async function TransporterDashboardPage() {
     ])
 
     return (
-      <TransporterDashboardContent
-        transporter={transporter}
-        assignments={assignmentsRes.assignments || []}
-        payments={paymentsRes.payments || []}
-        withdrawals={withdrawalsRes.withdrawals || []}
-        user={user}
-      />
+      <Suspense fallback={<div className="flex h-screen items-center justify-center p-4"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+        <TransporterDashboardContent
+          transporter={transporter}
+          assignments={assignmentsRes.assignments || []}
+          payments={paymentsRes.payments || []}
+          withdrawals={withdrawalsRes.withdrawals || []}
+          user={user}
+        />
+      </Suspense>
     )
   } catch (error) {
     console.error("Error loading transporter dashboard:", error)

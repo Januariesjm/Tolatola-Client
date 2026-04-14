@@ -226,7 +226,9 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
                       note?.data?.orderId || note?.data?.order_id
                         ? userType === "vendor"
                           ? `/vendor/dashboard?tab=orders&orderId=${note.data.orderId || note.data.order_id}`
-                          : `/orders/${note.data.orderId || note.data.order_id}`
+                          : userType === "transporter"
+                            ? `/transporter/dashboard?tab=assignments&orderId=${note.data.orderId || note.data.order_id}`
+                            : `/orders/${note.data.orderId || note.data.order_id}`
                         : note?.data?.url || "/orders"
                     }
                     onClick={() => {

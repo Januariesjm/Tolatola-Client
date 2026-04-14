@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown, User } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
 import { TransporterAssignmentsTab } from "./transporter-assignments-tab"
@@ -32,6 +32,11 @@ export function TransporterDashboardContent({
   user,
 }: TransporterDashboardContentProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get("tab") || "assignments"
+  const initialOrderId = searchParams.get("orderId") || undefined
+  
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false)
   const [locationStatus, setLocationStatus] = useState<"updated" | "error" | "idle">("idle")
 
@@ -206,7 +211,7 @@ export function TransporterDashboardContent({
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="assignments" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>
             <TabsTrigger value="assignments">
               <MapPin className="h-4 w-4 mr-2" />
@@ -236,7 +241,11 @@ export function TransporterDashboardContent({
           </TabsList>
 
           <TabsContent value="assignments">
-            <TransporterAssignmentsTab assignments={assignments} transporterId={transporter.id} />
+            <TransporterAssignmentsTab 
+              assignments={assignments} 
+              transporterId={transporter.id} 
+              initialOrderId={initialOrderId}
+            />
           </TabsContent>
 
           <TabsContent value="payments">

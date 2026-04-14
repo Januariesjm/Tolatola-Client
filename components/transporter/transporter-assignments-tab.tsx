@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
 
 interface TransporterAssignmentsTabProps {
   assignments: any[]
   transporterId: string
+  initialOrderId?: string
 }
 
 const TAB_AVAILABLE = "available"
@@ -19,9 +20,38 @@ const TAB_ACCEPTED = "accepted"
 const TAB_IN_TRANSIT = "in_transit"
 const TAB_COMPLETED = "completed"
 
-export function TransporterAssignmentsTab({ assignments, transporterId }: TransporterAssignmentsTabProps) {
-  const [updating, setUpdating] = useState<string | null>(null)
+export function TransporterAssignmentsTab({ assignments, transporterId, initialOrderId }: TransporterAssignmentsTabProps) {
   const router = useRouter()
+
+  const initialAssignment = initialOrderId
+    ? assignments.find((a) => a.order_id === initialOrderId || a.id === initialOrderId || a.orders?.order_number === initialOrderId)
+    : undefined;
+
+  let initialInnerTab = TAB_AVAILABLE;
+  if (initialAssignment) {
+    if (initialAssignment.status === "accepted") initialInnerTab = TAB_ACCEPTED;
+    else if (["picked_up", "in_transit"].includes(initialAssignment.status)) initialInnerTab = TAB_IN_TRANSIT;
+    else if (initialAssignment.status === "delivered") initialInnerTab = TAB_COMPLETED;
+    else if (initialAssignment.accepted_at) initialInnerTab = TAB_ACCEPTED;
+  }
+
+  const [activeTab, setActiveTab] = useState(initialInnerTab);
+  const [updating, setUpdating] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (initialOrderId) {
+      setTimeout(() => {
+        const element = document.getElementById(`order-${initialOrderId}`)
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" })
+          element.classList.add("ring-2", "ring-primary", "ring-offset-4", "transition-all", "duration-1000")
+          setTimeout(() => {
+            element.classList.remove("ring-2", "ring-primary", "ring-offset-4")
+          }, 3000)
+        }
+      }, 500)
+    }
+  }, [initialOrderId])
 
   const availableTrips = assignments.filter(
     (a) => ["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at
@@ -87,7 +117,11 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
           const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
           const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
           return (
-          <Card key={assignment.id} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
+          <Card 
+            key={assignment.id} 
+            id={`order-${assignment.order_id}`}
+            className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -287,7 +321,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId }: Transp
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue={TAB_AVAILABLE} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value={TAB_AVAILABLE}>
             <ListTodo className="h-4 w-4 mr-1.5 hidden sm:inline" />
