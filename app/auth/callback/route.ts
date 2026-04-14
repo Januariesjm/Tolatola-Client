@@ -1,6 +1,6 @@
-import { createClient } from "@/lib/supabase/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
-import { cookies, headers } from "next/headers"
+import { cookies } from "next/headers"
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error_description || error_param)}`)
   }
 
-  const supabase = await createClient()
+  const supabase = createRouteHandlerClient({ cookies })
 
   // Handle OAuth callback (Google, Facebook, etc.)
   if (code) {
