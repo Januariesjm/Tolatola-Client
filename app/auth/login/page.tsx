@@ -57,7 +57,8 @@ function LoginContent() {
         })
       }
 
-      // If OTP verification is required, redirect to OTP page with phone and redirect target
+      // OTP verification has been disabled
+      /*
       if (otp_required) {
         const otpPhone = (userData as any)?.phone || ""
         const redirectTarget = returnUrl || "/shop"
@@ -68,6 +69,7 @@ function LoginContent() {
         router.push(`/auth/otp?${search}`)
         return
       }
+      */
 
       if (returnUrl) {
         router.push(returnUrl)
