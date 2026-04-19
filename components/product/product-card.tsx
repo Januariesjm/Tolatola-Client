@@ -137,21 +137,6 @@ export function ProductCard({
                         </div>
                     )}
 
-                    {/* Sales Count Badge */}
-                    {(product.sales_count || 0) > 0 && product.stock_quantity > 0 && (
-                        <div className="absolute top-4 left-4 z-10">
-                            <div className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md shadow-lg border border-white/20 flex items-center gap-1.5">
-                                <span className="flex h-2 w-2 relative">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                                <span className="text-[9px] font-black uppercase tracking-wider text-stone-900">
-                                    {product.sales_count} Sold
-                                </span>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Sophisticated Badges */}
                     <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
                         {badge && (
@@ -180,11 +165,22 @@ export function ProductCard({
                             <CheckCircle2 className="h-2.5 w-2.5 md:h-3 md:w-3" />
                             <span>Verified by TOLA</span>
                         </div>
-                        {product.quality_grade && (
-                            <div className="px-1.5 py-0.5 rounded-md bg-stone-100 text-[8px] md:text-[9px] font-black uppercase text-stone-600">
-                                Grade {product.quality_grade}
-                            </div>
-                        )}
+                        <div className="flex items-center gap-1.5">
+                            {(product.sales_count || 0) > 0 && product.stock_quantity > 0 && (
+                                <div className="px-1.5 py-0.5 rounded-md bg-green-50 text-green-700 text-[8px] md:text-[9px] font-black uppercase flex items-center gap-1 border border-green-200 shadow-sm">
+                                    <span className="flex h-1.5 w-1.5 relative">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                                    </span>
+                                    {product.sales_count} Sold
+                                </div>
+                            )}
+                            {product.quality_grade && (
+                                <div className="px-1.5 py-0.5 rounded-md bg-stone-100 text-[8px] md:text-[9px] font-black uppercase text-stone-600">
+                                    Grade {product.quality_grade}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <Link href={`/product/${product.id}`}>
