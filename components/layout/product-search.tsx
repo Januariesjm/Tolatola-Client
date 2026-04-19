@@ -65,28 +65,17 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
       try {
         const { data: products, error: productsError } = await supabase
           .from("products")
-          .select("id, name, price, images, shops!inner(name)")
+          .select("id, name, price, images")
           .eq("is_active", true)
           .eq("status", "approved")
           .ilike("name", `%${query}%`)
           .limit(5)
 
-        const { data: shops, error: shopsError } = await supabase
-          .from("shops")
-          .select("id, name, description, logo_url, address")
-          .eq("is_active", true)
-          .ilike("name", `%${query}%`)
-          .limit(3)
-
         if (!productsError && products) {
           setProductResults(products as Product[])
         }
 
-        if (!shopsError && shops) {
-          setShopResults(shops as Shop[])
-        }
-
-        setIsOpen(Boolean((products && products.length > 0) || (shops && shops.length > 0)))
+        setIsOpen(Boolean(products && products.length > 0))
       } catch (err) {
         console.error("[v0] Search error:", err)
       } finally {
@@ -165,7 +154,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               setIsOpen(false)
             } else if (query.trim().length >= 2) {
               setShowFilters(false)
-              if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
+              if (productResults.length > 0) setIsOpen(true)
             }
           }}
           onFocus={() => {
@@ -175,7 +164,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               setIsOpen(false)
             } else if (query.trim().length >= 2) {
               setShowFilters(false)
-              if (productResults.length > 0 || shopResults.length > 0) setIsOpen(true)
+              if (productResults.length > 0) setIsOpen(true)
             }
           }}
           onKeyDown={(e) => {
@@ -240,51 +229,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
         <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto scrollbar-hide">
 
-            {/* Shops Section */}
-            {shopResults.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-primary" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Elite Vendors</span>
-                  </div>
-                  <div className="h-px flex-1 bg-stone-100 mx-4" />
-                </div>
-
-                <div className="grid gap-3">
-                  {shopResults.map((shop) => (
-                    <Link
-                      key={shop.id}
-                      href={`/shop/${shop.id}`}
-                      onClick={() => {
-                        setIsOpen(false)
-                        setQuery("")
-                      }}
-                      className="flex items-center gap-4 p-4 rounded-2xl hover:bg-stone-50 transition-all group/shop"
-                    >
-                      <div className="relative w-14 h-14 flex-shrink-0 rounded-2xl overflow-hidden shadow-sm border border-stone-100 bg-white">
-                        {shop.logo_url ? (
-                          <Image src={shop.logo_url} alt={shop.name} fill className="object-cover transition-transform duration-500 group-hover/shop:scale-110" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-stone-50 text-stone-300">
-                            <Store className="h-6 w-6" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base font-black text-stone-900 truncate tracking-tight">{shop.name}</p>
-                        <p className="text-xs font-bold text-stone-400 truncate italic">
-                          {shop.address || "Verified Tola Vendor"}
-                        </p>
-                      </div>
-                      <div className="h-10 w-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-400 group-hover/shop:bg-primary group-hover/shop:text-white transition-all">
-                        <ArrowRight className="h-5 w-5" />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Shops Section intentionally removed to protect vendor identities */}
 
             {/* Products Section */}
             {productResults.length > 0 && (
@@ -321,7 +266,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                         <p className="text-base font-black text-stone-900 truncate tracking-tight">{product.name}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-black uppercase tracking-widest text-primary px-2 py-0.5 bg-primary/10 rounded-full">
-                            {product.shops?.name}
+                            Verified Item
                           </span>
                         </div>
                       </div>
@@ -337,7 +282,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             )}
 
             {/* Always show "View All Results" link if there are results */}
-            {((productResults.length > 0 || shopResults.length > 0) && query.trim().length >= 2) && (
+            {(productResults.length > 0 && query.trim().length >= 2) && (
               <Link
                 href={`/shop?search=${encodeURIComponent(query)}`}
                 onClick={() => {
