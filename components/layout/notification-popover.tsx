@@ -35,7 +35,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [notifList, convResult] = await Promise.all([
+      const [notifList, convResult, globalUnreadNotes] = await Promise.all([
         fetchNotifications({ limit: 20 }).catch(err => {
           console.error("Error fetching notifications:", err)
           return []
@@ -43,6 +43,10 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
         getUserConversations().catch(err => {
           console.error("Error fetching conversations:", err)
           return { conversations: [] }
+        }),
+        fetchUnreadCount().catch(err => {
+          console.error("Error fetching unread count:", err)
+          return 0
         })
       ])
 
@@ -51,10 +55,9 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
         setConversations(convResult.conversations)
       }
 
-      // Calculate unread count
-      const unreadNotes = notifList.filter(n => !n.is_read).length
+      // Calculate total unread count: global notifications + loaded conversations
       const unreadConvs = (convResult.conversations || []).reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0)
-      setUnreadCount(unreadNotes + unreadConvs)
+      setUnreadCount(globalUnreadNotes + unreadConvs)
     } catch (error) {
       console.error("Critical error in loadData:", error)
     } finally {
@@ -254,12 +257,12 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
                       }}
                       className={cn(
                         "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
-                        !note.is_read && "bg-primary/[0.03]"
+                        !note.is_read ? "bg-primary/5 border-l-4 border-primary shadow-sm" : "border-l-4 border-transparent"
                       )}
                     >
                     <div className={cn(
                       "h-12 w-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
-                      !note.is_read ? "bg-primary/10 text-primary" : "bg-stone-100 text-stone-400"
+                      !note.is_read ? "bg-primary/20 text-primary shadow-inner" : "bg-stone-100 text-stone-400"
                     )}>
                       <Bell className="h-5 w-5" />
                     </div>
@@ -285,7 +288,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
                       onClick={() => setOpen(false)}
                       className={cn(
                         "flex items-start gap-4 p-4 rounded-2xl transition-all hover:bg-stone-50 group",
-                        conv.unread_count > 0 && "bg-amber-500/[0.03]"
+                        conv.unread_count > 0 ? "bg-amber-500/5 border-l-4 border-amber-500 shadow-sm" : "border-l-4 border-transparent"
                       )}
                     >
                       <div className="relative shrink-0 transition-transform group-hover:scale-110">
