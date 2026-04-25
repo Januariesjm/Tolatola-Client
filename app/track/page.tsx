@@ -56,7 +56,15 @@ function TrackOrderInner() {
       toast({ title: "OTP sent", description: `Check your ${isEmail ? "email" : "phone"} for the 6-digit code.` })
       router.push("/track/verify")
     } catch (err: any) {
-      const msg = err?.message || "Failed to send OTP. Check tracking code and contact details."
+      let msg = "Failed to send OTP. Please check your tracking code and contact details."
+      try {
+        const raw = err?.message || ""
+        const jsonPart = raw.substring(raw.indexOf("{"))
+        if (jsonPart) {
+          const parsed = JSON.parse(jsonPart)
+          if (parsed.error) msg = parsed.error
+        }
+      } catch { /* use default msg */ }
       setError(msg)
       toast({ title: "Error", description: msg, variant: "destructive" })
     } finally {
