@@ -14,9 +14,10 @@ interface ChatButtonProps {
   productName?: string
   receiverId?: string
   orderId?: string
+  label?: string
 }
 
-export function ChatButton({ shopId, shopName, productId, productName, receiverId, orderId }: ChatButtonProps) {
+export function ChatButton({ shopId, shopName, productId, productName, receiverId, orderId, label }: ChatButtonProps) {
   const [open, setOpen] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -64,7 +65,7 @@ export function ChatButton({ shopId, shopName, productId, productName, receiverI
         className="w-full sm:w-auto bg-transparent"
       >
         <MessageSquare className="mr-2 h-5 w-5" />
-        {loading ? "Loading..." : "Chat with Seller"}
+        {loading ? "Loading..." : label || "Chat with Seller"}
       </Button>
 
       {conversationId && (

@@ -232,11 +232,26 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
               </div>
 
               {isAccepted && (
-                <ChatButton
-                  receiverId={assignment.orders?.customer_id}
-                  orderId={assignment.order_id}
-                  shopName={assignment.orders?.users?.full_name || "Customer"}
-                />
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {assignment.shops?.vendors?.user_id && (
+                    <div className="flex-1">
+                      <ChatButton
+                        receiverId={assignment.shops.vendors.user_id}
+                        orderId={assignment.order_id}
+                        shopName={assignment.shops?.name || "Vendor"}
+                        label="Chat with Shop"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <ChatButton
+                      receiverId={assignment.orders?.customer_id}
+                      orderId={assignment.order_id}
+                      shopName={assignment.orders?.users?.full_name || "Customer"}
+                      label="Chat with Customer"
+                    />
+                  </div>
+                </div>
               )}
 
               {/* Action Buttons */}
