@@ -42,58 +42,110 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
     }
   }
 
-  const OrderStatusProgress = ({ status }: { status: string }) => {
-    const steps = [
-      { id: "pending", label: "Confirmed", icon: CheckCircle2 },
-      { id: "preparing", label: "Preparing", icon: Package },
-      { id: "dispatched", label: "On the Way", icon: Truck },
-      { id: "delivered", label: "Delivered", icon: Home },
+    const stepsDetails = [
+      { id: "ORDER_RECEIVED", label: "Order Received", icon: CheckCircle2 },
+      { id: "PAYMENT_CONFIRMED", label: "Payment Confirmed", icon: ShieldCheck },
+      { id: "PROCESSING", label: "Processing Order", icon: Package },
+      { id: "DISPATCHED", label: "Dispatched & Picked Up", icon: MapPin },
+      { id: "IN_TRANSIT", label: "In Transit to You", icon: Truck },
+      { id: "DELIVERED", label: "Delivered", icon: Home },
     ]
 
-    const statusMap: Record<string, number> = {
+    const fullStatusMap: Record<string, number> = {
       "pending": 0,
       "pending_payment": 0,
-      "confirmed": 0,
-      "processing": 1,
-      "preparing": 1,
-      "shipped": 2,
-      "dispatched": 2,
-      "on_the_way": 2,
-      "delivered": 3,
-      "completed": 3
+      "PAYMENT_CONFIRMED": 1,
+      "confirmed": 1,
+      "paid": 1,
+      "PROCESSING": 2,
+      "processing": 2,
+      "preparing": 2,
+      "DISPATCHED": 3,
+      "dispatched": 3,
+      "ready_for_pickup": 3,
+      "picked_up": 3,
+      "IN_TRANSIT": 4,
+      "in_transit": 4,
+      "shipped": 4,
+      "DELIVERED": 5,
+      "delivered": 5,
+      "completed": 5,
     }
 
-    const currentStepIndex = statusMap[status] || 0
+    const currentIndex = fullStatusMap[status] ?? 0
 
     return (
-      <div className="relative flex justify-between w-full max-w-md mx-auto py-8">
-        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-stone-100 -translate-y-1/2 z-0" />
-        <div
-          className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-1000"
-          style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
-        />
-        {steps.map((step, idx) => {
-          const Icon = step.icon
-          const isActive = idx <= currentStepIndex
-          const isCurrent = idx === currentStepIndex
-          return (
-            <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
-              <div className={cn(
-                "h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 border-4",
-                isActive ? "bg-primary border-primary text-white" : "bg-white border-stone-100 text-stone-300",
-                isCurrent && "animate-pulse ring-4 ring-primary/20"
-              )}>
-                <Icon className="h-5 w-5" />
+      <div className="space-y-8">
+        {/* Horizontal Visual Summary */}
+        <div className="relative flex justify-between w-full max-w-md mx-auto py-8 hidden sm:flex">
+          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-stone-100 -translate-y-1/2 z-0" />
+          <div
+            className="absolute top-1/2 left-0 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-1000"
+            style={{ width: `${Math.min((currentIndex / (stepsDetails.length - 1)) * 100, 100)}%` }}
+          />
+          {stepsDetails.filter((_, idx) => idx % 2 === 0 || idx === stepsDetails.length - 1).map((step, mappedIdx, filteredArray) => {
+            const originalIdx = stepsDetails.findIndex(s => s.id === step.id)
+            const Icon = step.icon
+            const isActive = originalIdx <= currentIndex
+            const isCurrent = originalIdx === currentIndex || (originalIdx > currentIndex && mappedIdx === filteredArray.findIndex(s => stepsDetails.findIndex(x => x.id === s.id) > currentIndex))
+            return (
+              <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
+                <div className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 border-4",
+                  isActive ? "bg-primary border-primary text-white" : "bg-white border-stone-100 text-stone-300",
+                  isCurrent && isActive && "animate-pulse ring-4 ring-primary/20",
+                  isCurrent && !isActive && "ring-4 ring-stone-100 animate-pulse"
+                )}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <span className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider text-center max-w-[80px]",
+                  isActive ? "text-primary" : "text-stone-400"
+                )}>
+                  {step.label}
+                </span>
               </div>
-              <span className={cn(
-                "text-[10px] font-bold uppercase tracking-wider",
-                isActive ? "text-primary" : "text-stone-400"
-              )}>
-                {step.label}
-              </span>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+        
+        {/* Detailed Vertical Tracking List (similar to public tracking page) */}
+        <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
+           <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">Detailed Tracking Events</h4>
+           <div className="space-y-5">
+              {stepsDetails.map((step, idx) => {
+                 const isDone = currentIndex > idx || (currentIndex === idx && (status === "DELIVERED" || status === "delivered" || status === "completed"))
+                 const isCurrent = currentIndex === idx && !isDone
+                 return (
+                   <div key={step.id} className="flex gap-4">
+                     <div className="flex flex-col items-center">
+                        <div className={cn(
+                          "h-6 w-6 rounded-full flex items-center justify-center border-2 border-white ring-2 ring-transparent shadow-sm flex-shrink-0 z-10",
+                          isDone ? "bg-green-500" : isCurrent ? "bg-primary animate-pulse" : "bg-stone-200"
+                        )}>
+                           {isDone ? <CheckCircle2 className="h-4 w-4 text-white" /> : <div className="h-2 w-2 rounded-full bg-white" />}
+                        </div>
+                        {idx !== stepsDetails.length - 1 && (
+                          <div className={cn("w-0.5 h-full min-h-[20px] -my-1", isDone ? "bg-green-500" : "bg-stone-200")} />
+                        )}
+                     </div>
+                     <div className="pt-0.5 pb-2">
+                        <p className={cn(
+                          "text-sm font-bold",
+                          isDone ? "text-stone-900" : isCurrent ? "text-primary" : "text-stone-400"
+                        )}>
+                          {step.label}
+                        </p>
+                        {isCurrent && (
+                          <p className="text-xs text-stone-500 mt-1">Currently in progress...</p>
+                        )}
+                        {/* We don't have exact timestamps in this generic viewer unless pulled from timeline, but we fake it or omit it beautifully */}
+                     </div>
+                   </div>
+                 )
+              })}
+           </div>
+        </div>
       </div>
     )
   }
@@ -125,7 +177,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
 
             <CardContent className="p-8 md:p-12 space-y-12">
               <div className="space-y-4">
-                <h3 className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Order Milestone</h3>
+                <h3 className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Live Order Tracking</h3>
                 <OrderStatusProgress status={order.status} />
               </div>
 
