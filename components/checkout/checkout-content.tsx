@@ -275,7 +275,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           })
           localStorage.removeItem("cart")
           window.dispatchEvent(new Event("cartUpdated"))
-          router.push(`/payment/${orderId}`)
+          router.push(`/checkout/success/${orderId}`)
           return true
         }
 
@@ -471,7 +471,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       if (paymentMethod === "cash-on-delivery") {
         localStorage.removeItem("cart")
         window.dispatchEvent(new Event("cartUpdated"))
-        router.push(`/payment/${orderId}`)
+        router.push(`/checkout/success/${orderId}`)
         return
       }
 
