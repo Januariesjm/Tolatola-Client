@@ -265,7 +265,10 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
 
               <div className="flex flex-col md:flex-row gap-4 pt-8">
                 <Button
-                  onClick={() => router.push("/track")}
+                  onClick={() => {
+                    const code = order.tracking_code || order.order_number || ""
+                    router.push(`/track?code=${encodeURIComponent(code)}`)
+                  }}
                   className="flex-1 h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
                 >
                   Track Order

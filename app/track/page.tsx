@@ -1,27 +1,35 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Alert, AlertDescription } from "../../components/ui/alert"
-import { PackageSearch, ArrowRight, AlertCircle } from "lucide-react"
+import { PackageSearch, ArrowRight, AlertCircle, Loader2 } from "lucide-react"
 import { clientApiPostPublic } from "../../lib/api-client"
 import { useToast } from "../../hooks/use-toast"
 import SiteHeader from "../../components/layout/site-header"
 
 const TRACKING_STORAGE_KEY = "tolatola_track_request"
 
-export default function TrackOrderPage() {
+function TrackOrderInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
   const [trackingCode, setTrackingCode] = useState("")
   const [contact, setContact] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const codeFromUrl = searchParams.get("code")
+    if (codeFromUrl) {
+      setTrackingCode(codeFromUrl.toUpperCase())
+    }
+  }, [searchParams])
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,5 +126,19 @@ export default function TrackOrderPage() {
         </Card>
       </main>
     </div>
+  )
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      }
+    >
+      <TrackOrderInner />
+    </Suspense>
   )
 }
