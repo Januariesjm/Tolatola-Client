@@ -300,11 +300,17 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                 <div className="flex-1 sm:flex-none">
                   <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 py-1 px-3">
                     <Clock className="h-4 w-4 mr-2 animate-pulse" />
-                    {order.transporter_assignment?.accepted_at
-                      ? "Transporter Accepted: Waiting for Pickup"
-                      : order.transporter_assignment
-                        ? "Transporter Assigned: Waiting for Acceptance"
-                        : "Searching for Transporter..."}
+                    {order.transporter_assignment?.status === "delivered" || order.transporter_assignment?.status === "completed"
+                      ? "Transporter Delivered"
+                      : order.transporter_assignment?.status === "in_transit"
+                        ? "Transporter In Transit"
+                        : order.transporter_assignment?.status === "picked_up"
+                          ? "Transporter Picked Up"
+                          : order.transporter_assignment?.accepted_at
+                            ? "Transporter Accepted: Waiting for Pickup"
+                            : order.transporter_assignment
+                              ? "Transporter Assigned: Waiting for Acceptance"
+                              : "Searching for Transporter..."}
                   </Badge>
                 </div>
               )}
