@@ -297,7 +297,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                 </Button>
               )}
               {order.status === "ready_for_pickup" && (
-                <div className="flex-1 sm:flex-none">
+                <div className="flex-1 sm:flex-none flex items-center gap-2">
                   <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 py-1 px-3">
                     <Clock className="h-4 w-4 mr-2 animate-pulse" />
                     {order.transporter_assignment?.status === "delivered" || order.transporter_assignment?.status === "completed"
@@ -312,6 +312,12 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                               ? "Transporter Assigned: Waiting for Acceptance"
                               : "Searching for Transporter..."}
                   </Badge>
+                  {(!order.transporter_assignment || !order.transporter_assignment.accepted_at || ["cancelled", "rejected"].includes(order.transporter_assignment?.status)) && (
+                    <Button size="sm" variant="outline" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} disabled={updatingOrderId === order.id} className="text-xs h-7 ml-2">
+                       {updatingOrderId === order.id ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Truck className="h-3 w-3 mr-1" />}
+                       Retry Search
+                    </Button>
+                  )}
                 </div>
               )}
               {(order.status === "shipped" || order.status === "delivered") && (
