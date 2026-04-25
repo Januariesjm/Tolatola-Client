@@ -78,10 +78,10 @@ export default function TrackOrderPage() {
           <CardContent className="space-y-6">
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="tracking_code">Tracking code</Label>
+                <Label htmlFor="tracking_code">Tracking code or Order number</Label>
                 <Input
                   id="tracking_code"
-                  placeholder="e.g. TDX-12345-6789"
+                  placeholder="e.g. TDX-12345-6789 or TOLA-2026-XXXXXXXX"
                   value={trackingCode}
                   onChange={(e) => setTrackingCode(e.target.value)}
                   className="rounded-xl h-12 font-mono uppercase"
