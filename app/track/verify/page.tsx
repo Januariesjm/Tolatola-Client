@@ -22,7 +22,7 @@ export default function TrackVerifyPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [attempts, setAttempts] = useState(0)
-  const [stored, setStored] = useState<{ tracking_code: string; phone_number: string } | null>(null)
+  const [stored, setStored] = useState<{ tracking_code: string; contact: string } | null>(null)
 
   useEffect(() => {
     if (typeof sessionStorage === "undefined") return
@@ -52,7 +52,7 @@ export default function TrackVerifyPage() {
         "tracking/verify-otp",
         {
           tracking_code: stored.tracking_code,
-          phone_number: stored.phone_number,
+          contact: stored.contact,
           otp: otp.trim(),
         }
       )
@@ -99,7 +99,7 @@ export default function TrackVerifyPage() {
             </div>
             <CardTitle className="text-2xl font-black tracking-tight">Enter verification code</CardTitle>
             <CardDescription>
-              We sent a 6-digit code to the phone number you entered. It expires in 5 minutes.
+              We sent a 6-digit code to the contact details you entered. It expires in 5 minutes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

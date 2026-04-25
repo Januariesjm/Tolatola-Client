@@ -19,7 +19,7 @@ export default function TrackOrderPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [trackingCode, setTrackingCode] = useState("")
-  const [phone, setPhone] = useState("")
+  const [contact, setContact] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,27 +27,28 @@ export default function TrackOrderPage() {
     e.preventDefault()
     setError(null)
     const code = trackingCode.trim().toUpperCase()
-    const phoneNorm = phone.trim().replace(/\s/g, "")
-    if (!code || !phoneNorm) {
-      setError("Please enter both tracking code and phone number.")
+    const contactNorm = contact.trim()
+    const isEmail = contactNorm.includes("@")
+    if (!code || !contactNorm) {
+      setError("Please enter both tracking code and contact details.")
       return
     }
     setLoading(true)
     try {
       await clientApiPostPublic<{ success: boolean; message?: string }>("tracking/request-otp", {
         tracking_code: code,
-        phone_number: phoneNorm,
+        contact: contactNorm,
       })
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem(
           TRACKING_STORAGE_KEY,
-          JSON.stringify({ tracking_code: code, phone_number: phoneNorm })
+          JSON.stringify({ tracking_code: code, contact: contactNorm })
         )
       }
-      toast({ title: "OTP sent", description: "Check your phone for the 6-digit code." })
+      toast({ title: "OTP sent", description: `Check your ${isEmail ? "email" : "phone"} for the 6-digit code.` })
       router.push("/track/verify")
     } catch (err: any) {
-      const msg = err?.message || "Failed to send OTP. Check tracking code and phone number."
+      const msg = err?.message || "Failed to send OTP. Check tracking code and contact details."
       setError(msg)
       toast({ title: "Error", description: msg, variant: "destructive" })
     } finally {
@@ -71,7 +72,7 @@ export default function TrackOrderPage() {
             </div>
             <CardTitle className="text-2xl font-black tracking-tight">Track your order</CardTitle>
             <CardDescription>
-              Enter your tracking code and the phone number used for the order. We&apos;ll send a one-time code to verify.
+              Enter your tracking code and the phone number or email used for the order. We&apos;ll send a one-time code to verify.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -88,13 +89,13 @@ export default function TrackOrderPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone number</Label>
+                <Label htmlFor="contact">Phone number or Email</Label>
                 <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="e.g. +255 712 345 678"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  id="contact"
+                  type="text"
+                  placeholder="e.g. +255 712 345 678 or name@email.com"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
                   className="rounded-xl h-12"
                 />
               </div>
