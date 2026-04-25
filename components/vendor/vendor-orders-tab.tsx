@@ -140,7 +140,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
   const newOrders = orders.filter((o) => ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status))
   const preparingOrders = orders.filter((o) => ["processing", "preparing"].includes(o.status))
   const readyOrders = orders.filter((o) => o.status === "ready_for_pickup")
-  const completedOrders = orders.filter((o) => ["delivered", "shipped", "completed"].includes(o.status))
+  const completedOrders = orders.filter((o) => ["dispatched", "in_transit", "delivered", "shipped", "completed"].includes(o.status))
   const totalEarnings = completedOrders.reduce((sum, o) => sum + (getOrderTotal(o) || 0), 0)
 
   const renderOrderList = (list: any[]) => {
