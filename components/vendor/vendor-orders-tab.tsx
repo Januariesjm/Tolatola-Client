@@ -257,7 +257,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                               "Assigned Transporter"}
                           </p>
                           <p className="text-xs text-muted-foreground capitalize">
-                            {order.transporter_assignment.transporters?.vehicle_type} • {order.transporter_assignment.transporters?.license_plate || "—"}
+                            {order.transporter_assignment.transporters?.vehicle_type} • {order.transporter_assignment.transporters?.vehicle_registration || "—"}
                           </p>
                         </div>
                         <Badge variant="outline" className="bg-white">
