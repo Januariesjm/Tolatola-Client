@@ -56,7 +56,9 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   const availableTrips = assignments.filter(
     (a) => ["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at
   )
-  const acceptedTrips = assignments.filter((a) => a.status === "accepted")
+  const acceptedTrips = assignments.filter(
+    (a) => a.status === "accepted" || (a.status === "assigned" && !!a.accepted_at)
+  )
   const inTransitTrips = assignments.filter((a) => ["picked_up", "in_transit"].includes(a.status))
   const completedTrips = assignments.filter((a) => a.status === "delivered")
 
@@ -116,6 +118,8 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
         {list.map((assignment) => {
           const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
           const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
+          const displayStatus = (assignment.status === "assigned" && assignment.accepted_at) ? "accepted" : assignment.status
+          
           return (
           <Card 
             key={assignment.id} 
@@ -258,18 +262,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
               )}
 
               {/* isAccepted covers ("accepted" status OR "assigned" with accepted_at) */}
-              {isAccepted && assignment.status === "assigned" && (
-                <Button
-                  className="w-full"
-                  onClick={() => updateStatus(assignment.id, "picked_up")}
-                  disabled={updating === assignment.id}
-                >
-                  <Package className="h-4 w-4 mr-2" />
-                  {updating === assignment.id ? "Updating..." : "Mark as Picked Up"}
-                </Button>
-              )}
-
-              {assignment.status === "accepted" && (
+              {(displayStatus === "accepted" || displayStatus === "assigned") && isAccepted && (
                 <Button
                   className="w-full"
                   onClick={() => updateStatus(assignment.id, "picked_up")}
