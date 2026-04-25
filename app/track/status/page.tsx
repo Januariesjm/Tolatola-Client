@@ -19,15 +19,15 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react"
-import type { OrderTrackingInfo, OrderStatus } from "../../../lib/types"
+import type { OrderTrackingInfo } from "../../../lib/types"
 import SiteHeader from "../../../components/layout/site-header"
 import { OrderTrackingMap } from "../../../components/orders/order-tracking-map"
 
-const TIMELINE_STEPS: { id: OrderStatus; label: string }[] = [
+const TIMELINE_STEPS: { id: string; label: string }[] = [
   { id: "ORDER_RECEIVED", label: "Order Received" },
-  { id: "PAYMENT_SECURED", label: "Payment Secured" },
-  { id: "VENDOR_PREPARING", label: "Vendor Preparing" },
-  { id: "PICKED_UP", label: "Picked Up" },
+  { id: "PAYMENT_CONFIRMED", label: "Payment Confirmed" },
+  { id: "PROCESSING", label: "Processing" },
+  { id: "DISPATCHED", label: "Dispatched" },
   { id: "IN_TRANSIT", label: "In Transit" },
   { id: "DELIVERED", label: "Delivered" },
 ]
@@ -35,20 +35,23 @@ const TIMELINE_STEPS: { id: OrderStatus; label: string }[] = [
 const STATUS_INDEX_MAP: Record<string, number> = {
   ORDER_RECEIVED: 0,
   pending: 0,
-  confirmed: 0,
-  PAYMENT_SECURED: 1,
+  pending_payment: 0,
+  PAYMENT_CONFIRMED: 1,
+  confirmed: 1,
   paid: 1,
-  payment_received: 1,
-  VENDOR_PREPARING: 2,
+  PROCESSING: 2,
   processing: 2,
   preparing: 2,
-  PICKED_UP: 3,
+  DISPATCHED: 3,
+  dispatched: 3,
+  ready_for_pickup: 3,
   picked_up: 3,
   IN_TRANSIT: 4,
   in_transit: 4,
   shipped: 4,
   DELIVERED: 5,
   delivered: 5,
+  completed: 5,
 }
 
 function StatusDashboardInner() {
