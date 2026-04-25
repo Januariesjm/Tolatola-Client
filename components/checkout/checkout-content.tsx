@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -73,10 +73,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
+  const isNavigatingAway = useRef(false)
 
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem("cart") || "[]")
-    if (items.length === 0) {
+    if (items.length === 0 && !isNavigatingAway.current) {
       router.push("/cart")
     }
     setCartItems(items)
@@ -273,6 +274,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             title: "Payment Successful",
             description: "Your order has been created successfully.",
           })
+          isNavigatingAway.current = true
           localStorage.removeItem("cart")
           window.dispatchEvent(new Event("cartUpdated"))
           router.push(`/checkout/success/${orderId}`)
@@ -469,6 +471,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       }
 
       if (paymentMethod === "cash-on-delivery") {
+        isNavigatingAway.current = true
         localStorage.removeItem("cart")
         window.dispatchEvent(new Event("cartUpdated"))
         router.push(`/checkout/success/${orderId}`)
@@ -595,6 +598,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                   <Button
                     className="w-full h-12 rounded-xl bg-stone-900 text-white font-bold"
                     onClick={() => {
+                      isNavigatingAway.current = true
                       localStorage.removeItem("cart")
                       window.dispatchEvent(new Event("cartUpdated"))
                       router.push(`/payment/${currentOrderId}`)
