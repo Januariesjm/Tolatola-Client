@@ -97,6 +97,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
     const variants: any = {
       assigned: "secondary",
       ready_for_pickup: "secondary",
+      available: "secondary",
       accepted: "outline",
       picked_up: "default",
       in_transit: "default",
@@ -125,7 +126,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       <div className="space-y-4">
         {list.map((assignment) => {
           const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
-          const isNotYetAccepted = (["assigned", "ready_for_pickup"].includes(assignment.status)) && !assignment.accepted_at
+          const isNotYetAccepted = (["assigned", "ready_for_pickup", "available"].includes(assignment.status)) && !assignment.accepted_at
           const displayStatus = (assignment.status === "assigned" && assignment.accepted_at) ? "accepted" : assignment.status
           
           return (
@@ -265,14 +266,16 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
               {/* Action Buttons */}
               {isNotYetAccepted && (
                 <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                    onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
-                    disabled={updating === assignment.id}
-                  >
-                    Reject Cargo
-                  </Button>
+                  {!assignment.is_available_order && (
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+                      onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
+                      disabled={updating === assignment.id}
+                    >
+                      Reject Cargo
+                    </Button>
+                  )}
                   <Button
                     className="flex-1 bg-primary hover:bg-primary/90"
                     onClick={() => updateStatus(assignment.id, "accepted", assignment.is_available_order, assignment.order_id)}
