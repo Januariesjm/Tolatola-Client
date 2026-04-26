@@ -180,7 +180,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1 space-y-1">
                   <p className="font-medium text-sm">
-                    Deliver to: {assignment.orders?.users?.full_name}
+                    Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
