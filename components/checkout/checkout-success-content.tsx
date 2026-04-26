@@ -42,6 +42,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
     }
   }
 
+  const OrderStatusProgress = ({ status }: { status: string }) => {
     const stepsDetails = [
       { id: "ORDER_RECEIVED", label: "Order Received", icon: CheckCircle2 },
       { id: "PAYMENT_CONFIRMED", label: "Payment Confirmed", icon: ShieldCheck },
