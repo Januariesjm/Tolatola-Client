@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -37,6 +39,11 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
 
   const [activeTab, setActiveTab] = useState(initialInnerTab);
   const [updating, setUpdating] = useState<string | null>(null)
+
+  // Delivery PIN State
+  const [pinModalOpen, setPinModalOpen] = useState(false)
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null)
+  const [deliveryPin, setDeliveryPin] = useState("")
 
   useEffect(() => {
     if (initialOrderId) {
@@ -87,6 +94,29 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
     } catch (error: any) {
       console.error("Error updating assignment:", error)
       alert(error.response?.data?.error || "Failed to update assignment status")
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const verifyDeliveryPin = async () => {
+    if (!selectedAssignmentId || !deliveryPin || deliveryPin.trim().length !== 4) {
+      alert("Please enter a valid 4-digit Delivery PIN.")
+      return
+    }
+    
+    setUpdating(selectedAssignmentId)
+    try {
+      const { clientApiPost } = await import("@/lib/api-client")
+      await clientApiPost(`assignments/${selectedAssignmentId}/verify-pin`, { pin: deliveryPin })
+      
+      setPinModalOpen(false)
+      setSelectedAssignmentId(null)
+      setDeliveryPin("")
+      router.refresh()
+    } catch (error: any) {
+      console.error("Error verifying PIN:", error)
+      alert(error.response?.data?.error || "Failed to verify Delivery PIN. Please check and try again.")
     } finally {
       setUpdating(null)
     }
@@ -314,7 +344,11 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                 <Button
                   className="w-full"
                   variant="default"
-                  onClick={() => updateStatus(assignment.id, "delivered")}
+                  onClick={() => {
+                    setSelectedAssignmentId(assignment.id)
+                    setDeliveryPin("")
+                    setPinModalOpen(true)
+                  }}
                   disabled={updating === assignment.id}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -366,6 +400,34 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
           {renderList(completedTrips)}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={pinModalOpen} onOpenChange={(open) => { setPinModalOpen(open); if (!open) setDeliveryPin(""); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Verify Delivery 📦</DialogTitle>
+            <DialogDescription>
+              Please enter the 4-digit Delivery PIN sent to the customer's phone to complete this delivery and release your escrow funds.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <Input 
+              type="text" 
+              maxLength={4} 
+              placeholder="e.g. 1234" 
+              value={deliveryPin} 
+              onChange={(e) => setDeliveryPin(e.target.value.replace(/\D/g, ''))}
+              className="text-center text-2xl tracking-widest font-bold"
+            />
+            <Button
+              onClick={verifyDeliveryPin}
+              disabled={updating === selectedAssignmentId || deliveryPin.length !== 4}
+              className="w-full"
+            >
+              {updating === selectedAssignmentId ? "Verifying..." : "Verify & Complete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
