@@ -54,31 +54,39 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   }, [initialOrderId])
 
   const availableTrips = assignments.filter(
-    (a) => ["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at
+    (a) => a.is_available_order || (["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at)
   )
   const acceptedTrips = assignments.filter(
-    (a) => a.status === "accepted" || (a.status === "assigned" && !!a.accepted_at)
+    (a) => !a.is_available_order && (a.status === "accepted" || (a.status === "assigned" && !!a.accepted_at))
   )
-  const inTransitTrips = assignments.filter((a) => ["picked_up", "in_transit"].includes(a.status))
-  const completedTrips = assignments.filter((a) => a.status === "delivered")
+  const inTransitTrips = assignments.filter((a) => !a.is_available_order && ["picked_up", "in_transit"].includes(a.status))
+  const completedTrips = assignments.filter((a) => !a.is_available_order && a.status === "delivered")
 
-  const updateStatus = async (assignmentId: string, newStatus: string) => {
+  const updateStatus = async (assignmentId: string, newStatus: string, isAvailableOrder?: boolean, orderId?: string) => {
     setUpdating(assignmentId)
     try {
-      const { clientApiPatch } = await import("@/lib/api-client")
-      const updateData: any = { status: newStatus }
+      const { clientApiPatch, clientApiPost } = await import("@/lib/api-client")
+      
+      // If accepting an order from the general available pool
+      if (isAvailableOrder && newStatus === "accepted" && orderId) {
+        await clientApiPost(`assignments/accept/${orderId}`)
+      } else {
+        // Standard assignment update
+        const updateData: any = { status: newStatus }
 
-      if (newStatus === "picked_up") {
-        updateData.picked_up_at = new Date().toISOString()
-      } else if (newStatus === "delivered") {
-        updateData.delivered_at = new Date().toISOString()
+        if (newStatus === "picked_up") {
+          updateData.picked_up_at = new Date().toISOString()
+        } else if (newStatus === "delivered") {
+          updateData.delivered_at = new Date().toISOString()
+        }
+
+        await clientApiPatch(`assignments/${assignmentId}`, updateData)
       }
-
-      await clientApiPatch(`assignments/${assignmentId}`, updateData)
+      
       router.refresh()
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating assignment:", error)
-      alert("Failed to update assignment status")
+      alert(error.response?.data?.error || "Failed to update assignment status")
     } finally {
       setUpdating(null)
     }
@@ -260,14 +268,14 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                   <Button
                     variant="outline"
                     className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                    onClick={() => updateStatus(assignment.id, "rejected")}
+                    onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
                     disabled={updating === assignment.id}
                   >
                     Reject Cargo
                   </Button>
                   <Button
                     className="flex-1 bg-primary hover:bg-primary/90"
-                    onClick={() => updateStatus(assignment.id, "accepted")}
+                    onClick={() => updateStatus(assignment.id, "accepted", assignment.is_available_order, assignment.order_id)}
                     disabled={updating === assignment.id}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />

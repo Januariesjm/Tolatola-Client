@@ -33,18 +33,25 @@ export default async function TransporterDashboardPage() {
       redirect("/transporter/kyc-rejected")
     }
 
-    // Fetch assignments, payments, and withdrawals from backend
-    const [assignmentsRes, paymentsRes, withdrawalsRes] = await Promise.all([
+    // Fetch assignments, available orders, payments, and withdrawals from backend
+    const [assignmentsRes, availableRes, paymentsRes, withdrawalsRes] = await Promise.all([
       serverApiGet<{ assignments: any[] }>("assignments"),
+      serverApiGet<{ availableOrders: any[] }>("assignments/available").catch(() => ({ availableOrders: [] })),
       serverApiGet<{ payments: any[] }>("transporters/payments"),
       serverApiGet<{ withdrawals: any[] }>("transporters/withdrawals"),
     ])
+
+    // Merge: own assignments + available orders from marketplace
+    const allAssignments = [
+      ...(assignmentsRes.assignments || []),
+      ...(availableRes.availableOrders || []),
+    ]
 
     return (
       <Suspense fallback={<div className="flex h-screen items-center justify-center p-4"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
         <TransporterDashboardContent
           transporter={transporter}
-          assignments={assignmentsRes.assignments || []}
+          assignments={allAssignments}
           payments={paymentsRes.payments || []}
           withdrawals={withdrawalsRes.withdrawals || []}
           user={user}
