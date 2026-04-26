@@ -33,11 +33,12 @@ export default async function TransporterDashboardPage() {
       redirect("/transporter/kyc-rejected")
     }
 
-    // Fetch assignments, payments, and withdrawals from backend
-    const [assignmentsRes, paymentsRes, withdrawalsRes] = await Promise.all([
+    // Fetch assignments, payments, withdrawals, and available open trips from backend
+    const [assignmentsRes, paymentsRes, withdrawalsRes, availableTripsRes] = await Promise.all([
       serverApiGet<{ assignments: any[] }>("assignments"),
       serverApiGet<{ payments: any[] }>("transporters/payments"),
       serverApiGet<{ withdrawals: any[] }>("transporters/withdrawals"),
+      serverApiGet<{ orders: any[] }>("available-trips").catch(() => ({ orders: [] })),
     ])
 
     return (
@@ -45,6 +46,7 @@ export default async function TransporterDashboardPage() {
         <TransporterDashboardContent
           transporter={transporter}
           assignments={assignmentsRes.assignments || []}
+          availableOrders={availableTripsRes.orders || []}
           payments={paymentsRes.payments || []}
           withdrawals={withdrawalsRes.withdrawals || []}
           user={user}

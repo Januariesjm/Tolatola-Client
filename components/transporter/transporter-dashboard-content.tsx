@@ -19,6 +19,7 @@ import { NotificationPopover } from "@/components/layout/notification-popover"
 interface TransporterDashboardContentProps {
   transporter: any
   assignments: any[]
+  availableOrders?: any[]
   payments: any[]
   withdrawals: any[]
   user: any
@@ -27,6 +28,7 @@ interface TransporterDashboardContentProps {
 export function TransporterDashboardContent({
   transporter,
   assignments,
+  availableOrders = [],
   payments,
   withdrawals,
   user,
@@ -242,7 +244,8 @@ export function TransporterDashboardContent({
 
           <TabsContent value="assignments">
             <TransporterAssignmentsTab 
-              assignments={assignments} 
+              assignments={assignments}
+              availableOrders={availableOrders}
               transporterId={transporter.id} 
               initialOrderId={initialOrderId}
             />
