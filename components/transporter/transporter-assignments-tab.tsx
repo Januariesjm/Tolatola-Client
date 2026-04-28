@@ -383,9 +383,24 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
               <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{availableTrips.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value={TAB_ACCEPTED}>Accepted Trips</TabsTrigger>
-          <TabsTrigger value={TAB_IN_TRANSIT}>In Transit</TabsTrigger>
-          <TabsTrigger value={TAB_COMPLETED}>Completed</TabsTrigger>
+          <TabsTrigger value={TAB_ACCEPTED}>
+            Accepted Trips
+            {acceptedTrips.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{acceptedTrips.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value={TAB_IN_TRANSIT}>
+            In Transit
+            {inTransitTrips.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{inTransitTrips.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value={TAB_COMPLETED}>
+            Completed
+            {completedTrips.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{completedTrips.length}</Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value={TAB_AVAILABLE} className="mt-4">
           {renderList(availableTrips)}

@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown, User } from "lucide-react"
+import { LogOut, Truck, DollarSign, Package, TrendingUp, MapPin, Clock, Crown, User, Loader2, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { HeaderAnimatedText } from "@/components/layout/header-animated-text"
+import { clientApiGet } from "@/lib/api-client"
+import { useToast } from "@/hooks/use-toast"
 import { TransporterAssignmentsTab } from "./transporter-assignments-tab"
 import { TransporterPaymentsTab } from "./transporter-payments-tab"
 import { TransporterWithdrawalsTab } from "./transporter-withdrawals-tab"
@@ -35,10 +37,59 @@ export function TransporterDashboardContent({
   const searchParams = useSearchParams()
   const initialTab = searchParams.get("tab") || "assignments"
   const initialOrderId = searchParams.get("orderId") || undefined
+  const { toast } = useToast()
   
   const [activeTab, setActiveTab] = useState(initialTab)
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false)
   const [locationStatus, setLocationStatus] = useState<"updated" | "error" | "idle">("idle")
+  
+  const [localAssignments, setLocalAssignments] = useState(assignments)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const prevAvailableCountRef = useRef(0)
+
+  // Auto-refresh mechanism
+  const fetchAssignments = useCallback(async (silent = false) => {
+    if (silent) setIsRefreshing(true)
+    try {
+      const [assignmentsRes, availableRes] = await Promise.all([
+        clientApiGet<{ assignments: any[] }>("assignments"),
+        clientApiGet<{ availableOrders: any[] }>("assignments/available").catch(() => ({ availableOrders: [] }))
+      ])
+      
+      const allAssignments = [
+        ...(assignmentsRes.assignments || []),
+        ...(availableRes.availableOrders || []),
+      ]
+
+      const newAvailableCount = (availableRes.availableOrders || []).length
+      
+      if (silent && newAvailableCount > prevAvailableCountRef.current && prevAvailableCountRef.current > 0) {
+        const diff = newAvailableCount - prevAvailableCountRef.current
+        toast({
+          title: `New Delivery Available! 📦`,
+          description: `${diff} new order${diff > 1 ? 's' : ''} ready for pickup.`,
+        })
+      }
+      
+      prevAvailableCountRef.current = newAvailableCount
+      setLocalAssignments(allAssignments)
+    } catch (err) {
+      console.error("Failed to load transporter assignments", err)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }, [toast])
+
+  // Poll every 30 seconds
+  useEffect(() => {
+    // Initial ref count setup
+    prevAvailableCountRef.current = assignments.filter((a) => a.is_available_order).length
+
+    const interval = setInterval(() => {
+      fetchAssignments(true)
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [fetchAssignments, assignments])
 
   const updateLocation = async () => {
     setIsUpdatingLocation(true)
@@ -98,13 +149,13 @@ export function TransporterDashboardContent({
     }
   }
 
-  const activeAssignments = assignments.filter((a) => {
+  const activeAssignments = localAssignments.filter((a) => {
     const isAccepted = ["accepted", "picked_up", "in_transit"].includes(a.status) ||
       (a.status === "assigned" && a.accepted_at);
     const isReady = a.status === "ready_for_pickup";
     return isAccepted || isReady;
   })
-  const completedAssignments = assignments.filter((a) => a.status === "delivered")
+  const completedAssignments = localAssignments.filter((a) => a.status === "delivered")
   const availableBalance = payments
     .filter((p) => p.status === "available")
     .reduce((sum, p) => sum + Number(p.amount), 0)
@@ -131,9 +182,21 @@ export function TransporterDashboardContent({
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Transporter Dashboard</h1>
-          <p className="text-muted-foreground">{transporter.business_name || "Welcome to your dashboard"}</p>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Transporter Dashboard</h1>
+            <p className="text-muted-foreground">{transporter.business_name || "Welcome to your dashboard"}</p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchAssignments(true)}
+            disabled={isRefreshing}
+            className="gap-1.5 shrink-0"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh Trips
+          </Button>
         </div>
 
         {/* Stats Overview */}
@@ -242,7 +305,7 @@ export function TransporterDashboardContent({
 
           <TabsContent value="assignments">
             <TransporterAssignmentsTab 
-              assignments={assignments} 
+              assignments={localAssignments} 
               transporterId={transporter.id} 
               initialOrderId={initialOrderId}
             />

@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock, Wallet, Loader2 } from "lucide-react"
+import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock, Wallet, Loader2, RefreshCw } from "lucide-react"
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 
@@ -28,9 +28,44 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
   const [activeTab, setActiveTab] = useState(TAB_NEW)
   const { toast } = useToast()
 
+  const prevOrderCountRef = useRef(0)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const fetchOrders = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true)
+    else setIsRefreshing(true)
+    try {
+      const res = await clientApiGet<{ orders: any[] }>(`shops/${shopId}/orders`)
+      const newOrders = res.orders || []
+      
+      // Show toast if new orders arrived during silent refresh
+      if (silent && newOrders.length > prevOrderCountRef.current && prevOrderCountRef.current > 0) {
+        const diff = newOrders.length - prevOrderCountRef.current
+        toast({
+          title: `${diff} New Order${diff > 1 ? 's' : ''} 🔔`,
+          description: "You have new orders waiting to be processed.",
+        })
+      }
+      prevOrderCountRef.current = newOrders.length
+      setOrders(newOrders)
+    } catch (err) {
+      console.error("Failed to load orders", err)
+    }
+    setIsLoading(false)
+    setIsRefreshing(false)
+  }, [shopId, toast])
+
   useEffect(() => {
     fetchOrders()
-  }, [shopId])
+  }, [fetchOrders])
+
+  // Auto-refresh orders every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders(true) // silent refresh
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [fetchOrders])
 
   // Handle initial expansion if orderId is provided
   useEffect(() => {
@@ -49,17 +84,6 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
       }
     }
   }, [isLoading, initialOrderId, orders])
-
-  const fetchOrders = async () => {
-    setIsLoading(true)
-    try {
-      const res = await clientApiGet<{ orders: any[] }>(`shops/${shopId}/orders`)
-      setOrders(res.orders || [])
-    } catch (err) {
-      console.error("Failed to load orders", err)
-    }
-    setIsLoading(false)
-  }
 
   const toggleOrderDetails = (orderId: string) => {
     const newExpanded = new Set(expandedOrders)
@@ -80,11 +104,33 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
   }
 
   const statusLabels: Record<string, string> = {
-    confirmed: "Order Confirmed",
+    pending: "Pending",
+    pending_payment: "Awaiting Payment",
+    paid: "Paid",
+    confirmed: "Confirmed",
     processing: "Preparing",
+    preparing: "Preparing",
     ready_for_pickup: "Ready for Pickup",
+    dispatched: "Dispatched",
+    in_transit: "In Transit",
     shipped: "Shipped",
     delivered: "Delivered",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  }
+
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 1) return "Just now"
+    if (diffMins < 60) return `${diffMins}m ago`
+    const diffHours = Math.floor(diffMins / 60)
+    if (diffHours < 24) return `${diffHours}h ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays < 7) return `${diffDays}d ago`
+    return date.toLocaleDateString()
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -172,12 +218,12 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
               <div className="flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {new Date(order.created_at).toLocaleDateString()}
+                  {formatTimeAgo(order.created_at)}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-base">{order.order_number}</span>
                   <Badge className={statusColors[order.status]} variant="secondary">
-                    {order.status.replace("_", " ")}
+                    {statusLabels[order.status] || order.status.replace("_", " ")}
                   </Badge>
                 </div>
               </div>
@@ -278,7 +324,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
               </div>
             )}
             <div className="flex gap-2 flex-wrap pt-2">
-              {order.status === "pending" && (
+              {(order.status === "pending" || order.status === "paid") && (
                 <Button size="sm" onClick={() => updateOrderStatus(order.id, "confirmed")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700">
                   {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
                   Confirm Order
@@ -347,7 +393,19 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Orders</h2>
-        <Badge variant="secondary">{orders.length} Total</Badge>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchOrders(true)}
+            disabled={isRefreshing}
+            className="gap-1.5"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Badge variant="secondary">{orders.length} Total</Badge>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -355,12 +413,27 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
           <TabsTrigger value={TAB_NEW}>
             New Orders
             {newOrders.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{newOrders.length}</Badge>
+              <Badge variant="destructive" className="ml-1.5 px-1.5 py-0 text-xs animate-pulse">{newOrders.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value={TAB_PREPARING}>Preparing</TabsTrigger>
-          <TabsTrigger value={TAB_READY}>Ready for Pickup</TabsTrigger>
-          <TabsTrigger value={TAB_COMPLETED}>Completed</TabsTrigger>
+          <TabsTrigger value={TAB_PREPARING}>
+            Preparing
+            {preparingOrders.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{preparingOrders.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value={TAB_READY}>
+            Ready
+            {readyOrders.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{readyOrders.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value={TAB_COMPLETED}>
+            Completed
+            {completedOrders.length > 0 && (
+              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{completedOrders.length}</Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value={TAB_EARNINGS}>
             <Wallet className="h-4 w-4 mr-1 hidden sm:inline" />
             Earnings

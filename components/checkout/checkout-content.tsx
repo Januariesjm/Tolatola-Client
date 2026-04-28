@@ -251,70 +251,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
 
-  const [paymentStatusMessage, setPaymentStatusMessage] = useState("")
-  const [controlNumber, setControlNumber] = useState<string | null>(null)
-  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
-
-  const pollPaymentStatus = async (orderId: string) => {
-    let attempts = 0
-    const maxAttempts = 40 // ~2 mins polling
-
-    const checkStatus = async () => {
-      try {
-        const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string }; payment_status?: string; status?: string; click_pesa_error?: string }>(
-          `payments/status/${orderId}`
-        )
-        const payload = (res as any)?.data ?? res
-        const payment_status = payload?.payment_status
-        const status = payload?.status
-
-        if (payment_status === "paid" || ["confirmed", "processing", "preparing"].includes(String(status))) {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Payment Successful",
-            description: "Your order has been created successfully.",
-          })
-          isNavigatingAway.current = true
-          localStorage.removeItem("cart")
-          window.dispatchEvent(new Event("cartUpdated"))
-          router.push(`/checkout/success/${orderId}`)
-          return true
-        }
-
-        if (payment_status === "failed") {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Payment Failed",
-            description: payload?.click_pesa_error || "The transaction was unsuccessful. Please check your balance or try another method.",
-            variant: "destructive",
-          })
-          return true
-        }
-
-        return false
-      } catch (err) {
-        console.error("Polling error:", err)
-        return false
-      }
-    }
-
-    const interval = setInterval(async () => {
-      attempts++
-      const finished = await checkStatus()
-      if (finished || attempts >= maxAttempts) {
-        clearInterval(interval)
-        if (attempts >= maxAttempts) {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Payment Timeout",
-            description: "We haven't received confirmation yet. Please check your order status later.",
-            variant: "destructive",
-          })
-        }
-      }
-    }, 3000)
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -479,9 +415,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       }
 
       // Initiate Payment
-      setPaymentStatusMessage("Initiating secure payment request...")
       setIsAwaitingPayment(true)
-      setCurrentOrderId(orderId)
 
       const payRes = await clientApiPost<{ success: boolean; message: string; transactionId?: string; controlNumber?: string }>(
         "payments/clickpesa/initiate",
@@ -498,15 +432,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       )
 
       if (payRes.success) {
-        if (["visa", "mastercard", "unionpay"].includes(paymentMethod)) {
-          setPaymentStatusMessage("Authorizing your card transaction... This may take a moment.")
-        } else if (["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(paymentMethod)) {
-          setControlNumber(payRes.controlNumber || null)
-          setPaymentStatusMessage("Your Control Number has been generated. Use it to complete payment at your bank.")
-        } else {
-          setPaymentStatusMessage("Awaiting Payment... Please check your phone for the USSD prompt.")
-        }
-        pollPaymentStatus(orderId)
+        // Payment initiated successfully — clear cart and redirect immediately
+        isNavigatingAway.current = true
+        localStorage.removeItem("cart")
+        window.dispatchEvent(new Event("cartUpdated"))
+        router.push(`/checkout/success/${orderId}`)
       } else {
         throw new Error(payRes.message || "Failed to initiate payment")
       }
@@ -522,102 +452,26 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-10">
-      {/* Payment Loading Overlay */}
+      {/* Payment Processing Overlay — brief spinner while redirecting */}
       {isAwaitingPayment && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
           <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-300">
             <div className="bg-primary p-8 text-white text-center space-y-4">
               <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
-                {controlNumber ? (
-                  <Building2 className="h-8 w-8 animate-bounce" />
-                ) : (
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                )}
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-              <h2 className="text-2xl font-black tracking-tight">
-                {controlNumber ? "Bank Settlement" : "Confirming Payment"}
-              </h2>
+              <h2 className="text-2xl font-black tracking-tight">Processing Payment</h2>
             </div>
             <CardContent className="p-8 text-center space-y-6">
-              <div className="space-y-2">
-                <p className="text-stone-600 font-medium leading-relaxed">
-                  {paymentStatusMessage}
-                </p>
-                {controlNumber && (
-                  <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
-                    {controlNumber.startsWith("http") ? (
-                      <div className="space-y-4 text-center">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Payment Link</p>
-                        <Button
-                          size="lg"
-                          className="w-full rounded-xl bg-primary text-white font-bold h-12 text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
-                          onClick={() => window.open(controlNumber, "_blank")}
-                        >
-                          Complete Payment Now
-                        </Button>
-                        <p className="text-[10px] text-stone-500 max-w-xs mx-auto">
-                          Clicking this button will open a secure payment page in a new tab.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                            {controlNumber}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="rounded-xl border-stone-200"
-                          onClick={() => {
-                            navigator.clipboard.writeText(controlNumber)
-                            toast({ title: "Copied!", description: "Control number copied to clipboard." })
-                          }}
-                        >
-                          Copy Number
-                        </Button>
-                        <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
-                          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
-                          <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
-                            <li>Dial *150*03# (CRDB SimBanking)</li>
-                            <li>Select 'Bill Payment'</li>
-                            <li>Enter this Control Number</li>
-                            <li>Follow prompts to complete</li>
-                          </ul>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {controlNumber ? (
-                  <Button
-                    className="w-full h-12 rounded-xl bg-stone-900 text-white font-bold"
-                    onClick={() => {
-                      isNavigatingAway.current = true
-                      localStorage.removeItem("cart")
-                      window.dispatchEvent(new Event("cartUpdated"))
-                      router.push(`/payment/${currentOrderId}`)
-                    }}
-                  >
-                    View Order Details
-                  </Button>
-                ) : (
-                  <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
-                    <ShieldCheck className="h-5 w-5 text-green-600" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
-                      Encrypted secure transaction protocol active
-                    </span>
-                  </div>
-                )}
-              </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                Do not refresh this page
+              <p className="text-stone-600 font-medium leading-relaxed">
+                Please wait while we process your payment...
               </p>
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
+                <ShieldCheck className="h-5 w-5 text-green-600" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
+                  Encrypted secure transaction protocol active
+                </span>
+              </div>
             </CardContent>
           </Card>
         </div>

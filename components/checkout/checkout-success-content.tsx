@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { clientApiPost } from "@/lib/api-client"
+import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Package, Truck, Home, ShoppingBag, ShieldCheck, MapPin, Phone, User, Building2 } from "lucide-react"
+import { CheckCircle2, Package, Truck, Home, ShoppingBag, ShieldCheck, MapPin, Phone, User, Building2, Loader2, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CheckoutSuccessContentProps {
@@ -148,6 +148,65 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
   const [order, setOrder] = useState(initialOrder)
   const [isConfirming, setIsConfirming] = useState(false)
 
+  // Payment status tracking
+  const [paymentStatus, setPaymentStatus] = useState<"processing" | "paid" | "failed">(
+    order.payment_status === "paid" || order.payment_method === "cash-on-delivery" ? "paid" : "processing"
+  )
+
+  // Clear cart on mount (safety net in case checkout didn't clear it)
+  useEffect(() => {
+    localStorage.removeItem("cart")
+    window.dispatchEvent(new Event("cartUpdated"))
+  }, [])
+
+  // Poll payment status in background if not yet confirmed
+  useEffect(() => {
+    if (paymentStatus !== "processing") return
+    if (order.payment_method === "cash-on-delivery") return
+
+    let attempts = 0
+    const maxAttempts = 60 // ~3 minutes
+
+    const interval = setInterval(async () => {
+      attempts++
+      try {
+        const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string } }>( 
+          `payments/status/${order.id}`
+        )
+        const payload = (res as any)?.data ?? res
+        const pStatus = payload?.payment_status
+        const oStatus = payload?.status
+
+        if (pStatus === "paid" || ["confirmed", "processing", "preparing"].includes(String(oStatus))) {
+          setPaymentStatus("paid")
+          setOrder((prev: any) => ({ ...prev, payment_status: "paid", status: oStatus || prev.status }))
+          clearInterval(interval)
+          toast({
+            title: "Payment Confirmed ✓",
+            description: "Your payment has been verified successfully.",
+          })
+        } else if (pStatus === "failed") {
+          setPaymentStatus("failed")
+          clearInterval(interval)
+          toast({
+            title: "Payment Issue",
+            description: payload?.click_pesa_error || "There was an issue with your payment. Please contact support.",
+            variant: "destructive",
+          })
+        }
+      } catch {
+        // Silently continue polling
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(interval)
+        // Don't mark as failed — the webhook may still arrive
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [paymentStatus, order.id, order.payment_method, toast])
+
   const handleConfirmDelivery = async () => {
     setIsConfirming(true)
     try {
@@ -189,12 +248,84 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                 <p className="text-white/80 font-medium text-lg max-w-md mx-auto">
                   {order.payment_method === "cash-on-delivery"
                     ? "Success! We've received your order. Please prepare cash for delivery."
-                    : "Your order has been successfully placed and payment is secured."}
+                    : paymentStatus === "paid"
+                    ? "Your order has been successfully placed and payment is secured."
+                    : "Your order has been placed! Payment is being processed."}
                 </p>
               </div>
             </div>
 
             <CardContent className="p-8 md:p-12 space-y-12">
+              {/* Payment Status Banner */}
+              {paymentStatus === "processing" && order.payment_method !== "cash-on-delivery" && (
+                <div className="flex items-center gap-4 p-5 bg-amber-50 rounded-2xl border border-amber-200 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <Loader2 className="h-5 w-5 text-amber-600 animate-spin" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-amber-900">Payment Processing</p>
+                    <p className="text-xs text-amber-700">
+                      {["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa", "tigo-pesa"].includes(order.payment_method)
+                        ? "Please check your phone and approve the USSD prompt to complete payment."
+                        : ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(order.payment_method)
+                        ? "Use the control number to complete payment through your bank."
+                        : "Your payment is being verified. This usually takes a moment."}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {paymentStatus === "paid" && order.payment_method !== "cash-on-delivery" && (
+                <div className="flex items-center gap-4 p-5 bg-green-50 rounded-2xl border border-green-200 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="h-10 w-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-green-900">Payment Confirmed</p>
+                    <p className="text-xs text-green-700">Your payment has been verified and secured successfully.</p>
+                  </div>
+                </div>
+              )}
+
+              {paymentStatus === "failed" && (
+                <div className="flex items-center gap-4 p-5 bg-red-50 rounded-2xl border border-red-200 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="h-10 w-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-red-900">Payment Issue</p>
+                    <p className="text-xs text-red-700">There was an issue processing your payment. Please contact support or try again.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Bank Control Number (for bank payments with pending status) */}
+              {paymentStatus !== "paid" &&
+                ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(order.payment_method) &&
+                order.clickpesa_transaction_id && (
+                <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                  <div className="flex items-center gap-3">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    <p className="text-sm font-black text-stone-900">Complete Bank Payment</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                    <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                      {order.clickpesa_transaction_id}
+                    </p>
+                  </div>
+                  <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
+                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
+                    <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
+                      <li>Dial *150*03# (CRDB SimBanking)</li>
+                      <li>Select &apos;Bill Payment&apos;</li>
+                      <li>Enter the Control Number above</li>
+                      <li>Follow prompts to complete payment</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <h3 className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                   Live Order Tracking
@@ -275,27 +406,8 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                   </div>
                 </div>
 
+
                 <div className="space-y-6">
-                  {/* Bank Transfer Details (if applicable) */}
-                  {order.payment_status !== "paid" &&
-                    ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(
-                      order.payment_method
-                    ) && (
-                      <div className="p-6 bg-primary/5 rounded-[2.5rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
-                        <div className="flex items-center gap-3">
-                          <Building2 className="h-5 w-5 text-primary" />
-                          <p className="text-sm font-black text-stone-900">Payment Required via Bank</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                            Control Number
-                          </p>
-                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                            {order.clickpesa_transaction_id}
-                          </p>
-                        </div>
-                      </div>
-                    )}
 
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Shipping To</h4>

@@ -73,6 +73,8 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
 
   useEffect(() => {
     if (paymentCompleted) {
+      localStorage.removeItem("cart")
+      window.dispatchEvent(new Event("cartUpdated"))
       router.push('/checkout/success/' + order.id)
     }
   }, [paymentCompleted, order.id, router])
