@@ -29,9 +29,13 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
       case "processing":
         return "bg-purple-500/15 text-purple-600 border-purple-200"
       case "shipped":
+      case "dispatched":
+      case "in_transit":
         return "bg-indigo-500/15 text-indigo-600 border-indigo-200"
       case "delivered":
         return "bg-green-500/15 text-green-600 border-green-200"
+      case "completed":
+        return "bg-green-600/15 text-green-700 border-green-300"
       case "cancelled":
         return "bg-red-500/15 text-red-600 border-red-200"
       case "refunded":
@@ -134,6 +138,25 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
+                {/* Delivery PIN Alert */}
+                {["dispatched", "shipped", "in_transit"].includes(order.status?.toLowerCase()) && order.delivery_pin && (
+                  <div className="bg-primary/10 border-y border-primary/20 p-4">
+                    <div className="flex items-center justify-between gap-4 max-w-2xl mx-auto">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-primary/20 p-2 rounded-full">
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-primary">Your Delivery PIN</p>
+                          <p className="text-xs text-muted-foreground">Share this with your transporter upon delivery</p>
+                        </div>
+                      </div>
+                      <div className="bg-white border-2 border-primary/30 px-6 py-2 rounded-xl shadow-sm">
+                        <span className="text-2xl font-black tracking-[0.2em] text-primary">{order.delivery_pin}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="p-6">
                   <div className="relative">
                     {/* Timeline with vertical line */}
@@ -159,17 +182,17 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
                           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            ["processing", "shipped", "delivered"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
+                            ["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
                           )}>
                             <Package className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", ["processing", "shipped", "delivered"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
+                          <h3 className={cn("font-semibold", ["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
                             Processing
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {["processing", "shipped", "delivered"].includes(order.status)
+                            {["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
                               ? "Your order is being prepared."
                               : "We are waiting for vendor confirmation."}
                           </p>
@@ -180,18 +203,18 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
                           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            ["shipped", "delivered"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
+                            ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
                           )}>
                             <Truck className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", ["shipped", "delivered"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
+                          <h3 className={cn("font-semibold", ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
                             Out for Delivery
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {["shipped", "delivered"].includes(order.status)
-                              ? "Your order is executed and handled by logistics."
+                            {["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                              ? "Your order is on the way to you."
                               : "Order is not yet shipped."}
                           </p>
                         </div>
@@ -201,17 +224,17 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
                           <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            order.status === "delivered" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
+                            ["delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
                           )}>
                             <Home className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", order.status === "delivered" ? "text-gray-900" : "text-gray-500")}>
+                          <h3 className={cn("font-semibold", ["delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
                             Delivered
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {order.status === "delivered" ? "Package has been delivered." : "Estimated soon."}
+                            {["delivered", "completed"].includes(order.status) ? "Package has been delivered." : "Estimated soon."}
                           </p>
                         </div>
                       </div>
