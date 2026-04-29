@@ -220,7 +220,7 @@ export function TransporterDashboardContent({
             <CardContent>
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-green-600" />
-                <span className="text-2xl font-bold">{transporter.total_deliveries || 0}</span>
+                <span className="text-2xl font-bold">{completedAssignments.length}</span>
               </div>
             </CardContent>
           </Card>
