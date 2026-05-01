@@ -19,6 +19,7 @@ import {
   CreditCard,
   LifeBuoy,
   Percent,
+  Briefcase,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -42,6 +43,7 @@ import { CustomerManagementTab } from "./customer-management-tab"
 import { CustomerKYCApprovalTab } from "./customer-kyc-approval-tab"
 import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
 import { AdminUsersManagementTab } from "./admin-users-management-tab"
+import { HRApplicationsTab } from "./hr-applications-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -57,6 +59,7 @@ interface AdminDashboardContentProps {
   promotions: any[]
   subscriptions: any[]
   vendorTypesAnalytics?: any
+  careerApplications?: any[]
 }
 
 export function AdminDashboardContent({
@@ -73,6 +76,7 @@ export function AdminDashboardContent({
   promotions,
   subscriptions,
   vendorTypesAnalytics = {},
+  careerApplications = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("analytics")
@@ -466,6 +470,26 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                <Button
+                  variant={activeTab === "hr" ? "default" : "ghost"}
+                  size="sm"
+                  className={`w-full justify-between rounded-xl ${activeTab === "hr"
+                      ? "bg-primary text-white"
+                      : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  onClick={() => setActiveTab("hr")}
+                >
+                  <span className="flex items-center gap-2 text-sm font-medium">
+                    <Briefcase className="h-4 w-4" />
+                    <span>Human Resource</span>
+                  </span>
+                  {careerApplications.filter(a => a.status === "pending").length > 0 && (
+                    <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                      {careerApplications.filter(a => a.status === "pending").length}
+                    </span>
+                  )}
+                </Button>
+
                 {showAdminManagement && (
                   <Button
                     variant={activeTab === "admins" ? "default" : "ghost"}
@@ -560,6 +584,9 @@ export function AdminDashboardContent({
                       Subscriptions
                     </TabsTrigger>
                   )}
+                  <TabsTrigger value="hr" className="px-5 rounded-full text-xs font-semibold">
+                    HR ({careerApplications.filter(a => a.status === "pending").length})
+                  </TabsTrigger>
                   {showAdminManagement && (
                     <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
                       Admin Users
@@ -622,6 +649,10 @@ export function AdminDashboardContent({
 
               <TabsContent value="subscriptions" className="border-none p-0 outline-none">
                 <VendorSubscriptionsTab subscriptions={subscriptions} />
+              </TabsContent>
+
+              <TabsContent value="hr" className="border-none p-0 outline-none">
+                <HRApplicationsTab applications={careerApplications} />
               </TabsContent>
 
               {showAdminManagement && (
