@@ -41,6 +41,9 @@ import {
   Users,
   Briefcase,
   Download,
+  GraduationCap,
+  FileSignature,
+  Paperclip,
 } from "lucide-react"
 import { clientApiPost, clientApiDelete, clientApiGet } from "@/lib/api-client"
 
@@ -53,6 +56,10 @@ interface CareerApplication {
   cover_letter?: string
   cv_url: string
   cv_filename?: string
+  certificates_url?: string
+  certificates_filename?: string
+  application_letter_url?: string
+  application_letter_filename?: string
   status: "pending" | "reviewed" | "shortlisted" | "rejected"
   admin_notes?: string
   created_at: string
@@ -334,7 +341,7 @@ export function HRApplicationsTab({
                       Status
                     </TableHead>
                     <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      CV
+                      Docs
                     </TableHead>
                     <TableHead className="font-bold text-xs uppercase tracking-wider text-right">
                       Actions
@@ -383,17 +390,21 @@ export function HRApplicationsTab({
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              window.open(app.cv_url, "_blank")
-                            }}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="CV" onClick={() => window.open(app.cv_url, "_blank")}>
+                              <FileText className="h-3.5 w-3.5" />
+                            </Button>
+                            {app.certificates_url && (
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Certificates" onClick={() => window.open(app.certificates_url, "_blank")}>
+                                <GraduationCap className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            {app.application_letter_url && (
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Application Letter" onClick={() => window.open(app.application_letter_url, "_blank")}>
+                                <FileSignature className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <div
@@ -569,19 +580,55 @@ export function HRApplicationsTab({
                 )}
 
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                    CV / Resume
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                    <Paperclip className="h-3.5 w-3.5 inline mr-1" />
+                    Uploaded Documents
                   </p>
-                  <a
-                    href={selectedApp.cv_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/20 text-primary font-semibold text-sm hover:bg-primary/10 transition-colors"
-                  >
-                    <FileText className="h-4 w-4" />
-                    {selectedApp.cv_filename || "Download CV"}
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                  <div className="space-y-2">
+                    <a
+                      href={selectedApp.cv_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 text-primary font-semibold text-sm hover:bg-primary/10 transition-colors"
+                    >
+                      <FileText className="h-5 w-5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate">{selectedApp.cv_filename || "CV / Resume"}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-primary/60">CV / Resume</p>
+                      </div>
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                    </a>
+                    {selectedApp.certificates_url && (
+                      <a
+                        href={selectedApp.certificates_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-sm hover:bg-emerald-100 transition-colors"
+                      >
+                        <GraduationCap className="h-5 w-5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate">{selectedApp.certificates_filename || "Certificates & IDs"}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/60">Academic Certificates & IDs</p>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                      </a>
+                    )}
+                    {selectedApp.application_letter_url && (
+                      <a
+                        href={selectedApp.application_letter_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 font-semibold text-sm hover:bg-violet-100 transition-colors"
+                      >
+                        <FileSignature className="h-5 w-5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate">{selectedApp.application_letter_filename || "Application Letter"}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600/60">Letter of Application</p>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                      </a>
+                    )}
+                  </div>
                 </div>
 
                 <div className="border-t pt-4 flex flex-wrap gap-2">

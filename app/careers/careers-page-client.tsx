@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import SiteHeader from "@/components/layout/site-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -216,8 +216,12 @@ export default function CareersPageClient({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [cvFile, setCvFile] = useState<File | null>(null)
+  const [certificatesFile, setCertificatesFile] = useState<File | null>(null)
+  const [applicationLetterFile, setApplicationLetterFile] = useState<File | null>(null)
   const [formError, setFormError] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const certificatesInputRef = useRef<HTMLInputElement>(null)
+  const applicationLetterInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -232,36 +236,64 @@ export default function CareersPageClient({
     setIsSuccess(false)
     setFormError("")
     setCvFile(null)
+    setCertificatesFile(null)
+    setApplicationLetterFile(null)
     setFormData({ full_name: "", email: "", phone: "", cover_letter: "" })
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Check file size (max 10MB)
+  const docAllowedTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ]
+
+  const handleFileSelect = useCallback(
+    (file: File | undefined, setter: (f: File | null) => void, allowImages = false) => {
+      if (!file) return
       if (file.size > 10 * 1024 * 1024) {
         setFormError("File size must be less than 10MB")
         return
       }
-      // Check file type
-      const allowedTypes = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ]
-      if (!allowedTypes.includes(file.type)) {
-        setFormError("Please upload a PDF or Word document")
+      const allowed = allowImages
+        ? docAllowedTypes
+        : docAllowedTypes.filter((t) => !t.startsWith("image/"))
+      if (!allowed.includes(file.type)) {
+        setFormError(allowImages ? "Please upload a PDF, Word document, or image" : "Please upload a PDF or Word document")
         return
       }
-      setCvFile(file)
+      setter(file)
       setFormError("")
-    }
+    },
+    [],
+  )
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileSelect(e.target.files?.[0], setCvFile)
   }
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedJob || !cvFile) {
       setFormError("Please upload your CV")
+      return
+    }
+    if (!certificatesFile) {
+      setFormError("Please upload your Academic Certificates & IDs")
+      return
+    }
+    if (!applicationLetterFile) {
+      setFormError("Please upload your Letter of Application")
       return
     }
     if (!formData.full_name.trim() || !formData.email.trim()) {
@@ -273,36 +305,30 @@ export default function CareersPageClient({
     setFormError("")
 
     try {
-      // 1. Convert file to base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(cvFile)
-      })
-
       const baseUrl = (
         process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
       ).replace(/\/$/, "")
 
-      // 2. Upload CV
-      const uploadRes = await fetch(`${baseUrl}/uploads/careers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filename: cvFile.name,
-          data: base64,
-          contentType: cvFile.type,
-        }),
-      })
-
-      if (!uploadRes.ok) {
-        throw new Error("Failed to upload CV")
+      // Helper to upload a file
+      const uploadFile = async (file: File, endpoint: string) => {
+        const b64 = await fileToBase64(file)
+        const res = await fetch(`${baseUrl}${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: file.name, data: b64, contentType: file.type }),
+        })
+        if (!res.ok) throw new Error(`Failed to upload ${file.name}`)
+        return res.json()
       }
 
-      const uploadData = await uploadRes.json()
+      // Upload all documents
+      const [cvData, certsData, letterData] = await Promise.all([
+        uploadFile(cvFile, "/uploads/careers"),
+        uploadFile(certificatesFile, "/uploads/career-documents"),
+        uploadFile(applicationLetterFile, "/uploads/career-documents"),
+      ])
 
-      // 3. Submit application
+      // Submit application
       const appRes = await fetch(`${baseUrl}/career-applications`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -312,8 +338,12 @@ export default function CareersPageClient({
           phone: formData.phone.trim() || undefined,
           position: selectedJob.title,
           cover_letter: formData.cover_letter.trim() || undefined,
-          cv_url: uploadData.url,
+          cv_url: cvData.url,
           cv_filename: cvFile.name,
+          certificates_url: certsData.url,
+          certificates_filename: certificatesFile.name,
+          application_letter_url: letterData.url,
+          application_letter_filename: applicationLetterFile.name,
         }),
       })
 
@@ -681,6 +711,114 @@ export default function CareersPageClient({
                         <p className="text-sm font-medium">
                           Click to upload your CV
                         </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PDF or Word document (max 10MB)
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-semibold">
+                    Academic Certificates &amp; IDs <span className="text-destructive">*</span>
+                  </Label>
+                  <div
+                    className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                      certificatesFile
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-muted-foreground/20 hover:border-primary/30 hover:bg-muted/30"
+                    }`}
+                    onClick={() => certificatesInputRef.current?.click()}
+                  >
+                    <input
+                      ref={certificatesInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                      onChange={(e) => handleFileSelect(e.target.files?.[0], setCertificatesFile, true)}
+                      className="hidden"
+                    />
+                    {certificatesFile ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <FileText className="h-8 w-8 text-primary" />
+                        <div className="text-left">
+                          <p className="font-semibold text-sm">{certificatesFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(certificatesFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-auto h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCertificatesFile(null)
+                            if (certificatesInputRef.current) certificatesInputRef.current.value = ""
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm font-medium">Click to upload Certificates &amp; IDs</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PDF, Word document, or image (max 10MB)
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-semibold">
+                    Letter of Application <span className="text-destructive">*</span>
+                  </Label>
+                  <div
+                    className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                      applicationLetterFile
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-muted-foreground/20 hover:border-primary/30 hover:bg-muted/30"
+                    }`}
+                    onClick={() => applicationLetterInputRef.current?.click()}
+                  >
+                    <input
+                      ref={applicationLetterInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => handleFileSelect(e.target.files?.[0], setApplicationLetterFile)}
+                      className="hidden"
+                    />
+                    {applicationLetterFile ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <FileText className="h-8 w-8 text-primary" />
+                        <div className="text-left">
+                          <p className="font-semibold text-sm">{applicationLetterFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(applicationLetterFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-auto h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setApplicationLetterFile(null)
+                            if (applicationLetterInputRef.current) applicationLetterInputRef.current.value = ""
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm font-medium">Click to upload Letter of Application</p>
                         <p className="text-xs text-muted-foreground mt-1">
                           PDF or Word document (max 10MB)
                         </p>
