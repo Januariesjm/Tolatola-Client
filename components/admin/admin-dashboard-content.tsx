@@ -79,7 +79,8 @@ export function AdminDashboardContent({
   careerApplications = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState("analytics")
+  const initialTab = adminRole?.permissions.includes("view_analytics") ? "analytics" : "hr"
+  const [activeTab, setActiveTab] = useState(initialTab)
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -204,20 +205,22 @@ export function AdminDashboardContent({
                 Dashboard Sections
               </p>
               <div className="space-y-1">
-                <Button
-                  variant={activeTab === "analytics" ? "default" : "ghost"}
-                  size="sm"
-                  className={`w-full justify-between rounded-xl ${activeTab === "analytics"
-                      ? "bg-primary text-white"
-                      : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  onClick={() => setActiveTab("analytics")}
-                >
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <BarChart3 className="h-4 w-4" />
-                    <span>Analytics</span>
-                  </span>
-                </Button>
+                {adminRole?.permissions.includes("view_analytics") && (
+                  <Button
+                    variant={activeTab === "analytics" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "analytics"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("analytics")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <BarChart3 className="h-4 w-4" />
+                      <span>Analytics</span>
+                    </span>
+                  </Button>
+                )}
 
                 {adminRole?.permissions.includes("manage_kyc") && (
                   <Button
@@ -470,25 +473,27 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                <Button
-                  variant={activeTab === "hr" ? "default" : "ghost"}
-                  size="sm"
-                  className={`w-full justify-between rounded-xl ${activeTab === "hr"
-                      ? "bg-primary text-white"
-                      : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                  onClick={() => setActiveTab("hr")}
-                >
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Human Resource</span>
-                  </span>
-                  {careerApplications.filter(a => a.status === "pending").length > 0 && (
-                    <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                      {careerApplications.filter(a => a.status === "pending").length}
+                {adminRole?.permissions.includes("manage_hr") && (
+                  <Button
+                    variant={activeTab === "hr" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "hr"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("hr")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Briefcase className="h-4 w-4" />
+                      <span>Human Resource</span>
                     </span>
-                  )}
-                </Button>
+                    {careerApplications.filter(a => a.status === "pending").length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {careerApplications.filter(a => a.status === "pending").length}
+                      </span>
+                    )}
+                  </Button>
+                )}
 
                 {showAdminManagement && (
                   <Button
@@ -516,9 +521,11 @@ export function AdminDashboardContent({
               {/* Mobile nav: keep horizontal tabs for small screens */}
               <div className="overflow-x-auto pb-2 md:hidden">
                 <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
-                  <TabsTrigger value="analytics" className="px-5 rounded-full text-xs font-semibold">
-                    Analytics
-                  </TabsTrigger>
+                  {adminRole?.permissions.includes("view_analytics") && (
+                    <TabsTrigger value="analytics" className="px-5 rounded-full text-xs font-semibold">
+                      Analytics
+                    </TabsTrigger>
+                  )}
                   {adminRole?.permissions.includes("manage_kyc") && (
                     <TabsTrigger value="kyc" className="px-5 rounded-full text-xs font-semibold">
                       Vendor KYC ({pendingVendors.length})
@@ -584,9 +591,11 @@ export function AdminDashboardContent({
                       Subscriptions
                     </TabsTrigger>
                   )}
-                  <TabsTrigger value="hr" className="px-5 rounded-full text-xs font-semibold">
-                    HR ({careerApplications.filter(a => a.status === "pending").length})
-                  </TabsTrigger>
+                  {adminRole?.permissions.includes("manage_hr") && (
+                    <TabsTrigger value="hr" className="px-5 rounded-full text-xs font-semibold">
+                      HR ({careerApplications.filter(a => a.status === "pending").length})
+                    </TabsTrigger>
+                  )}
                   {showAdminManagement && (
                     <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
                       Admin Users
