@@ -9,6 +9,8 @@ import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarS
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 
+import { createClient } from "@/lib/supabase/client"
+
 interface VendorOrdersTabProps {
   shopId: string
   initialOrderId?: string
@@ -59,11 +61,42 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
     fetchOrders()
   }, [fetchOrders])
 
-  // Auto-refresh orders every 30 seconds
+  // Supabase Realtime Subscriptions for immediate updates
+  useEffect(() => {
+    const supabase = createClient()
+    
+    // Subscribe to changes on order_items matching this shop
+    const itemsChannel = supabase
+      .channel('vendor-order-items')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'order_items', filter: `shop_id=eq.${shopId}` },
+        () => fetchOrders(true)
+      )
+      .subscribe()
+
+    // Subscribe to changes on orders table (since status updates happen there)
+    // RLS will restrict what the client receives if properly configured
+    const ordersChannel = supabase
+      .channel('vendor-orders')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        () => fetchOrders(true)
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(itemsChannel)
+      supabase.removeChannel(ordersChannel)
+    }
+  }, [shopId, fetchOrders])
+
+  // Auto-refresh orders every 15 seconds (fallback)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchOrders(true) // silent refresh
-    }, 30000)
+    }, 15000)
     return () => clearInterval(interval)
   }, [fetchOrders])
 
