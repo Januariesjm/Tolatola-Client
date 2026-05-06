@@ -129,8 +129,11 @@ export function AdminDashboardContent({
                   priority
                 />
               </div>
-              <span className="text-2xl font-semibold tracking-tight text-slate-900 uppercase">
-                TOLA <span className="text-primary">{adminRole?.roleName || "ADMIN"}</span>
+              <span className="text-2xl font-semibold tracking-tight text-slate-900 uppercase flex items-center">
+                TOLA ADMIN 
+                <span className="ml-4 pl-4 border-l-2 border-slate-200 text-primary">
+                  {adminRole?.roleName || "Administrator"}
+                </span>
               </span>
             </Link>
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
