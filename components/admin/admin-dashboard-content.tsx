@@ -145,76 +145,166 @@ export function AdminDashboardContent({
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {adminRole?.permissions.includes("manage_transactions") && (
-          <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Total GMV
-              </CardTitle>
-              <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                <DollarSign className="h-4 w-4 text-emerald-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">
-                TZS {stats.totalGMV?.toLocaleString() || 0}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Total GMV
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
+                  <DollarSign className="h-4 w-4 text-emerald-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  TZS {stats.totalGMV?.toLocaleString() || 0}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adminRole?.permissions.includes("manage_payouts") && (
+            <Card className="shadow-sm rounded-xl border border-indigo-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Pending Payouts
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                  <CreditCard className="h-4 w-4 text-indigo-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {payouts.filter(p => p.status === "pending").length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {adminRole?.permissions.includes("manage_orders") && (
-          <Card className="shadow-sm rounded-xl border border-primary/15 bg-white">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Active Orders
-              </CardTitle>
-              <div className="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center">
-                <ShoppingCart className="h-4 w-4 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">
-                {orders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            <Card className="shadow-sm rounded-xl border border-primary/15 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Active Orders
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center">
+                  <ShoppingCart className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {orders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {adminRole?.permissions.includes("manage_kyc") && (
-          <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Pending KYC
-              </CardTitle>
-              <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
-                <Users className="h-4 w-4 text-amber-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">
-                {pendingVendors.length + pendingTransporters.length}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Pending Vendor KYC
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
+                  <Store className="h-4 w-4 text-amber-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {pendingVendors.length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adminRole?.permissions.includes("manage_transporters") && (
+            <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Pending Transporter KYC
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
+                  <Truck className="h-4 w-4 text-amber-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {pendingTransporters.length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adminRole?.permissions.includes("manage_customers") && (
+            <Card className="shadow-sm rounded-xl border border-blue-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Total Customers
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {stats.totalCustomers?.toLocaleString() || 0}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {adminRole?.permissions.includes("manage_support") && (
-          <Card className="shadow-sm rounded-xl border border-red-100 bg-white">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Open Tickets
-              </CardTitle>
-              <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
-                <MessageSquare className="h-4 w-4 text-red-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">
-                {pendingTickets.length}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            <Card className="shadow-sm rounded-xl border border-red-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Open Tickets
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-red-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {pendingTickets.length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adminRole?.permissions.includes("manage_admins") && (
+            <Card className="shadow-sm rounded-xl border border-purple-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  System Admins
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
+                  <ShieldCheck className="h-4 w-4 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {stats.totalAdmins?.toLocaleString() || 0}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {adminRole?.permissions.includes("manage_hr") && (
+            <Card className="shadow-sm rounded-xl border border-pink-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Pending Jobs
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-pink-50 flex items-center justify-center">
+                  <Briefcase className="h-4 w-4 text-pink-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {careerApplications.filter(a => a.status === "pending").length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="flex gap-6 items-start">
@@ -264,7 +354,7 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                {adminRole?.permissions.includes("manage_kyc") && (
+                {adminRole?.permissions.includes("manage_transporters") && (
                   <Button
                     variant={activeTab === "transporter-kyc" ? "default" : "ghost"}
                     size="sm"
@@ -286,7 +376,7 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                {adminRole?.permissions.includes("manage_kyc") && (
+                {adminRole?.permissions.includes("manage_customers") && (
                   <Button
                     variant={activeTab === "customer-kyc" ? "default" : "ghost"}
                     size="sm"
@@ -568,12 +658,12 @@ export function AdminDashboardContent({
                       Vendor KYC ({pendingVendors.length})
                     </TabsTrigger>
                   )}
-                  {adminRole?.permissions.includes("manage_kyc") && (
+                  {adminRole?.permissions.includes("manage_transporters") && (
                     <TabsTrigger value="transporter-kyc" className="px-5 rounded-full text-xs font-semibold">
                       Transporter KYC ({pendingTransporters.length})
                     </TabsTrigger>
                   )}
-                  {adminRole?.permissions.includes("manage_kyc") && (
+                  {adminRole?.permissions.includes("manage_customers") && (
                     <TabsTrigger value="customer-kyc" className="px-5 rounded-full text-xs font-semibold">
                       User KYC ({pendingCustomerKyc.length})
                     </TabsTrigger>
