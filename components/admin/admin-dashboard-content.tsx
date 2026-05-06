@@ -68,6 +68,10 @@ interface AdminDashboardContentProps {
   subscriptions: any[]
   vendorTypesAnalytics?: any
   careerApplications?: any[]
+  hrInterviews?: any[]
+  hrStaffRecords?: any[]
+  hrContracts?: any[]
+  hrAttendance?: any[]
 }
 
 export function AdminDashboardContent({
@@ -85,6 +89,10 @@ export function AdminDashboardContent({
   subscriptions,
   vendorTypesAnalytics = {},
   careerApplications = [],
+  hrInterviews = [],
+  hrStaffRecords = [],
+  hrContracts = [],
+  hrAttendance = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
   
@@ -878,7 +886,13 @@ export function AdminDashboardContent({
               </TabsContent>
 
               <TabsContent value="hr" className="border-none p-0 outline-none">
-                <HRApplicationsTab applications={careerApplications} />
+                <HRApplicationsTab 
+                  applications={careerApplications} 
+                  interviews={hrInterviews}
+                  staff={hrStaffRecords}
+                  contracts={hrContracts}
+                  attendance={hrAttendance}
+                />
               </TabsContent>
 
               {adminRole?.permissions.includes("manage_system") && (
