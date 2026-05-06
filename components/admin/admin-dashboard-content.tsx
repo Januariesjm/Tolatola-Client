@@ -49,6 +49,8 @@ import { CustomerKYCApprovalTab } from "./customer-kyc-approval-tab"
 import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
 import { AdminUsersManagementTab } from "./admin-users-management-tab"
 import { HRApplicationsTab } from "./hr-applications-tab"
+import { ServerLogsTab } from "./server-logs-tab"
+import { SystemHealthTab } from "./system-health-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -91,7 +93,7 @@ export function AdminDashboardContent({
     if (p.includes("view_analytics")) return "analytics"
     if (p.includes("manage_support")) return "support"
     if (p.includes("manage_hr")) return "hr"
-    if (p.includes("manage_system")) return "admins"
+    if (p.includes("manage_system")) return "system-health"
     return "analytics"
   }
   const initialTab = getInitialTab()
@@ -914,22 +916,14 @@ export function AdminDashboardContent({
                   </TabsContent>
 
                   <TabsContent value="system-health" className="border-none p-0 outline-none">
-                    <Card className="border-none shadow-none bg-slate-50/50">
-                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
-                        <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center mb-6">
-                          <Activity className="h-10 w-10 text-amber-600 opacity-80" />
-                        </div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">System Health & Error Logs</h2>
-                        <p className="text-slate-500 max-w-md">View detailed error reports and application health metrics here.</p>
-                      </CardContent>
-                    </Card>
+                    <SystemHealthTab />
                   </TabsContent>
                 </>
               )}
 
               {adminRole?.permissions.includes("view_logs") && (
                 <TabsContent value="logs" className="border-none p-0 outline-none">
-                  <ActivityLogsTab />
+                  <ServerLogsTab />
                 </TabsContent>
               )}
 
