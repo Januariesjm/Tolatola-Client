@@ -144,10 +144,6 @@ export function AdminDashboardContent({
                 </span>
               </span>
             </Link>
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
-              <ShieldCheck className="h-3 w-3" />
-              {adminRole?.role?.role_name || "Administrator"}
-            </Badge>
           </div>
           <div className="flex items-center gap-4">
             <NotificationPopover />
