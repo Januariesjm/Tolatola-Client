@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge"
 import { NotificationPopover } from "../layout/notification-popover"
 
 import { AnalyticsTab } from "./analytics-tab"
+import { ActivityLogsTab } from "./activity-logs-tab"
 import { KYCApprovalTab } from "./kyc-approval-tab"
 import { TransporterKYCApprovalTab } from "./transporter-kyc-approval-tab"
 import { ProductApprovalTab } from "./product-approval-tab"
@@ -79,7 +80,18 @@ export function AdminDashboardContent({
   careerApplications = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
-  const initialTab = adminRole?.permissions.includes("view_analytics") ? "analytics" : "hr"
+  
+  const getInitialTab = () => {
+    if (!adminRole?.permissions) return "analytics"
+    const p = adminRole.permissions
+    if (p.includes("view_analytics")) return "analytics"
+    if (p.includes("manage_support")) return "support"
+    if (p.includes("manage_hr")) return "hr"
+    if (p.includes("manage_system")) return "admins"
+    return "analytics"
+  }
+  const initialTab = getInitialTab()
+
   const [activeTab, setActiveTab] = useState(initialTab)
 
   const handleLogout = async () => {
@@ -132,6 +144,7 @@ export function AdminDashboardContent({
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {adminRole?.permissions.includes("manage_transactions") && (
           <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
@@ -147,7 +160,9 @@ export function AdminDashboardContent({
               </div>
             </CardContent>
           </Card>
+        )}
 
+          {adminRole?.permissions.includes("manage_orders") && (
           <Card className="shadow-sm rounded-xl border border-primary/15 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
@@ -163,7 +178,9 @@ export function AdminDashboardContent({
               </div>
             </CardContent>
           </Card>
+        )}
 
+          {adminRole?.permissions.includes("manage_kyc") && (
           <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
@@ -179,7 +196,9 @@ export function AdminDashboardContent({
               </div>
             </CardContent>
           </Card>
+        )}
 
+          {adminRole?.permissions.includes("manage_support") && (
           <Card className="shadow-sm rounded-xl border border-red-100 bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
@@ -195,6 +214,7 @@ export function AdminDashboardContent({
               </div>
             </CardContent>
           </Card>
+        )}
         </div>
 
         <div className="flex gap-6 items-start">
@@ -495,6 +515,23 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("view_logs") && (
+                  <Button
+                    variant={activeTab === "logs" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "logs"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("logs")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <BarChart3 className="h-4 w-4" />
+                      <span>Activity Logs</span>
+                    </span>
+                  </Button>
+                )}
+
                 {showAdminManagement && (
                   <Button
                     variant={activeTab === "admins" ? "default" : "ghost"}
@@ -663,6 +700,12 @@ export function AdminDashboardContent({
               <TabsContent value="hr" className="border-none p-0 outline-none">
                 <HRApplicationsTab applications={careerApplications} />
               </TabsContent>
+
+              {adminRole?.permissions.includes("view_logs") && (
+                <TabsContent value="logs" className="border-none p-0 outline-none">
+                  <ActivityLogsTab />
+                </TabsContent>
+              )}
 
               {showAdminManagement && (
                 <TabsContent value="admins" className="border-none p-0 outline-none">
