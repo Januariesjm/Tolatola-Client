@@ -20,6 +20,10 @@ import {
   LifeBuoy,
   Percent,
   Briefcase,
+  Server,
+  Network,
+  ShieldAlert,
+  Activity,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -270,7 +274,7 @@ export function AdminDashboardContent({
             </Card>
           )}
 
-          {adminRole?.permissions.includes("manage_admins") && (
+          {(adminRole?.permissions.includes("manage_admins") || adminRole?.permissions.includes("manage_system")) && (
             <Card className="shadow-sm rounded-xl border border-purple-100 bg-white">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
@@ -605,6 +609,70 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("manage_system") && (
+                  <>
+                    <Button
+                      variant={activeTab === "infrastructure" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "infrastructure"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("infrastructure")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <Server className="h-4 w-4" />
+                        <span>Infrastructure</span>
+                      </span>
+                    </Button>
+
+                    <Button
+                      variant={activeTab === "api-integrations" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "api-integrations"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("api-integrations")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <Network className="h-4 w-4" />
+                        <span>API & Integrations</span>
+                      </span>
+                    </Button>
+
+                    <Button
+                      variant={activeTab === "security-access" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "security-access"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("security-access")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <ShieldAlert className="h-4 w-4" />
+                        <span>Security & Access</span>
+                      </span>
+                    </Button>
+
+                    <Button
+                      variant={activeTab === "system-health" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "system-health"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("system-health")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <Activity className="h-4 w-4" />
+                        <span>System Health</span>
+                      </span>
+                    </Button>
+                  </>
+                )}
+
                 {adminRole?.permissions.includes("view_logs") && (
                   <Button
                     variant={activeTab === "logs" ? "default" : "ghost"}
@@ -723,6 +791,22 @@ export function AdminDashboardContent({
                       HR ({careerApplications.filter(a => a.status === "pending").length})
                     </TabsTrigger>
                   )}
+                  {adminRole?.permissions.includes("manage_system") && (
+                    <>
+                      <TabsTrigger value="infrastructure" className="px-5 rounded-full text-xs font-semibold">
+                        Infrastructure
+                      </TabsTrigger>
+                      <TabsTrigger value="api-integrations" className="px-5 rounded-full text-xs font-semibold">
+                        API & Integrations
+                      </TabsTrigger>
+                      <TabsTrigger value="security-access" className="px-5 rounded-full text-xs font-semibold">
+                        Security & Access
+                      </TabsTrigger>
+                      <TabsTrigger value="system-health" className="px-5 rounded-full text-xs font-semibold">
+                        System Health
+                      </TabsTrigger>
+                    </>
+                  )}
                   {showAdminManagement && (
                     <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
                       Admin Users
@@ -790,6 +874,58 @@ export function AdminDashboardContent({
               <TabsContent value="hr" className="border-none p-0 outline-none">
                 <HRApplicationsTab applications={careerApplications} />
               </TabsContent>
+
+              {adminRole?.permissions.includes("manage_system") && (
+                <>
+                  <TabsContent value="infrastructure" className="border-none p-0 outline-none">
+                    <Card className="border-none shadow-none bg-slate-50/50">
+                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
+                        <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                          <Server className="h-10 w-10 text-primary opacity-80" />
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Infrastructure Status</h2>
+                        <p className="text-slate-500 max-w-md">Server and hosting management dashboard will be displayed here.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="api-integrations" className="border-none p-0 outline-none">
+                    <Card className="border-none shadow-none bg-slate-50/50">
+                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
+                        <div className="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center mb-6">
+                          <Network className="h-10 w-10 text-indigo-600 opacity-80" />
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">API & Integrations</h2>
+                        <p className="text-slate-500 max-w-md">Manage 3rd-party services, webhooks, and API keys here.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="security-access" className="border-none p-0 outline-none">
+                    <Card className="border-none shadow-none bg-slate-50/50">
+                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
+                        <div className="h-20 w-20 rounded-full bg-rose-100 flex items-center justify-center mb-6">
+                          <ShieldAlert className="h-10 w-10 text-rose-600 opacity-80" />
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Security & Access</h2>
+                        <p className="text-slate-500 max-w-md">Monitor security systems and user access controls here.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="system-health" className="border-none p-0 outline-none">
+                    <Card className="border-none shadow-none bg-slate-50/50">
+                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
+                        <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center mb-6">
+                          <Activity className="h-10 w-10 text-amber-600 opacity-80" />
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">System Health & Error Logs</h2>
+                        <p className="text-slate-500 max-w-md">View detailed error reports and application health metrics here.</p>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </>
+              )}
 
               {adminRole?.permissions.includes("view_logs") && (
                 <TabsContent value="logs" className="border-none p-0 outline-none">
