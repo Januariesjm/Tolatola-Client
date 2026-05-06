@@ -51,6 +51,7 @@ import { AdminUsersManagementTab } from "./admin-users-management-tab"
 import { HRApplicationsTab } from "./hr-applications-tab"
 import { ServerLogsTab } from "./server-logs-tab"
 import { SystemHealthTab } from "./system-health-tab"
+import { InfrastructureTab } from "./infrastructure-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -880,15 +881,7 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("manage_system") && (
                 <>
                   <TabsContent value="infrastructure" className="border-none p-0 outline-none">
-                    <Card className="border-none shadow-none bg-slate-50/50">
-                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
-                        <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                          <Server className="h-10 w-10 text-primary opacity-80" />
-                        </div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Infrastructure Status</h2>
-                        <p className="text-slate-500 max-w-md">Server and hosting management dashboard will be displayed here.</p>
-                      </CardContent>
-                    </Card>
+                    <InfrastructureTab />
                   </TabsContent>
 
                   <TabsContent value="api-integrations" className="border-none p-0 outline-none">
