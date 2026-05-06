@@ -132,13 +132,13 @@ export function AdminDashboardContent({
               <span className="text-2xl font-semibold tracking-tight text-slate-900 uppercase flex items-center">
                 TOLA ADMIN 
                 <span className="ml-4 pl-4 border-l-2 border-slate-200 text-primary">
-                  {adminRole?.roleName || "Administrator"}
+                  {adminRole?.role?.role_name || "Administrator"}
                 </span>
               </span>
             </Link>
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
               <ShieldCheck className="h-3 w-3" />
-              {adminRole?.roleName || "Administrator"}
+              {adminRole?.role?.role_name || "Administrator"}
             </Badge>
           </div>
           <div className="flex items-center gap-4">
