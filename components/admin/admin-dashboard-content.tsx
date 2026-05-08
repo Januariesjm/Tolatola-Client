@@ -16,6 +16,7 @@ import {
   Truck,
   Store,
   UserCircle2,
+  Landmark,
   CreditCard,
   LifeBuoy,
   Percent,
@@ -40,6 +41,7 @@ import { ProductApprovalTab } from "./product-approval-tab"
 import { OrdersManagementTab } from "./orders-management-tab"
 import { SecureFundsManagementTab } from "./secure-funds-tab"
 import { PayoutApprovalTab } from "./payout-approval-tab"
+import { FinanceHubTab } from "./finance/finance-hub-tab"
 import { SupportTicketsTab } from "./support-tickets-tab"
 import { PromotionsManagementTab } from "./promotions-management-tab"
 import { VendorManagementTab } from "./vendor-management-tab"
@@ -451,36 +453,19 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                {adminRole?.permissions.includes("manage_transactions") && (
+                {(adminRole?.permissions.includes("manage_transactions") || adminRole?.permissions.includes("manage_payouts")) && (
                   <Button
-                    variant={activeTab === "transactions" ? "default" : "ghost"}
+                    variant={activeTab === "finance" ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "transactions"
+                    className={`w-full justify-between rounded-xl ${activeTab === "finance"
                         ? "bg-primary text-white"
                         : "text-slate-700 hover:bg-slate-100"
                       }`}
-                    onClick={() => setActiveTab("transactions")}
+                    onClick={() => setActiveTab("finance")}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Secure Settlements</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_payouts") && (
-                  <Button
-                    variant={activeTab === "payouts" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "payouts"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("payouts")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Payouts</span>
+                      <Landmark className="h-4 w-4" />
+                      <span>Finance Hub</span>
                     </span>
                     {payouts.filter(p => p.status === "pending").length > 0 && (
                       <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
@@ -756,14 +741,9 @@ export function AdminDashboardContent({
                       Orders
                     </TabsTrigger>
                   )}
-                  {adminRole?.permissions.includes("manage_transactions") && (
-                    <TabsTrigger value="transactions" className="px-5 rounded-full text-xs font-semibold">
-                      Secure Settlements
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_payouts") && (
-                    <TabsTrigger value="payouts" className="px-5 rounded-full text-xs font-semibold">
-                      Payouts ({payouts.filter(p => p.status === "pending").length})
+                  {(adminRole?.permissions.includes("manage_transactions") || adminRole?.permissions.includes("manage_payouts")) && (
+                    <TabsTrigger value="finance" className="px-5 rounded-full text-xs font-semibold">
+                      Finance Hub
                     </TabsTrigger>
                   )}
                   {adminRole?.permissions.includes("manage_support") && (
@@ -855,6 +835,10 @@ export function AdminDashboardContent({
 
               <TabsContent value="payouts" className="border-none p-0 outline-none">
                 <PayoutApprovalTab payouts={payouts} />
+              </TabsContent>
+
+              <TabsContent value="finance" className="border-none p-0 outline-none">
+                <FinanceHubTab orders={orders} transactions={transactions} payouts={payouts} stats={stats} />
               </TabsContent>
 
               <TabsContent value="support" className="border-none p-0 outline-none">
