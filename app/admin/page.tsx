@@ -36,6 +36,7 @@ export default async function AdminDashboardPage() {
   let hrStaffRecords: any[] = []
   let hrContracts: any[] = []
   let hrAttendance: any[] = []
+  let incompleteRegistrations: any[] = []
   let stats = {
     totalVendors: 0,
     activeVendors: 0,
@@ -64,7 +65,7 @@ export default async function AdminDashboardPage() {
       return <div>You need admin access to view this page.</div>
     }
 
-    const [vendorsRes, productsRes, ordersRes, secureFundsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes, careerRes, interviewsRes, staffRes, contractsRes, attendanceRes] =
+    const [vendorsRes, productsRes, ordersRes, secureFundsRes, ticketsRes, payoutsRes, promosRes, statsRes, adminsRes, revokeRes, transportersRes, vendorTypesRes, subsRes, kycRes, careerRes, interviewsRes, staffRes, contractsRes, attendanceRes, incompleteRegRes] =
       await Promise.all([
         serverApiGet<{ data: any[] }>("admin/vendors").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching vendors:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/products").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching products:", err); return { data: [] }; }),
@@ -85,6 +86,7 @@ export default async function AdminDashboardPage() {
         serverApiGet<{ data: any[] }>("admin/hr/staff").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching hr staff:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/hr/contracts").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching hr contracts:", err); return { data: [] }; }),
         serverApiGet<{ data: any[] }>("admin/hr/attendance").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching hr attendance:", err); return { data: [] }; }),
+        serverApiGet<{ data: any[] }>("admin/incomplete-registrations").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching incomplete registrations:", err); return { data: [] }; }),
       ])
 
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []
@@ -111,6 +113,7 @@ export default async function AdminDashboardPage() {
     hrStaffRecords = staffRes.data || []
     hrContracts = contractsRes.data || []
     hrAttendance = attendanceRes.data || []
+    incompleteRegistrations = incompleteRegRes.data || []
     
     const adminUsers = adminsRes.admins || []
     const revokeHistory = revokeRes.data || []
@@ -151,6 +154,7 @@ export default async function AdminDashboardPage() {
       hrStaffRecords={hrStaffRecords}
       hrContracts={hrContracts}
       hrAttendance={hrAttendance}
+      incompleteRegistrations={incompleteRegistrations}
     />
   )
 }

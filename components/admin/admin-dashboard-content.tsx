@@ -25,6 +25,7 @@ import {
   Network,
   ShieldAlert,
   Activity,
+  UserPlus,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -54,6 +55,7 @@ import { HRApplicationsTab } from "./hr-applications-tab"
 import { ServerLogsTab } from "./server-logs-tab"
 import { SystemHealthTab } from "./system-health-tab"
 import { InfrastructureTab } from "./infrastructure-tab"
+import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -74,6 +76,7 @@ interface AdminDashboardContentProps {
   hrStaffRecords?: any[]
   hrContracts?: any[]
   hrAttendance?: any[]
+  incompleteRegistrations?: any[]
 }
 
 export function AdminDashboardContent({
@@ -95,6 +98,7 @@ export function AdminDashboardContent({
   hrStaffRecords = [],
   hrContracts = [],
   hrAttendance = [],
+  incompleteRegistrations = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
   
@@ -497,6 +501,28 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("manage_support") && (
+                  <Button
+                    variant={activeTab === "recovery" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "recovery"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("recovery")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <UserPlus className="h-4 w-4" />
+                      <span>Incomplete Registrations</span>
+                    </span>
+                    {incompleteRegistrations.filter(r => r.recovery_status === "pending").length > 0 && (
+                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                        {incompleteRegistrations.filter(r => r.recovery_status === "pending").length}
+                      </span>
+                    )}
+                  </Button>
+                )}
+
                 {adminRole?.permissions.includes("manage_promotions") && (
                   <Button
                     variant={activeTab === "promotions" ? "default" : "ghost"}
@@ -751,6 +777,11 @@ export function AdminDashboardContent({
                       Support ({pendingTickets.length})
                     </TabsTrigger>
                   )}
+                  {adminRole?.permissions.includes("manage_support") && (
+                    <TabsTrigger value="recovery" className="px-5 rounded-full text-xs font-semibold">
+                      Incomplete Reg ({incompleteRegistrations.filter(r => r.recovery_status === "pending").length})
+                    </TabsTrigger>
+                  )}
                   {adminRole?.permissions.includes("manage_promotions") && (
                     <TabsTrigger value="promotions" className="px-5 rounded-full text-xs font-semibold">
                       Promotions
@@ -843,6 +874,10 @@ export function AdminDashboardContent({
 
               <TabsContent value="support" className="border-none p-0 outline-none">
                 <SupportTicketsTab tickets={tickets} />
+              </TabsContent>
+
+              <TabsContent value="recovery" className="border-none p-0 outline-none">
+                <IncompleteRegistrationsTab registrations={incompleteRegistrations} />
               </TabsContent>
 
               <TabsContent value="promotions" className="border-none p-0 outline-none">

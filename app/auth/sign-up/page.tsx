@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
+import { useRegistrationRecovery } from "../../../hooks/use-registration-recovery"
 // TODO: wire this to a server action if/when available
 const logFailedRegistration = async (_payload: unknown) => {
   // no-op in client build
@@ -41,6 +42,29 @@ function SignUpContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
   const [acceptedPolicies, setAcceptedPolicies] = useState(false)
+
+  // Registration recovery — auto-save + resume
+  const { saveProgress, markCompleted } = useRegistrationRecovery({
+    userType,
+    onResumeData: (data) => {
+      if (data.full_name && !fullName) setFullName(data.full_name)
+      if (data.email && !email) setEmail(data.email)
+      if (data.form_data?.userType) setUserType(data.form_data.userType)
+      if (data.form_data?.vendorType) setVendorType(data.form_data.vendorType)
+    },
+  })
+
+  // Auto-save on field changes
+  useEffect(() => {
+    if (fullName || email) {
+      saveProgress({
+        full_name: fullName,
+        email,
+        last_step: "account_details",
+        form_data: { userType, vendorType },
+      })
+    }
+  }, [fullName, email, userType, vendorType, saveProgress])
 
   useEffect(() => {
     if (userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam)) {
@@ -101,6 +125,9 @@ function SignUpContent() {
           refresh_token: session.refresh_token,
         })
       }
+
+      // Mark registration as completed in recovery system
+      await markCompleted()
 
       const successUrl = returnUrl
         ? `/auth/sign-up-success?returnUrl=${encodeURIComponent(returnUrl)}`

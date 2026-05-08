@@ -14,6 +14,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
 import { TanzaniaAddressForm } from "../../../components/checkout/tanzania-address-form"
+import { useRegistrationRecovery } from "../../../hooks/use-registration-recovery"
 
 type KYCType = "individual" | "company"
 
@@ -48,6 +49,50 @@ export default function VendorRegisterPageClient() {
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
+
+  // Registration recovery — auto-save + resume
+  const { saveProgress, markCompleted } = useRegistrationRecovery({
+    userType: "vendor",
+    onResumeData: (data) => {
+      if (data.form_data) {
+        const fd = data.form_data
+        if (fd.kycType) setKycType(fd.kycType)
+        if (fd.phoneNumber && !phoneNumber) setPhoneNumber(fd.phoneNumber)
+        if (fd.businessName && !businessName) setBusinessName(fd.businessName)
+        if (fd.tinNumber && !tinNumber) setTinNumber(fd.tinNumber)
+        if (fd.repFullName) setRepFullName(fd.repFullName)
+        if (fd.repPhone) setRepPhone(fd.repPhone)
+        if (fd.repTin) setRepTin(fd.repTin)
+        if (fd.repNationalId) setRepNationalId(fd.repNationalId)
+        if (fd.repPosition) setRepPosition(fd.repPosition)
+      }
+    },
+  })
+
+  // Determine current step for tracking
+  const currentStep = businessLicense ? "documents" : tinNumber ? "business_info" : kycType ? "kyc_type" : "started"
+
+  // Auto-save on field changes
+  useEffect(() => {
+    if (phoneNumber || businessName) {
+      saveProgress({
+        full_name: repFullName || businessName,
+        phone: phoneNumber,
+        last_step: currentStep,
+        form_data: {
+          kycType,
+          phoneNumber,
+          businessName,
+          tinNumber,
+          repFullName,
+          repPhone,
+          repTin,
+          repNationalId,
+          repPosition,
+        },
+      })
+    }
+  }, [phoneNumber, businessName, tinNumber, kycType, repFullName, repPhone, repTin, repNationalId, repPosition, currentStep, saveProgress])
 
   useEffect(() => {
     const checkUser = async () => {
@@ -137,6 +182,9 @@ export default function VendorRegisterPageClient() {
         .insert(vendorData)
 
       if (vendorError) throw vendorError
+
+      // Mark registration as completed in recovery system
+      await markCompleted()
 
       router.push("/vendor/kyc-pending")
     } catch (error: unknown) {

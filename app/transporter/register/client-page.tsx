@@ -13,6 +13,7 @@ import { Upload, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
+import { useRegistrationRecovery } from "../../../hooks/use-registration-recovery"
 
 export default function TransporterRegisterClient() {
   const [businessName, setBusinessName] = useState("")
@@ -29,6 +30,46 @@ export default function TransporterRegisterClient() {
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
+
+  // Registration recovery — auto-save + resume
+  const { saveProgress, markCompleted } = useRegistrationRecovery({
+    userType: "transporter",
+    onResumeData: (data) => {
+      if (data.form_data) {
+        const fd = data.form_data
+        if (fd.businessName && !businessName) setBusinessName(fd.businessName)
+        if (fd.vehicleType) setVehicleType(fd.vehicleType)
+        if (fd.vehicleRegistration && !vehicleRegistration) setVehicleRegistration(fd.vehicleRegistration)
+        if (fd.licenseNumber && !licenseNumber) setLicenseNumber(fd.licenseNumber)
+        if (fd.region && !region) setRegion(fd.region)
+        if (fd.district && !district) setDistrict(fd.district)
+        if (fd.phone && !phone) setPhone(fd.phone)
+      }
+    },
+  })
+
+  // Determine current step for tracking
+  const currentStep = idDocument ? "documents" : (region && district) ? "location" : vehicleType ? "vehicle_info" : "started"
+
+  // Auto-save on field changes
+  useEffect(() => {
+    if (phone || vehicleType) {
+      saveProgress({
+        full_name: businessName,
+        phone,
+        last_step: currentStep,
+        form_data: {
+          businessName,
+          vehicleType,
+          vehicleRegistration,
+          licenseNumber,
+          region,
+          district,
+          phone,
+        },
+      })
+    }
+  }, [phone, businessName, vehicleType, vehicleRegistration, licenseNumber, region, district, currentStep, saveProgress])
 
   const vehicleTypes = [
     { value: "bodaboda", label: "Bodaboda" },
@@ -132,6 +173,10 @@ export default function TransporterRegisterClient() {
       }
 
       await clientApiPost("transporters", transporterData)
+
+      // Mark registration as completed in recovery system
+      await markCompleted()
+
       router.push("/transporter/kyc-pending")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
