@@ -165,10 +165,10 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
     if (order.payment_method === "cash-on-delivery") return
 
     let attempts = 0
-    const maxAttempts = 60 // ~3 minutes
+    const maxAttempts = 180 // ~3 minutes at 1s intervals
 
-    const interval = setInterval(async () => {
-      attempts++
+    // Do an immediate first check after a short delay
+    const initialTimeout = setTimeout(async () => {
       try {
         const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string } }>( 
           `payments/status/${order.id}`
@@ -180,31 +180,73 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
         if (pStatus === "paid" || ["confirmed", "processing", "preparing"].includes(String(oStatus))) {
           setPaymentStatus("paid")
           setOrder((prev: any) => ({ ...prev, payment_status: "paid", status: oStatus || prev.status }))
-          clearInterval(interval)
           toast({
             title: "Payment Confirmed ✓",
             description: "Your payment has been verified successfully.",
           })
+          return // Don't start interval polling
         } else if (pStatus === "failed") {
           setPaymentStatus("failed")
-          clearInterval(interval)
           toast({
             title: "Payment Issue",
             description: payload?.click_pesa_error || "There was an issue with your payment. Please contact support.",
             variant: "destructive",
           })
+          return
         }
       } catch {
-        // Silently continue polling
+        // Continue to interval polling
       }
 
-      if (attempts >= maxAttempts) {
-        clearInterval(interval)
-        // Don't mark as failed — the webhook may still arrive
-      }
-    }, 3000)
+      // Start fast interval polling (every 1 second)
+      startPolling()
+    }, 500) // First check after 500ms
 
-    return () => clearInterval(interval)
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    function startPolling() {
+      interval = setInterval(async () => {
+        attempts++
+        try {
+          const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string } }>( 
+            `payments/status/${order.id}`
+          )
+          const payload = (res as any)?.data ?? res
+          const pStatus = payload?.payment_status
+          const oStatus = payload?.status
+
+          if (pStatus === "paid" || ["confirmed", "processing", "preparing"].includes(String(oStatus))) {
+            setPaymentStatus("paid")
+            setOrder((prev: any) => ({ ...prev, payment_status: "paid", status: oStatus || prev.status }))
+            if (interval) clearInterval(interval)
+            toast({
+              title: "Payment Confirmed ✓",
+              description: "Your payment has been verified successfully.",
+            })
+          } else if (pStatus === "failed") {
+            setPaymentStatus("failed")
+            if (interval) clearInterval(interval)
+            toast({
+              title: "Payment Issue",
+              description: payload?.click_pesa_error || "There was an issue with your payment. Please contact support.",
+              variant: "destructive",
+            })
+          }
+        } catch {
+          // Silently continue polling
+        }
+
+        if (attempts >= maxAttempts) {
+          if (interval) clearInterval(interval)
+          // Don't mark as failed — the webhook may still arrive
+        }
+      }, 1000)
+    }
+
+    return () => {
+      clearTimeout(initialTimeout)
+      if (interval) clearInterval(interval)
+    }
   }, [paymentStatus, order.id, order.payment_method, toast])
 
   const handleConfirmDelivery = async () => {
