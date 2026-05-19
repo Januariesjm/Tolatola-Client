@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,8 @@ import {
   Banknote,
   Smartphone,
   Send,
+  Loader2,
+  RefreshCcw,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -40,20 +42,63 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processing, setProcessing] = useState<string | null>(null)
+  const [localPayouts, setLocalPayouts] = useState<any[]>(payouts)
+
+  useEffect(() => {
+    setLocalPayouts(payouts)
+  }, [payouts])
+
+  // Poll for processing payouts
+  useEffect(() => {
+    const processingPayouts = localPayouts.filter(p => p.status === "processing")
+    
+    if (processingPayouts.length === 0) return;
+
+    let mounted = true;
+    const pollStatuses = async () => {
+      for (const p of processingPayouts) {
+        try {
+          const userType = p.user_type || "vendor"
+          const res = await fetch(`/api/admin/payouts/${p.id}/status?userType=${userType}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.payout && data.payout.status !== "processing" && mounted) {
+              setLocalPayouts(prev => prev.map(item => item.id === p.id ? data.payout : item))
+              toast({
+                title: "Payout Status Updated",
+                description: `Payout is now ${data.payout.status}`,
+              })
+              router.refresh()
+            }
+          }
+        } catch (e) {
+          console.error("Failed to poll payout status", e)
+        }
+      }
+    }
+
+    const interval = setInterval(pollStatuses, 5000)
+    
+    return () => {
+      mounted = false;
+      clearInterval(interval)
+    }
+  }, [localPayouts, router, toast])
 
   const filtered = useMemo(() => {
-    return payouts.filter((p) => {
+    return localPayouts.filter((p) => {
       if (statusFilter !== "all" && p.status !== statusFilter) return false
       const q = searchQuery.toLowerCase()
       const vendorId = (p.vendor_id || "").toLowerCase()
       const method = (p.payment_method || "").toLowerCase()
       return vendorId.includes(q) || method.includes(q)
     })
-  }, [payouts, searchQuery, statusFilter])
+  }, [localPayouts, searchQuery, statusFilter])
 
-  const totalPending = payouts.filter((p) => p.status === "pending").reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalCompleted = payouts.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalFailed = payouts.filter((p) => p.status === "failed").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalPending = localPayouts.filter((p) => p.status === "pending").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalProcessing = localPayouts.filter((p) => p.status === "processing").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalCompleted = localPayouts.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalFailed = localPayouts.filter((p) => p.status === "failed").reduce((s, p) => s + Number(p.amount || 0), 0)
 
   const handleApprove = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
@@ -64,7 +109,8 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
         body: JSON.stringify({ payoutId, userType }),
       })
       if (response.ok) {
-        toast({ title: "Payout approved", description: "The payout has been approved and will be processed." })
+        toast({ title: "Payout approved", description: "The payout has been initiated and is now processing." })
+        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing" } : p))
         router.refresh()
       } else {
         throw new Error("Failed to approve payout")
@@ -86,6 +132,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
       })
       if (response.ok) {
         toast({ title: "Payout rejected", description: "The payout request has been rejected." })
+        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "failed" } : p))
         router.refresh()
       } else {
         throw new Error("Failed to reject payout")
@@ -99,12 +146,14 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
 
   const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700 border-amber-200",
+    processing: "bg-orange-100 text-orange-700 border-orange-200",
     completed: "bg-emerald-100 text-emerald-700 border-emerald-200",
     failed: "bg-rose-100 text-rose-700 border-rose-200",
   }
 
   const statusLabel: Record<string, string> = {
     pending: "Pending",
+    processing: "Processing",
     completed: "Sent",
     failed: "Failed",
   }
@@ -118,7 +167,12 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-bold text-slate-900">Payouts</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-2xl font-bold text-slate-900">Payouts</h3>
+            <Button variant="outline" size="icon" onClick={() => router.refresh()} className="h-8 w-8 rounded-full">
+              <RefreshCcw className="h-4 w-4 text-slate-500" />
+            </Button>
+          </div>
           <p className="text-slate-500 text-sm mt-1">Final money transfers to vendors and drivers via Mobile Money or Bank.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -141,7 +195,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
             <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
               <DropdownMenuLabel>Payout Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {["all", "pending", "completed", "failed"].map((s) => (
+              {["all", "pending", "processing", "completed", "failed"].map((s) => (
                 <DropdownMenuCheckboxItem key={s} checked={statusFilter === s} onCheckedChange={() => setStatusFilter(s)}>
                   {s === "all" ? "All Status" : statusLabel[s] || s}
                 </DropdownMenuCheckboxItem>
@@ -152,7 +206,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="shadow-sm rounded-xl border-amber-200 bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Pending</CardTitle>
@@ -162,7 +216,20 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-700">TZS {totalPending.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{payouts.filter((p) => p.status === "pending").length} payouts</p>
+            <p className="text-xs text-slate-500 mt-1">{localPayouts.filter((p) => p.status === "pending").length} payouts</p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm rounded-xl border-orange-200 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Processing</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <Loader2 className="h-4 w-4 text-orange-600 animate-spin" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-700">TZS {totalProcessing.toLocaleString()}</div>
+            <p className="text-xs text-slate-500 mt-1">{localPayouts.filter((p) => p.status === "processing").length} active</p>
           </CardContent>
         </Card>
 
@@ -175,7 +242,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-700">TZS {totalCompleted.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{payouts.filter((p) => p.status === "completed").length} payouts</p>
+            <p className="text-xs text-slate-500 mt-1">{localPayouts.filter((p) => p.status === "completed").length} payouts</p>
           </CardContent>
         </Card>
 
@@ -188,7 +255,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-rose-700">TZS {totalFailed.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{payouts.filter((p) => p.status === "failed").length} payouts</p>
+            <p className="text-xs text-slate-500 mt-1">{localPayouts.filter((p) => p.status === "failed").length} payouts</p>
           </CardContent>
         </Card>
       </div>
@@ -212,9 +279,12 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-                      payout.status === "pending" ? "bg-amber-100" : payout.status === "completed" ? "bg-emerald-100" : "bg-rose-100"
+                      payout.status === "pending" ? "bg-amber-100" : 
+                      payout.status === "processing" ? "bg-orange-100" :
+                      payout.status === "completed" ? "bg-emerald-100" : "bg-rose-100"
                     }`}>
                       {payout.status === "pending" ? <Clock className="h-5 w-5 text-amber-600" /> :
+                       payout.status === "processing" ? <Loader2 className="h-5 w-5 text-orange-600 animate-spin" /> :
                        payout.status === "completed" ? <CheckCircle className="h-5 w-5 text-emerald-600" /> :
                        <XCircle className="h-5 w-5 text-rose-600" />}
                     </div>
@@ -245,24 +315,24 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                   {payout.status === "pending" && (
                     <div className="flex items-center gap-2 shrink-0">
                       <Button
-                        size="sm"
-                        className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-                        onClick={() => handleApprove(payout.id, payout.user_type || "vendor")}
-                        disabled={processing === payout.id}
-                      >
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="rounded-xl gap-1.5"
-                        onClick={() => handleReject(payout.id, payout.user_type || "vendor")}
-                        disabled={processing === payout.id}
-                      >
-                        <XCircle className="h-3.5 w-3.5" />
-                        Reject
-                      </Button>
+                         size="sm"
+                         className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                         onClick={() => handleApprove(payout.id, payout.user_type || "vendor")}
+                         disabled={processing === payout.id}
+                       >
+                         <CheckCircle className="h-3.5 w-3.5" />
+                         Approve
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant="destructive"
+                         className="rounded-xl gap-1.5"
+                         onClick={() => handleReject(payout.id, payout.user_type || "vendor")}
+                         disabled={processing === payout.id}
+                       >
+                         <XCircle className="h-3.5 w-3.5" />
+                         Reject
+                       </Button>
                     </div>
                   )}
                 </div>

@@ -22,7 +22,7 @@ interface FinanceHubTabProps {
 export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceHubTabProps) {
   const [activeTab, setActiveTab] = useState("overview")
 
-  const pendingPayouts = payouts.filter((p) => p.status === "pending").length
+  const activePayouts = payouts.filter((p) => p.status === "pending" || p.status === "processing").length
   const heldFunds = transactions.filter((t) => t.status === "held").reduce((acc, t) => acc + (t.amount || 0), 0)
 
   return (
@@ -60,9 +60,9 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
             <TabsTrigger value="payouts" className="rounded-lg px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-white">
               <Wallet className="h-4 w-4 mr-2" />
               Payouts
-              {pendingPayouts > 0 && (
+              {activePayouts > 0 && (
                 <span className="ml-2 inline-flex items-center justify-center bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {pendingPayouts}
+                  {activePayouts}
                 </span>
               )}
             </TabsTrigger>
