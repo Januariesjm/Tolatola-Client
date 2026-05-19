@@ -23,7 +23,12 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
   const [activeTab, setActiveTab] = useState("overview")
 
   const activePayouts = payouts.filter((p) => p.status === "pending" || p.status === "processing").length
-  const heldFunds = transactions.filter((t) => t.status === "held").reduce((acc, t) => acc + (t.amount || 0), 0)
+  
+  // Secure hold is the total amount of all PAID orders that are not yet delivered
+  // This accurately reflects the money sitting in TOLA's account before distribution
+  const heldFunds = orders
+    .filter((o) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
+    .reduce((acc, o) => acc + Number(o.total_amount || 0), 0)
 
   return (
     <div className="space-y-6">

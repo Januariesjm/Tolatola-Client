@@ -33,19 +33,41 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
+  const groupedTransactions = useMemo(() => {
+    const map = new Map<string, any>()
+    transactions.forEach(t => {
+      const key = t.order_id || t.id
+      if (!map.has(key)) {
+        map.set(key, { ...t, amount: t.amount || 0, shops: [t.shops?.name].filter(Boolean) })
+      } else {
+        const existing = map.get(key)
+        existing.amount += (t.amount || 0)
+        if (t.shops?.name && !existing.shops.includes(t.shops.name)) {
+          existing.shops.push(t.shops.name)
+        }
+        // If any part of the settlement is held, the whole order settlement is considered held
+        if (t.status === "held") existing.status = "held"
+      }
+    })
+    return Array.from(map.values()).map(t => ({
+      ...t,
+      shopNames: t.shops.join(", ") || "N/A"
+    }))
+  }, [transactions])
+
   const filtered = useMemo(() => {
-    return transactions.filter((t) => {
+    return groupedTransactions.filter((t) => {
       if (statusFilter !== "all" && t.status !== statusFilter) return false
       const q = searchQuery.toLowerCase()
       const orderNum = (t.orders?.order_number || "").toLowerCase()
-      const shopName = (t.shops?.name || "").toLowerCase()
+      const shopName = t.shopNames.toLowerCase()
       return orderNum.includes(q) || shopName.includes(q)
     })
-  }, [transactions, searchQuery, statusFilter])
+  }, [groupedTransactions, searchQuery, statusFilter])
 
-  const totalHeld = transactions.filter((t) => t.status === "held").reduce((sum, t) => sum + (t.amount || 0), 0)
-  const totalReleased = transactions.filter((t) => t.status === "released").reduce((sum, t) => sum + (t.amount || 0), 0)
-  const totalRefunded = transactions.filter((t) => t.status === "refunded").reduce((sum, t) => sum + (t.amount || 0), 0)
+  const totalHeld = groupedTransactions.filter((t) => t.status === "held").reduce((sum, t) => sum + (t.amount || 0), 0)
+  const totalReleased = groupedTransactions.filter((t) => t.status === "released").reduce((sum, t) => sum + (t.amount || 0), 0)
+  const totalRefunded = groupedTransactions.filter((t) => t.status === "refunded").reduce((sum, t) => sum + (t.amount || 0), 0)
 
   const statusColors: Record<string, string> = {
     held: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -106,7 +128,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-700">TZS {totalHeld.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{transactions.filter((t) => t.status === "held").length} records</p>
+            <p className="text-xs text-slate-500 mt-1">{groupedTransactions.filter((t) => t.status === "held").length} orders</p>
           </CardContent>
         </Card>
 
@@ -119,7 +141,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-700">TZS {totalReleased.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{transactions.filter((t) => t.status === "released").length} records</p>
+            <p className="text-xs text-slate-500 mt-1">{groupedTransactions.filter((t) => t.status === "released").length} orders</p>
           </CardContent>
         </Card>
 
@@ -132,7 +154,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-rose-700">TZS {totalRefunded.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{transactions.filter((t) => t.status === "refunded").length} records</p>
+            <p className="text-xs text-slate-500 mt-1">{groupedTransactions.filter((t) => t.status === "refunded").length} orders</p>
           </CardContent>
         </Card>
       </div>
@@ -169,7 +191,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
                           {statusLabel[t.status] || t.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-slate-500 mt-0.5">Merchant: {t.shops?.name || "N/A"}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">Merchant: {t.shopNames}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-8">
