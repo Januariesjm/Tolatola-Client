@@ -55,13 +55,13 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
   const totalCompleted = payouts.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount || 0), 0)
   const totalFailed = payouts.filter((p) => p.status === "failed").reduce((s, p) => s + Number(p.amount || 0), 0)
 
-  const handleApprove = async (payoutId: string) => {
+  const handleApprove = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
     try {
       const response = await fetch("/api/admin/payouts/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payoutId }),
+        body: JSON.stringify({ payoutId, userType }),
       })
       if (response.ok) {
         toast({ title: "Payout approved", description: "The payout has been approved and will be processed." })
@@ -76,13 +76,13 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
     }
   }
 
-  const handleReject = async (payoutId: string) => {
+  const handleReject = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
     try {
       const response = await fetch("/api/admin/payouts/reject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payoutId }),
+        body: JSON.stringify({ payoutId, userType }),
       })
       if (response.ok) {
         toast({ title: "Payout rejected", description: "The payout request has been rejected." })
@@ -227,8 +227,8 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 flex-wrap">
                         <span className="flex items-center gap-1">
-                          <Store className="h-3 w-3" />
-                          Vendor: {payout.vendor_id?.slice(0, 8) || "—"}
+                          {payout.user_type === "transporter" ? <Truck className="h-3 w-3" /> : <Store className="h-3 w-3" />}
+                          <span className="capitalize">{payout.user_type || "Vendor"}</span>: {payout.user_id?.slice(0, 8) || payout.vendor_id?.slice(0, 8) || "—"}
                         </span>
                         <span className="flex items-center gap-1">
                           {getPayoutIcon(payout.payment_method)}
@@ -247,7 +247,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                       <Button
                         size="sm"
                         className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-                        onClick={() => handleApprove(payout.id)}
+                        onClick={() => handleApprove(payout.id, payout.user_type || "vendor")}
                         disabled={processing === payout.id}
                       >
                         <CheckCircle className="h-3.5 w-3.5" />
@@ -257,7 +257,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                         size="sm"
                         variant="destructive"
                         className="rounded-xl gap-1.5"
-                        onClick={() => handleReject(payout.id)}
+                        onClick={() => handleReject(payout.id, payout.user_type || "vendor")}
                         disabled={processing === payout.id}
                       >
                         <XCircle className="h-3.5 w-3.5" />

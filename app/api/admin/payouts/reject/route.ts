@@ -4,32 +4,30 @@ import { NextResponse } from "next/server"
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { payoutId } = await request.json()
+    const { payoutId, userType } = await request.json()
 
-    // Verify user is admin
     const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
+      data: { session },
+    } = await supabase.auth.getSession()
+    if (!session?.access_token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: adminUser } = await supabase.from("users").select("user_type").eq("id", user.id).single()
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+    const backendRes = await fetch(`${backendUrl}/admin/payouts/${payoutId}/reject`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ userType: userType || "vendor" })
+    })
 
-    if (adminUser?.user_type !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!backendRes.ok) {
+      const errBody = await backendRes.text()
+      console.error("[v0] Backend payout rejection error:", errBody)
+      return NextResponse.json({ error: "Failed to reject payout" }, { status: backendRes.status })
     }
-
-    // Update payout status
-    const { error } = await supabase
-      .from("payouts")
-      .update({
-        status: "failed",
-        processed_at: new Date().toISOString(),
-      })
-      .eq("id", payoutId)
-
-    if (error) throw error
 
     return NextResponse.json({ success: true })
   } catch (error) {

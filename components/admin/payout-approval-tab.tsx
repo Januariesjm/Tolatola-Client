@@ -17,13 +17,13 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
   const { toast } = useToast()
   const [processing, setProcessing] = useState<string | null>(null)
 
-  const handleApprove = async (payoutId: string) => {
+  const handleApprove = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
     try {
       const response = await fetch("/api/admin/payouts/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payoutId }),
+        body: JSON.stringify({ payoutId, userType }),
       })
 
       if (response.ok) {
@@ -46,13 +46,13 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
     }
   }
 
-  const handleReject = async (payoutId: string) => {
+  const handleReject = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
     try {
       const response = await fetch("/api/admin/payouts/reject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payoutId }),
+        body: JSON.stringify({ payoutId, userType }),
       })
 
       if (response.ok) {
@@ -100,7 +100,8 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                           <Badge variant="outline">{payout.status}</Badge>
                         </div>
                         <div className="text-sm text-muted-foreground space-y-1">
-                          <p>Vendor ID: {payout.vendor_id}</p>
+                          <p className="capitalize">Type: {payout.user_type || "Vendor"}</p>
+                          <p>User ID: {payout.user_id || payout.vendor_id}</p>
                           <p>Payment Method: {payout.payment_method}</p>
                           <p>Details: {payout.payment_details?.details || "N/A"}</p>
                           <p>Requested: {new Date(payout.created_at).toLocaleString()}</p>
@@ -110,7 +111,7 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleApprove(payout.id)}
+                          onClick={() => handleApprove(payout.id, payout.user_type || "vendor")}
                           disabled={processing === payout.id}
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
@@ -119,7 +120,7 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleReject(payout.id)}
+                          onClick={() => handleReject(payout.id, payout.user_type || "vendor")}
                           disabled={processing === payout.id}
                         >
                           <XCircle className="h-4 w-4 mr-2" />
