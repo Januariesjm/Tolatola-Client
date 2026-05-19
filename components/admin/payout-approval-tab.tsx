@@ -1,10 +1,8 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, XCircle, Clock } from "lucide-react"
+import { CheckCircle, XCircle, Clock, Loader2, RefreshCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -16,6 +14,51 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [processing, setProcessing] = useState<string | null>(null)
+  const [localPayouts, setLocalPayouts] = useState<any[]>(payouts)
+
+  // Sync props to state if they change externally
+  useEffect(() => {
+    setLocalPayouts(payouts)
+  }, [payouts])
+
+  // Poll for processing payouts
+  useEffect(() => {
+    const processingPayouts = localPayouts.filter(p => p.status === "processing")
+    
+    if (processingPayouts.length === 0) return;
+
+    let mounted = true;
+    const pollStatuses = async () => {
+      for (const p of processingPayouts) {
+        try {
+          const userType = p.user_type || "vendor"
+          const res = await fetch(`/api/admin/payouts/${p.id}/status?userType=${userType}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.payout && data.payout.status !== "processing" && mounted) {
+              // Update local state
+              setLocalPayouts(prev => prev.map(item => item.id === p.id ? data.payout : item))
+              
+              toast({
+                title: "Payout Status Updated",
+                description: `Payout to ${p.user_id || p.vendor_id} is now ${data.payout.status}`,
+              })
+              router.refresh()
+            }
+          }
+        } catch (e) {
+          console.error("Failed to poll payout status", e)
+        }
+      }
+    }
+
+    const interval = setInterval(pollStatuses, 5000) // Poll every 5s
+    
+    return () => {
+      mounted = false;
+      clearInterval(interval)
+    }
+  }, [localPayouts, router, toast])
 
   const handleApprove = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
@@ -29,8 +72,11 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
       if (response.ok) {
         toast({
           title: "Payout approved",
-          description: "The payout has been approved and will be processed",
+          description: "The payout has been initiated and is now processing",
         })
+        
+        // Optimistically update to processing
+        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing" } : p))
         router.refresh()
       } else {
         throw new Error("Failed to approve payout")
@@ -60,6 +106,8 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
           title: "Payout rejected",
           description: "The payout request has been rejected",
         })
+        
+        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "failed" } : p))
         router.refresh()
       } else {
         throw new Error("Failed to reject payout")
@@ -75,14 +123,25 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
     }
   }
 
-  const pendingPayouts = payouts.filter((p) => p.status === "pending")
+  const manualRefresh = () => {
+    router.refresh()
+  }
+
+  const pendingPayouts = localPayouts.filter((p) => p.status === "pending")
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Payout Requests</CardTitle>
-          <CardDescription>Review and approve vendor payout requests</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Payout Requests</CardTitle>
+              <CardDescription>Review and approve vendor payout requests</CardDescription>
+            </div>
+            <Button variant="outline" size="icon" onClick={manualRefresh}>
+              <RefreshCcw className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {pendingPayouts.length === 0 ? (
@@ -143,15 +202,16 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
           <CardDescription>Complete payout history</CardDescription>
         </CardHeader>
         <CardContent>
-          {payouts.length === 0 ? (
+          {localPayouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No payouts yet</p>
           ) : (
             <div className="space-y-2">
-              {payouts.map((payout) => (
+              {localPayouts.map((payout) => (
                 <div key={payout.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {payout.status === "completed" && <CheckCircle className="h-4 w-4 text-green-600" />}
                     {payout.status === "pending" && <Clock className="h-4 w-4 text-yellow-600" />}
+                    {payout.status === "processing" && <Loader2 className="h-4 w-4 text-orange-500 animate-spin" />}
                     {payout.status === "failed" && <XCircle className="h-4 w-4 text-red-600" />}
                     <div>
                       <p className="font-medium">TZS {Number(payout.amount).toLocaleString()}</p>
@@ -166,8 +226,11 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                         ? "default"
                         : payout.status === "failed"
                           ? "destructive"
-                          : "secondary"
+                          : payout.status === "processing"
+                            ? "outline"
+                            : "secondary"
                     }
+                    className={payout.status === "processing" ? "border-orange-500 text-orange-600" : ""}
                   >
                     {payout.status}
                   </Badge>
