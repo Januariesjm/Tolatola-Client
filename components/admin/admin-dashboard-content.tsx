@@ -471,6 +471,23 @@ export function AdminDashboardContent({
                       <Landmark className="h-4 w-4" />
                       <span>Finance Hub</span>
                     </span>
+                  </Button>
+                )}
+
+                {adminRole?.permissions.includes("manage_payouts") && (
+                  <Button
+                    variant={activeTab === "payouts" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "payouts"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("payouts")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Payout Approvals</span>
+                    </span>
                     {payouts.filter(p => p.status === "pending").length > 0 && (
                       <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
                         {payouts.filter(p => p.status === "pending").length}
@@ -770,6 +787,11 @@ export function AdminDashboardContent({
                   {(adminRole?.permissions.includes("manage_transactions") || adminRole?.permissions.includes("manage_payouts")) && (
                     <TabsTrigger value="finance" className="px-5 rounded-full text-xs font-semibold">
                       Finance Hub
+                    </TabsTrigger>
+                  )}
+                  {adminRole?.permissions.includes("manage_payouts") && (
+                    <TabsTrigger value="payouts" className="px-5 rounded-full text-xs font-semibold">
+                      Payouts ({payouts.filter(p => p.status === "pending").length})
                     </TabsTrigger>
                   )}
                   {adminRole?.permissions.includes("manage_support") && (
