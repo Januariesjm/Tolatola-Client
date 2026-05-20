@@ -119,7 +119,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
                                                     <Store className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    Become a Seller
+                                                    Become Seller
                                                 </Button>
                                             </Link>
                                             <Link href="/auth/sign-up?userType=transporter" className="w-full lg:w-auto">
@@ -129,7 +129,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
                                                     <Truck className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    Become a Transporter
+                                                    Become Transporter
                                                 </Button>
                                             </Link>
                                         </div>
