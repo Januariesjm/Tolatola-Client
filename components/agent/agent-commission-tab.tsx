@@ -52,7 +52,7 @@ export function AgentCommissionTab({
                 {formatTzs(totalEarnings)}
               </span>
               <span className="text-[10px] text-slate-400 font-semibold block">
-                Jumla ya kamisheni zote
+                Total commissions earned
               </span>
             </div>
             <div className="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
@@ -72,7 +72,7 @@ export function AgentCommissionTab({
                 {formatTzs(paidCommission)}
               </span>
               <span className="text-[10px] text-slate-400 font-semibold block">
-                Zilizolipwa kikamilifu
+                Fully paid out
               </span>
             </div>
             <div className="h-12 w-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm">
@@ -92,7 +92,7 @@ export function AgentCommissionTab({
                 {formatTzs(pendingCommission)}
               </span>
               <span className="text-[10px] text-slate-400 font-semibold block">
-                Zinazosubiri uhakiki
+                Awaiting verification
               </span>
             </div>
             <div className="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm">
@@ -112,7 +112,7 @@ export function AgentCommissionTab({
                 {formatTzs(bonusRewards)}
               </span>
               <span className="text-[10px] text-slate-400 font-semibold block">
-                Zawadi za utendaji bora
+                Performance bonus rewards
               </span>
             </div>
             <div className="h-12 w-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
@@ -128,13 +128,13 @@ export function AgentCommissionTab({
         <Card className="lg:col-span-2 shadow-sm rounded-xl border border-slate-200 bg-white overflow-hidden">
           <CardHeader className="border-b border-slate-100">
             <CardTitle className="text-sm font-bold text-slate-800">
-              Historia ya Mapato (Earnings History)
+              Earnings History
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {commissions.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-xs text-slate-400">Hujapata kamisheni yoyote bado.</p>
+                <p className="text-xs text-slate-400">You haven't earned any commissions yet.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -154,11 +154,11 @@ export function AgentCommissionTab({
                         <td className="py-4 px-6 font-bold text-slate-900">
                           {comm.agent_registrations ? (
                             <div className="flex flex-col">
-                              <span>Usajili: {comm.agent_registrations.full_name}</span>
+                              <span>Registration: {comm.agent_registrations.full_name}</span>
                               <span className="text-[10px] text-slate-400 capitalize">{comm.agent_registrations.registration_type}</span>
                             </div>
                           ) : (
-                            comm.description || "Kamisheni / Tuzo"
+                            comm.description || "Commission / Reward"
                           )}
                         </td>
                         <td className="py-4 px-4 text-emerald-600 font-black">
@@ -200,7 +200,7 @@ export function AgentCommissionTab({
           <CardHeader className="border-b border-slate-100 bg-slate-50/50 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
               <Medal className="h-4.5 w-4.5 text-amber-500" />
-              Bao la Uongozi (Leaderboard)
+              Leaderboard
             </CardTitle>
             {myRank && (
               <Badge className="bg-emerald-500 text-white rounded-full font-bold text-[10px]">
@@ -211,7 +211,7 @@ export function AgentCommissionTab({
           <CardContent className="p-0">
             {leaderboard.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-xs text-slate-400">Leaderboard haipatikani kwa sasa.</p>
+                <p className="text-xs text-slate-400">Leaderboard is currently unavailable.</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
@@ -254,7 +254,7 @@ export function AgentCommissionTab({
                       {/* Total registrations */}
                       <div className="text-right">
                         <span className="text-xs font-black text-slate-900 block">
-                          {user.registrations} Usajili
+                          {user.registrations} Regs
                         </span>
                         <span className="text-[10px] font-bold text-emerald-600 block">
                           {formatTzs(user.commission)}

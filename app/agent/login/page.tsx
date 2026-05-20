@@ -76,7 +76,7 @@ export default function AgentLoginPage() {
               TOLA Agent Portal
             </h1>
             <p className="text-sm text-slate-400 mt-1">
-              Ingia kwenye akaunti yako ya wakala
+              Sign in to your agent account
             </p>
           </div>
 
@@ -134,10 +134,10 @@ export default function AgentLoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Inaingia...
+                  Signing In...
                 </>
               ) : (
-                "Ingia (Sign In)"
+                "Sign In"
               )}
             </Button>
           </form>
@@ -145,8 +145,8 @@ export default function AgentLoginPage() {
           {/* Footer Links */}
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-500">
-              Huna akaunti ya wakala?{" "}
-              <span className="text-emerald-400">Wasiliana na Admin wako.</span>
+              Don't have an agent account?{" "}
+              <span className="text-emerald-400">Contact your administrator.</span>
             </p>
           </div>
         </div>

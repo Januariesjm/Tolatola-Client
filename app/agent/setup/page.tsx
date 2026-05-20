@@ -48,12 +48,12 @@ export default function AgentSetupPage() {
 
           const roleData = await res.json()
           if (!roleData.allowed) {
-            setError("Akaunti hii haina ruhusa ya wakala. Wasiliana na msimamizi.")
+            setError("This account does not have agent permissions. Contact administrator.")
             setIsVerifying(false)
             return
           }
 
-          const fullName = session.user?.user_metadata?.full_name || "Mwanachama mpya"
+          const fullName = session.user?.user_metadata?.full_name || "New member"
           setAgentName(fullName)
           setIsVerifying(false)
           return
@@ -75,11 +75,11 @@ export default function AgentSetupPage() {
         }
 
         // No session and no token params
-        setError("Session yako imekwisha au haipo. Tafadhali bonyeza kiungo kwenye barua pepe yako tena, au wasiliana na msimamizi wako.")
+        setError("Your session has expired or does not exist. Please click the link in your email again, or contact your administrator.")
         setIsVerifying(false)
       } catch (err) {
         console.error("Setup session check error:", err)
-        setError("Imeshindikana kuthibitisha kikao chako.")
+        setError("Failed to verify your session.")
         setIsVerifying(false)
       }
     }
@@ -90,11 +90,11 @@ export default function AgentSetupPage() {
   const handleSetupPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password.length < 8) {
-      setError("Nywila lazima iwe na angalau herufi 8 (Password must be at least 8 characters).")
+      setError("Password must be at least 8 characters.")
       return
     }
     if (password !== confirmPassword) {
-      setError("Nywila hazilingani (Passwords do not match).")
+      setError("Passwords do not match.")
       return
     }
 
@@ -127,7 +127,7 @@ export default function AgentSetupPage() {
         router.push("/agent")
       }, 2500)
     } catch (err: any) {
-      setError(err?.message || "Imeshindikana kusasisha nywila. Jaribu tena.")
+      setError(err?.message || "Failed to update password. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -144,7 +144,7 @@ export default function AgentSetupPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 text-emerald-500 animate-spin mx-auto" />
-          <p className="text-slate-400 text-sm font-semibold">Tafadhali subiri, tunathibitisha kikao chako...</p>
+          <p className="text-slate-400 text-sm font-semibold">Please wait, we are verifying your session...</p>
         </div>
       </div>
     )
@@ -168,9 +168,9 @@ export default function AgentSetupPage() {
                 <ShieldCheck className="h-10 w-10 animate-bounce" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-black text-white tracking-tight">Hongera! Nywila Imesasishwa</h2>
+                <h2 className="text-2xl font-black text-white tracking-tight">Congratulations! Password Updated</h2>
                 <p className="text-sm text-slate-400">
-                  Akaunti yako imekamilika kwa mafanikio. Tunakuhamishia kwenye dashibodi sasa hivi...
+                  Your account has been successfully set up. Redirecting you to the dashboard now...
                 </p>
               </div>
               <div className="pt-4">
@@ -185,13 +185,13 @@ export default function AgentSetupPage() {
                   <KeyRound className="h-8 w-8 text-white" />
                 </div>
                 <h1 className="text-2xl font-black text-white tracking-tight">
-                  Tengeneza Nywila Yako
+                  Create Your Password
                 </h1>
                 <p className="text-xs text-slate-400 mt-1.5 uppercase font-black tracking-widest text-emerald-400">
-                  {agentName ? `Karibu, ${agentName}` : "TOLA Agent Portal"}
+                  {agentName ? `Welcome, ${agentName}` : "TOLA Agent Portal"}
                 </p>
                 <p className="text-xs text-slate-400 mt-2 max-w-xs mx-auto">
-                  Weka nywila mpya na salama ili uweze kuingia na kuanza kufanya kazi kama wakala.
+                  Set a new, secure password to log in and start working as an agent.
                 </p>
               </div>
 
@@ -205,7 +205,7 @@ export default function AgentSetupPage() {
                       onClick={() => router.push("/agent/login")} 
                       className="text-xs text-emerald-400 p-0 h-auto mt-2 font-bold hover:text-emerald-300"
                     >
-                      Nenda kwenye ukurasa wa kuingia (Login Page) →
+                      Go to the Login Page →
                     </Button>
                   )}
                 </div>
@@ -216,12 +216,12 @@ export default function AgentSetupPage() {
                   {/* Password Input */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      Nywila Mpya (New Password)
+                      New Password
                     </label>
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Herufi 8 au zaidi"
+                        placeholder="8 characters or more"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -240,11 +240,11 @@ export default function AgentSetupPage() {
                   {/* Confirm Password */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      Thibitisha Nywila (Confirm Password)
+                      Confirm Password
                     </label>
                     <Input
                       type={showPassword ? "text" : "password"}
-                      placeholder="Thibitisha nywila yako"
+                      placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
@@ -260,25 +260,25 @@ export default function AgentSetupPage() {
                         <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasMinLength ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
                           <Check className="h-3 w-3" />
                         </div>
-                        <span className={hasMinLength ? "text-slate-300" : "text-slate-500"}>Herufi 8+</span>
+                        <span className={hasMinLength ? "text-slate-300" : "text-slate-500"}>8+ Characters</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasUpper ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
                           <Check className="h-3 w-3" />
                         </div>
-                        <span className={hasUpper ? "text-slate-300" : "text-slate-500"}>Herufi Kubwa (A)</span>
+                        <span className={hasUpper ? "text-slate-300" : "text-slate-500"}>Uppercase Letter (A)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasLower ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
                           <Check className="h-3 w-3" />
                         </div>
-                        <span className={hasLower ? "text-slate-300" : "text-slate-500"}>Herufi Ndogo (a)</span>
+                        <span className={hasLower ? "text-slate-300" : "text-slate-500"}>Lowercase Letter (a)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasNumber ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
                           <Check className="h-3 w-3" />
                         </div>
-                        <span className={hasNumber ? "text-slate-300" : "text-slate-500"}>Namba (0-9)</span>
+                        <span className={hasNumber ? "text-slate-300" : "text-slate-500"}>Number (0-9)</span>
                       </div>
                     </div>
                   </div>
@@ -292,10 +292,10 @@ export default function AgentSetupPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Kusajili Nywila...
+                        Setting Password...
                       </>
                     ) : (
-                      "Kamilisha Akaunti (Activate Account)"
+                      "Activate Account"
                     )}
                   </Button>
                 </form>

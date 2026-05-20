@@ -97,8 +97,8 @@ export function AgentRegisterUserDialog({
     // Validation
     if (!fullName.trim() || !phone.trim()) {
       toast({
-        title: "Kosa la Usajili",
-        description: "Tafadhali jaza Jina Kamili na Namba ya Simu.",
+        title: "Registration Error",
+        description: "Please fill in both Full Name and Phone Number.",
         variant: "destructive",
       })
       return
@@ -138,8 +138,8 @@ export function AgentRegisterUserDialog({
       }
 
       toast({
-        title: "Usajili Umefanikiwa!",
-        description: `Mtumiaji ${fullName} amesajiliwa kikamilifu kama ${type}.`,
+        title: "Registration Successful!",
+        description: `User ${fullName} has been fully registered as a ${type}.`,
       })
 
       handleClose()
@@ -148,8 +148,8 @@ export function AgentRegisterUserDialog({
     } catch (err: any) {
       console.error("[REGISTER DIALOG] Submission error:", err)
       toast({
-        title: "Usajili Umeshindikana",
-        description: err.message || "Hitilafu imetokea wakati wa usajili.",
+        title: "Registration Failed",
+        description: err.message || "An error occurred during registration.",
         variant: "destructive",
       })
     } finally {
@@ -162,19 +162,19 @@ export function AgentRegisterUserDialog({
       <DialogContent className="max-w-md w-full rounded-2xl p-6 overflow-hidden">
         <DialogHeader className="pb-4 border-b border-slate-100">
           <DialogTitle className="text-lg font-bold text-slate-900 capitalize">
-            Usajili Mpya wa {type}
+            New Registration: {type}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Jaza fomu hii kusajili mtumiaji mpya kwenye mfumo wa Tolatola.
+            Fill in this form to register a new user in the Tolatola system.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-1.5">
-            <Label htmlFor="fullName" className="text-xs font-bold text-slate-700">Jina Kamili (Full Name) *</Label>
+            <Label htmlFor="fullName" className="text-xs font-bold text-slate-700">Full Name *</Label>
             <Input
               id="fullName"
-              placeholder="Mf. Juma Kassim"
+              placeholder="E.g., John Doe"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="rounded-xl border-slate-200"
@@ -183,10 +183,10 @@ export function AgentRegisterUserDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-xs font-bold text-slate-700">Namba ya Simu *</Label>
+            <Label htmlFor="phone" className="text-xs font-bold text-slate-700">Phone Number *</Label>
             <Input
               id="phone"
-              placeholder="Mf. 07XXXXXXXX au 2557XXXXXXXX"
+              placeholder="E.g., 07XXXXXXXX or 2557XXXXXXXX"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -196,10 +196,10 @@ export function AgentRegisterUserDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-bold text-slate-700">Barua Pepe (Email) — Si Lazima</Label>
+            <Label htmlFor="email" className="text-xs font-bold text-slate-700">Email (Optional)</Label>
             <Input
               id="email"
-              placeholder="Mf. juma@example.com"
+              placeholder="E.g., john@example.com"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -209,20 +209,20 @@ export function AgentRegisterUserDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="region" className="text-xs font-bold text-slate-700">Mkoa (Region)</Label>
+              <Label htmlFor="region" className="text-xs font-bold text-slate-700">Region</Label>
               <Input
                 id="region"
-                placeholder="Mf. Dar es Salaam"
+                placeholder="E.g., Dar es Salaam"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
                 className="rounded-xl border-slate-200"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="district" className="text-xs font-bold text-slate-700">Wilaya (District)</Label>
+              <Label htmlFor="district" className="text-xs font-bold text-slate-700">District</Label>
               <Input
                 id="district"
-                placeholder="Mf. Ilala"
+                placeholder="E.g., Ilala"
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
                 className="rounded-xl border-slate-200"
@@ -231,10 +231,10 @@ export function AgentRegisterUserDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="area" className="text-xs font-bold text-slate-700">Eneo (Area)</Label>
+            <Label htmlFor="area" className="text-xs font-bold text-slate-700">Area</Label>
             <Input
               id="area"
-              placeholder="Mf. Kariakoo, Sokoni"
+              placeholder="E.g., Kariakoo"
               value={area}
               onChange={(e) => setArea(e.target.value)}
               className="rounded-xl border-slate-200"
@@ -244,32 +244,32 @@ export function AgentRegisterUserDialog({
           {/* Metadata Auto-capture display indicator */}
           <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-xl space-y-2 mt-4">
             <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Vipimo Vilivyokusanywa Kiotomatiki
+              Automatically Collected Metrics
             </h5>
             
             {/* GPS Capture Indicator */}
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 text-slate-600 font-medium">
                 <MapPin className="h-4 w-4 text-rose-500" />
-                Eneo la GPS
+                GPS Location
               </span>
               <span>
                 {gpsStatus === "loading" && (
                   <span className="flex items-center gap-1 text-slate-500 font-bold text-[10px]">
                     <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
-                    Inatafuta...
+                    Searching...
                   </span>
                 )}
                 {gpsStatus === "success" && (
                   <span className="flex items-center gap-1 text-emerald-600 font-bold text-[10px]">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                    Limesajiliwa
+                    Registered
                   </span>
                 )}
                 {gpsStatus === "error" && (
                   <span className="flex items-center gap-1 text-slate-400 font-bold text-[10px]">
                     <AlertCircle className="h-3.5 w-3.5 text-slate-300" />
-                    Haipatikani
+                    Not Available
                   </span>
                 )}
               </span>
@@ -279,10 +279,10 @@ export function AgentRegisterUserDialog({
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 text-slate-600 font-medium">
                 <Laptop className="h-4 w-4 text-slate-500" />
-                Kifaa cha Usajili
+                Registration Device
               </span>
               <span className="text-[10px] text-slate-400 font-bold max-w-[150px] truncate">
-                {deviceInfo ? "Chrome/Safari Mobile" : "Inatambua..."}
+                {deviceInfo ? "Chrome/Safari Mobile" : "Detecting..."}
               </span>
             </div>
           </div>
@@ -304,10 +304,10 @@ export function AgentRegisterUserDialog({
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Inatuma...
+                  Submitting...
                 </>
               ) : (
-                "Kamilisha Usajili"
+                "Complete Registration"
               )}
             </Button>
           </DialogFooter>

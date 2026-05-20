@@ -63,8 +63,8 @@ export function AgentRegistrationsTab({
     } catch (err) {
       console.error("[REGISTRATIONS TAB] Fetch failed:", err)
       toast({
-        title: "Hitilafu ya kupakia",
-        description: "Imeshindwa kupata orodha ya usajili.",
+        title: "Load Error",
+        description: "Failed to fetch registrations list.",
         variant: "destructive",
       })
     } finally {
@@ -85,11 +85,11 @@ export function AgentRegistrationsTab({
           <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             {/* Search Input */}
             <div className="space-y-1.5 md:col-span-2">
-              <span className="text-xs font-bold text-slate-700">Tafuta Mtumiaji</span>
+              <span className="text-xs font-bold text-slate-700">Search User</span>
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Tafuta kwa Jina, Simu au Barua pepe..."
+                  placeholder="Search by Name, Phone, or Email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 rounded-xl border-slate-200 text-xs md:text-sm"
@@ -99,16 +99,16 @@ export function AgentRegistrationsTab({
 
             {/* Registration Type Filter */}
             <div className="space-y-1.5">
-              <span className="text-xs font-bold text-slate-700">Aina ya Usajili</span>
+              <span className="text-xs font-bold text-slate-700">Registration Type</span>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs md:text-sm bg-white text-slate-700 outline-none focus:border-slate-300"
               >
-                <option value="all">Zote (All)</option>
-                <option value="vendor">Wauzaji (Vendor)</option>
-                <option value="customer">Wateja (Customer)</option>
-                <option value="transporter">Wasafirishaji (Transporter)</option>
+                <option value="all">All</option>
+                <option value="vendor">Vendors</option>
+                <option value="customer">Customers</option>
+                <option value="transporter">Transporters</option>
               </select>
             </div>
 
@@ -118,7 +118,7 @@ export function AgentRegistrationsTab({
                 type="submit"
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs md:text-sm h-10"
               >
-                Tafuta
+                Search
               </Button>
               <Button
                 type="button"
@@ -142,18 +142,18 @@ export function AgentRegistrationsTab({
       <Card className="shadow-sm rounded-xl border border-slate-200 bg-white overflow-hidden">
         <CardHeader className="border-b border-slate-100 flex flex-row items-center justify-between py-4">
           <CardTitle className="text-sm font-bold text-slate-800">
-            Jumla ya Usajili ({registrations.length})
+            Total Registrations ({registrations.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
-              <span className="text-xs text-slate-400 font-bold">Inapakia orodha...</span>
+              <span className="text-xs text-slate-400 font-bold">Loading list...</span>
             </div>
           ) : registrations.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-xs text-slate-400">Hakuna watumiaji waliopatikana kwa vichujio hivi.</p>
+              <p className="text-xs text-slate-400">No users found matching these filters.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -163,7 +163,7 @@ export function AgentRegistrationsTab({
                     <th className="py-4 px-6">Full Name</th>
                     <th className="py-4 px-4">Category</th>
                     <th className="py-4 px-4">Phone Number</th>
-                    <th className="py-4 px-4">Eneo / Wilaya</th>
+                    <th className="py-4 px-4">Area / District</th>
                     <th className="py-4 px-4">Date Registered</th>
                     <th className="py-4 px-4">GPS Location</th>
                     <th className="py-4 px-6 text-right">Verification</th>

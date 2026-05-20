@@ -109,11 +109,11 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
     const diffHours = Math.floor(diffMins / 60)
     const diffDays = Math.floor(diffHours / 24)
 
-    if (diffMins < 1) return "Sasa hivi"
-    if (diffMins < 60) return `Dakika ${diffMins} zilizopita`
-    if (diffHours < 24) return `Saa ${diffHours} zilizopita`
-    if (diffDays < 7) return `Siku ${diffDays} zilizopita`
-    return date.toLocaleDateString("sw-TZ")
+    if (diffMins < 1) return "Just now"
+    if (diffMins < 60) return `${diffMins} minutes ago`
+    if (diffHours < 24) return `${diffHours} hours ago`
+    if (diffDays < 7) return `${diffDays} days ago`
+    return date.toLocaleDateString("en-US")
   }
 
   return (
@@ -121,11 +121,11 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-slate-900">Arifa (Notifications)</h2>
+          <h2 className="text-lg font-black text-slate-900">Notifications</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {unreadCount > 0
-              ? `Una arifa ${unreadCount} mpya ambayo haijasomwa.`
-              : "Hakuna arifa mpya kwa sasa."}
+              ? `You have ${unreadCount} new unread notification(s).`
+              : "No new notifications at this time."}
           </p>
         </div>
 
@@ -153,7 +153,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
-          Zote ({notifications.length})
+          All ({notifications.length})
         </button>
         <button
           onClick={() => setFilter("unread")}
@@ -163,7 +163,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
-          Hazijasomwa ({unreadCount})
+          Unread ({unreadCount})
         </button>
       </div>
 
@@ -173,18 +173,18 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-2">
               <Loader2 className="h-6 w-6 text-primary animate-spin" />
-              <span className="text-xs text-slate-400">Inapakia arifa...</span>
+              <span className="text-xs text-slate-400">Loading notifications...</span>
             </div>
           ) : filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center">
                 <Bell className="h-6 w-6 text-slate-300" />
               </div>
-              <p className="text-xs text-slate-400 font-bold">Hakuna arifa</p>
+              <p className="text-xs text-slate-400 font-bold">No Notifications</p>
               <p className="text-[10px] text-slate-400">
                 {filter === "unread"
-                  ? "Arifa zote zimesomwa."
-                  : "Arifa mpya zitaonyeshwa hapa."}
+                  ? "All notifications have been read."
+                  : "New notifications will appear here."}
               </p>
             </div>
           ) : (

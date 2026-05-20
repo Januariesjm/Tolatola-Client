@@ -54,8 +54,8 @@ export function AgentPerformanceTab({
     } catch (err) {
       console.error("[PERFORMANCE TAB] Fetch failed:", err)
       toast({
-        title: "Hitilafu",
-        description: "Imeshindwa kupakia ripoti ya utendaji.",
+        title: "Error",
+        description: "Failed to load performance report.",
         variant: "destructive",
       })
     } finally {
@@ -78,15 +78,15 @@ export function AgentPerformanceTab({
 
   const barChartData = [
     {
-      name: "Wauzaji (Vendor)",
+      name: "Vendors",
       Registered: categoryBreakdown.vendor,
     },
     {
-      name: "Wateja (Customer)",
+      name: "Customers",
       Registered: categoryBreakdown.customer,
     },
     {
-      name: "Wasafirishaji (Transporter)",
+      name: "Transporters",
       Registered: categoryBreakdown.transporter,
     },
   ]
@@ -96,8 +96,8 @@ export function AgentPerformanceTab({
       {/* Filters & Header Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
         <div>
-          <h3 className="text-sm font-bold text-slate-800">Uchambuzi wa Utendaji</h3>
-          <p className="text-xs text-slate-400">Ripoti ya usajili kulingana na muda uliochaguliwa</p>
+          <h3 className="text-sm font-bold text-slate-800">Performance Analytics</h3>
+          <p className="text-xs text-slate-400">Registration reports based on chosen period</p>
         </div>
         
         {/* Period Selector Buttons */}
@@ -108,7 +108,7 @@ export function AgentPerformanceTab({
               period === "week" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            Wiki (Week)
+            Week
           </button>
           <button
             onClick={() => setPeriod("month")}
@@ -116,7 +116,7 @@ export function AgentPerformanceTab({
               period === "month" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            Mwezi (Month)
+            Month
           </button>
           <button
             onClick={() => setPeriod("year")}
@@ -124,7 +124,7 @@ export function AgentPerformanceTab({
               period === "year" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            Mwaka (Year)
+            Year
           </button>
         </div>
       </div>
@@ -132,7 +132,7 @@ export function AgentPerformanceTab({
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-28 gap-3">
           <Loader2 className="h-8 w-8 text-emerald-600 animate-spin" />
-          <span className="text-xs text-slate-400 font-bold">Inachakata data ya takwimu...</span>
+          <span className="text-xs text-slate-400 font-bold">Processing analytics data...</span>
         </div>
       ) : (
         <>
@@ -147,7 +147,7 @@ export function AgentPerformanceTab({
                   {totalRegistrations}
                 </span>
                 <p className="text-xs text-slate-400">
-                  Jumla ya watumiaji uliowasajili katika kipindi hiki
+                  Total users registered by you during this period
                 </p>
               </CardContent>
             </Card>
@@ -161,7 +161,7 @@ export function AgentPerformanceTab({
                   {conversionRate}%
                 </span>
                 <p className="text-xs text-slate-400">
-                  Asilimia ya usajili uliothibitishwa kuwa hai (active)
+                  Percentage of registrations verified as active
                 </p>
               </CardContent>
             </Card>
@@ -193,8 +193,8 @@ export function AgentPerformanceTab({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2 shadow-sm rounded-xl border border-slate-200 bg-white">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800">Trend ya Usajili wa Kila Siku</CardTitle>
-                <CardDescription className="text-xs">Idadi ya usajili mpya kwa kila siku</CardDescription>
+                <CardTitle className="text-sm font-bold text-slate-800">Daily Registration Trend</CardTitle>
+                <CardDescription className="text-xs">Number of new registrations per day</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -230,8 +230,8 @@ export function AgentPerformanceTab({
 
             <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800">Usajili kwa Aina</CardTitle>
-                <CardDescription className="text-xs">Mgawanyiko kulingana na wateja, wauzaji na wasafirishaji</CardDescription>
+                <CardTitle className="text-sm font-bold text-slate-800">Registrations by Category</CardTitle>
+                <CardDescription className="text-xs">Breakdown by customers, vendors, and transporters</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">

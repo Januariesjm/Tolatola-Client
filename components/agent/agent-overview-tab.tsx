@@ -49,8 +49,8 @@ export function AgentOverviewTab({
   // Quick Action List
   const quickActions = [
     {
-      label: "Sajili Muuzaji (Vendor)",
-      desc: "Sajili duka jipya au mfanyabiashara kwenye TolaTola",
+      label: "Register Vendor",
+      desc: "Register a new shop or business on TolaTola",
       color: "from-emerald-500 to-teal-500",
       bgLight: "bg-emerald-50",
       textColor: "text-emerald-700",
@@ -58,8 +58,8 @@ export function AgentOverviewTab({
       action: () => openRegisterDialog("vendor"),
     },
     {
-      label: "Sajili Mteja (Customer)",
-      desc: "Sajili mnunuzi mpya kwenye soko la Tolatola",
+      label: "Register Customer",
+      desc: "Register a new buyer on the Tolatola marketplace",
       color: "from-blue-500 to-indigo-500",
       bgLight: "bg-blue-50",
       textColor: "text-blue-700",
@@ -67,8 +67,8 @@ export function AgentOverviewTab({
       action: () => openRegisterDialog("customer"),
     },
     {
-      label: "Sajili Msafirishaji",
-      desc: "Sajili dereva wa bodaboda, bajaji au gari la mizigo",
+      label: "Register Transporter",
+      desc: "Register a bodaboda, bajaji, or cargo truck driver",
       color: "from-amber-500 to-orange-500",
       bgLight: "bg-amber-50",
       textColor: "text-amber-700",
@@ -82,7 +82,7 @@ export function AgentOverviewTab({
     {
       title: "Total Registrations",
       value: stats.totalRegistrations || 0,
-      subtext: "Jumla ya usajili wote uliokamilika",
+      subtext: "Total of all completed registrations",
       icon: Users,
       color: "border-slate-200 text-slate-800",
       iconBg: "bg-slate-100 text-slate-600",
@@ -90,7 +90,7 @@ export function AgentOverviewTab({
     {
       title: "Vendors Registered",
       value: stats.vendorsRegistered || 0,
-      subtext: "Jumla ya wauzaji uliowasajili",
+      subtext: "Total vendors registered by you",
       icon: Store,
       color: "border-emerald-100 text-emerald-800",
       iconBg: "bg-emerald-50 text-emerald-600",
@@ -98,7 +98,7 @@ export function AgentOverviewTab({
     {
       title: "Customers Registered",
       value: stats.customersRegistered || 0,
-      subtext: "Jumla ya wateja uliowasajili",
+      subtext: "Total customers registered by you",
       icon: Users,
       color: "border-blue-100 text-blue-800",
       iconBg: "bg-blue-50 text-blue-600",
@@ -106,7 +106,7 @@ export function AgentOverviewTab({
     {
       title: "Transporters Registered",
       value: stats.transportersRegistered || 0,
-      subtext: "Wasafirishaji waliounganishwa",
+      subtext: "Total transporters connected",
       icon: Truck,
       color: "border-amber-100 text-amber-800",
       iconBg: "bg-amber-50 text-amber-600",
@@ -114,7 +114,7 @@ export function AgentOverviewTab({
     {
       title: "Total Commission Earned",
       value: formatTzs(stats.totalCommission || 0),
-      subtext: "Jumla ya kamisheni zote",
+      subtext: "Sum of all commissions earned",
       icon: Coins,
       color: "border-teal-200 bg-gradient-to-br from-white to-teal-50/20 text-teal-900",
       iconBg: "bg-teal-100 text-teal-600",
@@ -122,7 +122,7 @@ export function AgentOverviewTab({
     {
       title: "Pending Commission",
       value: formatTzs(stats.pendingCommission || 0),
-      subtext: "Inasubiri kuidhinishwa na admin",
+      subtext: "Awaiting approval by admin",
       icon: Clock,
       color: "border-indigo-100 text-indigo-800",
       iconBg: "bg-indigo-50 text-indigo-600",
@@ -130,7 +130,7 @@ export function AgentOverviewTab({
     {
       title: "Active Registrations",
       value: stats.activeUsers || 0,
-      subtext: "Watumiaji waliothibitishwa",
+      subtext: "Total verified active users",
       icon: ShieldCheck,
       color: "border-purple-100 text-purple-800",
       iconBg: "bg-purple-50 text-purple-600",
@@ -138,7 +138,7 @@ export function AgentOverviewTab({
     {
       title: "Monthly Registrations",
       value: stats.monthlyRegistrations || 0,
-      subtext: "Utendaji wa mwezi huu",
+      subtext: "Performance for this month",
       icon: TrendingUp,
       color: "border-pink-100 text-pink-800",
       iconBg: "bg-pink-50 text-pink-600",
@@ -151,10 +151,10 @@ export function AgentOverviewTab({
       <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
         <div className="relative z-10 max-w-2xl">
           <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
-            Karibu tena, {agent.users?.full_name || "Sales Officer"}!
+            Welcome back, {agent.users?.full_name || "Sales Officer"}!
           </h2>
           <p className="text-slate-600 text-sm md:text-base mb-4">
-            Hapa ni kitovu cha usimamizi wako wa mauzo na usajili. Tumia vitendo vya haraka hapa chini kusajili wateja wapya, wauzaji au wasafirishaji na ufuatilie mapato yako moja kwa moja.
+            This is your sales and registration management hub. Use the quick actions below to register new customers, vendors, or transporters and track your earnings directly.
           </p>
           <div className="flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -172,7 +172,7 @@ export function AgentOverviewTab({
       {/* Quick Actions Grid */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-          Quick Actions — Vitendo vya Haraka
+          Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {quickActions.map((act, i) => {
@@ -205,7 +205,7 @@ export function AgentOverviewTab({
       {/* KPI Cards Grid */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-          Performance Overview — Muhtasari wa Utendaji
+          Performance Overview
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpiCards.map((kpi, i) => {
@@ -240,7 +240,7 @@ export function AgentOverviewTab({
         <Card className="lg:col-span-2 shadow-sm rounded-xl border border-slate-200 bg-white">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-bold text-slate-800">
-              Usajili wa Hivi Karibuni
+              Recent Registrations
             </CardTitle>
             <Button
               variant="ghost"
@@ -248,21 +248,21 @@ export function AgentOverviewTab({
               onClick={() => setActiveTab("registrations")}
               className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-lg"
             >
-              Tazama Zote
+              View All
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </CardHeader>
           <CardContent>
             {recentRegistrations.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-xs text-slate-400">Hujasajili mtumiaji yeyote bado.</p>
+                <p className="text-xs text-slate-400">You haven't registered any users yet.</p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => openRegisterDialog("vendor")}
                   className="mt-3 text-xs"
                 >
-                  Sajili Sasa
+                  Register Now
                 </Button>
               </div>
             ) : (
@@ -321,30 +321,30 @@ export function AgentOverviewTab({
           <CardHeader>
             <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
               <Award className="h-4.5 w-4.5 text-amber-500" />
-              Miongozo ya Kamisheni
+              Commission Guidelines
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-xs leading-relaxed text-slate-600">
             <div className="bg-amber-50/50 p-3 rounded-lg border border-amber-100/60">
-              <h5 className="font-bold text-amber-900 mb-1">Jinsi ya Kulipwa:</h5>
-              <p>Kamisheni inatengenezwa kiotomatiki mara tu unaposajili duka, mteja au msafirishaji. Usajili unahitaji kuidhinishwa na admin kabla ya malipo kukamilika.</p>
+              <h5 className="font-bold text-amber-900 mb-1">How to Earn:</h5>
+              <p>Commissions are automatically calculated once you register a shop, customer, or transporter. Registrations must be approved by an administrator before payouts are finalized.</p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="font-medium">Msajili wa Duka (Vendor)</span>
-                <span className="font-bold text-slate-900">Kamisheni Nyingi</span>
+                <span className="font-medium">Shop Registration (Vendor)</span>
+                <span className="font-bold text-slate-900">High Commission</span>
               </div>
               <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
-                <span className="font-medium">Msajili wa Transporter</span>
-                <span className="font-bold text-slate-900">Kamisheni ya Kati</span>
+                <span className="font-medium">Transporter Registration</span>
+                <span className="font-bold text-slate-900">Medium Commission</span>
               </div>
               <div className="flex justify-between items-center py-1.5">
-                <span className="font-medium">Msajili wa Mteja</span>
-                <span className="font-bold text-slate-900">Kamisheni ya Msingi</span>
+                <span className="font-medium">Customer Registration</span>
+                <span className="font-bold text-slate-900">Standard Commission</span>
               </div>
             </div>
             <p className="text-[10px] text-slate-400 leading-normal italic">
-              *Hakikisha usajili wako wote unatumia eneo sahihi la GPS ili kupunguza muda wa kuidhinishwa na admin.
+              *Make sure all your registrations use correct GPS locations to minimize admin approval times.
             </p>
           </CardContent>
         </Card>
