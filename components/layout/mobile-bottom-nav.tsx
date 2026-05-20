@@ -1,14 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
     Home,
-    Heart,
     ShoppingCart,
     Grid3x3,
-    ChevronRight
+    ChevronRight,
+    Bell
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -20,12 +20,30 @@ import {
 } from "@/components/ui/sheet"
 import { clientApiGet } from "@/lib/api-client"
 import Image from "next/image"
+import { createClient } from "@/lib/supabase/client"
+import { getUserConversations } from "@/app/actions/messaging"
+import { fetchUnreadCount } from "@/lib/services/notifications.service"
 
 export function MobileBottomNav() {
     const pathname = usePathname()
     const [categories, setCategories] = useState<any[]>([])
     const [cartCount, setCartCount] = useState(0)
+    const [unreadCount, setUnreadCount] = useState(0)
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
+    const supabase = createClient()
+
+    const loadUnreadCount = useCallback(async () => {
+        try {
+            const [globalUnread, convResult] = await Promise.all([
+                fetchUnreadCount().catch(() => 0),
+                getUserConversations().catch(() => ({ conversations: [] }))
+            ])
+            const unreadConvs = (convResult.conversations || []).reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0)
+            setUnreadCount(globalUnread + unreadConvs)
+        } catch (error) {
+            console.error("Error fetching unread count for bottom nav:", error)
+        }
+    }, [])
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -45,29 +63,68 @@ export function MobileBottomNav() {
 
         fetchCategories()
         updateCartCount()
+        loadUnreadCount()
 
         window.addEventListener("cartUpdated", updateCartCount)
         window.addEventListener("storage", updateCartCount)
 
+        const channel = supabase
+            .channel("bottom_nav_notifications_realtime")
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                },
+                () => {
+                    loadUnreadCount()
+                },
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "notifications",
+                },
+                () => {
+                    loadUnreadCount()
+                },
+            )
+            .subscribe()
+
         return () => {
             window.removeEventListener("cartUpdated", updateCartCount)
             window.removeEventListener("storage", updateCartCount)
+            supabase.removeChannel(channel)
         }
-    }, [])
-
-    const navItems = [
-        { label: "Home", icon: Home, href: "/" },
-        { label: "Favorites", icon: Heart, href: "/favorites" },
-        { label: "Cart", icon: ShoppingCart, href: "/cart", badge: cartCount },
-    ]
+    }, [loadUnreadCount, supabase])
 
     return (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4">
             <nav className="bg-[#006666] backdrop-blur-lg border border-white/10 shadow-2xl rounded-3xl h-16 flex items-center justify-around relative overflow-hidden">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-none" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-events-none" />
 
-                {/* Categories Menu (Hamburger) */}
+                {/* 1. Home (renamed to Tola) */}
+                <Link
+                    href="/"
+                    className={cn(
+                        "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
+                        pathname === "/" ? "text-white" : "text-white/60 hover:text-white"
+                    )}
+                >
+                    <div className="relative">
+                        <Home className={cn("h-5 w-5 transition-transform", pathname === "/" && "scale-110")} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Tola</span>
+                    {pathname === "/" && (
+                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                    )}
+                </Link>
+
+                {/* 2. Categories Menu (triggers Sheet) */}
                 <Sheet open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
                     <SheetTrigger asChild>
                         <button className="flex flex-col items-center justify-center gap-1 w-full h-full text-white/70 hover:text-white transition-colors relative z-10">
@@ -104,34 +161,49 @@ export function MobileBottomNav() {
                     </SheetContent>
                 </Sheet>
 
-                {navItems.map((item) => {
-                    const Icon = item.icon
-                    const isActive = pathname === item.href
+                {/* 3. Messages / Notifications (replaces Favorites) */}
+                <Link
+                    href="/messages"
+                    className={cn(
+                        "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
+                        pathname === "/messages" ? "text-white" : "text-white/60 hover:text-white"
+                    )}
+                >
+                    <div className="relative">
+                        <Bell className={cn("h-5 w-5 transition-transform", pathname === "/messages" && "scale-110")} />
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-[#006666]">
+                                {unreadCount > 9 ? "9+" : unreadCount}
+                            </span>
+                        )}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">messages</span>
+                    {pathname === "/messages" && (
+                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                    )}
+                </Link>
 
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
-                                isActive ? "text-white" : "text-white/60 hover:text-white"
-                            )}
-                        >
-                            <div className="relative">
-                                <Icon className={cn("h-5 w-5", isActive && "scale-110")} />
-                                {item.badge > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-[#006666]">
-                                        {item.badge}
-                                    </span>
-                                )}
-                            </div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
-                            {isActive && (
-                                <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
-                            )}
-                        </Link>
-                    )
-                })}
+                {/* 4. Cart */}
+                <Link
+                    href="/cart"
+                    className={cn(
+                        "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
+                        pathname === "/cart" ? "text-white" : "text-white/60 hover:text-white"
+                    )}
+                >
+                    <div className="relative">
+                        <ShoppingCart className={cn("h-5 w-5 transition-transform", pathname === "/cart" && "scale-110")} />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-[#006666]">
+                                {cartCount > 99 ? "99+" : cartCount}
+                            </span>
+                        )}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Cart</span>
+                    {pathname === "/cart" && (
+                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                    )}
+                </Link>
             </nav>
         </div>
     )
