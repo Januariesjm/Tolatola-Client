@@ -116,12 +116,6 @@ export default async function ShopPage({
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
-      {/* Mobile Search Bar - Between Header and Categories */}
-      <div className="lg:hidden sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl border-b border-stone-100 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
-          <ProductSearch categories={categories || []} />
-        </div>
-      </div>
 
       <CategoriesNav categories={categories || []} currentCategory={currentCategory} />
       <ShopContent
