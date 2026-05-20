@@ -11,7 +11,8 @@ import {
   Shield,
   MapPin,
   Menu,
-  X
+  X,
+  Bell,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -49,6 +50,7 @@ export function AgentSidebar({
     { id: "registrations", label: "My Registrations", icon: Users },
     { id: "commissions", label: "Earnings & Commissions", icon: Percent },
     { id: "performance", label: "Performance Insights", icon: TrendingUp },
+    { id: "notifications", label: "Notifications & Alerts", icon: Bell },
   ]
 
   const sidebarContent = (

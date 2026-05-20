@@ -6,6 +6,7 @@ import { AgentOverviewTab } from "./agent-overview-tab"
 import { AgentRegistrationsTab } from "./agent-registrations-tab"
 import { AgentCommissionTab } from "./agent-commission-tab"
 import { AgentPerformanceTab } from "./agent-performance-tab"
+import { AgentNotifications } from "./agent-notifications"
 import { Menu, Bell, Clock } from "lucide-react"
 
 interface AgentDashboardContentProps {
@@ -70,6 +71,12 @@ export function AgentDashboardContent({
           <AgentPerformanceTab
             agent={agent}
             trend={trend}
+          />
+        )
+      case "notifications":
+        return (
+          <AgentNotifications
+            agent={agent}
           />
         )
       default:

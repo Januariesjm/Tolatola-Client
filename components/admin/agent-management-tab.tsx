@@ -9,6 +9,13 @@ import { useToast } from "@/components/ui/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
   Users,
   MapPin,
   Loader2,
@@ -16,6 +23,9 @@ import {
   Search,
   CheckCircle,
   XCircle,
+  UserPlus,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 
 interface AgentManagementTabProps {
@@ -44,6 +54,21 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
   // Filter States
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // Create Agent Dialog States
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [showCreatePassword, setShowCreatePassword] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    email: "",
+    password: "",
+    full_name: "",
+    phone: "",
+    role_name: "Sales Agent",
+    region: "",
+    district: "",
+    area: "",
+  })
 
   // Helper to get auth headers
   const getAuthHeaders = async () => {
@@ -147,6 +172,60 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
     }
   }
 
+  // Create Agent handler
+  const handleCreateAgent = async () => {
+    if (!createForm.email || !createForm.password || !createForm.full_name || !createForm.phone) {
+      toast({
+        title: "Taarifa Zinakosekana",
+        description: "Tafadhali jaza email, password, jina kamili, na nambari ya simu.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsCreating(true)
+    try {
+      const headers = await getAuthHeaders()
+      const response = await fetch(`${apiBase}/admin/agents`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(createForm),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create agent")
+      }
+
+      toast({
+        title: "Wakala Ameundwa!",
+        description: result.message || `Wakala ${createForm.full_name} ameundwa kwa mafanikio.`,
+      })
+
+      setIsCreateOpen(false)
+      setCreateForm({
+        email: "",
+        password: "",
+        full_name: "",
+        phone: "",
+        role_name: "Sales Agent",
+        region: "",
+        district: "",
+        area: "",
+      })
+      fetchAllData()
+    } catch (err: any) {
+      toast({
+        title: "Imeshindikana",
+        description: err.message || "Imeshindwa kuunda wakala mpya.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   // Filters application
   const filteredAgents = agents.filter((agent) => {
     const name = agent.users?.full_name || ""
@@ -247,6 +326,13 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                   <option value="active">Active</option>
                   <option value="suspended">Suspended</option>
                 </select>
+                <Button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="rounded-xl text-xs h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  Unda Wakala Mpya
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -452,6 +538,155 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* ── Create Agent Dialog ── */}
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent className="sm:max-w-lg rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-emerald-600" />
+              Unda Wakala Mpya (Create New Agent)
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              Jaza taarifa za wakala mpya. Akaunti itaundwa na nywila uliyoweka.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-2">
+            {/* Full Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Jina Kamili (Full Name) *</label>
+              <Input
+                placeholder="e.g. John Mwakasege"
+                value={createForm.full_name}
+                onChange={(e) => setCreateForm(f => ({ ...f, full_name: e.target.value }))}
+                className="rounded-xl text-sm h-10"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Email Address *</label>
+              <Input
+                type="email"
+                placeholder="e.g. john@tolatola.co"
+                value={createForm.email}
+                onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))}
+                className="rounded-xl text-sm h-10"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Password *</label>
+              <div className="relative">
+                <Input
+                  type={showCreatePassword ? "text" : "password"}
+                  placeholder="Min. 8 characters"
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))}
+                  className="rounded-xl text-sm h-10 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCreatePassword(!showCreatePassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showCreatePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-600">Nambari ya Simu (Phone) *</label>
+              <Input
+                type="tel"
+                placeholder="e.g. +255712345678"
+                value={createForm.phone}
+                onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value }))}
+                className="rounded-xl text-sm h-10"
+              />
+            </div>
+
+            {/* Role + Region Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600">Role</label>
+                <select
+                  value={createForm.role_name}
+                  onChange={(e) => setCreateForm(f => ({ ...f, role_name: e.target.value }))}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white text-slate-700 outline-none"
+                >
+                  <option value="Sales Agent">Sales Agent</option>
+                  <option value="Regional Supervisor">Regional Supervisor</option>
+                  <option value="Sales Manager">Sales Manager</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600">Mkoa (Region)</label>
+                <Input
+                  placeholder="e.g. Dar es Salaam"
+                  value={createForm.region}
+                  onChange={(e) => setCreateForm(f => ({ ...f, region: e.target.value }))}
+                  className="rounded-xl text-sm h-10"
+                />
+              </div>
+            </div>
+
+            {/* District + Area Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600">Wilaya (District)</label>
+                <Input
+                  placeholder="e.g. Ilala"
+                  value={createForm.district}
+                  onChange={(e) => setCreateForm(f => ({ ...f, district: e.target.value }))}
+                  className="rounded-xl text-sm h-10"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600">Eneo (Area)</label>
+                <Input
+                  placeholder="e.g. Kariakoo"
+                  value={createForm.area}
+                  onChange={(e) => setCreateForm(f => ({ ...f, area: e.target.value }))}
+                  className="rounded-xl text-sm h-10"
+                />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateOpen(false)}
+                disabled={isCreating}
+                className="rounded-xl text-xs h-9"
+              >
+                Ghairi (Cancel)
+              </Button>
+              <Button
+                onClick={handleCreateAgent}
+                disabled={isCreating}
+                className="rounded-xl text-xs h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                    Inaunda...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                    Unda Wakala
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
