@@ -37,7 +37,27 @@ export default function AgentSetupPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
 
-        // If there's already a valid session, use it
+        // If we have token parameters from an email link, prioritize the setup/activation flow.
+        if (token && mail) {
+          // If there is an active session for a different user, sign them out first
+          if (session && session.user?.email?.toLowerCase() !== mail.toLowerCase()) {
+            await supabase.auth.signOut()
+          }
+
+          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+          const res = await fetch(`${apiBase}/agents/public-name?email=${encodeURIComponent(mail)}`)
+          const nameData = await res.json()
+
+          if (nameData.name) {
+            setAgentName(nameData.name)
+          } else {
+            setAgentName(mail) // Fallback to email
+          }
+          setIsVerifying(false)
+          return
+        }
+
+        // If there's already a valid session and no token, verify and load agent portal
         if (session) {
           const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
           const res = await fetch(`${apiBase}/agents/my-role`, {
@@ -55,21 +75,6 @@ export default function AgentSetupPage() {
 
           const fullName = session.user?.user_metadata?.full_name || "New member"
           setAgentName(fullName)
-          setIsVerifying(false)
-          return
-        }
-
-        // If no session but we have token parameters, verify and fetch public agent name
-        if (token && mail) {
-          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
-          const res = await fetch(`${apiBase}/agents/public-name?email=${encodeURIComponent(mail)}`)
-          const nameData = await res.json()
-
-          if (nameData.name) {
-            setAgentName(nameData.name)
-          } else {
-            setAgentName(mail) // Fallback to email
-          }
           setIsVerifying(false)
           return
         }
