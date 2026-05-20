@@ -102,34 +102,34 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                 {/* Action Buttons */}
                                 <div className="pt-1 w-full">
                                     {slide.button_link === "SPECIAL_VENDOR_ACTIONS" ? (
-                                        <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2 w-full max-w-[340px] sm:max-w-none">
+                                        <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-1.5 lg:gap-2 w-full sm:max-w-none">
                                             <Link href="/shop" className="w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
-                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-2 md:px-6 flex items-center justify-center"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
-                                                    <ShoppingCart className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="truncate">Start Shopping</span>
+                                                    <ShoppingCart className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    Start Shopping
                                                 </Button>
                                             </Link>
                                             <Link href="/auth/sign-up?userType=vendor" className="w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 md:px-6 flex items-center justify-center"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
-                                                    <Store className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span className="truncate">Become a Seller</span>
+                                                    <Store className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    Become a Seller
                                                 </Button>
                                             </Link>
                                             <Link href="/auth/sign-up?userType=transporter" className="col-span-2 w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 md:px-6 flex items-center justify-center"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
-                                                    <Truck className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    <span>Become a Transporter</span>
+                                                    <Truck className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    Become a Transporter
                                                 </Button>
                                             </Link>
                                         </div>
