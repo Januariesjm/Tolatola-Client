@@ -122,7 +122,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     Become a Seller
                                                 </Button>
                                             </Link>
-                                            <Link href="/auth/sign-up?userType=transporter" className="col-span-2 w-full lg:w-auto">
+                                            <Link href="/auth/sign-up?userType=transporter" className="w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
