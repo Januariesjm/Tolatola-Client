@@ -154,6 +154,17 @@ export async function GET(request: Request) {
   // Handle email verification callback
   if (token_hash && type) {
     console.log('[AUTH CALLBACK] Processing email verification...')
+
+    // If setting up agent password, redirect directly to the page without calling verifyOtp
+    // to avoid consuming the single-use token on GET. The setup page will perform the OTP
+    // verification and password update inside the form submit action.
+    if (next && next.startsWith('/agent/setup')) {
+      console.log('[AUTH CALLBACK] Redirecting directly to agent setup to preserve token_hash')
+      const emailParam = requestUrl.searchParams.get("email")
+      const emailQuery = emailParam ? `&email=${encodeURIComponent(emailParam)}` : ''
+      return NextResponse.redirect(`${appUrl}${next}${next.includes('?') ? '&' : '?'}token_hash=${token_hash}&type=${type}${emailQuery}`)
+    }
+
     const { error } = await supabase.auth.verifyOtp({
       type: type as any,
       token_hash,

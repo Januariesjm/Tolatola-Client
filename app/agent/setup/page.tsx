@@ -18,36 +18,64 @@ export default function AgentSetupPage() {
   const [success, setSuccess] = useState(false)
   const [agentName, setAgentName] = useState("")
 
+  const [tokenHash, setTokenHash] = useState<string | null>(null)
+  const [tokenType, setTokenType] = useState<string | null>(null)
+
   const supabase = createClient()
 
   useEffect(() => {
+    // Parse token params from URL
+    const searchParams = new URLSearchParams(window.location.search)
+    const token = searchParams.get("token_hash")
+    const type = searchParams.get("type") || "recovery"
+    const mail = searchParams.get("email")
+
+    setTokenHash(token)
+    setTokenType(type)
+
     async function checkSession() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) {
-          setError("Session yako imekwisha au haipo. Tafadhali bonyeza kiungo kwenye barua pepe yako tena, au wasiliana na msimamizi wako.")
+
+        // If there's already a valid session, use it
+        if (session) {
+          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+          const res = await fetch(`${apiBase}/agents/my-role`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          })
+
+          const roleData = await res.json()
+          if (!roleData.allowed) {
+            setError("Akaunti hii haina ruhusa ya wakala. Wasiliana na msimamizi.")
+            setIsVerifying(false)
+            return
+          }
+
+          const fullName = session.user?.user_metadata?.full_name || "Mwanachama mpya"
+          setAgentName(fullName)
           setIsVerifying(false)
           return
         }
 
-        // Get user profile details
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
-        const res = await fetch(`${apiBase}/agents/my-role`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        })
+        // If no session but we have token parameters, verify and fetch public agent name
+        if (token && mail) {
+          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+          const res = await fetch(`${apiBase}/agents/public-name?email=${encodeURIComponent(mail)}`)
+          const nameData = await res.json()
 
-        const roleData = await res.json()
-        if (!roleData.allowed) {
-          setError("Akaunti hii haina ruhusa ya wakala. Wasiliana na msimamizi.")
+          if (nameData.name) {
+            setAgentName(nameData.name)
+          } else {
+            setAgentName(mail) // Fallback to email
+          }
           setIsVerifying(false)
           return
         }
 
-        // Get full name from session user metadata or profile
-        const fullName = session.user?.user_metadata?.full_name || "Mwanachama mpya"
-        setAgentName(fullName)
+        // No session and no token params
+        setError("Session yako imekwisha au haipo. Tafadhali bonyeza kiungo kwenye barua pepe yako tena, au wasiliana na msimamizi wako.")
         setIsVerifying(false)
       } catch (err) {
         console.error("Setup session check error:", err)
@@ -74,6 +102,18 @@ export default function AgentSetupPage() {
     setError(null)
 
     try {
+      // 1. If we have a token hash and type, verify it now to log the user in
+      if (tokenHash && tokenType) {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          type: tokenType as any,
+          token_hash: tokenHash,
+        })
+        if (verifyError) {
+          throw verifyError
+        }
+      }
+
+      // 2. Once verified, update the password
       const { error: updateError } = await supabase.auth.updateUser({
         password: password,
       })
