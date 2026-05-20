@@ -100,57 +100,61 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                 </p>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-wrap gap-2 pt-1">
+                                <div className="pt-1 w-full">
                                     {slide.button_link === "SPECIAL_VENDOR_ACTIONS" ? (
-                                        <>
-                                            <Link href="/shop" className="flex-none">
+                                        <div className="grid grid-cols-2 lg:flex lg:flex-wrap gap-2 w-full max-w-[340px] sm:max-w-none">
+                                            <Link href="/shop" className="w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
-                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-3 md:px-6"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-2 md:px-6 flex items-center justify-center"
                                                 >
-                                                    <ShoppingCart className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                                                    Start Shopping
+                                                    <ShoppingCart className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    <span className="truncate">Start Shopping</span>
                                                 </Button>
                                             </Link>
-                                            <Link href="/auth/sign-up?userType=vendor" className="flex-none">
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-6"
-                                                >
-                                                    <Store className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                                                    Become a Seller
-                                                </Button>
-                                            </Link>
-                                            <Link href="/auth/sign-up?userType=transporter" className="flex-none">
+                                            <Link href="/auth/sign-up?userType=vendor" className="w-full lg:w-auto">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    className="w-auto h-8 md:h-10 text-[10px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-3 md:px-6"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 md:px-6 flex items-center justify-center"
                                                 >
-                                                    <Truck className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                                                    Become a Transporter
+                                                    <Store className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    <span className="truncate">Become a Seller</span>
                                                 </Button>
                                             </Link>
-                                        </>
+                                            <Link href="/auth/sign-up?userType=transporter" className="col-span-2 w-full lg:w-auto">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="w-full lg:w-auto h-7 md:h-10 text-[9px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-2 md:px-6 flex items-center justify-center"
+                                                >
+                                                    <Truck className="mr-1.5 h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                                                    <span>Become a Transporter</span>
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     ) : (
                                         (() => {
                                             const labels = (slide.button_text || "Start Shopping").split("|").map(s => s.trim());
                                             const links = (slide.button_link || "/shop").split("|").map(s => s.trim());
 
-                                            return labels.map((label, i) => (
-                                                <Link key={i} href={links[i] || links[0]} className="flex-none">
-                                                    <Button
-                                                        size="sm"
-                                                        className={`w-auto h-8 md:h-10 text-[10px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group px-3 md:px-6 ${i === 0
-                                                            ? "bg-primary text-white hover:bg-primary/90"
-                                                            : "bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950"
-                                                            }`}
-                                                    >
-                                                        {label}
-                                                    </Button>
-                                                </Link>
-                                            ));
+                                            return (
+                                                <div className="flex flex-wrap gap-2 w-full">
+                                                    {labels.map((label, i) => (
+                                                        <Link key={i} href={links[i] || links[0]} className="flex-none">
+                                                            <Button
+                                                                size="sm"
+                                                                className={`w-auto h-7 md:h-10 text-[9px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group px-3 md:px-6 ${i === 0
+                                                                    ? "bg-primary text-white hover:bg-primary/90"
+                                                                    : "bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950"
+                                                                    }`}
+                                                            >
+                                                                {label}
+                                                            </Button>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            );
                                         })()
                                     )}
                                 </div>
