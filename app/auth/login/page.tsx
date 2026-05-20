@@ -84,6 +84,8 @@ function LoginContent() {
 
       if (profile?.user_type === "admin") {
         router.push("/admin")
+      } else if (profile?.user_type === "agent") {
+        router.push("/agent")
       } else if (profile?.user_type === "vendor") {
         router.push("/vendor/dashboard")
       } else if (profile?.user_type === "transporter") {

@@ -56,6 +56,7 @@ import { ServerLogsTab } from "./server-logs-tab"
 import { SystemHealthTab } from "./system-health-tab"
 import { InfrastructureTab } from "./infrastructure-tab"
 import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
+import { AgentManagementTab } from "./agent-management-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -63,6 +64,7 @@ interface AdminDashboardContentProps {
   pendingTransporters: any[]
   pendingCustomerKyc: any[]
   pendingProducts: any[]
+  initialAgents?: any[]
   orders: any[]
   transactions: any[]
   tickets: any[]
@@ -99,6 +101,7 @@ export function AdminDashboardContent({
   hrContracts = [],
   hrAttendance = [],
   incompleteRegistrations = [],
+  initialAgents = [],
 }: AdminDashboardContentProps) {
   const router = useRouter()
   
@@ -728,6 +731,23 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("manage_agents") && (
+                  <Button
+                    variant={activeTab === "agents" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "agents"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("agents")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Users className="h-4 w-4" />
+                      <span>Sales Agents</span>
+                    </span>
+                  </Button>
+                )}
+
                 {showAdminManagement && (
                   <Button
                     variant={activeTab === "admins" ? "default" : "ghost"}
@@ -850,6 +870,11 @@ export function AdminDashboardContent({
                       </TabsTrigger>
                     </>
                   )}
+                  {adminRole?.permissions.includes("manage_agents") && (
+                    <TabsTrigger value="agents" className="px-5 rounded-full text-xs font-semibold">
+                      Sales Agents
+                    </TabsTrigger>
+                  )}
                   {showAdminManagement && (
                     <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
                       Admin Users
@@ -971,6 +996,12 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("view_logs") && (
                 <TabsContent value="logs" className="border-none p-0 outline-none">
                   <ServerLogsTab />
+                </TabsContent>
+              )}
+
+              {adminRole?.permissions.includes("manage_agents") && (
+                <TabsContent value="agents" className="border-none p-0 outline-none">
+                  <AgentManagementTab initialAgents={initialAgents} />
                 </TabsContent>
               )}
 
