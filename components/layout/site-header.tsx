@@ -138,8 +138,8 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         <div className="lg:hidden flex-shrink-0">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-14 w-14 rounded-2xl bg-stone-50 hover:bg-stone-100 text-stone-900">
-                <Menu className="h-7 w-7" />
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900">
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
@@ -361,13 +361,13 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
                 {/* Mobile: Shop button + combined Login/Sign Up */}
                 <Link href="/shop" className="lg:hidden">
-                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent flex items-center gap-1.5">
-                    <ShoppingBag className="h-4 w-4" />
-                    Shop
+                  <Button variant="ghost" className="h-9 rounded-full px-3.5 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 flex items-center gap-1.5 transition-all">
+                    <ShoppingBag className="h-3.5 w-3.5" />
+                    <span className="text-[11px] font-extrabold">Shop</span>
                   </Button>
                 </Link>
                 <Link href="/auth/login" className="lg:hidden">
-                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl px-5 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
+                  <Button className="h-9 rounded-full px-4 text-[11px] font-extrabold uppercase tracking-wider shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5">
                     Login / Sign Up
                   </Button>
                 </Link>
@@ -394,7 +394,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         {/* Row 2: Track Order + Search (Mobile Only) */}
         <div className="lg:hidden flex items-center gap-2.5 w-full pb-2.5">
           <Link href="/track" className="flex-shrink-0">
-            <Button className="bg-primary hover:bg-primary/90 text-white font-bold text-xs uppercase tracking-wider rounded-full px-4 h-10 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-full px-3.5 h-9 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
               <MapPin className="h-3.5 w-3.5" />
               Track Order
             </Button>
