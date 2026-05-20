@@ -36,7 +36,9 @@ import {
   Zap,
   Globe,
   ArrowRight,
-  Truck
+  Truck,
+  MapPin,
+  Search
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -123,12 +125,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
     <header className={cn(
       "sticky top-0 z-[100] will-change-transform transform-gpu",
       scrolled
-        ? "h-[72px] bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20"
-        : "h-[96px] bg-transparent border-b border-transparent"
+        ? "bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20 lg:h-[72px]"
+        : "bg-transparent border-b border-transparent lg:h-[96px]"
     )}>
       <div className={cn(
-        "container mx-auto px-4 lg:px-8 flex items-center justify-between gap-2 md:gap-4 h-full transition-all duration-500"
+        "container mx-auto px-4 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-0 lg:gap-4 h-full transition-all duration-500"
       )}>
+        {/* Row 1: Logo, nav, actions */}
+        <div className="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 py-2 lg:py-0 lg:flex-1 lg:h-full">
 
         {/* Mobile Hamburger Menu - First on Left */}
         <div className="lg:hidden flex-shrink-0">
@@ -354,12 +358,27 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   </Link>
                   <CartPopover />
                 </div>
-                <Link href="/auth/login">
+
+                {/* Mobile: Shop button + combined Login/Sign Up */}
+                <Link href="/shop" className="lg:hidden">
+                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent flex items-center gap-1.5">
+                    <ShoppingBag className="h-4 w-4" />
+                    Shop
+                  </Button>
+                </Link>
+                <Link href="/auth/login" className="lg:hidden">
+                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl px-5 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
+                    Login / Sign Up
+                  </Button>
+                </Link>
+
+                {/* Desktop: separate Login and Sign Up */}
+                <Link href="/auth/login" className="hidden lg:inline-flex">
                   <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
                     Login
                   </Button>
                 </Link>
-                <Link href="/auth/sign-up">
+                <Link href="/auth/sign-up" className="hidden lg:inline-flex">
                   <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
                     Sign Up
                   </Button>
@@ -370,6 +389,20 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
           </div>
         </nav>
+        </div>
+
+        {/* Row 2: Track Order + Search (Mobile Only) */}
+        <div className="lg:hidden flex items-center gap-2.5 w-full pb-2.5">
+          <Link href="/track" className="flex-shrink-0">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-bold text-xs uppercase tracking-wider rounded-full px-4 h-10 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
+              <MapPin className="h-3.5 w-3.5" />
+              Track Order
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <ProductSearch />
+          </div>
+        </div>
       </div>
     </header>
   )
