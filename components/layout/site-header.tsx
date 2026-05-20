@@ -123,16 +123,16 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
   return (
     <header className={cn(
-      "sticky top-0 z-[100] will-change-transform transform-gpu",
+      "sticky top-0 z-[100] will-change-transform transform-gpu w-full h-[108px] bg-white border-b border-stone-200/50 lg:border-none lg:bg-transparent",
       scrolled
-        ? "bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-xl shadow-stone-200/20 lg:h-[72px]"
-        : "bg-transparent border-b border-transparent lg:h-[96px]"
+        ? "lg:bg-white/80 lg:backdrop-blur-2xl lg:border-b lg:border-stone-200/50 lg:shadow-xl lg:shadow-stone-200/20 lg:h-[72px]"
+        : "lg:bg-transparent lg:border-b lg:border-transparent lg:h-[96px]"
     )}>
       <div className={cn(
         "container mx-auto px-4 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-0 lg:gap-4 h-full transition-all duration-500"
       )}>
         {/* Row 1: Logo, nav, actions */}
-        <div className="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 py-2 lg:py-0 lg:flex-1 lg:h-full">
+        <div className="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 h-16 lg:py-0 lg:flex-1 lg:h-full">
 
         {/* Mobile Hamburger Menu - First on Left */}
         <div className="lg:hidden flex-shrink-0">
@@ -392,7 +392,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         </div>
 
         {/* Row 2: Track Order + Search (Mobile Only) */}
-        <div className="lg:hidden flex items-center gap-2.5 w-full pb-2.5">
+        <div className="lg:hidden flex items-center gap-2.5 w-full h-11 pb-2">
           <Link href="/track" className="flex-shrink-0">
             <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-full px-3.5 h-9 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
               <MapPin className="h-3.5 w-3.5" />
