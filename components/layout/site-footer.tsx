@@ -16,6 +16,7 @@ export function SiteFooter() {
       { name: "Terms & Conditions", href: "/terms" },
       { name: "Vendor SLA", href: "/legal/sla-vendor" },
       { name: "Transporter SLA", href: "/legal/sla-transporter" },
+      { name: "Agent Portal", href: "/agent/login" },
     ],
     support: [
       { name: "Track Order", href: "/track" },

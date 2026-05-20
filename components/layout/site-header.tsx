@@ -321,10 +321,19 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         </Link>
                       </DropdownMenuItem>
 
-                      {(authProfile?.user_type === "vendor" || authProfile?.user_type === "admin") && (
+                      {(authProfile?.user_type === "vendor" || authProfile?.user_type === "admin" || authProfile?.user_type === "agent") && (
                         <div className="mt-2 pt-2 border-t border-stone-50">
                           <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
-                            <Link href={authProfile?.user_type === "admin" ? "/admin" : "/vendor/dashboard"} className="flex justify-between items-center w-full px-4">
+                            <Link 
+                              href={
+                                authProfile?.user_type === "admin" 
+                                  ? "/admin" 
+                                  : authProfile?.user_type === "agent"
+                                  ? "/agent"
+                                  : "/vendor/dashboard"
+                              } 
+                              className="flex justify-between items-center w-full px-4"
+                            >
                               <div className="flex items-center gap-3">
                                 <Settings className="h-4 w-4 text-primary" />
                                 <span className="font-black text-xs uppercase tracking-widest">Dashboard</span>
