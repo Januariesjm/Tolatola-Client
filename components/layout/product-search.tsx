@@ -112,16 +112,16 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     <div ref={searchRef} className="relative w-full max-w-2xl group">
       <div className="relative">
         <div className={cn(
-          "absolute left-4 top-1/2 -translate-y-1/2 transition-all duration-300",
+          "absolute left-3.5 lg:left-4 top-1/2 -translate-y-1/2 transition-all duration-300",
           isLoading ? "text-primary animate-pulse" : "text-stone-400 group-focus-within:text-primary"
         )}>
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
+          {isLoading ? <Loader2 className="h-4 w-4 lg:h-5 lg:w-5 animate-spin" /> : <Search className="h-4 w-4 lg:h-5 lg:w-5" />}
         </div>
 
         <Input
           ref={inputRef}
           type="text"
-          placeholder="what are you looking for..."
+          placeholder="What are you looking for..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
@@ -174,18 +174,18 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               window.location.href = `/shop?search=${encodeURIComponent(query)}`
             }
           }}
-          className="pl-12 pr-12 h-14 md:h-16 rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-lg font-medium placeholder:text-stone-500 border-2"
+          className="pl-9 lg:pl-12 pr-9 lg:pr-12 h-9 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-[11px] lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
         />
 
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        <div className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 lg:gap-1">
           {query && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 hover:bg-stone-100 rounded-full transition-colors"
+              className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors"
               onClick={handleClear}
             >
-              <X className="h-5 w-5 text-stone-400" />
+              <X className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-stone-400" />
             </Button>
           )}
           {categories.length > 0 && (
@@ -193,7 +193,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               variant="ghost"
               size="icon"
               className={cn(
-                "h-10 w-10 hover:bg-stone-100 rounded-full transition-colors",
+                "h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors",
                 showFilters && "bg-primary text-white hover:bg-primary/90"
               )}
               onClick={(e) => {
@@ -207,7 +207,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               }}
               title="Filters"
             >
-              <Filter className="h-5 w-5" />
+              <Filter className="h-3.5 w-3.5 lg:h-5 lg:w-5" />
             </Button>
           )}
         </div>
