@@ -161,6 +161,10 @@ export async function GET(request: Request) {
 
     if (!error) {
       console.log('[AUTH CALLBACK] Email verification successful')
+      const targetNext = requestUrl.searchParams.get("next")
+      if (targetNext) {
+        return NextResponse.redirect(`${appUrl}${targetNext}`)
+      }
       return NextResponse.redirect(`${appUrl}/auth/verified`)
     }
 

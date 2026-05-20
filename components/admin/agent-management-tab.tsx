@@ -58,10 +58,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
   // Create Agent Dialog States
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
-  const [showCreatePassword, setShowCreatePassword] = useState(false)
   const [createForm, setCreateForm] = useState({
     email: "",
-    password: "",
     full_name: "",
     phone: "",
     role_name: "Sales Agent",
@@ -174,10 +172,10 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
 
   // Create Agent handler
   const handleCreateAgent = async () => {
-    if (!createForm.email || !createForm.password || !createForm.full_name || !createForm.phone) {
+    if (!createForm.email || !createForm.full_name || !createForm.phone) {
       toast({
         title: "Taarifa Zinakosekana",
-        description: "Tafadhali jaza email, password, jina kamili, na nambari ya simu.",
+        description: "Tafadhali jaza email, jina kamili, na nambari ya simu.",
         variant: "destructive",
       })
       return
@@ -206,7 +204,6 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       setIsCreateOpen(false)
       setCreateForm({
         email: "",
-        password: "",
         full_name: "",
         phone: "",
         role_name: "Sales Agent",
@@ -548,7 +545,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
               Unda Wakala Mpya (Create New Agent)
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Jaza taarifa za wakala mpya. Akaunti itaundwa na nywila uliyoweka.
+              Jaza taarifa za wakala mpya. Barua pepe yenye kiungo salama cha kujisajili itatumwa kwenda kwa wakala ili aweke nywila (password) yake mwenyewe.
             </DialogDescription>
           </DialogHeader>
 
@@ -574,27 +571,6 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))}
                 className="rounded-xl text-sm h-10"
               />
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Password *</label>
-              <div className="relative">
-                <Input
-                  type={showCreatePassword ? "text" : "password"}
-                  placeholder="Min. 8 characters"
-                  value={createForm.password}
-                  onChange={(e) => setCreateForm(f => ({ ...f, password: e.target.value }))}
-                  className="rounded-xl text-sm h-10 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCreatePassword(!showCreatePassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showCreatePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
             </div>
 
             {/* Phone */}
