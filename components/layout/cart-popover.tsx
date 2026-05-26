@@ -212,7 +212,7 @@ export function CartPopover() {
                         <h4 className="font-medium text-sm truncate">{item.product.name}</h4>
                         <p className="text-xs text-muted-foreground truncate">
                           {/* {item.product.shops?.vendors?.business_name || item.product.shops?.name || "Unknown Vendor"} */}
-                          Tola Verified Vendor
+                          TOLA Verified Vendor
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           {/* Quantity Controls */}
