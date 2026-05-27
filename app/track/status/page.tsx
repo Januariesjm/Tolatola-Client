@@ -61,6 +61,33 @@ function StatusDashboardInner() {
   const [data, setData] = useState<OrderTrackingInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState(false)
+
+  const fetchStatus = async (silent = false) => {
+    if (!token) return
+    if (!silent) setLoading(true)
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+    try {
+      const res = await fetch(`${base.replace(/\/$/, "")}/tracking/status?token=${encodeURIComponent(token)}`, { cache: "no-store" })
+      if (!res.ok) {
+        throw new Error(res.status === 401 ? "Session expired. Please verify again." : "Failed to load status.")
+      }
+      const d = await res.json()
+      const normalized = d?.data || d
+      const order = normalized?.order || normalized
+      if (!order) {
+        throw new Error("Order status data not found.")
+      }
+      setData({
+        ...normalized,
+        order,
+      } as any)
+    } catch (e: any) {
+      if (!silent) setError(e?.message || "Failed to load order status.")
+    } finally {
+      if (!silent) setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!token) {
@@ -68,26 +95,37 @@ function StatusDashboardInner() {
       setLoading(false)
       return
     }
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
-    fetch(`${base.replace(/\/$/, "")}/tracking/status?token=${encodeURIComponent(token)}`, { cache: "no-store" })
-      .then((r) => {
-        if (!r.ok) throw new Error(r.status === 401 ? "Session expired. Please verify again." : "Failed to load status.")
-        return r.json()
-      })
-      .then((d) => {
-        const normalized = d?.data || d
-        const order = normalized?.order || normalized
-        if (!order) {
-          throw new Error("Order status data not found.")
-        }
-        setData({
-          ...normalized,
-          order,
-        } as any)
-      })
-      .catch((e) => setError(e?.message || "Failed to load order status."))
-      .finally(() => setLoading(false))
+    
+    // Initial fetch
+    fetchStatus(false)
+
+    // Polling every 8 seconds to fetch transporter status and request updates in real time
+    const interval = setInterval(() => {
+      fetchStatus(true)
+    }, 8000)
+
+    return () => clearInterval(interval)
   }, [token])
+
+  const handleConfirmDelivery = async () => {
+    if (!data?.order?.id) return
+    setConfirming(true)
+    try {
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+      const res = await fetch(`${base.replace(/\/$/, "")}/orders/${data.order.id}/confirm-delivery`, {
+        method: "POST",
+      })
+      if (!res.ok) {
+        throw new Error("Failed to confirm delivery. Please try again.")
+      }
+      alert("Delivery successfully confirmed! Escrow released. 🎉")
+      await fetchStatus(true)
+    } catch (err: any) {
+      alert(err.message || "Failed to confirm delivery.")
+    } finally {
+      setConfirming(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -130,6 +168,44 @@ function StatusDashboardInner() {
             ← Back to home
           </Link>
         </div>
+
+        {/* Premium Alternative Confirmation Request Banner */}
+        {order.delivery_confirmation_requested && order.status !== "delivered" && order.status !== "completed" && (
+          <div className="mb-6 border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-blue-500/5 to-primary/5 p-6 rounded-2xl shadow-md flex flex-col items-center gap-4 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-xl -mr-8 -mt-8" />
+            <div className="bg-primary/10 p-3 rounded-full">
+              <Truck className="h-6 w-6 text-primary animate-bounce" />
+            </div>
+            <div>
+              <h2 className="text-lg font-extrabold text-foreground mb-1">
+                Have you received your product? 🚚
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received your items.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-sm mt-1">
+              <Button 
+                onClick={handleConfirmDelivery} 
+                disabled={confirming} 
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold h-11 rounded-xl"
+              >
+                {confirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Confirm Delivery
+              </Button>
+              <Button 
+                asChild
+                variant="destructive"
+                className="flex-1 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-2 font-bold h-11 rounded-xl"
+              >
+                <Link href={`/track/complaint?token=${encodeURIComponent(token!)}&orderId=${order.id}`}>
+                  <AlertTriangle className="h-4 w-4" />
+                  Report Issue
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
 
         <Card className="border-2 shadow-xl rounded-2xl overflow-hidden mb-6">
           <CardHeader className="bg-muted/30">

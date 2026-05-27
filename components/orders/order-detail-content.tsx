@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { CheckCircle, Package, Truck, MapPin, Store, CheckCircle2, Phone, Home, CreditCard, Calendar, ChevronLeft, ArrowRight, Wallet } from "lucide-react"
+import { CheckCircle, Package, Truck, MapPin, Store, CheckCircle2, Phone, Home, CreditCard, Calendar, ChevronLeft, ArrowRight, Wallet, AlertTriangle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -102,6 +102,46 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               <p className="text-green-700 text-sm">
                 Your order has been received and is being processed. You will receive updates via email.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Premium Alternative Confirmation Request Banner */}
+        {order.delivery_confirmation_requested && order.status !== "delivered" && order.status !== "completed" && (
+          <div className="mb-8 border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-blue-500/5 to-primary/5 p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-xl -mr-8 -mt-8" />
+            <div className="flex items-start gap-4 flex-1">
+              <div className="bg-primary/15 p-3 rounded-full flex-shrink-0">
+                <Truck className="h-6 w-6 text-primary animate-bounce" />
+              </div>
+              <div className="text-left">
+                <h2 className="text-lg font-extrabold text-foreground mb-1">
+                  Have you received your product? 🚚
+                </h2>
+                <p className="text-muted-foreground text-sm max-w-xl">
+                  Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received your items. This will finalize payments and close escrows.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto flex-shrink-0">
+              <Button 
+                onClick={handleConfirmDelivery} 
+                disabled={isConfirming} 
+                className="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold px-6 h-11 rounded-xl"
+              >
+                {isConfirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Confirm Delivery
+              </Button>
+              <Button 
+                asChild
+                variant="destructive"
+                className="flex-1 md:flex-none bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-2 font-bold px-6 h-11 rounded-xl"
+              >
+                <Link href={`/track/complaint?orderId=${order.id}`}>
+                  <AlertTriangle className="h-4 w-4" />
+                  Report Issue
+                </Link>
+              </Button>
             </div>
           </div>
         )}

@@ -48,6 +48,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
   const [search, setSearch] = useState("")
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -67,11 +68,23 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
     s.department.toLowerCase().includes(search.toLowerCase())
   )
 
+  const handleOpenChange = (open: boolean) => {
+    setIsAddOpen(open)
+    if (!open) {
+      setError(null)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!formData.department) {
+      setError("Please select a department.")
+      return
+    }
     setLoading(true)
+    setError(null)
     try {
-      const res = await clientApiPost("admin/hr/staff", formData)
+      const res = await clientApiPost<any>("admin/hr/staff", formData)
       if (res.data) {
         setStaffList([res.data, ...staffList])
         setIsAddOpen(false)
@@ -85,9 +98,32 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           join_date: "",
           status: "active",
         })
+      } else {
+        setError("Failed to save staff record: Invalid response from server.")
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to add staff:", err)
+      let msg = err?.message || "Failed to save staff record."
+      if (msg.includes("API ")) {
+        try {
+          const jsonStr = msg.substring(msg.indexOf(":") + 1).trim()
+          const parsed = JSON.parse(jsonStr)
+          if (parsed.error) {
+            msg = parsed.error
+          } else if (parsed.message) {
+            msg = parsed.message
+          }
+        } catch (e) {
+          msg = msg.replace(/^API \d+: /, "")
+        }
+      }
+      
+      // Handle database-specific errors nicely
+      if (msg.includes("hr_staff_records_employee_id_key")) {
+        msg = `Employee ID "${formData.employee_id}" already exists. Please choose a unique Employee ID.`
+      }
+      
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -105,7 +141,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await clientApiPost("admin/hr/staff", { id, status: newStatus })
+      const res = await clientApiPost<any>("admin/hr/staff", { id, status: newStatus })
       if (res.data) {
         setStaffList(staffList.map(s => s.id === id ? res.data : s))
       }
@@ -121,7 +157,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <Users className="h-5 w-5 text-primary" />
           Staff Directory
         </CardTitle>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <Dialog open={isAddOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button size="sm" className="rounded-xl">
               <Plus className="h-4 w-4 mr-2" />
@@ -184,6 +220,13 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
                   </Select>
                 </div>
               </div>
+              
+              {error && (
+                <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">
+                  {error}
+                </div>
+              )}
+
               <Button type="submit" className="w-full rounded-xl mt-4" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Record
