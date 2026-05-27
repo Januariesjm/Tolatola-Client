@@ -26,6 +26,9 @@ import {
   UserPlus,
   Eye,
   EyeOff,
+  Trash2,
+  Mail,
+  AlertTriangle,
 } from "lucide-react"
 
 interface AgentManagementTabProps {
@@ -68,6 +71,9 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
     area: "",
   })
 
+  // Delete confirmation dialog
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; code: string } | null>(null)
+
   // Helper to get auth headers
   const getAuthHeaders = async () => {
     const supabase = createClient()
@@ -98,8 +104,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
     } catch (err) {
       console.error("[ADMIN AGENTS] Fetch failed:", err)
       toast({
-        title: "Hitilafu ya kupakia",
-        description: "Imeshindwa kupata taarifa za mawakala.",
+        title: "Loading Failed",
+        description: "Failed to load agent data.",
         variant: "destructive",
       })
     } finally {
@@ -126,14 +132,68 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       if (!response.ok) throw new Error("Failed to update agent status")
 
       toast({
-        title: "Hali ya Wakala Imesasishwa",
-        description: `Wakala sasa yuko ${nextStatus}.`,
+        title: "Agent Status Updated",
+        description: `Agent is now ${nextStatus}.`,
       })
       fetchAllData()
     } catch (err) {
       toast({
-        title: "Imeshindikana",
-        description: "Imeshindwa kusasisha hali ya wakala.",
+        title: "Failed",
+        description: "Could not update agent status.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsActionLoading(null)
+    }
+  }
+
+  // Action: Delete agent permanently
+  const handleDeleteAgent = async (agentId: string) => {
+    setIsActionLoading(`delete-${agentId}`)
+    try {
+      const headers = await getAuthHeaders()
+      const response = await fetch(`${apiBase}/admin/agents/${agentId}`, {
+        method: "DELETE",
+        headers,
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "Failed to delete agent")
+      toast({
+        title: "Agent Deleted",
+        description: result.message || "Agent has been permanently removed.",
+      })
+      setDeleteTarget(null)
+      fetchAllData()
+    } catch (err: any) {
+      toast({
+        title: "Delete Failed",
+        description: err.message || "Could not delete agent.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsActionLoading(null)
+    }
+  }
+
+  // Action: Resend activation email
+  const handleResendInvitation = async (agentId: string) => {
+    setIsActionLoading(`resend-${agentId}`)
+    try {
+      const headers = await getAuthHeaders()
+      const response = await fetch(`${apiBase}/admin/agents/${agentId}/resend-invitation`, {
+        method: "POST",
+        headers,
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "Failed to resend invitation")
+      toast({
+        title: "Email Sent",
+        description: result.message || "Activation email has been resent.",
+      })
+    } catch (err: any) {
+      toast({
+        title: "Resend Failed",
+        description: err.message || "Could not resend the invitation email.",
         variant: "destructive",
       })
     } finally {
@@ -155,14 +215,14 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       if (!response.ok) throw new Error("Failed to update commission")
 
       toast({
-        title: "Kamisheni Imesasishwa",
-        description: `Hali ya malipo imebadilishwa kuwa ${status}.`,
+        title: "Commission Updated",
+        description: `Commission status has been changed to ${status}.`,
       })
       fetchAllData()
     } catch (err) {
       toast({
-        title: "Imeshindikana",
-        description: "Imeshindwa kuidhinisha kamisheni.",
+        title: "Failed",
+        description: "Could not approve commission.",
         variant: "destructive",
       })
     } finally {
@@ -174,8 +234,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
   const handleCreateAgent = async () => {
     if (!createForm.email || !createForm.full_name || !createForm.phone) {
       toast({
-        title: "Taarifa Zinakosekana",
-        description: "Tafadhali jaza email, jina kamili, na nambari ya simu.",
+        title: "Missing Information",
+        description: "Please fill in email, full name, and phone number.",
         variant: "destructive",
       })
       return
@@ -197,8 +257,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       }
 
       toast({
-        title: "Wakala Ameundwa!",
-        description: result.message || `Wakala ${createForm.full_name} ameundwa kwa mafanikio.`,
+        title: "Agent Created!",
+        description: result.message || `Agent ${createForm.full_name} has been created successfully.`,
       })
 
       setIsCreateOpen(false)
@@ -214,8 +274,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       fetchAllData()
     } catch (err: any) {
       toast({
-        title: "Imeshindikana",
-        description: err.message || "Imeshindwa kuunda wakala mpya.",
+        title: "Failed",
+        description: err.message || "Could not create new agent.",
         variant: "destructive",
       })
     } finally {
@@ -282,7 +342,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             activeSubTab === "agents" ? "text-primary border-b-2 border-primary" : "text-slate-500 hover:text-slate-900"
           }`}
         >
-          Orodha ya Mawakala (Agents List)
+          Agents List
         </button>
         <button
           onClick={() => setActiveSubTab("commissions")}
@@ -290,7 +350,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             activeSubTab === "commissions" ? "text-primary border-b-2 border-primary" : "text-slate-500 hover:text-slate-900"
           }`}
         >
-          Kuidhinisha Kamisheni ({commissions.filter(c => c.status === "pending").length} Pending)
+          Commission Approvals ({commissions.filter(c => c.status === "pending").length} Pending)
         </button>
       </div>
 
@@ -299,8 +359,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
           <CardHeader className="pb-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <CardTitle className="text-sm font-bold text-slate-800">Usimamizi wa Mawakala</CardTitle>
-                <CardDescription className="text-xs">Fungua, fungia, au sasisha maeneo ya mawakala wa mauzo.</CardDescription>
+                <CardTitle className="text-sm font-bold text-slate-800">Agent Management</CardTitle>
+                <CardDescription className="text-xs">Activate, suspend, delete, or resend activation emails to sales agents.</CardDescription>
               </div>
               
               {/* Search and Filters */}
@@ -319,7 +379,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="h-9 px-3 rounded-xl border border-slate-200 text-xs bg-white text-slate-700 outline-none"
                 >
-                  <option value="all">Hali Zote (All Status)</option>
+                  <option value="all">All Status</option>
                   <option value="active">Active</option>
                   <option value="suspended">Suspended</option>
                 </select>
@@ -328,7 +388,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                   className="rounded-xl text-xs h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-                  Unda Wakala Mpya
+                  Create New Agent
                 </Button>
               </div>
             </div>
@@ -341,7 +401,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
               </div>
             ) : filteredAgents.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-xs text-slate-400">Hakuna wakala aliyepatikana.</p>
+                <p className="text-xs text-slate-400">No agents found.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -394,21 +454,51 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                           </span>
                         </td>
                         <td className="py-3 px-6 text-right">
-                          <Button
-                            size="sm"
-                            variant={agent.status === "active" ? "destructive" : "outline"}
-                            disabled={isActionLoading === `status-${agent.id}`}
-                            onClick={() => handleToggleStatus(agent.id, agent.status)}
-                            className="rounded-xl text-xs h-8"
-                          >
-                            {isActionLoading === `status-${agent.id}` ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : agent.status === "active" ? (
-                              "Suspend"
-                            ) : (
-                              "Activate"
-                            )}
-                          </Button>
+                          <div className="flex justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={agent.status === "active" ? "destructive" : "outline"}
+                              disabled={isActionLoading === `status-${agent.id}`}
+                              onClick={() => handleToggleStatus(agent.id, agent.status)}
+                              className="rounded-xl text-xs h-8"
+                            >
+                              {isActionLoading === `status-${agent.id}` ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : agent.status === "active" ? (
+                                "Suspend"
+                              ) : (
+                                "Activate"
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={isActionLoading === `resend-${agent.id}`}
+                              onClick={() => handleResendInvitation(agent.id)}
+                              className="rounded-xl text-xs h-8 border-blue-200 text-blue-700 hover:bg-blue-50"
+                              title="Resend activation email"
+                            >
+                              {isActionLoading === `resend-${agent.id}` ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Mail className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              disabled={isActionLoading === `delete-${agent.id}`}
+                              onClick={() => setDeleteTarget({ id: agent.id, name: agent.users?.full_name || "Agent", code: agent.agent_code })}
+                              className="rounded-xl text-xs h-8 text-rose-600 hover:bg-rose-50"
+                              title="Delete agent permanently"
+                            >
+                              {isActionLoading === `delete-${agent.id}` ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -421,8 +511,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       ) : (
         <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
           <CardHeader>
-            <CardTitle className="text-sm font-bold text-slate-800">Foleni ya Kuidhinisha Kamisheni</CardTitle>
-            <CardDescription className="text-xs">Uhakiki na idhini ya malipo ya kamisheni kwa mawakala.</CardDescription>
+            <CardTitle className="text-sm font-bold text-slate-800">Commission Approval Queue</CardTitle>
+            <CardDescription className="text-xs">Review and approve commission payouts for sales agents.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
@@ -432,7 +522,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
               </div>
             ) : commissions.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-xs text-slate-400">Hakuna kamisheni zinazosubiri idhini kwa sasa.</p>
+                <p className="text-xs text-slate-400">No commissions awaiting approval at this time.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -442,7 +532,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                       <th className="py-3 px-6">Agent Details</th>
                       <th className="py-3 px-4">Registration Detail</th>
                       <th className="py-3 px-4">Payout Amount</th>
-                      <th className="py-3 px-4">Hali (Status)</th>
+                      <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4">Request Date</th>
                       <th className="py-3 px-6 text-right">Approval Actions</th>
                     </tr>
@@ -542,17 +632,17 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
           <DialogHeader>
             <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-emerald-600" />
-              Unda Wakala Mpya (Create New Agent)
+              Create New Agent
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              Jaza taarifa za wakala mpya. Barua pepe yenye kiungo salama cha kujisajili itatumwa kwenda kwa wakala ili aweke nywila (password) yake mwenyewe.
+              Fill in the new agent's details. A secure email with an activation link will be sent so the agent can set their own password.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 mt-2">
             {/* Full Name */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Jina Kamili (Full Name) *</label>
+              <label className="text-xs font-bold text-slate-600">Full Name *</label>
               <Input
                 placeholder="e.g. John Mwakasege"
                 value={createForm.full_name}
@@ -575,7 +665,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
 
             {/* Phone */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Nambari ya Simu (Phone) *</label>
+              <label className="text-xs font-bold text-slate-600">Phone Number *</label>
               <Input
                 type="tel"
                 placeholder="e.g. +255712345678"
@@ -600,7 +690,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Mkoa (Region)</label>
+                <label className="text-xs font-bold text-slate-600">Region</label>
                 <Input
                   placeholder="e.g. Dar es Salaam"
                   value={createForm.region}
@@ -613,7 +703,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             {/* District + Area Row */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Wilaya (District)</label>
+                <label className="text-xs font-bold text-slate-600">District</label>
                 <Input
                   placeholder="e.g. Ilala"
                   value={createForm.district}
@@ -622,7 +712,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Eneo (Area)</label>
+                <label className="text-xs font-bold text-slate-600">Area</label>
                 <Input
                   placeholder="e.g. Kariakoo"
                   value={createForm.area}
@@ -640,7 +730,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 disabled={isCreating}
                 className="rounded-xl text-xs h-9"
               >
-                Ghairi (Cancel)
+                Cancel
               </Button>
               <Button
                 onClick={handleCreateAgent}
@@ -650,17 +740,68 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 {isCreating ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    Inaunda...
+                    Creating...
                   </>
                 ) : (
                   <>
                     <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-                    Unda Wakala
+                    Create Agent
                   </>
                 )}
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Confirmation Dialog ── */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base font-black text-rose-700 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Agent Permanently
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              This action cannot be undone. The agent account, all registrations, commissions, and login credentials will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          {deleteTarget && (
+            <div className="space-y-4 mt-2">
+              <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
+                <p className="text-sm font-bold text-slate-800">{deleteTarget.name}</p>
+                <p className="text-xs font-mono text-rose-700 mt-1">{deleteTarget.code}</p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={isActionLoading === `delete-${deleteTarget.id}`}
+                  className="rounded-xl text-xs h-9"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDeleteAgent(deleteTarget.id)}
+                  disabled={isActionLoading === `delete-${deleteTarget.id}`}
+                  className="rounded-xl text-xs h-9"
+                >
+                  {isActionLoading === `delete-${deleteTarget.id}` ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                      Delete Permanently
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
