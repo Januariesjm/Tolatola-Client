@@ -97,6 +97,7 @@ function CompleteProfileContent() {
                 throw new Error("API base URL is not configured")
             }
 
+            const refCode = searchParams.get("ref")
             const session = await supabase.auth.getSession()
             const response = await fetch(`${apiBase}/users/${user.id}`, {
                 method: "PATCH",
@@ -108,7 +109,8 @@ function CompleteProfileContent() {
                     user_type: userType,
                     vendor_type: userType === "vendor" ? vendorType : null,
                     full_name: user.user_metadata?.full_name, // Preserve if available
-                    accepted_policies: true
+                    accepted_policies: true,
+                    referralCode: refCode || undefined
                 })
             })
 

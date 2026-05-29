@@ -200,11 +200,16 @@ function SignUpContent() {
     try {
       const supabase = createClient()
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const activeRefCode = (referralCode.trim() || refCode || "").trim()
+      
+      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''
+      const refQuery = activeRefCode ? `${nextQuery ? '&' : '?'}ref=${encodeURIComponent(activeRefCode)}` : ''
+      const redirectToUrl = `${appUrl}/auth/callback${nextQuery}${refQuery}`
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
+          redirectTo: redirectToUrl,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -231,11 +236,16 @@ function SignUpContent() {
     try {
       const supabase = createClient()
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const activeRefCode = (referralCode.trim() || refCode || "").trim()
+
+      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''
+      const refQuery = activeRefCode ? `${nextQuery ? '&' : '?'}ref=${encodeURIComponent(activeRefCode)}` : ''
+      const redirectToUrl = `${appUrl}/auth/callback${nextQuery}${refQuery}`
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
+          redirectTo: redirectToUrl,
           scopes: "email,public_profile",
         },
       })

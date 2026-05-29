@@ -111,13 +111,16 @@ export async function GET(request: Request) {
           return NextResponse.redirect(redirectTo)
         }
 
-        console.log('[AUTH CALLBACK] No existing profile found by ID or email. Redirecting to profile completion.')
+        const ref = requestUrl.searchParams.get("ref")
 
-        // Preserve the 'next' parameter if it exists
+        // Preserve the 'next' and 'ref' parameters if they exist
         const completeProfileUrl = new URL(`${appUrl}/auth/complete-profile`)
         completeProfileUrl.searchParams.set('from', 'oauth')
         if (next && next !== '/') {
           completeProfileUrl.searchParams.set('next', next)
+        }
+        if (ref) {
+          completeProfileUrl.searchParams.set('ref', ref)
         }
 
         return NextResponse.redirect(completeProfileUrl.toString())
