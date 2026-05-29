@@ -1,14 +1,26 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu"
 import {
   Store,
   Truck,
   DollarSign,
   PieChart,
   TrendingUp,
+  Search,
+  Filter,
 } from "lucide-react"
 import { format } from "date-fns"
 
@@ -21,40 +33,59 @@ const TOLA_COMMISSION_RATE = 0.10
 const DELIVERY_FEE_TRANSPORTER_SHARE = 0.85
 
 export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   // Only show disbursement data for orders that have been paid
   const paidOrders = useMemo(() => {
     return orders.filter((o) => o.payment_status === "paid")
   }, [orders])
 
   const disbursements = useMemo(() => {
-    return paidOrders.map((order) => {
-      const total = order.total_amount || 0
-      const deliveryFee = order.delivery_fee || 0
-      const productRevenue = total - deliveryFee
-      const tolaProductCommission = productRevenue * TOLA_COMMISSION_RATE
-      const vendorShare = productRevenue - tolaProductCommission
-      const transporterShare = deliveryFee * DELIVERY_FEE_TRANSPORTER_SHARE
-      const tolaDeliveryCommission = deliveryFee - transporterShare
-      const totalTolaCommission = tolaProductCommission + tolaDeliveryCommission
+    return paidOrders
+      .map((order) => {
+        const total = order.total_amount || 0
+        const deliveryFee = order.delivery_fee || 0
+        const productRevenue = total - deliveryFee
+        const tolaProductCommission = productRevenue * TOLA_COMMISSION_RATE
+        const vendorShare = productRevenue - tolaProductCommission
+        const transporterShare = deliveryFee * DELIVERY_FEE_TRANSPORTER_SHARE
+        const tolaDeliveryCommission = deliveryFee - transporterShare
+        const totalTolaCommission = tolaProductCommission + tolaDeliveryCommission
 
-      return {
-        id: order.id,
-        orderNumber: order.order_number,
-        orderStatus: order.status,
-        vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
-        driverName: (() => {
-          const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
-          return activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
-        })(),
-        total,
-        deliveryFee,
-        vendorShare,
-        transporterShare,
-        tolaCommission: totalTolaCommission,
-        createdAt: order.created_at,
-      }
-    })
-  }, [paidOrders])
+        return {
+          id: order.id,
+          orderNumber: order.order_number,
+          orderStatus: order.status,
+          vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
+          driverName: (() => {
+            const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
+            return activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
+          })(),
+          total,
+          deliveryFee,
+          vendorShare,
+          transporterShare,
+          tolaCommission: totalTolaCommission,
+          createdAt: order.created_at,
+        }
+      })
+      .filter((d) => {
+        // Status Filter
+        if (statusFilter !== "all" && d.orderStatus !== statusFilter) return false
+
+        // Search Filter
+        const searchLower = searchQuery.toLowerCase()
+        const orderNumber = (d.orderNumber || "").toLowerCase()
+        const vendor = (d.vendorName || "").toLowerCase()
+        const driver = (d.driverName || "").toLowerCase()
+
+        return (
+          orderNumber.includes(searchLower) ||
+          vendor.includes(searchLower) ||
+          driver.includes(searchLower)
+        )
+      })
+  }, [paidOrders, searchQuery, statusFilter])
 
   const totals = useMemo(() => {
     return disbursements.reduce(
@@ -130,8 +161,40 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
         </Card>
       </div>
 
+      {/* Search & Filter Controls */}
+      {paidOrders.length > 0 && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search order #, vendor, driver..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-11 rounded-xl border-slate-200 shadow-sm"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="h-11 rounded-xl border-slate-200 px-4 gap-2">
+                <Filter className="h-4 w-4" />
+                <span>{statusFilter === "all" ? "All Status" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {["all", "pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map((s) => (
+                <DropdownMenuCheckboxItem key={s} checked={statusFilter === s} onCheckedChange={() => setStatusFilter(s)}>
+                  {s === "all" ? "All Status" : s.charAt(0).toUpperCase() + s.slice(1)}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       {/* Disbursement Table */}
-      {disbursements.length === 0 ? (
+      {paidOrders.length === 0 ? (
         <Card className="border-dashed border-2 bg-slate-50/50">
           <CardContent className="py-16 text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
@@ -139,6 +202,23 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
             </div>
             <h3 className="text-lg font-semibold text-slate-900">No disbursement data</h3>
             <p className="text-slate-500 mt-1 text-sm">Revenue splits will appear once orders are paid.</p>
+          </CardContent>
+        </Card>
+      ) : disbursements.length === 0 ? (
+        <Card className="border-dashed border-2 bg-slate-50/50">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <Search className="h-7 w-7 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900">No matches found</h3>
+            <p className="text-slate-500 mt-1 text-sm">No disbursements match your search or filter criteria.</p>
+            <Button
+              variant="link"
+              onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}
+              className="mt-4 text-primary font-medium"
+            >
+              Clear all filters
+            </Button>
           </CardContent>
         </Card>
       ) : (
