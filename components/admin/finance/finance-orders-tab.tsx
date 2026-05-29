@@ -52,7 +52,11 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
       const searchLower = searchQuery.toLowerCase()
       const orderNumber = (order.order_number || "").toLowerCase()
       const customerName = (order.users?.full_name || order.shipping_address?.full_name || "").toLowerCase()
-      const vendorName = (order.shops?.name || "").toLowerCase()
+      const vendorName = (
+        order.order_items?.[0]?.products?.shops?.vendors?.business_name ||
+        order.order_items?.[0]?.products?.shops?.name ||
+        ""
+      ).toLowerCase()
       return (
         orderNumber.includes(searchLower) ||
         customerName.includes(searchLower) ||
@@ -208,15 +212,26 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
                       </div>
                       <div className="space-y-2">
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Store className="h-3 w-3" /> Merchant</p>
-                        <p className="font-semibold text-slate-900">{order.shops?.name || "N/A"}</p>
-                        <p className="text-sm text-slate-500">{order.shops?.phone || "—"}</p>
+                        <p className="font-semibold text-slate-900">
+                          {order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A"}
+                        </p>
+                        <p className="text-sm text-slate-500">{order.order_items?.[0]?.products?.shops?.phone || "—"}</p>
                       </div>
                       <div className="space-y-2">
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Truck className="h-3 w-3" /> Driver</p>
-                        <p className="font-semibold text-slate-900">{order.transporter?.full_name || "Unassigned"}</p>
-                        <p className="text-sm text-slate-500">{order.transporter?.phone || "—"}</p>
+                        {(() => {
+                          const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
+                          const driverName = activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
+                          const driverPhone = activeAssignment?.transporters?.users?.phone || "—"
+                          return (
+                            <>
+                              <p className="font-semibold text-slate-900">{driverName}</p>
+                              <p className="text-sm text-slate-500">{driverPhone}</p>
+                            </>
+                          )
+                        })()}
                         {order.transporter_status && (
-                          <Badge variant="outline" className="text-[11px]">
+                          <Badge variant="outline" className="text-[11px] mt-1">
                             {order.transporter_status.replace("_", " ")}
                           </Badge>
                         )}

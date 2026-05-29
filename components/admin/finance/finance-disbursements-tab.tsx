@@ -41,8 +41,11 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
         id: order.id,
         orderNumber: order.order_number,
         orderStatus: order.status,
-        vendorName: order.shops?.name || "N/A",
-        driverName: order.transporter?.full_name || "Unassigned",
+        vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
+        driverName: (() => {
+          const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
+          return activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
+        })(),
         total,
         deliveryFee,
         vendorShare,
