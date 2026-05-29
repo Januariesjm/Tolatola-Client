@@ -29,6 +29,7 @@ function SignUpContent() {
   const returnUrl = searchParams.get("returnUrl")
   const urlError = searchParams.get("error")
   const userTypeParam = searchParams.get("userType") as "customer" | "vendor" | "transporter" | null
+  const refCode = searchParams.get("ref")
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -42,6 +43,23 @@ function SignUpContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [isOAuthLoading, setIsOAuthLoading] = useState<string | null>(null)
   const [acceptedPolicies, setAcceptedPolicies] = useState(false)
+  const [referredByAgent, setReferredByAgent] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (refCode) {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+      if (apiBase) {
+        fetch(`${apiBase}/agents/referral-info?code=${encodeURIComponent(refCode)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.valid && data.agent_name) {
+              setReferredByAgent(data.agent_name)
+            }
+          })
+          .catch((err) => console.error("Error validating referral code:", err))
+      }
+    }
+  }, [refCode])
 
   // Registration recovery — auto-save + resume
   const { saveProgress, markCompleted } = useRegistrationRecovery({
@@ -108,6 +126,7 @@ function SignUpContent() {
           userType,
           vendorType: userType === "vendor" ? vendorType : undefined,
           acceptedPolicies: true,
+          referralCode: refCode || undefined,
         }),
       })
 
@@ -280,6 +299,20 @@ function SignUpContent() {
                     <p className="text-sm text-destructive text-center">
                       {decodeURIComponent(urlError)}
                     </p>
+                  </div>
+                )}
+
+                {referredByAgent && (
+                  <div className="rounded-2xl bg-emerald-50 border border-emerald-200/60 p-4 flex items-center gap-3 animate-fade-in shadow-sm">
+                    <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-800">You've been referred!</p>
+                      <p className="text-[11px] text-emerald-600 font-medium leading-tight">Referred by TOLA agent <span className="font-bold underline">{referredByAgent}</span></p>
+                    </div>
                   </div>
                 )}
 

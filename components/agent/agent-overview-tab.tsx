@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +15,6 @@ import {
   Clock,
   Coins
 } from "lucide-react"
-import { AgentRegisterUserDialog } from "./agent-register-user-dialog"
 
 interface AgentOverviewTabProps {
   stats: any
@@ -30,13 +29,51 @@ export function AgentOverviewTab({
   setActiveTab,
   registrations,
 }: AgentOverviewTabProps) {
-  const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false)
-  const [registerType, setRegisterType] = useState<"vendor" | "customer" | "transporter">("vendor")
+  const [referralLink, setReferralLink] = useState("")
+  const [referralCode, setReferralCode] = useState("")
+  const [copied, setCopied] = useState(false)
+  const [isLoadingReferral, setIsLoadingReferral] = useState(true)
 
-  const openRegisterDialog = (type: "vendor" | "customer" | "transporter") => {
-    setRegisterType(type)
-    setIsRegisterDialogOpen(true)
+  useEffect(() => {
+    async function loadReferral() {
+      try {
+        const { createClient } = await import("@/lib/supabase/client")
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+
+        const response = await fetch(`${apiBase}/agents/referral-link`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setReferralLink(data.referral_link)
+          setReferralCode(data.referral_code)
+        }
+      } catch (err) {
+        console.error("Failed to load referral details:", err)
+      } finally {
+        setIsLoadingReferral(false)
+      }
+    }
+    loadReferral()
+  }, [])
+
+  const handleCopy = () => {
+    if (referralLink) {
+      navigator.clipboard.writeText(referralLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
+
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+    `Hello! Register on TOLA using my referral link to get started: ${referralLink || "https://tolatola.co/auth/sign-up?ref=" + agent.agent_code}`
+  )}`
 
   // Format currency
   const formatTzs = (amount: number) => {
@@ -45,37 +82,6 @@ export function AgentOverviewTab({
 
   // Get recent 5 registrations
   const recentRegistrations = (registrations || []).slice(0, 5)
-
-  // Quick Action List
-  const quickActions = [
-    {
-      label: "Register Vendor",
-      desc: "Register a new shop or business on TolaTola",
-      color: "from-emerald-500 to-teal-500",
-      bgLight: "bg-emerald-50",
-      textColor: "text-emerald-700",
-      icon: Store,
-      action: () => openRegisterDialog("vendor"),
-    },
-    {
-      label: "Register Customer",
-      desc: "Register a new buyer on the Tolatola marketplace",
-      color: "from-blue-500 to-indigo-500",
-      bgLight: "bg-blue-50",
-      textColor: "text-blue-700",
-      icon: Users,
-      action: () => openRegisterDialog("customer"),
-    },
-    {
-      label: "Register Transporter",
-      desc: "Register a bodaboda, bajaji, or cargo truck driver",
-      color: "from-amber-500 to-orange-500",
-      bgLight: "bg-amber-50",
-      textColor: "text-amber-700",
-      icon: Truck,
-      action: () => openRegisterDialog("transporter"),
-    },
-  ]
 
   // KPI card configs
   const kpiCards = [
@@ -154,7 +160,7 @@ export function AgentOverviewTab({
             Welcome back, {agent.users?.full_name || "Sales Officer"}!
           </h2>
           <p className="text-slate-600 text-sm md:text-base mb-4">
-            This is your sales and registration management hub. Use the quick actions below to register new customers, vendors, or transporters and track your earnings directly.
+            This is your sales and registration management hub. Share your unique referral link below to automatically register and attribute new customers, vendors, or transporters to your profile.
           </p>
           <div className="flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -169,37 +175,53 @@ export function AgentOverviewTab({
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
       </div>
 
-      {/* Quick Actions Grid */}
+      {/* Referral Link Card */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-          Quick Actions
+          Your Referral Link
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {quickActions.map((act, i) => {
-            const Icon = act.icon
-            return (
-              <Card
-                key={i}
-                onClick={act.action}
-                className="group relative cursor-pointer border border-slate-200 bg-white overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300 rounded-xl"
-              >
-                <CardContent className="p-6 flex items-start gap-4">
-                  <div className={`p-3.5 rounded-xl bg-gradient-to-tr ${act.color} text-white shadow-lg shadow-emerald-500/10`}>
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-slate-900 text-sm md:text-base mb-1 group-hover:text-emerald-600 transition-colors">
-                      {act.label}
-                    </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {act.desc}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+        <Card className="border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/20 shadow-sm rounded-xl overflow-hidden">
+          <CardContent className="p-6 md:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2 flex-1">
+              <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-100 mb-1">
+                <Award className="h-3.5 w-3.5" />
+                Refer & Earn Commission
+              </div>
+              <h4 className="text-lg font-bold text-slate-900">Invite new Customers, Vendors, and Transporters</h4>
+              <p className="text-slate-500 text-xs leading-relaxed max-w-xl">
+                Share your unique referral link. When they click it and complete sign-up, they will be automatically mapped to your dashboard, and you will earn commissions upon approval.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl font-mono text-xs text-slate-700 select-all overflow-x-auto whitespace-nowrap shadow-inner flex-1 lg:flex-initial">
+                {isLoadingReferral ? (
+                  <span className="text-slate-400">Generating link...</span>
+                ) : (
+                  referralLink || `https://tolatola.co/auth/sign-up?ref=${agent.agent_code}`
+                )}
+              </div>
+              
+              <div className="flex gap-2 flex-shrink-0">
+                <Button
+                  onClick={handleCopy}
+                  disabled={isLoadingReferral}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-3 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/10 transition-all text-xs"
+                >
+                  {copied ? "Copied!" : "Copy Link"}
+                </Button>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold px-4 py-3 rounded-xl gap-1.5 shadow-md shadow-emerald-500/15 transition-all text-xs"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* KPI Cards Grid */}
@@ -259,10 +281,10 @@ export function AgentOverviewTab({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => openRegisterDialog("vendor")}
+                  onClick={handleCopy}
                   className="mt-3 text-xs"
                 >
-                  Register Now
+                  Copy Referral Link
                 </Button>
               </div>
             ) : (
@@ -327,7 +349,7 @@ export function AgentOverviewTab({
           <CardContent className="space-y-4 text-xs leading-relaxed text-slate-600">
             <div className="bg-amber-50/50 p-3 rounded-lg border border-amber-100/60">
               <h5 className="font-bold text-amber-900 mb-1">How to Earn:</h5>
-              <p>Commissions are automatically calculated once you register a shop, customer, or transporter. Registrations must be approved by an administrator before payouts are finalized.</p>
+              <p>Commissions are automatically calculated once someone registers using your referral link. Registrations must be approved by an administrator before payouts are finalized.</p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-100">
@@ -344,18 +366,11 @@ export function AgentOverviewTab({
               </div>
             </div>
             <p className="text-[10px] text-slate-400 leading-normal italic">
-              *Make sure all your registrations use correct GPS locations to minimize admin approval times.
+              *Make sure all referred registrations complete their profile and verify email/SMS to minimize admin approval times.
             </p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Unified Register User Dialog */}
-      <AgentRegisterUserDialog
-        isOpen={isRegisterDialogOpen}
-        onClose={() => setIsRegisterDialogOpen(false)}
-        type={registerType}
-      />
     </div>
   )
 }

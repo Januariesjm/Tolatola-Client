@@ -38,11 +38,13 @@ interface AgentManagementTabProps {
 export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const [activeSubTab, setActiveSubTab] = useState<"agents" | "commissions">("agents")
+  const [activeSubTab, setActiveSubTab] = useState<"agents" | "commissions" | "rates">("agents")
   
   // Loading & Data States
   const [agents, setAgents] = useState<any[]>(initialAgents || [])
   const [commissions, setCommissions] = useState<any[]>([])
+  const [rates, setRates] = useState<any[]>([])
+  const [isUpdatingRates, setIsUpdatingRates] = useState(false)
   const [stats, setStats] = useState<any>({
     totalAgents: 0,
     activeAgents: 0,
@@ -92,15 +94,17 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
     try {
       const headers = await getAuthHeaders()
 
-      const [statsRes, agentsRes, commsRes] = await Promise.all([
+      const [statsRes, agentsRes, commsRes, ratesRes] = await Promise.all([
         fetch(`${apiBase}/admin/agents/stats`, { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
         fetch(`${apiBase}/admin/agents`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
         fetch(`${apiBase}/admin/agents/commissions`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
+        fetch(`${apiBase}/admin/agents/commission-rates`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
       ])
 
       if (statsRes?.stats) setStats(statsRes.stats)
       if (agentsRes) setAgents(agentsRes.data || [])
       if (commsRes) setCommissions(commsRes.data || [])
+      if (ratesRes?.data) setRates(ratesRes.data || [])
     } catch (err) {
       console.error("[ADMIN AGENTS] Fetch failed:", err)
       toast({
@@ -111,6 +115,40 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleUpdateRates = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsUpdatingRates(true)
+    try {
+      const headers = await getAuthHeaders()
+      const response = await fetch(`${apiBase}/admin/agents/commission-rates`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ rates }),
+      })
+
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "Failed to update rates")
+
+      toast({
+        title: "Rates Updated Successfully",
+        description: "Agent referral commission rates have been saved.",
+      })
+      fetchAllData()
+    } catch (err: any) {
+      toast({
+        title: "Update Failed",
+        description: err.message || "Could not update commission rates.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUpdatingRates(false)
+    }
+  }
+
+  const handleRateAmountChange = (type: string, amount: string) => {
+    setRates(prev => prev.map(r => r.registration_type === type ? { ...r, amount: Number(amount) || 0 } : r))
   }
 
   useEffect(() => {
@@ -352,9 +390,17 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
         >
           Commission Approvals ({commissions.filter(c => c.status === "pending").length} Pending)
         </button>
+        <button
+          onClick={() => setActiveSubTab("rates")}
+          className={`pb-3 px-4 text-xs font-bold transition-all relative ${
+            activeSubTab === "rates" ? "text-primary border-b-2 border-primary" : "text-slate-500 hover:text-slate-900"
+          }`}
+        >
+          Commission Rates
+        </button>
       </div>
 
-      {activeSubTab === "agents" ? (
+      {activeSubTab === "agents" && (
         <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
           <CardHeader className="pb-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -508,7 +554,9 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             )}
           </CardContent>
         </Card>
-      ) : (
+      )}
+
+      {activeSubTab === "commissions" && (
         <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
           <CardHeader>
             <CardTitle className="text-sm font-bold text-slate-800">Commission Approval Queue</CardTitle>
@@ -621,6 +669,85 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                   </tbody>
                 </table>
               </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {activeSubTab === "rates" && (
+        <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
+          <CardHeader>
+            <CardTitle className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <Coins className="h-4.5 w-4.5 text-teal-500" />
+              Referral Commission Rates
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Set the commission amount (in TZS) agents earn for each type of referral registration. Changes apply immediately to all future referrals.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {rates.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-xs text-slate-400">No commission rates configured yet.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleUpdateRates} className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {rates.map((rate) => {
+                    const typeConfig: Record<string, { label: string; icon: string; color: string; border: string }> = {
+                      vendor: { label: "Vendor Registration", icon: "🏪", color: "bg-emerald-50 text-emerald-800", border: "border-emerald-200" },
+                      customer: { label: "Customer Registration", icon: "👤", color: "bg-blue-50 text-blue-800", border: "border-blue-200" },
+                      transporter: { label: "Transporter Registration", icon: "🚚", color: "bg-amber-50 text-amber-800", border: "border-amber-200" },
+                    }
+                    const config = typeConfig[rate.registration_type] || { label: rate.registration_type, icon: "📋", color: "bg-slate-50 text-slate-800", border: "border-slate-200" }
+                    return (
+                      <div
+                        key={rate.registration_type}
+                        className={`rounded-xl border ${config.border} p-5 space-y-3 transition-all hover:shadow-md`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{config.icon}</span>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${config.color}`}>
+                            {config.label}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Commission Amount (TZS)
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={100}
+                            value={rate.amount}
+                            onChange={(e) => handleRateAmountChange(rate.registration_type, e.target.value)}
+                            className="rounded-xl text-sm h-10 font-bold"
+                          />
+                        </div>
+                        <p className="text-[10px] text-slate-400">
+                          Current: <span className="font-bold text-slate-600">TZS {(rate.amount || 0).toLocaleString()}</span> per referral
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="flex justify-end pt-2">
+                  <Button
+                    type="submit"
+                    disabled={isUpdatingRates}
+                    className="rounded-xl text-xs h-10 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/10"
+                  >
+                    {isUpdatingRates ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Commission Rates"
+                    )}
+                  </Button>
+                </div>
+              </form>
             )}
           </CardContent>
         </Card>
