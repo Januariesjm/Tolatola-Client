@@ -3,7 +3,7 @@
 import {
   LayoutDashboard,
   Users,
-  Percent,
+  Wallet,
   TrendingUp,
   Award,
   LogOut,
@@ -48,7 +48,7 @@ export function AgentSidebar({
   const navItems = [
     { id: "overview", label: "Dashboard", icon: LayoutDashboard },
     { id: "registrations", label: "My Registrations", icon: Users },
-    { id: "commissions", label: "Earnings & Commissions", icon: Percent },
+    { id: "commissions", label: "My Wallet", icon: Wallet },
     { id: "performance", label: "Performance Insights", icon: TrendingUp },
     { id: "notifications", label: "Notifications & Alerts", icon: Bell },
   ]

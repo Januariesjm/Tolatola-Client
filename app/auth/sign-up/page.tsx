@@ -19,7 +19,7 @@ import { useRegistrationRecovery } from "../../../hooks/use-registration-recover
 const logFailedRegistration = async (_payload: unknown) => {
   // no-op in client build
 }
-import { Eye, EyeOff, ShoppingCart } from "lucide-react"
+import { Eye, EyeOff, ShoppingCart, Gift, CheckCircle2, XCircle } from "lucide-react"
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
 
@@ -45,19 +45,44 @@ function SignUpContent() {
   const [acceptedPolicies, setAcceptedPolicies] = useState(false)
   const [referredByAgent, setReferredByAgent] = useState<string | null>(null)
 
+  // Referral code field state
+  const [referralCode, setReferralCode] = useState(refCode || "")
+  const [showReferralField, setShowReferralField] = useState(!!refCode)
+  const [referralValidating, setReferralValidating] = useState(false)
+  const [referralError, setReferralError] = useState<string | null>(null)
+
+  // Validate referral code (from URL or manual entry)
+  const validateReferralCode = async (code: string) => {
+    if (!code.trim()) {
+      setReferredByAgent(null)
+      setReferralError(null)
+      return
+    }
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+    if (!apiBase) return
+    setReferralValidating(true)
+    setReferralError(null)
+    try {
+      const res = await fetch(`${apiBase}/agents/referral-info?code=${encodeURIComponent(code.trim())}`)
+      const data = await res.json()
+      if (data.valid && data.agent_name) {
+        setReferredByAgent(data.agent_name)
+        setReferralError(null)
+      } else {
+        setReferredByAgent(null)
+        setReferralError("Invalid referral code. Please check and try again.")
+      }
+    } catch (err) {
+      console.error("Error validating referral code:", err)
+      setReferredByAgent(null)
+    } finally {
+      setReferralValidating(false)
+    }
+  }
+
   useEffect(() => {
     if (refCode) {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
-      if (apiBase) {
-        fetch(`${apiBase}/agents/referral-info?code=${encodeURIComponent(refCode)}`)
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.valid && data.agent_name) {
-              setReferredByAgent(data.agent_name)
-            }
-          })
-          .catch((err) => console.error("Error validating referral code:", err))
-      }
+      validateReferralCode(refCode)
     }
   }, [refCode])
 
@@ -126,7 +151,7 @@ function SignUpContent() {
           userType,
           vendorType: userType === "vendor" ? vendorType : undefined,
           acceptedPolicies: true,
-          referralCode: refCode || undefined,
+          referralCode: referralCode.trim() || refCode || undefined,
         }),
       })
 
@@ -374,6 +399,65 @@ function SignUpContent() {
                       </Button>
                     </div>
                   </div>
+
+                  {/* Optional Referral Code Field */}
+                  {!showReferralField && !refCode ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowReferralField(true)}
+                      className="flex items-center gap-2 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors py-1"
+                    >
+                      <Gift className="h-3.5 w-3.5" />
+                      Have a referral code?
+                    </button>
+                  ) : null}
+
+                  {showReferralField && (
+                    <div className="space-y-2 animate-fade-in">
+                      <Label htmlFor="referralCode" className="text-sm font-medium flex items-center gap-2">
+                        <Gift className="h-3.5 w-3.5 text-emerald-600" />
+                        Referral Code
+                        <span className="text-[10px] text-muted-foreground font-normal">(optional)</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="referralCode"
+                          type="text"
+                          placeholder="e.g. TOLA-AG-XXXX"
+                          value={referralCode}
+                          onChange={(e) => {
+                            setReferralCode(e.target.value.toUpperCase())
+                            if (referredByAgent) setReferredByAgent(null)
+                            if (referralError) setReferralError(null)
+                          }}
+                          onBlur={() => validateReferralCode(referralCode)}
+                          className={`h-11 transition-all focus:scale-[1.01] focus:ring-2 pr-10 uppercase tracking-wider font-mono text-sm ${
+                            referredByAgent ? "border-emerald-400 ring-1 ring-emerald-200" :
+                            referralError ? "border-red-300 ring-1 ring-red-100" : ""
+                          }`}
+                          disabled={!!refCode}
+                        />
+                        {referralValidating && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full" />
+                        )}
+                        {!referralValidating && referredByAgent && (
+                          <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+                        )}
+                        {!referralValidating && referralError && (
+                          <XCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-400" />
+                        )}
+                      </div>
+                      {referredByAgent && (
+                        <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          Referred by agent: <span className="font-bold">{referredByAgent}</span>
+                        </p>
+                      )}
+                      {referralError && (
+                        <p className="text-[11px] text-red-500 font-medium">{referralError}</p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">I want to</Label>

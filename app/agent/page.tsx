@@ -55,6 +55,7 @@ export default async function AgentDashboardPage() {
   let dashboardData: any = null
   let registrationsList: any[] = []
   let commissionsList: any[] = []
+  let commissionsSummary: any = {}
   let leaderboardData: any = null
 
   try {
@@ -68,6 +69,7 @@ export default async function AgentDashboardPage() {
     dashboardData = dashRes
     registrationsList = regsRes.data || []
     commissionsList = commsRes.data || []
+    commissionsSummary = commsRes.summary || {}
     leaderboardData = leaderRes
   } catch (err) {
     console.error("[AGENT DASHBOARD] Error loading dashboard sub-data:", err)
@@ -82,7 +84,7 @@ export default async function AgentDashboardPage() {
       trend={dashboardData?.registrationTrend || []}
       registrations={registrationsList}
       commissions={commissionsList}
-      commissionSummary={commissionsList.length > 0 ? (commissionsList as any).summary : {}}
+      commissionSummary={commissionsSummary}
       leaderboard={leaderboardData?.leaderboard || []}
       myRank={leaderboardData?.myRank || null}
     />
