@@ -233,18 +233,18 @@ export function VendorManagementTab() {
           {filteredVendors.map((vendor, idx) => (
             <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="flex items-center gap-2">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="flex items-center gap-2 min-w-0 w-full">
                       <Store className="h-5 w-5 text-primary shrink-0" />
                       <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
                         #{idx + 1}
                       </span>
-                      <span className="truncate">{vendor.business_name}</span>
+                      <span className="truncate block">{vendor.business_name}</span>
                     </CardTitle>
-                    <CardDescription className="mt-1">{vendor.users?.email}</CardDescription>
+                    <CardDescription className="mt-1 truncate">{vendor.users?.email}</CardDescription>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 shrink-0 items-end">
                     <Badge
                       variant={(vendor.is_active ?? true) ? "default" : "secondary"}
                       className={(vendor.is_active ?? true) ? "bg-green-600" : "bg-gray-500"}
