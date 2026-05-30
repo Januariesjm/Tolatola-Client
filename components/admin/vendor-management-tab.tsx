@@ -230,14 +230,17 @@ export function VendorManagementTab() {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVendors.map((vendor) => (
+          {filteredVendors.map((vendor, idx) => (
             <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="flex items-center gap-2">
-                      <Store className="h-5 w-5 text-primary" />
-                      {vendor.business_name}
+                      <Store className="h-5 w-5 text-primary shrink-0" />
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
+                        #{idx + 1}
+                      </span>
+                      <span className="truncate">{vendor.business_name}</span>
                     </CardTitle>
                     <CardDescription className="mt-1">{vendor.users?.email}</CardDescription>
                   </div>

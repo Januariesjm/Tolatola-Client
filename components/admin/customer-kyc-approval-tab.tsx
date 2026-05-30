@@ -98,15 +98,20 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
                 </Card>
             ) : (
                 <div className="grid md:grid-cols-2 gap-6">
-                    {customers.map((kyc) => (
+                    {customers.map((kyc, idx) => (
                         <Card key={kyc.id}>
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <User className="h-5 w-5 text-primary" />
                                         <div>
-                                            <CardTitle>{kyc.users?.full_name || "Unnamed User"}</CardTitle>
-                                            <CardDescription>{kyc.users?.email}</CardDescription>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                                                    #{idx + 1}
+                                                </span>
+                                                <CardTitle>{kyc.users?.full_name || "Unnamed User"}</CardTitle>
+                                            </div>
+                                            <CardDescription className="mt-1">{kyc.users?.email}</CardDescription>
                                         </div>
                                     </div>
                                     <Badge className="bg-yellow-500">Pending Review</Badge>

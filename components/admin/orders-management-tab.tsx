@@ -139,13 +139,16 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {filteredOrders.map((order) => (
+          {filteredOrders.map((order, idx) => (
             <Card key={order.id} className="overflow-hidden hover:shadow-md transition-all border-slate-200 group">
               <div className="flex flex-col lg:flex-row">
                 <div className="flex-1 p-6">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
+                          #{idx + 1}
+                        </span>
                         <span className="text-sm font-bold uppercase tracking-wider text-slate-400">Order</span>
                         <h3 className="text-xl font-bold text-slate-900">#{order.order_number}</h3>
                       </div>

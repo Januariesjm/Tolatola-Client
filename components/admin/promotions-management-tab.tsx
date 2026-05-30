@@ -338,7 +338,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
       )}
 
       <div className="grid gap-4">
-        {promotions.map((promotion) => (
+        {promotions.map((promotion, idx) => (
           <Card key={promotion.id}>
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -348,13 +348,18 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                     alt={promotion.title}
                     width={200}
                     height={120}
-                    className="rounded border object-cover"
+                    className="rounded border object-cover animate-in fade-in"
                   />
                 )}
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-lg">{promotion.title}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                          #{idx + 1}
+                        </span>
+                        <h3 className="font-semibold text-lg">{promotion.title}</h3>
+                      </div>
                       {promotion.description && (
                         <p className="text-sm text-muted-foreground mt-1">{promotion.description}</p>
                       )}

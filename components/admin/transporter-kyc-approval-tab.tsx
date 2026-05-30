@@ -113,15 +113,20 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
-          {transporters.map((transporter) => (
+          {transporters.map((transporter, idx) => (
             <Card key={transporter.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Truck className="h-5 w-5 text-blue-600" />
                     <div>
-                      <CardTitle>{transporter.users?.full_name || "Unnamed"}</CardTitle>
-                      <CardDescription>{transporter.users?.email}</CardDescription>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                          #{idx + 1}
+                        </span>
+                        <CardTitle>{transporter.users?.full_name || "Unnamed"}</CardTitle>
+                      </div>
+                      <CardDescription className="mt-1">{transporter.users?.email}</CardDescription>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 items-end">

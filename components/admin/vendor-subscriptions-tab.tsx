@@ -154,6 +154,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">#</TableHead>
                 <TableHead>Vendor</TableHead>
                 <TableHead>Plan</TableHead>
                 <TableHead>Status</TableHead>
@@ -164,8 +165,11 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subscriptions.map((subscription) => (
+              {subscriptions.map((subscription, idx) => (
                 <TableRow key={subscription.id}>
+                  <TableCell className="font-semibold text-xs text-slate-500">
+                    {idx + 1}
+                  </TableCell>
                   <TableCell>
                     <div>
                       <p className="font-medium">{subscription.vendor?.business_name}</p>

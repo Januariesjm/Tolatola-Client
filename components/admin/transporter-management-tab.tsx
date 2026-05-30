@@ -226,14 +226,17 @@ export function TransporterManagementTab() {
                 </Card>
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredTransporters.map((transporter) => (
+                    {filteredTransporters.map((transporter, idx) => (
                         <Card key={transporter.id} className="hover:shadow-lg transition-shadow">
                             <CardHeader>
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <CardTitle className="flex items-center gap-2">
-                                            <Truck className="h-5 w-5 text-primary" />
-                                            {transporter.users?.full_name || "Unnamed"}
+                                            <Truck className="h-5 w-5 text-primary shrink-0" />
+                                            <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
+                                                #{idx + 1}
+                                            </span>
+                                            <span className="truncate">{transporter.users?.full_name || "Unnamed"}</span>
                                         </CardTitle>
                                         <CardDescription className="mt-1">{transporter.users?.email}</CardDescription>
                                     </div>

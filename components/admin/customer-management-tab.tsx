@@ -112,12 +112,15 @@ export function CustomerManagementTab() {
 
             {/* Customers List */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCustomers.map((customer) => (
+                {filteredCustomers.map((customer, idx) => (
                     <Card key={customer.id} className="hover:shadow-md transition-shadow">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <User className="h-5 w-5 text-primary" />
-                                {customer.full_name || "Unnamed"}
+                                <User className="h-5 w-5 text-primary shrink-0" />
+                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
+                                    #{idx + 1}
+                                </span>
+                                <span className="truncate">{customer.full_name || "Unnamed"}</span>
                             </CardTitle>
                             <CardDescription>{customer.email}</CardDescription>
                         </CardHeader>

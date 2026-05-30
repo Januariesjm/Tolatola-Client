@@ -100,13 +100,18 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
-          {vendors.map((vendor) => (
+          {vendors.map((vendor, idx) => (
             <Card key={vendor.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>{vendor.business_name}</CardTitle>
-                    <CardDescription>{vendor.users?.email}</CardDescription>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                        #{idx + 1}
+                      </span>
+                      <CardTitle>{vendor.business_name}</CardTitle>
+                    </div>
+                    <CardDescription className="mt-1">{vendor.users?.email}</CardDescription>
                   </div>
                   <div className="flex flex-col gap-2 items-end">
                     <Badge className="bg-yellow-500">Pending Review</Badge>
