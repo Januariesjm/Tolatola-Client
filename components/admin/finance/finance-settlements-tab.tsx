@@ -172,7 +172,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
         </Card>
       ) : (
         <div className="space-y-3">
-          {filtered.map((t) => (
+          {filtered.map((t, idx) => (
             <Card key={t.id} className="shadow-sm hover:shadow-md transition-all border-slate-200">
               <CardContent className="p-5">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -186,6 +186,9 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                          #{idx + 1}
+                        </span>
                         <span className="font-bold text-slate-900">Order #{t.orders?.order_number || "—"}</span>
                         <Badge variant="outline" className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[t.status] || ""}`}>
                           {statusLabel[t.status] || t.status}

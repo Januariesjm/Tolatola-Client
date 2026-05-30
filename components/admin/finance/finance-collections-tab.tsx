@@ -178,6 +178,7 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/60">
+                    <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500 w-12">#</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Order Ref</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Customer</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Source</th>
@@ -187,8 +188,11 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c) => (
+                  {filtered.map((c, idx) => (
                     <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">
+                        {idx + 1}
+                      </td>
                       <td className="py-3 px-4">
                         <span className="font-bold text-slate-900">#{c.orderNumber}</span>
                       </td>

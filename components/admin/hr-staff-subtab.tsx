@@ -256,6 +256,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow>
+                <TableHead className="w-12">#</TableHead>
                 <TableHead>Employee</TableHead>
                 <TableHead>Role & Dept</TableHead>
                 <TableHead>Contact</TableHead>
@@ -265,8 +266,11 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map(staff => (
+              {filtered.map((staff, idx) => (
                 <TableRow key={staff.id}>
+                  <TableCell className="font-semibold text-slate-500 text-sm">
+                    {idx + 1}
+                  </TableCell>
                   <TableCell>
                     <div>
                       <p className="font-semibold text-sm">{staff.full_name}</p>

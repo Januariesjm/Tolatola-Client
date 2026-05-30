@@ -228,6 +228,7 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/60">
+                    <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500 w-12">#</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Order</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Vendor</th>
                     <th className="text-left py-3 px-4 font-bold text-xs uppercase tracking-wider text-slate-500">Driver</th>
@@ -239,8 +240,11 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
                   </tr>
                 </thead>
                 <tbody>
-                  {disbursements.map((d) => (
+                  {disbursements.map((d, idx) => (
                     <tr key={d.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">
+                        {idx + 1}
+                      </td>
                       <td className="py-3 px-4">
                         <span className="font-bold text-slate-900">#{d.orderNumber}</span>
                         <Badge variant="outline" className="ml-2 text-[10px] rounded px-1.5 py-0">{d.orderStatus}</Badge>

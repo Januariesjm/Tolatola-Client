@@ -282,7 +282,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filtered.map((payout) => (
+          {filtered.map((payout, idx) => (
             <Card key={payout.id} className="shadow-sm hover:shadow-md transition-all border-slate-200">
               <CardContent className="p-5">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -299,6 +299,9 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                          #{idx + 1}
+                        </span>
                         <span className="font-bold text-slate-900 text-lg">TZS {Number(payout.amount || 0).toLocaleString()}</span>
                         <Badge variant="outline" className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[payout.status] || ""}`}>
                           {statusLabel[payout.status] || payout.status}
