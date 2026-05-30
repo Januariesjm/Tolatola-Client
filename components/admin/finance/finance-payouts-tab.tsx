@@ -89,9 +89,18 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
     return localPayouts.filter((p) => {
       if (statusFilter !== "all" && p.status !== statusFilter) return false
       const q = searchQuery.toLowerCase()
-      const vendorId = (p.vendor_id || "").toLowerCase()
+      const businessName = (p.business_name || "").toLowerCase()
+      const fullName = (p.full_name || "").toLowerCase()
+      const phone = (p.phone || "").toLowerCase()
+      const vendorId = (p.vendor_id || p.user_id || "").toLowerCase()
       const method = (p.payment_method || "").toLowerCase()
-      return vendorId.includes(q) || method.includes(q)
+      return (
+        businessName.includes(q) ||
+        fullName.includes(q) ||
+        phone.includes(q) ||
+        vendorId.includes(q) ||
+        method.includes(q)
+      )
     })
   }, [localPayouts, searchQuery, statusFilter])
 
@@ -298,7 +307,11 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                       <div className="flex items-center gap-4 mt-1 text-sm text-slate-500 flex-wrap">
                         <span className="flex items-center gap-1">
                           {payout.user_type === "transporter" ? <Truck className="h-3 w-3" /> : <Store className="h-3 w-3" />}
-                          <span className="capitalize">{payout.user_type || "Vendor"}</span>: {payout.user_id?.slice(0, 8) || payout.vendor_id?.slice(0, 8) || "—"}
+                          <span className="capitalize text-slate-700 font-medium">{payout.user_type || "Vendor"}</span>:{" "}
+                          <span className="font-semibold text-slate-800">
+                            {payout.business_name || payout.full_name || payout.user_id?.slice(0, 8) || "—"}
+                          </span>
+                          {payout.phone && <span className="text-xs text-slate-400 font-normal ml-1">({payout.phone})</span>}
                         </span>
                         <span className="flex items-center gap-1">
                           {getPayoutIcon(payout.payment_method)}

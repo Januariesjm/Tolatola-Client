@@ -40,6 +40,7 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
       orderNumber: order.order_number,
       customerName: order.users?.full_name || order.shipping_address?.full_name || "Guest",
       customerPhone: order.users?.phone || order.shipping_address?.phone || "—",
+      vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
       amount: order.total_amount || 0,
       paymentMethod: order.payment_method || "mobile-money",
       paymentStatus: order.payment_status || "pending",
@@ -55,7 +56,8 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
       return (
         c.orderNumber.toLowerCase().includes(q) ||
         c.customerName.toLowerCase().includes(q) ||
-        c.customerPhone.toLowerCase().includes(q)
+        c.customerPhone.toLowerCase().includes(q) ||
+        c.vendorName.toLowerCase().includes(q)
       )
     })
   }, [collections, searchQuery, paymentFilter])
@@ -193,6 +195,7 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
                       <td className="py-3 px-4">
                         <p className="font-medium text-slate-800">{c.customerName}</p>
                         <p className="text-xs text-slate-400">{c.customerPhone}</p>
+                        <p className="text-[10px] text-slate-500 font-medium mt-0.5">Shop: {c.vendorName}</p>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5 text-slate-600">

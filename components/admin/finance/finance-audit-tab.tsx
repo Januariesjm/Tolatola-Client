@@ -114,7 +114,7 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
         id: order.id,
         orderNumber: order.order_number,
         customerName: order.users?.full_name || order.shipping_address?.full_name || "Guest",
-        vendorName: order.shops?.name || "N/A",
+        vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
         totalAmount: order.total_amount || 0,
         orderStatus: order.status,
         createdAt: order.created_at,
