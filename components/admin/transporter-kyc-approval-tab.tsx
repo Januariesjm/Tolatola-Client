@@ -124,7 +124,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                         <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
                           #{idx + 1}
                         </span>
-                        <CardTitle className="truncate">{transporter.users?.full_name || "Unnamed"}</CardTitle>
+                        <CardTitle className="truncate flex-1 min-w-0">{transporter.users?.full_name || "Unnamed"}</CardTitle>
                       </div>
                       <CardDescription className="mt-1 truncate">{transporter.users?.email}</CardDescription>
                     </div>

@@ -101,20 +101,20 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
                     {customers.map((kyc, idx) => (
                         <Card key={kyc.id}>
                             <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <User className="h-5 w-5 text-primary" />
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                        <User className="h-5 w-5 text-primary shrink-0" />
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2 min-w-0 w-full">
+                                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
                                                     #{idx + 1}
                                                 </span>
-                                                <CardTitle>{kyc.users?.full_name || "Unnamed User"}</CardTitle>
+                                                <CardTitle className="truncate flex-1 min-w-0">{kyc.users?.full_name || "Unnamed User"}</CardTitle>
                                             </div>
-                                            <CardDescription className="mt-1">{kyc.users?.email}</CardDescription>
+                                            <CardDescription className="mt-1 truncate">{kyc.users?.email}</CardDescription>
                                         </div>
                                     </div>
-                                    <Badge className="bg-yellow-500">Pending Review</Badge>
+                                    <Badge className="bg-yellow-500 shrink-0">Pending Review</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">

@@ -236,7 +236,7 @@ export function TransporterManagementTab() {
                                             <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
                                                 #{idx + 1}
                                             </span>
-                                            <span className="truncate block">{transporter.users?.full_name || "Unnamed"}</span>
+                                            <span className="truncate block flex-1 min-w-0">{transporter.users?.full_name || "Unnamed"}</span>
                                         </CardTitle>
                                         <CardDescription className="mt-1 truncate">{transporter.users?.email}</CardDescription>
                                     </div>
