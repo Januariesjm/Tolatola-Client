@@ -49,7 +49,7 @@ export function JsonLd() {
                 "areaServed": "TZ",
                 "availableLanguage": ["English", "Swahili"],
                 "url": "https://tolatola.co/contact",
-                "name": "Dodoma HQ"
+                "name": "Dar Es Salaam HQ"
             },
             {
                 "@type": "ContactPoint",
@@ -57,7 +57,7 @@ export function JsonLd() {
                 "telephone": "+255-625-377-978",
                 "areaServed": "TZ",
                 "url": "https://tolatola.co/contact",
-                "name": "Dar Es Salaam"
+                "name": "Kibaha Pwani - Main Branch"
             }
         ]
     }

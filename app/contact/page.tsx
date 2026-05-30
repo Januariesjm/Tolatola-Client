@@ -153,14 +153,14 @@ export default async function ContactPage() {
                   <div className="flex gap-3 relative z-10">
                     <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
                     <div>
-                      <p className="font-bold">Dodoma Headquarters</p>
+                      <p className="font-bold">Dar Es Salaam Headquarters</p>
                       <p className="text-sm text-muted-foreground">Main Business Hub, TZ</p>
                     </div>
                   </div>
                   <div className="flex gap-3 relative z-10">
                     <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
                     <div>
-                      <p className="font-bold">Dar Es Salaam Office</p>
+                      <p className="font-bold">Kibaha Pwani - Main Branch</p>
                       <p className="text-sm text-muted-foreground">Logistics Center, TZ</p>
                     </div>
                   </div>

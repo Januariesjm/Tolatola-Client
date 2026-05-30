@@ -27,8 +27,8 @@ export function SiteFooter() {
       { name: "Site Map", href: "/sitemap" },
     ],
     offices: [
-      { name: "Dodoma HQ", phone: "+255 678 227 227", icon: MapPin },
-      { name: "Dar Es Salaam", phone: "+255 625 377 978", icon: Globe },
+      { name: "Dar Es Salaam HQ", phone: "+255 678 227 227", icon: MapPin },
+      { name: "Kibaha Pwani - Main Branch", phone: "+255 625 377 978", icon: Globe },
     ]
   }
 

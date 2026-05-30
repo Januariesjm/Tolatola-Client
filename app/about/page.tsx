@@ -179,13 +179,13 @@ export default async function AboutPage() {
               {[
                 {
                   icon: <Phone className="h-5 w-5" />,
-                  title: "Dodoma HQ",
+                  title: "Dar es Salaam HQ",
                   detail: "+255 678 227 227",
                   desc: "Head Office"
                 },
                 {
                   icon: <Phone className="h-5 w-5" />,
-                  title: "Dar es Salaam Office",
+                  title: "Kibaha Pwani - Main Branch",
                   detail: "+255 625 377 978",
                   desc: "Regional Branch"
                 },
