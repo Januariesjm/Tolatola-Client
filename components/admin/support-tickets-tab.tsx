@@ -56,12 +56,15 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {tickets.map((ticket) => (
+          {tickets.map((ticket, index) => (
             <Card key={ticket.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <span className="text-slate-400 font-bold">#{index + 1}</span>
+                      <span>{ticket.subject}</span>
+                    </CardTitle>
                     <CardDescription>
                       From: {ticket.users?.full_name || ticket.users?.email || "Unknown"}
                     </CardDescription>

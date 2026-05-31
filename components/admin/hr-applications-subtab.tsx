@@ -328,6 +328,9 @@ export function HRApplicationsSubtab({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
+                    <TableHead className="font-bold text-xs uppercase tracking-wider w-[50px]">
+                      #
+                    </TableHead>
                     <TableHead className="font-bold text-xs uppercase tracking-wider">
                       Applicant
                     </TableHead>
@@ -349,7 +352,7 @@ export function HRApplicationsSubtab({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((app) => {
+                  {filtered.map((app, index) => {
                     const status = statusConfig[app.status]
                     return (
                       <TableRow
@@ -360,6 +363,9 @@ export function HRApplicationsSubtab({
                           setIsDetailOpen(true)
                         }}
                       >
+                        <TableCell className="font-medium text-muted-foreground">
+                          {index + 1}
+                        </TableCell>
                         <TableCell>
                           <div>
                             <p className="font-semibold text-sm">

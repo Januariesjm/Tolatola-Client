@@ -262,7 +262,7 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
         </Card>
       ) : (
         <div className="space-y-3">
-          {filtered.map((reg) => {
+          {filtered.map((reg, index) => {
             const isExpanded = expandedId === reg.id
             return (
               <Card key={reg.id} className="shadow-sm hover:shadow-md transition-all border-slate-200 overflow-hidden">
@@ -271,6 +271,7 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                     {/* Main Row */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
+                        <span className="text-sm font-bold text-slate-400 w-6 text-center">#{index + 1}</span>
                         <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
                           reg.user_type === "vendor" ? "bg-blue-100" :
                           reg.user_type === "transporter" ? "bg-indigo-100" : "bg-emerald-100"

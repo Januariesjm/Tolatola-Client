@@ -454,6 +454,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 <table className="w-full text-left text-xs whitespace-nowrap">
                   <thead>
                     <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                      <th className="py-3 px-6 w-[50px]">#</th>
                       <th className="py-3 px-6">Agent Details</th>
                       <th className="py-3 px-4">Agent Code</th>
                       <th className="py-3 px-4">Role</th>
@@ -464,8 +465,9 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredAgents.map((agent) => (
+                    {filteredAgents.map((agent, index) => (
                       <tr key={agent.id} className="hover:bg-slate-50/40 transition-colors">
+                        <td className="py-3 px-6 font-medium text-slate-400">{index + 1}</td>
                         <td className="py-3 px-6">
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-900 text-sm">{agent.users?.full_name || "Sales Agent"}</span>
@@ -577,6 +579,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 <table className="w-full text-left text-xs whitespace-nowrap">
                   <thead>
                     <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                      <th className="py-3 px-6 w-[50px]">#</th>
                       <th className="py-3 px-6">Agent Details</th>
                       <th className="py-3 px-4">Registration Detail</th>
                       <th className="py-3 px-4">Payout Amount</th>
@@ -586,8 +589,9 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {commissions.map((comm) => (
+                    {commissions.map((comm, index) => (
                       <tr key={comm.id} className="hover:bg-slate-50/40 transition-colors">
+                        <td className="py-3 px-6 font-medium text-slate-400">{index + 1}</td>
                         <td className="py-3 px-6">
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-900 text-sm">

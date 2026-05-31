@@ -148,12 +148,13 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
             <p className="text-center text-muted-foreground py-8">No pending payout requests</p>
           ) : (
             <div className="space-y-4">
-              {pendingPayouts.map((payout) => (
+              {pendingPayouts.map((payout, index) => (
                 <Card key={payout.id}>
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-slate-400 w-6 text-center">#{index + 1}</span>
                           <Clock className="h-4 w-4 text-yellow-600" />
                           <span className="font-semibold">TZS {Number(payout.amount).toLocaleString()}</span>
                           <Badge variant="outline">{payout.status}</Badge>
@@ -206,9 +207,10 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
             <p className="text-center text-muted-foreground py-8">No payouts yet</p>
           ) : (
             <div className="space-y-2">
-              {localPayouts.map((payout) => (
+              {localPayouts.map((payout, index) => (
                 <div key={payout.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-slate-400 w-6 text-center">#{index + 1}</span>
                     {payout.status === "completed" && <CheckCircle className="h-4 w-4 text-green-600" />}
                     {payout.status === "pending" && <Clock className="h-4 w-4 text-yellow-600" />}
                     {payout.status === "processing" && <Loader2 className="h-4 w-4 text-orange-500 animate-spin" />}

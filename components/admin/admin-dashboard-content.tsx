@@ -26,6 +26,7 @@ import {
   ShieldAlert,
   Activity,
   UserPlus,
+  ClipboardList,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -57,6 +58,7 @@ import { SystemHealthTab } from "./system-health-tab"
 import { InfrastructureTab } from "./infrastructure-tab"
 import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
 import { AgentManagementTab } from "./agent-management-tab"
+import { ValidationSurveysTab } from "./validation-surveys-tab"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -731,6 +733,23 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("view_analytics") && (
+                  <Button
+                    variant={activeTab === "validation" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "validation"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("validation")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <ClipboardList className="h-4 w-4" />
+                      <span>Market Validation</span>
+                    </span>
+                  </Button>
+                )}
+
                 {adminRole?.permissions.includes("manage_agents") && (
                   <Button
                     variant={activeTab === "agents" ? "default" : "ghost"}
@@ -870,6 +889,11 @@ export function AdminDashboardContent({
                       </TabsTrigger>
                     </>
                   )}
+                  {adminRole?.permissions.includes("view_analytics") && (
+                    <TabsTrigger value="validation" className="px-5 rounded-full text-xs font-semibold">
+                      Validation
+                    </TabsTrigger>
+                  )}
                   {adminRole?.permissions.includes("manage_agents") && (
                     <TabsTrigger value="agents" className="px-5 rounded-full text-xs font-semibold">
                       Sales Agents
@@ -996,6 +1020,12 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("view_logs") && (
                 <TabsContent value="logs" className="border-none p-0 outline-none">
                   <ServerLogsTab />
+                </TabsContent>
+              )}
+
+              {adminRole?.permissions.includes("view_analytics") && (
+                <TabsContent value="validation" className="border-none p-0 outline-none">
+                  <ValidationSurveysTab />
                 </TabsContent>
               )}
 

@@ -256,6 +256,7 @@ export function AdminUsersManagementTab() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-[50px]">#</TableHead>
                       <TableHead>User</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
@@ -265,10 +266,11 @@ export function AdminUsersManagementTab() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {admins.map((admin) => {
+                    {admins.map((admin, index) => {
                       const role = admin.admin_roles
                       return (
                         <TableRow key={admin.id}>
+                          <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
                           <TableCell className="font-medium">{admin.full_name || "N/A"}</TableCell>
                           <TableCell>{admin.email}</TableCell>
                           <TableCell>
@@ -312,6 +314,7 @@ export function AdminUsersManagementTab() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-[50px]">#</TableHead>
                       <TableHead>User</TableHead>
                       <TableHead>Previous Role</TableHead>
                       <TableHead>Revoked Date</TableHead>
@@ -320,8 +323,9 @@ export function AdminUsersManagementTab() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {revokedHistory.map((history) => (
+                    {revokedHistory.map((history, index) => (
                       <TableRow key={history.id}>
+                        <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium">{history.user_name || "Unknown"}</div>
