@@ -80,8 +80,9 @@ export default function ValidationSurveyPage() {
     const e: Record<string, string> = {}
     if (!form.full_name.trim()) e.full_name = "Full name is required"
     if (!form.phone.trim()) e.phone = "Phone number is required"
-    if (!form.email.trim()) e.email = "Email is required"
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Invalid email format"
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      e.email = "Invalid email format"
+    }
     if (!form.region) e.region = "Region is required"
     if (!form.district.trim()) e.district = "District is required"
     if (!form.location_ward.trim()) e.location_ward = "Location / Ward is required"
@@ -197,7 +198,7 @@ export default function ValidationSurveyPage() {
                     {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address *</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address (Optional)</label>
                     <input className={inputCls("email")} type="email" placeholder="you@example.com" value={form.email} onChange={e => set("email", e.target.value)} />
                     {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                   </div>
