@@ -248,16 +248,6 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
               )} />
             </Link>
-            <Link href="/validation" className={cn(
-              "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
-              pathname === "/validation" ? "text-primary" : "text-stone-500"
-            )}>
-              Market Survey
-              <span className={cn(
-                "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
-                pathname === "/validation" ? "w-full" : "w-0 group-hover:w-full"
-              )} />
-            </Link>
           </div>
 
           <div className="flex items-center gap-1.5 md:gap-3">
