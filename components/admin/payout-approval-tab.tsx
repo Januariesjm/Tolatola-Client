@@ -217,8 +217,13 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                     {payout.status === "failed" && <XCircle className="h-4 w-4 text-red-600" />}
                     <div>
                       <p className="font-medium">TZS {Number(payout.amount).toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(payout.created_at).toLocaleDateString()}
+                      <p className="text-xs text-muted-foreground flex flex-col gap-0.5">
+                        <span>{new Date(payout.created_at).toLocaleDateString()}</span>
+                        {payout.approved_by_name && (
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-500">
+                            {payout.status === "failed" ? "Rejected by" : "Approved by"}: {payout.approved_by_name}
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>

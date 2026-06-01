@@ -321,6 +321,11 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                           <span className="capitalize">{payout.payment_method?.replace("-", " ") || "Mobile Money"}</span>
                         </span>
                         <span>{format(new Date(payout.created_at), "MMM d, yyyy 'at' p")}</span>
+                        {payout.approved_by_name && (
+                          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md dark:bg-emerald-950/30 dark:text-emerald-400">
+                            {payout.status === "failed" ? "Rejected by" : "Approved by"}: {payout.approved_by_name}
+                          </span>
+                        )}
                       </div>
                       {payout.payment_details?.details && (
                         <p className="text-xs text-slate-400 mt-1">Details: {payout.payment_details.details}</p>
