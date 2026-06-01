@@ -13,8 +13,10 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Headphones
+  Headphones,
+  ClipboardList
 } from "lucide-react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 import PersonalInfoTab from "./personal-info-tab"
@@ -78,6 +80,24 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
             </div>
             {getKycStatusBadge()}
           </div>
+        </div>
+
+        {/* Market Validation Survey Banner */}
+        <div className="mb-6 bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-emerald-600/10 border border-emerald-500/20 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white flex-shrink-0">
+              <ClipboardList className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-zinc-950 text-base sm:text-lg">Market Validation Survey</h3>
+              <p className="text-sm text-zinc-600 mt-0.5">Help us build a better TOLA — share your feedback and trade insights.</p>
+            </div>
+          </div>
+          <Link href="/validation">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl px-6 h-11 flex items-center gap-2 shadow-md shadow-emerald-600/15">
+              Take Survey <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">

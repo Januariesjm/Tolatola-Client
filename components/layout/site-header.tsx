@@ -38,7 +38,8 @@ import {
   ArrowRight,
   Truck,
   MapPin,
-  Search
+  Search,
+  ClipboardList
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -162,6 +163,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       { href: "/", label: "Home", icon: Home },
                       { href: "/shop", label: "Shop", icon: ShoppingBag },
                       { href: "/track", label: "Track Order", icon: Truck },
+                      { href: "/validation", label: "Market Survey", icon: ClipboardList },
                       { href: "/profile", label: "Profile", icon: User },
                       { href: "/orders", label: "Orders", icon: Package },
                       { href: "/favorites", label: "Favorites", icon: Sparkles }
