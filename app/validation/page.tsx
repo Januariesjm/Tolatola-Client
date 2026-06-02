@@ -28,6 +28,8 @@ interface FormData {
   q10_buyer_protection_importance: number; q11_otp_reduces_disputes: string
   q12_nearby_suppliers_frequency: string; q13_willing_to_pay: string
   q14_payment_amount: string; q15_choice_and_reason: string
+  assisted_by_agent: boolean
+  agent_name: string
 }
 
 const initialForm: FormData = {
@@ -37,6 +39,8 @@ const initialForm: FormData = {
   q8_platform_value_rating: 5, q9_escrow_importance: 5, q10_buyer_protection_importance: 5,
   q11_otp_reduces_disputes: "", q12_nearby_suppliers_frequency: "", q13_willing_to_pay: "",
   q14_payment_amount: "", q15_choice_and_reason: "",
+  assisted_by_agent: false,
+  agent_name: "",
 }
 
 function RatingSlider({ label, value, onChange, questionNum }: { label: string; value: number; onChange: (v: number) => void; questionNum: string }) {
@@ -87,6 +91,9 @@ export default function ValidationSurveyPage() {
     if (!form.district.trim()) e.district = "District is required"
     if (!form.location_ward.trim()) e.location_ward = "Location / Ward is required"
     if (!form.respondent_type) e.respondent_type = "Respondent type is required"
+    if (form.assisted_by_agent && !form.agent_name.trim()) {
+      e.agent_name = "Agent name is required"
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -230,6 +237,36 @@ export default function ValidationSurveyPage() {
                   </div>
                   {errors.respondent_type && <p className="text-xs text-red-500 mt-1">{errors.respondent_type}</p>}
                 </div>
+
+                <div className="flex items-center gap-2.5 pt-2">
+                  <input
+                    type="checkbox"
+                    id="assisted_by_agent"
+                    checked={form.assisted_by_agent}
+                    onChange={e => {
+                      const checked = e.target.checked
+                      set("assisted_by_agent", checked)
+                      if (!checked) set("agent_name", "")
+                    }}
+                    className="h-4.5 w-4.5 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                  />
+                  <label htmlFor="assisted_by_agent" className="text-sm font-semibold text-slate-700 cursor-pointer select-none">
+                    Assisted by a TOLA agent?
+                  </label>
+                </div>
+
+                {form.assisted_by_agent && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5 font-semibold">Agent Name *</label>
+                    <input
+                      className={inputCls("agent_name")}
+                      placeholder="Enter the name of the agent who assisted you"
+                      value={form.agent_name}
+                      onChange={e => set("agent_name", e.target.value)}
+                    />
+                    {errors.agent_name && <p className="text-xs text-red-500 mt-1">{errors.agent_name}</p>}
+                  </div>
+                )}
                 <div className="flex justify-end pt-2">
                   <button onClick={handleNext} className="flex items-center gap-2 px-8 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition shadow-lg shadow-primary/20">
                     Continue <ChevronRight className="h-4 w-4" />

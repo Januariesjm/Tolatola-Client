@@ -27,6 +27,7 @@ interface ValidationSurvey {
   // Enhanced fields
   survey_date: string
   upload_date: string
+  assisted_by_agent?: boolean
   agent_id?: string
   agent_name?: string
   collection_method?: string
@@ -238,6 +239,8 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
           if (!record.source) record.source = defaultSource
           if (!record.agent_id && defaultAgentId) record.agent_id = defaultAgentId
           if (!record.agent_name && defaultAgentName) record.agent_name = defaultAgentName
+          record.agent_name = record.agent_name || "Self-Submitted"
+          record.assisted_by_agent = !!(record.agent_name && record.agent_name !== "Self-Submitted")
 
           parsed.push(record)
         }
@@ -290,7 +293,7 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
   const exportCSV = () => {
     const headers = [
       "#", "Survey Date", "Upload Date", "Full Name", "Phone", "Email", "Region", "District", "Ward",
-      "Type", "Agent ID", "Agent Name", "Collection Method", "Source", "Created By", "Created At", "Updated By", "Updated At",
+      "Type", "Assisted by Agent", "Agent ID", "Agent Name", "Collection Method", "Source", "Created By", "Created At", "Updated By", "Updated At",
       "Q1-Challenges", "Q2-Biggest Challenge", "Q3-Impact", "Q4-Time Searching",
       "Q5-Lost Money", "Q6-Channels", "Q7-Satisfaction", "Q8-Platform Value",
       "Q9-Escrow", "Q10-Buyer Protection", "Q11-OTP", "Q12-Nearby Frequency",
@@ -307,8 +310,9 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
       s.district,
       s.location_ward,
       s.respondent_type,
+      s.assisted_by_agent ? "Yes" : "No",
       s.agent_id || "",
-      s.agent_name || "",
+      s.agent_name || "Self-Submitted",
       s.collection_method || "Website",
       s.source || "",
       s.created_by || "",
@@ -342,7 +346,7 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
   const exportExcel = () => {
     const headers = [
       "#", "Survey Date", "Upload Date", "Full Name", "Phone", "Email", "Region", "District", "Ward",
-      "Type", "Agent ID", "Agent Name", "Collection Method", "Source", "Created By", "Created At", "Updated By", "Updated At",
+      "Type", "Assisted by Agent", "Agent ID", "Agent Name", "Collection Method", "Source", "Created By", "Created At", "Updated By", "Updated At",
       "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15"
     ]
     const rows = filtered.map((s, i) => [
@@ -356,8 +360,9 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
       s.district,
       s.location_ward,
       s.respondent_type,
+      s.assisted_by_agent ? "Yes" : "No",
       s.agent_id || "",
-      s.agent_name || "",
+      s.agent_name || "Self-Submitted",
       s.collection_method || "Website",
       s.source || "",
       s.created_by || "",
@@ -402,7 +407,7 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
         <td>${s.region}</td>
         <td>${s.respondent_type}</td>
         <td>${s.collection_method || "Website"}</td>
-        <td>${s.agent_name || "N/A"}</td>
+        <td>${s.agent_name || "Self-Submitted"}</td>
         <td>${s.q2_biggest_challenge}</td>
         <td>${s.q3_impact_rating}/10</td>
       </tr>`).join("")
@@ -633,7 +638,8 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
                                 <p><span className="text-slate-500 font-medium">Time Searching:</span> {s.q4_time_searching}</p>
                                 <p><span className="text-slate-500 font-medium">Lost Money:</span> {s.q5_lost_money}</p>
                                 <p><span className="text-slate-500 font-medium">Challenges:</span> {s.q1_challenges}</p>
-                                <p><span className="text-slate-500 font-medium">Collection Agent:</span> {s.agent_name || "N/A"} {s.agent_id ? `(ID: ${s.agent_id})` : ""}</p>
+                                <p><span className="text-slate-500 font-medium">Assisted by Agent:</span> {s.assisted_by_agent ? "Yes" : "No"}</p>
+                                 <p><span className="text-slate-500 font-medium">Collection Agent:</span> {s.agent_name || "Self-Submitted"} {s.agent_id ? `(ID: ${s.agent_id})` : ""}</p>
                                 <p><span className="text-slate-500 font-medium">Data Source:</span> {s.source || "Public Submission"}</p>
                               </div>
                               <div className="space-y-2">
@@ -808,7 +814,7 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
                               <td className="px-3 py-2"><Badge variant="outline">{r.respondent_type}</Badge></td>
                               <td className="px-3 py-2 text-slate-500">{r.survey_date || "Current"}</td>
                               <td className="px-3 py-2 text-slate-500">{r.collection_method}</td>
-                              <td className="px-3 py-2 text-slate-500">{r.agent_name || "N/A"}</td>
+                              <td className="px-3 py-2 text-slate-500">{r.agent_name || "Self-Submitted"}</td>
                             </tr>
                           ))}
                         </tbody>
