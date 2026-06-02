@@ -288,14 +288,15 @@ function StatusDashboardInner() {
               </div>
             )}
 
-            {/* Optional map - if we have coordinates from API we could pass them */}
+            {/* Optional map - passing exact origin, destination, and live transporter location */}
             {order.shipping_address && (order.shipping_address as any).latitude && (
               <OrderTrackingMap
-                origin={{ lat: 0, lng: 0 }}
+                origin={data.shop_location || { lat: -6.7924, lng: 39.2083 }}
                 destination={{
-                  lat: (order.shipping_address as any).latitude,
-                  lng: (order.shipping_address as any).longitude,
+                  lat: parseFloat((order.shipping_address as any).latitude),
+                  lng: parseFloat((order.shipping_address as any).longitude),
                 }}
+                transporterLocation={data.transporter?.driver_location}
               />
             )}
           </CardContent>

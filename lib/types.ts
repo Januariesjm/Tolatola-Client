@@ -41,18 +41,22 @@ export interface OrderTrackingInfo {
     id: string
     order_number: string
     tracking_code: string
-    status: OrderStatus
+    status: OrderStatus | string
     payment_status: string
     escrow_status?: EscrowStatus
-    estimated_arrival?: string
+    estimated_arrival?: string | null
     shipping_address?: Record<string, unknown>
+    delivery_confirmation_requested?: boolean
   }
   transporter?: {
+    id?: string
     name: string
     phone_masked: string
     phone?: string
+    driver_location?: { lat: number; lng: number; bearing?: number | null; speed?: number | null } | null
   }
-  timeline: Array<{ status: OrderStatus; label: string; completed_at?: string }>
+  shop_location?: { lat: number; lng: number } | null
+  timeline: Array<{ status: OrderStatus | string; label: string; completed_at?: string }>
 }
 
 export interface DisputeInfo {
