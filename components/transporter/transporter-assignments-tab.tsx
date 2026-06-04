@@ -165,18 +165,18 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
             id={`order-${assignment.order_id}`}
             className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}
           >
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-lg">Order #{assignment.orders?.order_number}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
+            <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <CardTitle className="text-sm sm:text-lg truncate">Order #{assignment.orders?.order_number}</CardTitle>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {assignment.transport_methods?.name} • {assignment.distance_km} km
                   </p>
                 </div>
                 {getStatusBadge(assignment)}
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
               {/* Shop Info */}
               <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                 <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -395,33 +395,38 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value={TAB_AVAILABLE}>
-            <ListTodo className="h-4 w-4 mr-1.5 hidden sm:inline" />
-            Available Trips
+      <div className="overflow-x-auto -mx-1 px-1 scrollbar-hide">
+        <TabsList className="inline-flex w-auto min-w-full grid-cols-none">
+          <TabsTrigger value={TAB_AVAILABLE} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+            <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="hidden sm:inline">Available Trips</span>
+            <span className="sm:hidden">Available</span>
             {availableTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{availableTrips.length}</Badge>
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{availableTrips.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value={TAB_ACCEPTED}>
-            Accepted Trips
+          <TabsTrigger value={TAB_ACCEPTED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+            <span className="hidden sm:inline">Accepted Trips</span>
+            <span className="sm:hidden">Accepted</span>
             {acceptedTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{acceptedTrips.length}</Badge>
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{acceptedTrips.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value={TAB_IN_TRANSIT}>
-            In Transit
+          <TabsTrigger value={TAB_IN_TRANSIT} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+            <span className="hidden sm:inline">In Transit</span>
+            <span className="sm:hidden">Transit</span>
             {inTransitTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{inTransitTrips.length}</Badge>
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{inTransitTrips.length}</Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value={TAB_COMPLETED}>
+          <TabsTrigger value={TAB_COMPLETED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
             Completed
             {completedTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{completedTrips.length}</Badge>
+              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{completedTrips.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
+      </div>
         <TabsContent value={TAB_AVAILABLE} className="mt-4">
           {renderList(availableTrips)}
         </TabsContent>

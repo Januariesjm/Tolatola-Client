@@ -165,34 +165,34 @@ export function TransporterDashboardContent({
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
       <header className="border-b bg-background sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-16 md:h-20 w-auto" />
-            <HeaderAnimatedText />
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-10 sm:h-16 md:h-20 w-auto" />
+            <span className="hidden sm:inline-block"><HeaderAnimatedText /></span>
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground capitalize">{transporter.vehicle_type} Driver</span>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="text-xs sm:text-sm text-muted-foreground capitalize hidden sm:inline">{transporter.vehicle_type} Driver</span>
             <NotificationPopover userType="transporter" />
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
+            <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm px-2 sm:px-3">
+              <LogOut className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-8 gap-3 sm:gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Transporter Dashboard</h1>
-            <p className="text-muted-foreground">{transporter.business_name || "Welcome to your dashboard"}</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Transporter Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{transporter.business_name || "Welcome to your dashboard"}</p>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => fetchAssignments(true)}
             disabled={isRefreshing}
-            className="gap-1.5 shrink-0"
+            className="gap-1.5 shrink-0 text-xs sm:text-sm"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh Trips
@@ -200,68 +200,68 @@ export function TransporterDashboardContent({
         </div>
 
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4 sm:mb-8">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active Deliveries</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Active Deliveries</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-blue-600" />
-                <span className="text-2xl font-bold">{activeAssignments.length}</span>
+                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                <span className="text-xl sm:text-2xl font-bold">{activeAssignments.length}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Completed</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-green-600" />
-                <span className="text-2xl font-bold">{completedAssignments.length}</span>
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                <span className="text-xl sm:text-2xl font-bold">{completedAssignments.length}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Available Balance</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Available Balance</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-purple-600" />
-                <span className="text-2xl font-bold">{availableBalance.toLocaleString()} TZS</span>
+                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+                <span className="text-lg sm:text-2xl font-bold">{availableBalance.toLocaleString()} <span className="text-xs sm:text-base">TZS</span></span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Rating</CardTitle>
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Rating</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-yellow-600" />
-                <span className="text-2xl font-bold">{transporter.rating || "5.00"}</span>
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
+                <span className="text-xl sm:text-2xl font-bold">{transporter.rating || "5.00"}</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-primary/50 bg-primary/5">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">My Location</CardTitle>
+          <Card className="border-primary/50 bg-primary/5 col-span-2 md:col-span-1">
+            <CardHeader className="pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">My Location</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <Button
                 size="sm"
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 onClick={updateLocation}
                 disabled={isUpdatingLocation}
               >
-                <MapPin className="h-4 w-4 mr-2" />
-                {isUpdatingLocation ? "Updating..." : "Update My Location"}
+                <MapPin className="h-4 w-4 mr-1 sm:mr-2" />
+                {isUpdatingLocation ? "Updating..." : "Update Location"}
               </Button>
               {locationStatus === "updated" && (
                 <p className="text-[10px] text-green-600 mt-2 text-center font-medium">✓ Location synced</p>
@@ -274,34 +274,40 @@ export function TransporterDashboardContent({
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="assignments">
-              <MapPin className="h-4 w-4 mr-2" />
-              Deliveries
-              {activeAssignments.length > 0 && (
-                <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
-                  {activeAssignments.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="payments">
-              <DollarSign className="h-4 w-4 mr-2" />
-              Payments
-            </TabsTrigger>
-            <TabsTrigger value="withdrawals">
-              <Clock className="h-4 w-4 mr-2" />
-              Withdrawals
-            </TabsTrigger>
-            <TabsTrigger value="subscription">
-              <Crown className="h-4 w-4 mr-2" />
-              Membership
-            </TabsTrigger>
-            <TabsTrigger value="profile">
-              <User className="h-4 w-4 mr-2" />
-              Profile
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 scrollbar-hide">
+            <TabsList className="inline-flex w-auto min-w-full sm:w-full">
+              <TabsTrigger value="assignments" className="text-xs sm:text-sm px-2 sm:px-3 gap-1 sm:gap-2">
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Deliveries</span>
+                <span className="xs:hidden">Trips</span>
+                {activeAssignments.length > 0 && (
+                  <span className="bg-blue-500 text-white text-[10px] sm:text-xs px-1.5 py-0 sm:py-0.5 rounded-full">
+                    {activeAssignments.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="payments" className="text-xs sm:text-sm px-2 sm:px-3 gap-1 sm:gap-2">
+                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Payments</span>
+                <span className="sm:hidden">Pay</span>
+              </TabsTrigger>
+              <TabsTrigger value="withdrawals" className="text-xs sm:text-sm px-2 sm:px-3 gap-1 sm:gap-2">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Withdrawals</span>
+                <span className="sm:hidden">Withdraw</span>
+              </TabsTrigger>
+              <TabsTrigger value="subscription" className="text-xs sm:text-sm px-2 sm:px-3 gap-1 sm:gap-2">
+                <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Membership</span>
+                <span className="sm:hidden">Plan</span>
+              </TabsTrigger>
+              <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 sm:px-3 gap-1 sm:gap-2">
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Profile
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="assignments">
             <TransporterAssignmentsTab 

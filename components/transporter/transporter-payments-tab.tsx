@@ -77,16 +77,16 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
           ) : (
             <div className="space-y-3">
               {payments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{payment.description || `${payment.payment_type} payment`}</p>
+                <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{payment.description || `${payment.payment_type} payment`}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(payment.created_at).toLocaleDateString()} at{" "}
                       {new Date(payment.created_at).toLocaleTimeString()}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-green-600">+{Number(payment.amount).toLocaleString()} TZS</span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                    <span className="font-bold text-green-600 text-sm sm:text-base">+{Number(payment.amount).toLocaleString()} TZS</span>
                     {getStatusBadge(payment.status)}
                   </div>
                 </div>

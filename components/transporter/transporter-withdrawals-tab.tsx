@@ -174,17 +174,17 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
           ) : (
             <div className="space-y-3">
               {withdrawals.map((withdrawal) => (
-                <div key={withdrawal.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{withdrawal.payment_method.replace("_", " ")}</p>
+                <div key={withdrawal.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm capitalize">{withdrawal.payment_method.replace("_", " ")}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(withdrawal.created_at).toLocaleDateString()} at{" "}
                       {new Date(withdrawal.created_at).toLocaleTimeString()}
                     </p>
                     {withdrawal.notes && <p className="text-xs text-muted-foreground mt-1">{withdrawal.notes}</p>}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold">{Number(withdrawal.amount).toLocaleString()} TZS</span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                    <span className="font-bold text-sm sm:text-base">{Number(withdrawal.amount).toLocaleString()} TZS</span>
                     {getStatusBadge(withdrawal.status)}
                   </div>
                 </div>
