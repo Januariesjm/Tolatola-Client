@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,6 +17,7 @@ import { TransporterWithdrawalsTab } from "./transporter-withdrawals-tab"
 import { TransporterSubscriptionTab } from "./transporter-subscription-tab"
 import { TransporterProfileTab } from "./transporter-profile-tab"
 import { NotificationPopover } from "@/components/layout/notification-popover"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 
 interface TransporterDashboardContentProps {
   transporter: any
@@ -45,6 +46,7 @@ export function TransporterDashboardContent({
   
   const [localAssignments, setLocalAssignments] = useState(assignments)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [period, setPeriod] = useState<DatePeriod>("all")
   const prevAvailableCountRef = useRef(0)
 
   // Auto-refresh mechanism
@@ -149,17 +151,21 @@ export function TransporterDashboardContent({
     }
   }
 
-  const activeAssignments = localAssignments.filter((a) => {
+  const dateFilteredAssignments = useMemo(() => filterByDateRange(localAssignments, period), [localAssignments, period])
+  const dateFilteredPayments = useMemo(() => filterByDateRange(payments, period), [payments, period])
+  const dateFilteredWithdrawals = useMemo(() => filterByDateRange(withdrawals, period), [withdrawals, period])
+
+  const activeAssignments = dateFilteredAssignments.filter((a) => {
     const isAccepted = ["accepted", "picked_up", "in_transit"].includes(a.status) ||
       (a.status === "assigned" && a.accepted_at);
     const isReady = a.status === "ready_for_pickup";
     return isAccepted || isReady;
   })
-  const completedAssignments = localAssignments.filter((a) => a.status === "delivered")
-  const availableBalance = payments
+  const completedAssignments = dateFilteredAssignments.filter((a) => a.status === "delivered")
+  const availableBalance = dateFilteredPayments
     .filter((p) => p.status === "available")
     .reduce((sum, p) => sum + Number(p.amount), 0)
-  const pendingBalance = payments.filter((p) => p.status === "pending").reduce((sum, p) => sum + Number(p.amount), 0)
+  const pendingBalance = dateFilteredPayments.filter((p) => p.status === "pending").reduce((sum, p) => sum + Number(p.amount), 0)
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -187,16 +193,19 @@ export function TransporterDashboardContent({
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">Transporter Dashboard</h1>
             <p className="text-sm sm:text-base text-muted-foreground">{transporter.business_name || "Welcome to your dashboard"}</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchAssignments(true)}
-            disabled={isRefreshing}
-            className="gap-1.5 shrink-0 text-xs sm:text-sm"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh Trips
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <DateRangeFilter value={period} onChange={setPeriod} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchAssignments(true)}
+              disabled={isRefreshing}
+              className="gap-1.5 shrink-0 text-xs sm:text-sm"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh Trips
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -311,7 +320,7 @@ export function TransporterDashboardContent({
 
           <TabsContent value="assignments">
             <TransporterAssignmentsTab 
-              assignments={localAssignments} 
+              assignments={dateFilteredAssignments} 
               transporterId={transporter.id} 
               initialOrderId={initialOrderId}
             />
@@ -319,7 +328,7 @@ export function TransporterDashboardContent({
 
           <TabsContent value="payments">
             <TransporterPaymentsTab
-              payments={payments}
+              payments={dateFilteredPayments}
               availableBalance={availableBalance}
               pendingBalance={pendingBalance}
               transporterId={transporter.id}
@@ -327,7 +336,7 @@ export function TransporterDashboardContent({
           </TabsContent>
 
           <TabsContent value="withdrawals">
-            <TransporterWithdrawalsTab withdrawals={withdrawals} availableBalance={availableBalance} />
+            <TransporterWithdrawalsTab withdrawals={dateFilteredWithdrawals} availableBalance={availableBalance} />
           </TabsContent>
 
           <TabsContent value="subscription">

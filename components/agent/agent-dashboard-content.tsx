@@ -48,6 +48,7 @@ export function AgentDashboardContent({
             agent={agent}
             setActiveTab={setActiveTab}
             registrations={registrations}
+            commissions={commissions}
           />
         )
       case "registrations":
@@ -86,6 +87,7 @@ export function AgentDashboardContent({
             agent={agent}
             setActiveTab={setActiveTab}
             registrations={registrations}
+            commissions={commissions}
           />
         )
     }

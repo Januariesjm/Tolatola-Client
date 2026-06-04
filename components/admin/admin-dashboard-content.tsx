@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -59,6 +59,7 @@ import { InfrastructureTab } from "./infrastructure-tab"
 import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
 import { AgentManagementTab } from "./agent-management-tab"
 import { ValidationSurveysTab } from "./validation-surveys-tab"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
 
 interface AdminDashboardContentProps {
   adminRole: any
@@ -119,6 +120,11 @@ export function AdminDashboardContent({
   const initialTab = getInitialTab()
 
   const [activeTab, setActiveTab] = useState(initialTab)
+  const [overviewPeriod, setOverviewPeriod] = useState<DatePeriod>("all")
+
+  // Filtered data for overview stats
+  const filteredOrders = useMemo(() => filterByDateRange(orders, overviewPeriod), [orders, overviewPeriod])
+  const filteredPayouts = useMemo(() => filterByDateRange(payouts, overviewPeriod), [payouts, overviewPeriod])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -168,6 +174,11 @@ export function AdminDashboardContent({
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Stats Overview */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-lg font-bold tracking-tight text-slate-800">Overview</h2>
+            <DateRangeFilter value={overviewPeriod} onChange={setOverviewPeriod} />
+          </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {adminRole?.permissions.includes("manage_transactions") && (
             <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
@@ -181,7 +192,7 @@ export function AdminDashboardContent({
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  TZS {stats.totalGMV?.toLocaleString() || 0}
+                  TZS {filteredOrders.filter(o => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0).toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -199,7 +210,7 @@ export function AdminDashboardContent({
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  {payouts.filter(p => p.status === "pending").length}
+                  {filteredPayouts.filter(p => p.status === "pending").length}
                 </div>
               </CardContent>
             </Card>
@@ -217,7 +228,7 @@ export function AdminDashboardContent({
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  {orders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
+                  {filteredOrders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
                 </div>
               </CardContent>
             </Card>
@@ -330,6 +341,7 @@ export function AdminDashboardContent({
               </CardContent>
             </Card>
           )}
+        </div>
         </div>
 
         <div className="flex gap-6 items-start">
@@ -908,7 +920,7 @@ export function AdminDashboardContent({
               </div>
 
               <TabsContent value="analytics" className="border-none p-0 outline-none">
-                <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} />
+                <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} orders={orders} payouts={payouts} />
               </TabsContent>
 
               <TabsContent value="kyc" className="border-none p-0 outline-none">

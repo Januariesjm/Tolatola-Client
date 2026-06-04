@@ -1,7 +1,9 @@
 "use client"
 
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, Users, Package, ShoppingCart, DollarSign, Store, Truck } from "lucide-react"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
 
 interface AnalyticsTabProps {
   stats: {
@@ -35,6 +37,8 @@ interface AnalyticsTabProps {
     completedOrders: number
     averageOrderValue: number
   }>
+  orders?: any[]
+  payouts?: any[]
 }
 
 const vendorTypeLabels: Record<string, string> = {
@@ -45,12 +49,38 @@ const vendorTypeLabels: Record<string, string> = {
   retail_trader: "Retail Trader",
 }
 
-export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabProps) {
+export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], payouts = [] }: AnalyticsTabProps) {
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  // Filtered data for time-based metrics
+  const filteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
+  const filteredPayouts = useMemo(() => filterByDateRange(payouts, period), [payouts, period])
+
+  // Recomputed stats from filtered data
+  const filteredGMV = useMemo(() => 
+    filteredOrders.filter((o: any) => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
+    [filteredOrders]
+  )
+  const filteredTotalOrders = filteredOrders.length
+  const filteredCompletedOrders = filteredOrders.filter((o: any) => o.status === "delivered").length
+  const filteredSecureHold = useMemo(() =>
+    filteredOrders.filter((o: any) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
+      .reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
+    [filteredOrders]
+  )
+  const filteredTotalPayouts = useMemo(() =>
+    filteredPayouts.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0),
+    [filteredPayouts]
+  )
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Platform Analytics</h2>
-        <p className="text-muted-foreground">Overview of Digital trade and Supply Chain Ecosystem performance</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Platform Analytics</h2>
+          <p className="text-muted-foreground">Overview of Digital trade and Supply Chain Ecosystem performance</p>
+        </div>
+        <DateRangeFilter value={period} onChange={setPeriod} />
       </div>
 
       {/* Key Metrics */}
@@ -111,8 +141,8 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">{stats.totalOrders}</p>
-              <p className="text-sm text-muted-foreground">{stats.completedOrders} completed</p>
+              <p className="text-3xl font-bold">{filteredTotalOrders}</p>
+              <p className="text-sm text-muted-foreground">{filteredCompletedOrders} completed</p>
             </div>
           </CardContent>
         </Card>
@@ -141,7 +171,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {(stats.totalGMV || 0).toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {filteredGMV.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total sales volume</p>
             </div>
           </CardContent>
@@ -156,7 +186,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {(stats.totalSecureHold || 0).toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {filteredSecureHold.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Assets secured for fulfillment</p>
             </div>
           </CardContent>
@@ -171,7 +201,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">TZS {(stats.totalPayouts || 0).toLocaleString()}</p>
+              <p className="text-3xl font-bold">TZS {filteredTotalPayouts.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Paid to vendors</p>
             </div>
           </CardContent>
@@ -210,7 +240,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold">
-                  {stats.totalOrders > 0 ? Math.round((stats.completedOrders / stats.totalOrders) * 100) : 0}%
+                  {filteredTotalOrders > 0 ? Math.round((filteredCompletedOrders / filteredTotalOrders) * 100) : 0}%
                 </p>
               </div>
             </div>
@@ -276,7 +306,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {} }: AnalyticsTabP
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold">
-                  TZS {stats.totalOrders > 0 ? (Math.round((stats.totalGMV || 0) / stats.totalOrders) || 0).toLocaleString() : 0}
+                  TZS {filteredTotalOrders > 0 ? (Math.round(filteredGMV / filteredTotalOrders) || 0).toLocaleString() : 0}
                 </p>
               </div>
             </div>

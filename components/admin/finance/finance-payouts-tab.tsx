@@ -31,6 +31,7 @@ import {
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 interface FinancePayoutsTabProps {
   payouts: any[]
@@ -43,6 +44,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [processing, setProcessing] = useState<string | null>(null)
   const [localPayouts, setLocalPayouts] = useState<any[]>(payouts)
+  const [period, setPeriod] = useState<DatePeriod>("all")
 
   useEffect(() => {
     setLocalPayouts(payouts)
@@ -85,8 +87,10 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
     }
   }, [localPayouts, router, toast])
 
+  const dateFilteredPayouts = useMemo(() => filterByDateRange(localPayouts, period), [localPayouts, period])
+
   const filtered = useMemo(() => {
-    return localPayouts.filter((p) => {
+    return dateFilteredPayouts.filter((p) => {
       if (statusFilter !== "all" && p.status !== statusFilter) return false
       const q = searchQuery.toLowerCase()
       const businessName = (p.business_name || "").toLowerCase()
@@ -102,12 +106,12 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
         method.includes(q)
       )
     })
-  }, [localPayouts, searchQuery, statusFilter])
+  }, [dateFilteredPayouts, searchQuery, statusFilter])
 
-  const totalPending = localPayouts.filter((p) => p.status === "pending").reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalProcessing = localPayouts.filter((p) => p.status === "processing").reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalCompleted = localPayouts.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalFailed = localPayouts.filter((p) => p.status === "failed").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalPending = dateFilteredPayouts.filter((p) => p.status === "pending").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalProcessing = dateFilteredPayouts.filter((p) => p.status === "processing").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalCompleted = dateFilteredPayouts.filter((p) => p.status === "completed").reduce((s, p) => s + Number(p.amount || 0), 0)
+  const totalFailed = dateFilteredPayouts.filter((p) => p.status === "failed").reduce((s, p) => s + Number(p.amount || 0), 0)
 
   const handleApprove = async (payoutId: string, userType: string) => {
     setProcessing(payoutId)
@@ -184,7 +188,8 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
           </div>
           <p className="text-slate-500 text-sm mt-1">Final money transfers to vendors and drivers via Mobile Money or Bank.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Wallet, TrendingUp, Clock, CheckCircle, XCircle, DollarSign } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 
 interface VendorWalletTabProps {
   vendorId: string
@@ -25,6 +26,7 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
   const [payoutAmount, setPayoutAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("airtel-money")
   const [paymentDetails, setPaymentDetails] = useState("")
+  const [period, setPeriod] = useState<DatePeriod>("all")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -105,6 +107,8 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
       setRequestingPayout(false)
     }
   }
+
+  const dateFilteredPayouts = useMemo(() => filterByDateRange(payouts, period), [payouts, period])
 
   if (loading) {
     return <div className="text-center py-8">Loading wallet data...</div>
@@ -215,16 +219,19 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
 
       {/* Payout History */}
       <Card>
-        <CardHeader>
-          <CardTitle>Payout History</CardTitle>
-          <CardDescription>Your withdrawal history</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap pb-4">
+          <div>
+            <CardTitle>Payout History</CardTitle>
+            <CardDescription>Your withdrawal history</CardDescription>
+          </div>
+          <DateRangeFilter value={period} onChange={setPeriod} />
         </CardHeader>
         <CardContent>
-          {payouts.length === 0 ? (
+          {dateFilteredPayouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No payouts yet</p>
           ) : (
             <div className="space-y-4">
-              {payouts.map((payout) => (
+              {dateFilteredPayouts.map((payout) => (
                 <div key={payout.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
                     {payout.status === "completed" && <CheckCircle className="h-5 w-5 text-green-600" />}

@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, LineChart, Banknote, ShieldCheck, PieChart, Wallet, Clock } from "lucide-react"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 import { FinanceOrdersTab } from "./finance-orders-tab"
 import { FinanceCollectionsTab } from "./finance-collections-tab"
@@ -21,14 +22,25 @@ interface FinanceHubTabProps {
 
 export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceHubTabProps) {
   const [activeTab, setActiveTab] = useState("overview")
+  const [overviewPeriod, setOverviewPeriod] = useState<DatePeriod>("all")
 
   const activePayouts = payouts.filter((p) => p.status === "pending" || p.status === "processing").length
+
+  // Filtered data for overview
+  const fOrders = useMemo(() => filterByDateRange(orders, overviewPeriod), [orders, overviewPeriod])
+  const fPayouts = useMemo(() => filterByDateRange(payouts, overviewPeriod), [payouts, overviewPeriod])
   
   // Secure hold is the total amount of all PAID orders that are not yet delivered
-  // This accurately reflects the money sitting in TOLA's account before distribution
-  const heldFunds = orders
-    .filter((o) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
-    .reduce((acc, o) => acc + Number(o.total_amount || 0), 0)
+  const heldFunds = useMemo(() =>
+    fOrders
+      .filter((o) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
+      .reduce((acc, o) => acc + Number(o.total_amount || 0), 0),
+    [fOrders]
+  )
+  const filteredGMV = useMemo(() =>
+    fOrders.filter((o: any) => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
+    [fOrders]
+  )
 
   return (
     <div className="space-y-6">
@@ -79,6 +91,9 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
         </div>
 
         <TabsContent value="overview" className="space-y-6 outline-none">
+          <div className="flex justify-end">
+            <DateRangeFilter value={overviewPeriod} onChange={setOverviewPeriod} />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
              <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -91,7 +106,7 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  TZS {stats.totalGMV?.toLocaleString() || 0}
+                  TZS {filteredGMV.toLocaleString()}
                 </div>
               </CardContent>
             </Card>
@@ -123,7 +138,7 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  {payouts.length}
+                  {fPayouts.length}
                 </div>
               </CardContent>
             </Card>
@@ -139,7 +154,7 @@ export function FinanceHubTab({ orders, transactions, payouts, stats }: FinanceH
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
-                  {orders.length}
+                  {fOrders.length}
                 </div>
               </CardContent>
             </Card>

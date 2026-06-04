@@ -15,6 +15,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
 
 interface OrdersManagementTabProps {
   orders: any[]
@@ -23,9 +24,12 @@ interface OrdersManagementTabProps {
 export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    return dateFilteredOrders.filter((order) => {
       // Status Filter
       if (statusFilter !== "all" && order.status !== statusFilter) return false
 
@@ -47,7 +51,7 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
         ward.includes(searchLower)
       )
     })
-  }, [orders, searchQuery, statusFilter])
+  }, [dateFilteredOrders, searchQuery, statusFilter])
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -81,7 +85,8 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Orders Management</h2>
           <p className="text-slate-500 mt-1">Track and manage all marketplace orders across various stages.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
             <Input

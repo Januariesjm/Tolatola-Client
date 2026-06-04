@@ -24,6 +24,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 interface FinanceSettlementsTabProps {
   transactions: any[]
@@ -32,10 +33,13 @@ interface FinanceSettlementsTabProps {
 export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  const dateFilteredTransactions = useMemo(() => filterByDateRange(transactions, period), [transactions, period])
 
   const groupedTransactions = useMemo(() => {
     const map = new Map<string, any>()
-    transactions.forEach(t => {
+    dateFilteredTransactions.forEach(t => {
       const key = t.order_id || t.id
       if (!map.has(key)) {
         map.set(key, { ...t, amount: t.amount || 0, shops: [t.shops?.name].filter(Boolean) })
@@ -53,7 +57,7 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
       ...t,
       shopNames: t.shops.join(", ") || "N/A"
     }))
-  }, [transactions])
+  }, [dateFilteredTransactions])
 
   const filtered = useMemo(() => {
     return groupedTransactions.filter((t) => {
@@ -88,7 +92,8 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
           <h3 className="text-2xl font-bold text-slate-900">Settlements</h3>
           <p className="text-slate-500 text-sm mt-1">Funds held securely in the TOLA system, awaiting delivery confirmation before distribution.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input

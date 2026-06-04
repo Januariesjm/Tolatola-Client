@@ -30,6 +30,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 interface FinanceOrdersTabProps {
   orders: any[]
@@ -45,9 +46,12 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
+    return dateFilteredOrders.filter((order) => {
       if (statusFilter !== "all" && order.status !== statusFilter) return false
       const searchLower = searchQuery.toLowerCase()
       const orderNumber = (order.order_number || "").toLowerCase()
@@ -63,7 +67,7 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
         vendorName.includes(searchLower)
       )
     })
-  }, [orders, searchQuery, statusFilter])
+  }, [dateFilteredOrders, searchQuery, statusFilter])
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -111,7 +115,8 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
           <h3 className="text-2xl font-bold text-slate-900">Order Economics</h3>
           <p className="text-slate-500 text-sm mt-1">Financial view of all marketplace orders with revenue breakdowns.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input

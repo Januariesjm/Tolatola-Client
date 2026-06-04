@@ -22,6 +22,7 @@ import {
   Loader2,
   AlertCircle
 } from "lucide-react"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 
 interface AgentCommissionTabProps {
   commissions: any[]
@@ -57,6 +58,7 @@ export function AgentCommissionTab({
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("m-pesa")
   const [phoneNumber, setPhoneNumber] = useState("")
+  const [period, setPeriod] = useState<DatePeriod>("all")
   
   // Fetch real-time wallet details from backend
   const fetchWalletDetails = async () => {
@@ -89,6 +91,27 @@ export function AgentCommissionTab({
   useEffect(() => {
     fetchWalletDetails()
   }, [])
+
+  const dateFilteredCommissions = useMemo(() => filterByDateRange(walletStats.commissions || [], period), [walletStats.commissions, period])
+  const dateFilteredWithdrawals = useMemo(() => filterByDateRange(walletStats.withdrawals || [], period), [walletStats.withdrawals, period])
+
+  const computedLifetimeEarnings = useMemo(() => {
+    return dateFilteredCommissions
+      .filter((c: any) => c.status === "paid" || c.status === "approved")
+      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+  }, [dateFilteredCommissions])
+
+  const computedPendingBalance = useMemo(() => {
+    return dateFilteredCommissions
+      .filter((c: any) => c.status === "pending")
+      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+  }, [dateFilteredCommissions])
+
+  const computedPaidBalance = useMemo(() => {
+    return dateFilteredCommissions
+      .filter((c: any) => c.status === "paid")
+      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+  }, [dateFilteredCommissions])
 
   // Currency Formatter
   const formatTzs = (amount: number) => {
@@ -196,6 +219,11 @@ export function AgentCommissionTab({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <h2 className="text-xl font-black text-slate-900 uppercase tracking-wider">Miamala na Mapato</h2>
+        <DateRangeFilter value={period} onChange={setPeriod} />
+      </div>
+
       {/* Premium Wallet & KPI Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
@@ -256,7 +284,7 @@ export function AgentCommissionTab({
                     PATO LA LIFETIME
                   </span>
                   <span className="text-xl md:text-2xl font-black text-emerald-600 block">
-                    {formatTzs(walletStats.lifetimeEarnings)}
+                    {formatTzs(computedLifetimeEarnings)}
                   </span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
@@ -278,7 +306,7 @@ export function AgentCommissionTab({
                     INAYOSUBIRI KUKUBALIWA
                   </span>
                   <span className="text-xl md:text-2xl font-black text-amber-600 block">
-                    {formatTzs(walletStats.pendingBalance)}
+                    {formatTzs(computedPendingBalance)}
                   </span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
@@ -300,7 +328,7 @@ export function AgentCommissionTab({
                     ZILIZOTOLEWA TAYARI
                   </span>
                   <span className="text-xl md:text-2xl font-black text-teal-600 block">
-                    {formatTzs(walletStats.paidBalance)}
+                    {formatTzs(computedPaidBalance)}
                   </span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm">
@@ -356,7 +384,7 @@ export function AgentCommissionTab({
         <CardContent className="p-0">
           {activeHistoryTab === "earnings" ? (
             /* Earnings History commissions list */
-            walletStats.commissions?.length === 0 ? (
+            dateFilteredCommissions.length === 0 ? (
               <div className="text-center py-20 bg-white">
                 <Coins className="h-10 w-10 text-slate-200 mx-auto mb-3" />
                 <p className="text-xs text-slate-400 font-semibold">Hujapata kamisheni yoyote bado.</p>
@@ -374,7 +402,7 @@ export function AgentCommissionTab({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {walletStats.commissions.map((comm: any) => (
+                    {dateFilteredCommissions.map((comm: any) => (
                       <tr key={comm.id} className="hover:bg-slate-50/40 transition-colors">
                         <td className="py-4 px-6 font-bold text-slate-900">
                           {comm.agent_registrations ? (
@@ -419,7 +447,7 @@ export function AgentCommissionTab({
             )
           ) : (
             /* Withdrawals History payouts list */
-            walletStats.withdrawals?.length === 0 ? (
+            dateFilteredWithdrawals.length === 0 ? (
               <div className="text-center py-20 bg-white">
                 <Landmark className="h-10 w-10 text-slate-200 mx-auto mb-3" />
                 <p className="text-xs text-slate-400 font-semibold">Hujafanya muamala wowote wa kutoa salio bado.</p>
@@ -438,7 +466,7 @@ export function AgentCommissionTab({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {walletStats.withdrawals.map((wdraw: any) => (
+                    {dateFilteredWithdrawals.map((wdraw: any) => (
                       <tr key={wdraw.id} className="hover:bg-slate-50/40 transition-colors">
                         <td className="py-4 px-6">
                           <div className="flex flex-col">

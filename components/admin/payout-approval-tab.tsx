@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, Clock, Loader2, RefreshCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
 
 interface PayoutApprovalTabProps {
   payouts: any[]
@@ -15,6 +16,7 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
   const { toast } = useToast()
   const [processing, setProcessing] = useState<string | null>(null)
   const [localPayouts, setLocalPayouts] = useState<any[]>(payouts)
+  const [period, setPeriod] = useState<DatePeriod>("all")
 
   // Sync props to state if they change externally
   useEffect(() => {
@@ -127,20 +129,24 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
     router.refresh()
   }
 
-  const pendingPayouts = localPayouts.filter((p) => p.status === "pending")
+  const dateFilteredPayouts = useMemo(() => filterByDateRange(localPayouts, period), [localPayouts, period])
+  const pendingPayouts = dateFilteredPayouts.filter((p) => p.status === "pending")
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <CardTitle>Payout Requests</CardTitle>
               <CardDescription>Review and approve vendor payout requests</CardDescription>
             </div>
-            <Button variant="outline" size="icon" onClick={manualRefresh}>
-              <RefreshCcw className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <DateRangeFilter value={period} onChange={setPeriod} />
+              <Button variant="outline" size="icon" onClick={manualRefresh}>
+                <RefreshCcw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -203,11 +209,11 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
           <CardDescription>Complete payout history</CardDescription>
         </CardHeader>
         <CardContent>
-          {localPayouts.length === 0 ? (
+          {dateFilteredPayouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">No payouts yet</p>
           ) : (
             <div className="space-y-2">
-              {localPayouts.map((payout, index) => (
+              {dateFilteredPayouts.map((payout, index) => (
                 <div key={payout.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-bold text-slate-400 w-6 text-center">#{index + 1}</span>

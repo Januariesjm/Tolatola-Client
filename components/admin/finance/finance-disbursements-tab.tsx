@@ -23,6 +23,7 @@ import {
   Filter,
 } from "lucide-react"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 interface FinanceDisbursementsTabProps {
   orders: any[]
@@ -35,10 +36,14 @@ const DELIVERY_FEE_TRANSPORTER_SHARE = 0.85
 export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
+
   // Only show disbursement data for orders that have been paid
   const paidOrders = useMemo(() => {
-    return orders.filter((o) => o.payment_status === "paid")
-  }, [orders])
+    return dateFilteredOrders.filter((o) => o.payment_status === "paid")
+  }, [dateFilteredOrders])
 
   const disbursements = useMemo(() => {
     return paidOrders
@@ -101,9 +106,12 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold text-slate-900">Disbursements</h3>
-        <p className="text-slate-500 text-sm mt-1">Revenue split breakdown per order — Vendor share, Transporter share, and TOLA commission.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h3 className="text-2xl font-bold text-slate-900">Disbursements</h3>
+          <p className="text-slate-500 text-sm mt-1">Revenue split breakdown per order — Vendor share, Transporter share, and TOLA commission.</p>
+        </div>
+        <DateRangeFilter value={period} onChange={setPeriod} />
       </div>
 
       {/* Aggregate Summary */}

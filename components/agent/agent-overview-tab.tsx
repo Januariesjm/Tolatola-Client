@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +22,7 @@ interface AgentOverviewTabProps {
   agent: any
   setActiveTab: (tab: string) => void
   registrations: any[]
+  commissions: any[]
 }
 
 export function AgentOverviewTab({
@@ -28,11 +30,13 @@ export function AgentOverviewTab({
   agent,
   setActiveTab,
   registrations,
+  commissions,
 }: AgentOverviewTabProps) {
   const [referralLink, setReferralLink] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [copied, setCopied] = useState(false)
   const [isLoadingReferral, setIsLoadingReferral] = useState(true)
+  const [period, setPeriod] = useState<DatePeriod>("all")
 
   useEffect(() => {
     async function loadReferral() {
@@ -80,14 +84,30 @@ export function AgentOverviewTab({
     return `TZS ${(amount || 0).toLocaleString()}`
   }
 
+  const dateFilteredRegistrations = useMemo(() => filterByDateRange(registrations || [], period), [registrations, period])
+  const dateFilteredCommissions = useMemo(() => filterByDateRange(commissions || [], period), [commissions, period])
+
   // Get recent 5 registrations
-  const recentRegistrations = (registrations || []).slice(0, 5)
+  const recentRegistrations = (dateFilteredRegistrations || []).slice(0, 5)
+
+  const totalRegistrationsVal = dateFilteredRegistrations.length
+  const vendorsRegisteredVal = dateFilteredRegistrations.filter((r) => r.registration_type === "vendor").length
+  const customersRegisteredVal = dateFilteredRegistrations.filter((r) => r.registration_type === "customer").length
+  const transportersRegisteredVal = dateFilteredRegistrations.filter((r) => r.registration_type === "transporter").length
+  const totalCommissionVal = dateFilteredCommissions.reduce((sum, c) => sum + Number(c.amount), 0)
+  const pendingCommissionVal = dateFilteredCommissions.filter((c) => c.status === "pending").reduce((sum, c) => sum + Number(c.amount), 0)
+  const activeUsersVal = dateFilteredRegistrations.filter((r) => r.status === "active").length
+  const monthlyRegistrationsVal = dateFilteredRegistrations.filter((r) => {
+    const d = new Date(r.created_at)
+    const now = new Date()
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  }).length
 
   // KPI card configs
   const kpiCards = [
     {
       title: "Total Registrations",
-      value: stats.totalRegistrations || 0,
+      value: totalRegistrationsVal,
       subtext: "Total of all completed registrations",
       icon: Users,
       color: "border-slate-200 text-slate-800",
@@ -95,7 +115,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Vendors Registered",
-      value: stats.vendorsRegistered || 0,
+      value: vendorsRegisteredVal,
       subtext: "Total vendors registered by you",
       icon: Store,
       color: "border-emerald-100 text-emerald-800",
@@ -103,7 +123,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Customers Registered",
-      value: stats.customersRegistered || 0,
+      value: customersRegisteredVal,
       subtext: "Total customers registered by you",
       icon: Users,
       color: "border-blue-100 text-blue-800",
@@ -111,7 +131,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Transporters Registered",
-      value: stats.transportersRegistered || 0,
+      value: transportersRegisteredVal,
       subtext: "Total transporters connected",
       icon: Truck,
       color: "border-amber-100 text-amber-800",
@@ -119,7 +139,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Total Commission Earned",
-      value: formatTzs(stats.totalCommission || 0),
+      value: formatTzs(totalCommissionVal),
       subtext: "Sum of all commissions earned",
       icon: Coins,
       color: "border-teal-200 bg-gradient-to-br from-white to-teal-50/20 text-teal-900",
@@ -127,7 +147,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Pending Commission",
-      value: formatTzs(stats.pendingCommission || 0),
+      value: formatTzs(pendingCommissionVal),
       subtext: "Awaiting approval by admin",
       icon: Clock,
       color: "border-indigo-100 text-indigo-800",
@@ -135,7 +155,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Active Registrations",
-      value: stats.activeUsers || 0,
+      value: activeUsersVal,
       subtext: "Total verified active users",
       icon: ShieldCheck,
       color: "border-purple-100 text-purple-800",
@@ -143,7 +163,7 @@ export function AgentOverviewTab({
     },
     {
       title: "Monthly Registrations",
-      value: stats.monthlyRegistrations || 0,
+      value: monthlyRegistrationsVal,
       subtext: "Performance for this month",
       icon: TrendingUp,
       color: "border-pink-100 text-pink-800",
@@ -226,9 +246,12 @@ export function AgentOverviewTab({
 
       {/* KPI Cards Grid */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-          Performance Overview
-        </h3>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+            Performance Overview
+          </h3>
+          <DateRangeFilter value={period} onChange={setPeriod} />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpiCards.map((kpi, i) => {
             const Icon = kpi.icon

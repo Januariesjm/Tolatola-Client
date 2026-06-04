@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +10,7 @@ import { clientApiGet, clientApiPatch } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 
 import { createClient } from "@/lib/supabase/client"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 
 interface VendorOrdersTabProps {
   shopId: string
@@ -28,6 +29,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set())
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState(TAB_NEW)
+  const [period, setPeriod] = useState<DatePeriod>("all")
   const { toast } = useToast()
 
   const prevOrderCountRef = useRef(0)
@@ -216,10 +218,12 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
     }, 0)
   }
 
-  const newOrders = orders.filter((o) => ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status))
-  const preparingOrders = orders.filter((o) => ["processing", "preparing"].includes(o.status))
-  const readyOrders = orders.filter((o) => o.status === "ready_for_pickup")
-  const completedOrders = orders.filter((o) => ["dispatched", "in_transit", "delivered", "shipped", "completed"].includes(o.status))
+  const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
+
+  const newOrders = dateFilteredOrders.filter((o) => ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status))
+  const preparingOrders = dateFilteredOrders.filter((o) => ["processing", "preparing"].includes(o.status))
+  const readyOrders = dateFilteredOrders.filter((o) => o.status === "ready_for_pickup")
+  const completedOrders = dateFilteredOrders.filter((o) => ["dispatched", "in_transit", "delivered", "shipped", "completed"].includes(o.status))
   const totalEarnings = completedOrders.reduce((sum, o) => sum + (getOrderTotal(o) || 0), 0)
 
   const renderOrderList = (list: any[]) => {
@@ -424,9 +428,10 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <h2 className="text-2xl font-bold">Your Orders</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <Button
             variant="outline"
             size="sm"
@@ -437,7 +442,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Badge variant="secondary">{orders.length} Total</Badge>
+          <Badge variant="secondary">{dateFilteredOrders.length} Total</Badge>
         </div>
       </div>
 

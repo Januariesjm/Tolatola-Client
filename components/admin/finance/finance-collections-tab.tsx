@@ -24,6 +24,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
+import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
 interface FinanceCollectionsTabProps {
   orders: any[]
@@ -32,10 +33,13 @@ interface FinanceCollectionsTabProps {
 export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [paymentFilter, setPaymentFilter] = useState<string>("all")
+  const [period, setPeriod] = useState<DatePeriod>("all")
+
+  const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
 
   // Derive collection records from orders (incoming payments from customers)
   const collections = useMemo(() => {
-    return orders.map((order) => ({
+    return dateFilteredOrders.map((order) => ({
       id: order.id,
       orderNumber: order.order_number,
       customerName: order.users?.full_name || order.shipping_address?.full_name || "Guest",
@@ -47,7 +51,7 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
       createdAt: order.created_at,
       orderStatus: order.status,
     }))
-  }, [orders])
+  }, [dateFilteredOrders])
 
   const filtered = useMemo(() => {
     return collections.filter((c) => {
@@ -88,7 +92,8 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
           <h3 className="text-2xl font-bold text-slate-900">Collections</h3>
           <p className="text-slate-500 text-sm mt-1">Incoming payments from customers linked to order references.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <DateRangeFilter value={period} onChange={setPeriod} />
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
