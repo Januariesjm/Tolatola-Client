@@ -19,7 +19,8 @@ import { useRegistrationRecovery } from "../../../hooks/use-registration-recover
 const logFailedRegistration = async (_payload: unknown) => {
   // no-op in client build
 }
-import { Eye, EyeOff, ShoppingCart, Gift, CheckCircle2, XCircle } from "lucide-react"
+import { Eye, EyeOff, ShoppingCart, Gift, CheckCircle2, XCircle, Phone } from "lucide-react"
+import { CountryCodeSelect } from "../../../components/ui/country-code-select"
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
 
@@ -35,6 +36,8 @@ function SignUpContent() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [fullName, setFullName] = useState("")
+  const [countryCode, setCountryCode] = useState("+255")
+  const [phoneNumber, setPhoneNumber] = useState("")
   const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">(
     userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam) ? userTypeParam : "customer"
   )
@@ -92,22 +95,41 @@ function SignUpContent() {
     onResumeData: (data) => {
       if (data.full_name && !fullName) setFullName(data.full_name)
       if (data.email && !email) setEmail(data.email)
+      if (data.phone && !phoneNumber) {
+        // Try to extract country code from saved phone
+        const savedPhone = data.phone as string
+        if (savedPhone.startsWith("+")) {
+          // Find matching country code (try longest match first)
+          const matchedCode = ["+1876","+880","+886","+852","+855","+998","+995","+994","+993","+977","+976","+975","+974","+973","+972","+971","+968","+966","+965","+964","+962","+961","+960","+593","+509","+421","+420","+386","+385","+381","+380","+374","+372","+371","+370","+359","+358","+354","+353","+351","+291","+269","+268","+267","+266","+265","+264","+263","+261","+260","+258","+257","+256","+255","+254","+253","+252","+251","+250","+249","+248","+244","+237","+235","+234","+233","+230","+227","+226","+225","+223","+221","+218","+216","+213","+212","+211","+98","+95","+94","+93","+92","+91","+90","+86","+84","+82","+81","+66","+65","+64","+63","+62","+61","+58","+57","+56","+55","+54","+53","+52","+51","+49","+48","+47","+46","+45","+44","+43","+41","+40","+39","+36","+34","+33","+32","+31","+30","+27","+20","+7","+1"].find(c => savedPhone.startsWith(c))
+          if (matchedCode) {
+            setCountryCode(matchedCode)
+            setPhoneNumber(savedPhone.slice(matchedCode.length))
+          } else {
+            setPhoneNumber(savedPhone)
+          }
+        } else {
+          setPhoneNumber(savedPhone)
+        }
+      }
       if (data.form_data?.userType) setUserType(data.form_data.userType)
       if (data.form_data?.vendorType) setVendorType(data.form_data.vendorType)
     },
   })
 
   // Auto-save on field changes
+  const fullPhone = phoneNumber ? `${countryCode}${phoneNumber.replace(/^0+/, '')}` : ""
+
   useEffect(() => {
     if (fullName || email) {
       saveProgress({
         full_name: fullName,
         email,
+        phone: fullPhone || undefined,
         last_step: "account_details",
         form_data: { userType, vendorType },
       })
     }
-  }, [fullName, email, userType, vendorType, saveProgress])
+  }, [fullName, email, fullPhone, userType, vendorType, saveProgress])
 
   useEffect(() => {
     if (userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam)) {
@@ -129,6 +151,12 @@ function SignUpContent() {
         throw new Error("API base URL is not configured")
       }
 
+      if (!phoneNumber.trim() || phoneNumber.replace(/\D/g, '').length < 7) {
+        setError("Please enter a valid phone number (at least 7 digits)")
+        setIsLoading(false)
+        return
+      }
+
       if (userType === "vendor" && !vendorType) {
         setError("Please select your business type")
         setIsLoading(false)
@@ -148,6 +176,7 @@ function SignUpContent() {
           email,
           password,
           fullName,
+          phone: fullPhone,
           userType,
           vendorType: userType === "vendor" ? vendorType : undefined,
           acceptedPolicies: true,
@@ -377,6 +406,30 @@ function SignUpContent() {
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-11 transition-all focus:scale-[1.01] focus:ring-2"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber" className="text-sm font-medium flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      Phone Number
+                    </Label>
+                    <div className="flex gap-2">
+                      <CountryCodeSelect
+                        value={countryCode}
+                        onChange={setCountryCode}
+                        disabled={isLoading || isOAuthLoading !== null}
+                      />
+                      <Input
+                        id="phoneNumber"
+                        type="tel"
+                        placeholder="712 345 678"
+                        required
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9\s-]/g, ''))}
+                        className="h-11 flex-1 transition-all focus:scale-[1.01] focus:ring-2"
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">We&apos;ll use this to contact you if needed</p>
                   </div>
 
                   <div className="space-y-2">
