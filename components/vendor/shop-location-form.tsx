@@ -3,6 +3,7 @@
 import { Label } from "@/components/ui/label"
 import { MapPin, CheckCircle, AlertCircle } from "lucide-react"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
+import { WebMapPicker } from "@/components/checkout/web-map-picker"
 
 interface ShopLocationFormProps {
   value: {
@@ -89,7 +90,7 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
         </div>
       )}
 
-      <div className="p-8 bg-stone-50 rounded-[2.5rem] border border-stone-100 shadow-inner">
+      <div className="p-8 bg-stone-50 rounded-[2.5rem] border border-stone-100 shadow-inner space-y-6">
         <TanzaniaAddressForm
           value={{
             country: "Tanzania",
@@ -102,7 +103,21 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
           onChange={handleAddressChange}
           onAddressComplete={handleAddressComplete}
         />
+
+        <WebMapPicker
+          latitude={value.latitude}
+          longitude={value.longitude}
+          onLocationSelect={(coords) => {
+            onChange({
+              ...value,
+              latitude: coords.lat,
+              longitude: coords.lng
+            })
+          }}
+          title="Verify Shop Location Pin"
+        />
       </div>
     </div>
   )
 }
+

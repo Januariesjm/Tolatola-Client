@@ -14,7 +14,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
 import { TanzaniaAddressForm } from "../../../components/checkout/tanzania-address-form"
+import { WebMapPicker } from "../../../components/checkout/web-map-picker"
 import { useRegistrationRecovery } from "../../../hooks/use-registration-recovery"
+
 
 type KYCType = "individual" | "company"
 
@@ -307,7 +309,7 @@ export default function VendorRegisterPageClient() {
                           </p>
                         </div>
 
-                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 shadow-sm">
+                        <div className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 shadow-sm space-y-6">
                           <TanzaniaAddressForm
                             value={{
                               country: "Tanzania",
@@ -324,6 +326,17 @@ export default function VendorRegisterPageClient() {
                               latitude: coords?.lat || null,
                               longitude: coords?.lng || null
                             }))}
+                          />
+
+                          <WebMapPicker
+                            latitude={location.latitude}
+                            longitude={location.longitude}
+                            onLocationSelect={(coords) => setLocation(prev => ({
+                              ...prev,
+                              latitude: coords.lat,
+                              longitude: coords.lng
+                            }))}
+                            title="Verify Business Location Pin"
                           />
                         </div>
                       </div>

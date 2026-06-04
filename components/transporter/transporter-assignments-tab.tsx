@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo } from "lucide-react"
+import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Navigation } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
@@ -269,6 +269,26 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                   {Number(assignment.delivery_fee).toLocaleString()} TZS
                 </span>
               </div>
+
+              {/* Navigation Directions */}
+              {isAccepted && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
+                <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+                    <Navigation className="h-3.5 w-3.5" />
+                    <span>Navigation & Route Directions</span>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${assignment.shops.latitude},${assignment.shops.longitude}&destination=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-xs text-center bg-primary hover:bg-stone-900 text-white py-2.5 px-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
+                  >
+                    <Navigation className="h-3.5 w-3.5" />
+                    Open Route: Shop ➔ Customer Directions
+                  </a>
+                </div>
+              )}
+
 
               {isAccepted && (
                 <div className="flex flex-col sm:flex-row gap-3">

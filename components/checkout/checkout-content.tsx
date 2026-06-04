@@ -28,7 +28,9 @@ import { calculateDeliveryDistance, calculateDeliveryDistanceByCoords } from "@/
 import type { TransportMethod } from "@/app/actions/maps"
 import { useToast } from "@/hooks/use-toast"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
+import { WebMapPicker } from "@/components/checkout/web-map-picker"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+
 
 interface CheckoutContentProps {
   user: any
@@ -38,6 +40,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   const [cartItems, setCartItems] = useState<any[]>([])
   const [fullName, setFullName] = useState(user?.full_name || "")
   const [phone, setPhone] = useState(user?.phone || "")
+  const [latitude, setLatitude] = useState<number | null>(null)
+  const [longitude, setLongitude] = useState<number | null>(null)
   const [addressData, setAddressData] = useState({
     country: "Tanzania",
     region: "",
@@ -48,6 +52,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   })
   const [guestEmail, setGuestEmail] = useState("")
   const [fullAddress, setFullAddress] = useState("")
+
   const [paymentMethod, setPaymentMethod] = useState<string>("airtel-money")
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
   const [cardDetails, setCardDetails] = useState({
@@ -100,8 +105,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     setDeliveryError(null)
 
     if (!coordinates) return
+    setLatitude(coordinates.lat)
+    setLongitude(coordinates.lng)
 
     setIsCalculatingDelivery(true)
+
     const newShopDeliveries: Record<string, any> = {}
 
     try {
@@ -379,11 +387,12 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           village: addressData.village,
           street: addressData.street,
           email: guestEmail || user?.email,
-          latitude: Object.values(shopDeliveries)[0]?.lat, // Customer delivery coordinates
-          longitude: Object.values(shopDeliveries)[0]?.lng,
+          latitude: latitude,
+          longitude: longitude,
           delivery_distance_km: deliveryFee > 0 ? Object.values(shopDeliveries).reduce((sum, d) => sum + d.distanceKm, 0) : 0,
           delivery_fee: deliveryFee,
         },
+
         totalAmount: total,
         insuranceFee,
         paymentMethod,
@@ -553,14 +562,27 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         </div>
                       )}
 
-                      <div className="pt-4 border-t border-stone-50">
+                      <div className="pt-4 border-t border-stone-50 space-y-6">
                         <TanzaniaAddressForm
                           value={addressData}
                           onChange={setAddressData}
                           onAddressComplete={handleAddressComplete}
                           userId={user?.id}
                         />
+
+                        <WebMapPicker
+                          latitude={latitude}
+                          longitude={longitude}
+                          onLocationSelect={(coords) => {
+                            setLatitude(coords.lat)
+                            setLongitude(coords.lng)
+                            const dummyAddress = [addressData.street, addressData.ward, addressData.district, addressData.region].filter(Boolean).join(", ") || "Selected Pin"
+                            handleAddressComplete(dummyAddress, coords)
+                          }}
+                          title="Verify Delivery Location Pin"
+                        />
                       </div>
+
 
                       {isCalculatingDelivery && (
                         <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
