@@ -245,28 +245,28 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
     const orderTotal = getOrderTotal(order)
     return (
       <Card key={order.id} id={`order-${order.id}`} className="overflow-hidden transition-all hover:shadow-md">
-        <CardHeader className="p-4 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => toggleOrderDetails(order.id)}>
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
+        <CardHeader className="p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => toggleOrderDetails(order.id)}>
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3 w-3 shrink-0" />
                   {formatTimeAgo(order.created_at)}
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-base">{order.order_number}</span>
-                  <Badge className={statusColors[order.status]} variant="secondary">
+                <div className="flex items-center flex-wrap gap-1.5 min-w-0">
+                  <span className="font-bold text-sm sm:text-base truncate">{order.order_number}</span>
+                  <Badge className={`${statusColors[order.status]} text-[10px] sm:text-xs px-1.5 py-0 sm:py-0.5 whitespace-nowrap`} variant="secondary">
                     {statusLabels[order.status] || order.status.replace("_", " ")}
                   </Badge>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold">TZS {orderTotal.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground">{order.items.length} items</div>
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              <div className="text-right">
+                <div className="text-xs sm:text-sm font-bold text-stone-900">TZS {orderTotal.toLocaleString()}</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground">{order.items.length} {order.items.length === 1 ? 'item' : 'items'}</div>
               </div>
-              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
             </div>
           </div>
         </CardHeader>
@@ -289,12 +289,12 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
               </h4>
               <div className="space-y-2 bg-muted/50 rounded-lg p-3">
                 {order.items.map((item: any) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="font-medium">{item.products?.name} × {item.quantity}</span>
-                    <div className="text-right">
-                      <p className="font-semibold">TZS {(item.unit_price * item.quantity).toLocaleString()}</p>
+                  <div key={item.id} className="flex justify-between items-start gap-2 text-xs sm:text-sm">
+                    <span className="font-medium text-stone-700 break-words flex-1">{item.products?.name} × {item.quantity}</span>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-stone-900">TZS {(item.unit_price * item.quantity).toLocaleString()}</p>
                       {item.delivery_fee > 0 && (
-                        <p className="text-[10px] text-green-600 font-bold">+ Delivery: TZS {item.delivery_fee.toLocaleString()}</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-600 font-bold">+ Delivery: TZS {item.delivery_fee.toLocaleString()}</p>
                       )}
                     </div>
                   </div>
@@ -442,36 +442,38 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5 lg:flex lg:flex-wrap">
-          <TabsTrigger value={TAB_NEW}>
-            New Orders
-            {newOrders.length > 0 && (
-              <Badge variant="destructive" className="ml-1.5 px-1.5 py-0 text-xs animate-pulse">{newOrders.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_PREPARING}>
-            Preparing
-            {preparingOrders.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{preparingOrders.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_READY}>
-            Ready
-            {readyOrders.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{readyOrders.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_COMPLETED}>
-            Completed
-            {completedOrders.length > 0 && (
-              <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">{completedOrders.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_EARNINGS}>
-            <Wallet className="h-4 w-4 mr-1 hidden sm:inline" />
-            Earnings
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 scrollbar-hide">
+          <TabsList className="inline-flex w-auto min-w-full sm:w-full">
+            <TabsTrigger value={TAB_NEW} className="text-xs sm:text-sm px-2.5 sm:px-3">
+              New
+              {newOrders.length > 0 && (
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs animate-pulse">{newOrders.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_PREPARING} className="text-xs sm:text-sm px-2.5 sm:px-3">
+              Preparing
+              {preparingOrders.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{preparingOrders.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_READY} className="text-xs sm:text-sm px-2.5 sm:px-3">
+              Ready
+              {readyOrders.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{readyOrders.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_COMPLETED} className="text-xs sm:text-sm px-2.5 sm:px-3">
+              Completed
+              {completedOrders.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{completedOrders.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_EARNINGS} className="text-xs sm:text-sm px-2.5 sm:px-3 gap-1">
+              <Wallet className="h-3.5 w-3.5" />
+              Earnings
+            </TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value={TAB_NEW} className="mt-4">
           {renderOrderList(newOrders)}
         </TabsContent>
