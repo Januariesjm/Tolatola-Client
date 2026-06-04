@@ -398,27 +398,102 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
   const exportPDF = () => {
     const win = window.open("", "_blank")
     if (!win) return
-    const rows = filtered.map((s, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td>${s.survey_date || new Date(s.created_at).toLocaleDateString()}</td>
-        <td>${s.upload_date ? new Date(s.upload_date).toLocaleDateString() : new Date(s.created_at).toLocaleDateString()}</td>
-        <td>${s.full_name}</td>
-        <td>${s.region}</td>
-        <td>${s.respondent_type}</td>
-        <td>${s.collection_method || "Website"}</td>
-        <td>${s.agent_name || "Self-Submitted"}</td>
-        <td>${s.q2_biggest_challenge}</td>
-        <td>${s.q3_impact_rating}/10</td>
-      </tr>`).join("")
+
+    const headers = [
+      "#", "Survey Date", "Upload Date", "Full Name", "Phone", "Email", "Region", "District", "Ward",
+      "Type", "Assisted by Agent", "Agent ID", "Agent Name", "Collection Method", "Source", "Created By", "Created At", "Updated By", "Updated At",
+      "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15"
+    ]
+
+    const headerCols = headers.map(h => `<th>${h}</th>`).join("")
+
+    const rows = filtered.map((s, i) => {
+      const cols = [
+        i + 1,
+        s.survey_date || "",
+        s.upload_date ? new Date(s.upload_date).toLocaleDateString() : "",
+        s.full_name,
+        s.phone,
+        s.email || "",
+        s.region,
+        s.district,
+        s.location_ward,
+        s.respondent_type,
+        s.assisted_by_agent ? "Yes" : "No",
+        s.agent_id || "",
+        s.agent_name || "Self-Submitted",
+        s.collection_method || "Website",
+        s.source || "",
+        s.created_by || "",
+        s.created_at ? new Date(s.created_at).toLocaleDateString() : "",
+        s.updated_by || "",
+        s.updated_at ? new Date(s.updated_at).toLocaleDateString() : "",
+        s.q1_challenges,
+        s.q2_biggest_challenge,
+        s.q3_impact_rating,
+        s.q4_time_searching,
+        s.q5_lost_money,
+        (s.q6_channels || []).join("; "),
+        s.q7_satisfaction_rating,
+        s.q8_platform_value_rating,
+        s.q9_escrow_importance,
+        s.q10_buyer_protection_importance,
+        s.q11_otp_reduces_disputes,
+        s.q12_nearby_suppliers_frequency,
+        s.q13_willing_to_pay,
+        s.q14_payment_amount,
+        s.q15_choice_and_reason
+      ]
+      return `<tr>${cols.map(c => `<td>${c ?? ""}</td>`).join("")}</tr>`
+    }).join("")
+
     win.document.write(`<!DOCTYPE html><html><head><title>TOLA Validation Surveys Report</title>
-      <style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;font-size:11px}
-      th,td{border:1px solid #ddd;padding:6px;text-align:left}th{background:#f5f5f5;font-weight:600}
-      h1{font-size:18px;margin-bottom:4px}p{color:#666;font-size:12px;margin-top:0}</style></head>
+      <style>
+        @page {
+          size: A3 landscape;
+          margin: 5mm;
+        }
+        body {
+          font-family: sans-serif;
+          padding: 10px;
+          margin: 0;
+          font-size: 8px;
+        }
+        h1 {
+          font-size: 16px;
+          margin: 0 0 4px 0;
+        }
+        p {
+          color: #666;
+          font-size: 9px;
+          margin: 0 0 10px 0;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: auto;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 3px 4px;
+          text-align: left;
+          font-size: 7px;
+          word-break: break-word;
+          max-width: 120px;
+        }
+        th {
+          background: #f5f5f5;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        tr:nth-child(even) {
+          background: #fafafa;
+        }
+      </style></head>
       <body><h1>TOLA Market Validation Survey Report</h1>
       <p>Generated: ${new Date().toLocaleString()} | Total: ${filtered.length} responses</p>
-      <table><tr><th>#</th><th>Survey Date</th><th>Upload Date</th><th>Name</th><th>Region</th><th>Type</th><th>Method</th><th>Agent</th><th>Challenge</th><th>Impact</th></tr>
-      ${rows}</table></body></html>`)
+      <table><thead><tr>${headerCols}</tr></thead>
+      <tbody>${rows}</tbody></table></body></html>`)
     win.document.close()
     setTimeout(() => { win.print() }, 500)
   }
