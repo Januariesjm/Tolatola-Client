@@ -3,13 +3,14 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Briefcase, Users, CalendarDays, FileSignature, ClipboardCheck } from "lucide-react"
+import { Briefcase, Users, CalendarDays, FileSignature, ClipboardCheck, CreditCard } from "lucide-react"
 
 import { HRApplicationsSubtab } from "./hr-applications-subtab"
 import { HRInterviewsSubtab } from "./hr-interviews-subtab"
 import { HRStaffSubtab } from "./hr-staff-subtab"
 import { HRContractsSubtab } from "./hr-contracts-subtab"
 import { HRAttendanceSubtab } from "./hr-attendance-subtab"
+import { HRPayrollSubtab } from "./hr-payroll-subtab"
 
 export function HRApplicationsTab({
   applications,
@@ -75,6 +76,13 @@ export function HRApplicationsTab({
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Attendance
             </TabsTrigger>
+            <TabsTrigger 
+              value="payroll" 
+              className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              Payroll
+            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -93,6 +101,9 @@ export function HRApplicationsTab({
           </TabsContent>
           <TabsContent value="attendance" className="m-0 border-none outline-none">
             <HRAttendanceSubtab attendance={attendance} staff={staff} />
+          </TabsContent>
+          <TabsContent value="payroll" className="m-0 border-none outline-none">
+            <HRPayrollSubtab staff={staff} />
           </TabsContent>
         </div>
       </Tabs>
