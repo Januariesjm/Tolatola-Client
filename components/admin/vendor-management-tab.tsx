@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, XCircle, Search, Store, Mail, Phone, MapPin, Building2, Calendar, User, Eye } from "lucide-react"
-import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { CheckCircle2, XCircle, Search, Store, Mail, Phone, MapPin, Building2, Calendar, User, Eye, Trash2 } from "lucide-react"
+import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import {
@@ -131,6 +131,27 @@ export function VendorManagementTab() {
       toast({
         title: "Error",
         description: "Failed to update vendor status",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteVendor = async (vendorId: string) => {
+    try {
+      await clientApiDelete(`admin/vendors/${vendorId}`)
+      toast({
+        title: "Vendor Deleted",
+        description: "The vendor and all related records have been permanently deleted.",
+      })
+      // Update local state
+      setVendors(vendors.filter((v) => v.id !== vendorId))
+      setFilteredVendors(filteredVendors.filter((v) => v.id !== vendorId))
+      setViewDialogOpen(false)
+    } catch (error) {
+      console.error("Error deleting vendor:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete vendor account",
         variant: "destructive",
       })
     }
@@ -451,31 +472,52 @@ export function VendorManagementTab() {
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
-              Close
-            </Button>
-            {selectedVendor && (
-              <Button
-                className={(selectedVendor.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
-                onClick={() => {
-                  handleToggleActive(selectedVendor)
-                  setViewDialogOpen(false)
-                }}
-              >
-                {(selectedVendor.is_active ?? true) ? (
-                  <>
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Deactivate Account
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Activate Account
-                  </>
-                )}
+          <DialogFooter className="flex justify-between items-center w-full">
+            <div className="flex gap-2">
+              {selectedVendor && (
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        `Are you absolutely sure you want to permanently delete "${selectedVendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`
+                      )
+                    ) {
+                      handleDeleteVendor(selectedVendor.id)
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Vendor
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+                Close
               </Button>
-            )}
+              {selectedVendor && (
+                <Button
+                  className={(selectedVendor.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+                  onClick={() => {
+                    handleToggleActive(selectedVendor)
+                    setViewDialogOpen(false)
+                  }}
+                >
+                  {(selectedVendor.is_active ?? true) ? (
+                    <>
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Deactivate Account
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Activate Account
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

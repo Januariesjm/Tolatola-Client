@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Search, Mail, Phone, Calendar, User, Eye, MapPin } from "lucide-react"
-import { clientApiGet } from "@/lib/api-client"
+import { Search, Mail, Phone, Calendar, User, Eye, MapPin, Trash2 } from "lucide-react"
+import { clientApiGet, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import {
     Dialog,
@@ -71,6 +71,27 @@ export function CustomerManagementTab() {
             })
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const handleDeleteCustomer = async (customerId: string) => {
+        try {
+            await clientApiDelete(`admin/customers/${customerId}`)
+            toast({
+                title: "Customer Deleted",
+                description: "The customer has been permanently deleted.",
+            })
+            // Update local state
+            setCustomers(customers.filter((c) => c.id !== customerId))
+            setFilteredCustomers(filteredCustomers.filter((c) => c.id !== customerId))
+            setViewDialogOpen(false)
+        } catch (error) {
+            console.error("Error deleting customer:", error)
+            toast({
+                title: "Error",
+                description: "Failed to delete customer account",
+                variant: "destructive",
+            })
         }
     }
 
@@ -178,8 +199,29 @@ export function CustomerManagementTab() {
                             </div>
                         </div>
                     )}
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+                    <DialogFooter className="flex justify-between items-center w-full">
+                        <div className="flex gap-2">
+                            {selectedCustomer && (
+                                <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                        if (
+                                            confirm(
+                                                `Are you absolutely sure you want to permanently delete customer "${selectedCustomer.full_name || selectedCustomer.email}"? This action cannot be undone and will delete all their orders, cart items, support tickets, and user accounts.`
+                                            )
+                                        ) {
+                                            handleDeleteCustomer(selectedCustomer.id)
+                                        }
+                                    }}
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete Customer
+                                </Button>
+                            )}
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

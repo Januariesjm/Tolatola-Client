@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, XCircle, Search, Mail, Phone, Calendar, User, Eye, Truck, ShieldCheck } from "lucide-react"
-import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { CheckCircle2, XCircle, Search, Mail, Phone, Calendar, User, Eye, Truck, ShieldCheck, Trash2 } from "lucide-react"
+import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import {
@@ -120,6 +120,27 @@ export function TransporterManagementTab() {
             toast({
                 title: "Error",
                 description: "Failed to update transporter status",
+                variant: "destructive",
+            })
+        }
+    }
+
+    const handleDeleteTransporter = async (transporterId: string) => {
+        try {
+            await clientApiDelete(`admin/transporters/${transporterId}`)
+            toast({
+                title: "Transporter Deleted",
+                description: "The transporter has been permanently deleted.",
+            })
+            // Update local state
+            setTransporters(transporters.filter((t) => t.id !== transporterId))
+            setFilteredTransporters(filteredTransporters.filter((t) => t.id !== transporterId))
+            setViewDialogOpen(false)
+        } catch (error) {
+            console.error("Error deleting transporter:", error)
+            toast({
+                title: "Error",
+                description: "Failed to delete transporter account",
                 variant: "destructive",
             })
         }
@@ -376,8 +397,29 @@ export function TransporterManagementTab() {
                             </div>
                         </div>
                     )}
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+                    <DialogFooter className="flex justify-between items-center w-full">
+                        <div className="flex gap-2">
+                            {selectedTransporter && (
+                                <Button
+                                    variant="destructive"
+                                    onClick={() => {
+                                        if (
+                                            confirm(
+                                                `Are you absolutely sure you want to permanently delete this transporter? This action cannot be undone and will delete all their assignments, withdrawals, and user accounts.`
+                                            )
+                                        ) {
+                                            handleDeleteTransporter(selectedTransporter.id)
+                                        }
+                                    }}
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete Transporter
+                                </Button>
+                            )}
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
