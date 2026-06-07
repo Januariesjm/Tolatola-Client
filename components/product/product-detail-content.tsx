@@ -287,7 +287,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 ) : (
                   <>
                     <ShoppingCart className="h-5 w-5 text-primary" />
-                    Initiate Secure Purchase
+                    Add Product to Cart
                   </>
                 )}
               </Button>
