@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -10,6 +10,7 @@ import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
 import { Eye, EyeOff } from "lucide-react"
+import { createClient } from "../../../lib/supabase/client"
 
 function ResetPasswordContent() {
   const router = useRouter()
@@ -24,8 +25,20 @@ function ResetPasswordContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [hasSession, setHasSession] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
 
-  if (!token) {
+  // Check if user has an active session (arrived via /auth/callback recovery flow)
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session)
+      setCheckingSession(false)
+    })
+  }, [])
+
+  // If no token AND no session, show invalid link message
+  if (!checkingSession && !token && !hasSession) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background">
         <Card className="w-full max-w-md">
@@ -49,8 +62,8 @@ function ResetPasswordContent() {
     e.preventDefault()
     setError(null)
 
-    if (password.length < 8) {
-      setError("Password should be at least 8 characters long.")
+    if (password.length < 6) {
+      setError("Password should be at least 6 characters long.")
       return
     }
     if (password !== confirmPassword) {
@@ -61,33 +74,64 @@ function ResetPasswordContent() {
     setIsSubmitting(true)
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
-      if (!apiBase) {
-        throw new Error("API base URL is not configured")
+      // Strategy 1: Session-based reset (user arrived via /auth/callback with recovery token)
+      if (hasSession) {
+        const supabase = createClient()
+        const { error: updateError } = await supabase.auth.updateUser({ password })
+
+        if (updateError) {
+          throw new Error(updateError.message || "Unable to reset password. Please try again.")
+        }
+
+        setSuccess("Your password has been updated successfully.")
+        setTimeout(() => {
+          const target = returnUrl ? `/auth/login?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/login?reset=success"
+          router.push(target)
+        }, 1500)
+        return
       }
 
-      const response = await fetch(`${apiBase}/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password }),
-      })
+      // Strategy 2: Token-based reset (legacy flow with ?token= param)
+      if (token) {
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+        if (!apiBase) {
+          throw new Error("API base URL is not configured")
+        }
 
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}))
-        throw new Error(body.error || "Unable to reset password. Please request a new link.")
+        const response = await fetch(`${apiBase}/auth/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, password }),
+        })
+
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}))
+          throw new Error(body.error || "Unable to reset password. Please request a new link.")
+        }
+
+        setSuccess("Your password has been updated successfully.")
+        setTimeout(() => {
+          const target = returnUrl ? `/auth/login?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/login?reset=success"
+          router.push(target)
+        }, 1500)
+        return
       }
 
-      setSuccess("Your password has been updated successfully.")
-
-      setTimeout(() => {
-        const target = returnUrl ? `/auth/login?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/login?reset=success"
-        router.push(target)
-      }, 1500)
+      throw new Error("No valid session or token found. Please request a new reset link.")
     } catch (err: any) {
       setError(err?.message || "Unable to reset password. Please request a new link.")
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Show loading while checking session
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-background">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    )
   }
 
   return (
@@ -222,4 +266,3 @@ export default function ResetPasswordPage() {
     </Suspense>
   )
 }
-
