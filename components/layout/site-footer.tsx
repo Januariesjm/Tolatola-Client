@@ -62,8 +62,8 @@ export function SiteFooter() {
                 <CreditCard className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="text-white font-black text-xs uppercase tracking-widest">Verified Nodes</h4>
-                <p className="text-[10px] mt-1 font-medium">Local & International Gateway</p>
+                <h4 className="text-white font-black text-xs uppercase tracking-widest">Verified Tola Vendors</h4>
+                <p className="text-[10px] mt-1 font-medium">Local & International Reach</p>
               </div>
             </div>
           </div>
