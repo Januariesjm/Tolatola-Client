@@ -258,7 +258,7 @@ function LoginContent() {
                         href="/auth/forgot-password"
                         className="text-xs text-primary hover:underline"
                       >
-                        Forgot?
+                        Forgot your password? Reset it here
                       </Link>
                     </div>
                     <div className="relative">
