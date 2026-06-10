@@ -338,9 +338,12 @@ export function VendorManagementTab() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="flex-1"
                     onClick={() => setMessageVendor(vendor)}
+                    title="Send Message"
                   >
-                    <MessageSquare className="h-4 w-4" />
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Message
                   </Button>
                   <Button
                     size="sm"
@@ -518,6 +521,18 @@ export function VendorManagementTab() {
               )}
             </div>
             <div className="flex gap-2">
+              {selectedVendor && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMessageVendor(selectedVendor)
+                    setViewDialogOpen(false)
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Send Message
+                </Button>
+              )}
               <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                 Close
               </Button>

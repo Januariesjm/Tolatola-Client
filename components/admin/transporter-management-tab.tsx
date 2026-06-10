@@ -313,9 +313,12 @@ export function TransporterManagementTab() {
                                     <Button
                                         variant="outline"
                                         size="sm"
+                                        className="flex-1"
                                         onClick={() => setMessageTransporter(transporter)}
+                                        title="Send Message"
                                     >
-                                        <MessageSquare className="h-4 w-4" />
+                                        <MessageSquare className="h-4 w-4 mr-2" />
+                                        Message
                                     </Button>
                                     <Button
                                         size="sm"
@@ -442,6 +445,18 @@ export function TransporterManagementTab() {
                             )}
                         </div>
                         <div className="flex gap-2">
+                            {selectedTransporter && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setMessageTransporter(selectedTransporter)
+                                        setViewDialogOpen(false)
+                                    }}
+                                >
+                                    <MessageSquare className="h-4 w-4 mr-2" />
+                                    Send Message
+                                </Button>
+                            )}
                             <Button variant="outline" onClick={() => setViewDialogOpen(false)}>Close</Button>
                         </div>
                     </DialogFooter>
