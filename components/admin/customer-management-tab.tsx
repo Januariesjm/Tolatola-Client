@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Search, Mail, Phone, Calendar, User, Eye, MapPin, Trash2 } from "lucide-react"
+import { Search, Mail, Phone, Calendar, User, Eye, MapPin, Trash2, MessageSquare } from "lucide-react"
 import { clientApiGet, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -17,6 +17,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { AdminMessageDialog } from "@/components/admin/message-dialog"
 
 interface Customer {
     id: string
@@ -34,6 +35,7 @@ export function CustomerManagementTab() {
     const [isLoading, setIsLoading] = useState(true)
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
     const [viewDialogOpen, setViewDialogOpen] = useState(false)
+    const [messageCustomer, setMessageCustomer] = useState<Customer | null>(null)
     const { toast } = useToast()
 
     useEffect(() => {
@@ -167,6 +169,13 @@ export function CustomerManagementTab() {
                                     View Details
                                 </Button>
                                 <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setMessageCustomer(customer)}
+                                >
+                                    <MessageSquare className="h-4 w-4" />
+                                </Button>
+                                <Button
                                     variant="destructive"
                                     size="sm"
                                     onClick={() => {
@@ -242,6 +251,15 @@ export function CustomerManagementTab() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+      {/* Admin Message Dialog */}
+      {messageCustomer && (
+        <AdminMessageDialog
+          isOpen={!!messageCustomer}
+          onClose={() => setMessageCustomer(null)}
+          recipientId={messageCustomer.id}
+          recipientName={messageCustomer.full_name || messageCustomer.email}
+        />
+      )}
         </div>
     )
 }

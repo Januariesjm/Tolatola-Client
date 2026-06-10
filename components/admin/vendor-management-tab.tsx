@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, XCircle, Search, Store, Mail, Phone, MapPin, Building2, Calendar, User, Eye, Trash2 } from "lucide-react"
+import { CheckCircle2, XCircle, Search, Store, Mail, Phone, MapPin, Building2, Calendar, User, Eye, Trash2, MessageSquare } from "lucide-react"
 import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -19,9 +19,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "next/image"
+import { AdminMessageDialog } from "@/components/admin/message-dialog"
 
 interface Vendor {
   id: string
+  user_id?: string
   business_name: string
   tin_number: string
   nida_number: string
@@ -63,6 +65,7 @@ export function VendorManagementTab() {
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [documentUrl, setDocumentUrl] = useState("")
+  const [messageVendor, setMessageVendor] = useState<Vendor | null>(null)
   const [viewDocumentDialog, setViewDocumentDialog] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
@@ -333,6 +336,13 @@ export function VendorManagementTab() {
                     View Details
                   </Button>
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setMessageVendor(vendor)}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                  <Button
                     size="sm"
                     className={`flex-1 ${(vendor.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
                     onClick={() => handleToggleActive(vendor)}
@@ -550,6 +560,15 @@ export function VendorManagementTab() {
           </div>
         </DialogContent>
       </Dialog>
+      {/* Admin Message Dialog */}
+      {messageVendor && (
+        <AdminMessageDialog
+          isOpen={!!messageVendor}
+          onClose={() => setMessageVendor(null)}
+          recipientId={messageVendor.user_id || messageVendor.id}
+          recipientName={messageVendor.users?.full_name || messageVendor.business_name}
+        />
+      )}
     </div>
   )
 }

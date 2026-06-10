@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, XCircle, Search, Mail, Phone, Calendar, User, Eye, Truck, ShieldCheck, Trash2 } from "lucide-react"
+import { CheckCircle2, XCircle, Search, Mail, Phone, Calendar, User, Eye, Truck, ShieldCheck, Trash2, MessageSquare } from "lucide-react"
 import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
@@ -19,6 +19,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import Image from "next/image"
+import { AdminMessageDialog } from "@/components/admin/message-dialog"
 
 interface Transporter {
     id: string
@@ -54,6 +55,7 @@ export function TransporterManagementTab() {
     const [isLoading, setIsLoading] = useState(true)
     const [selectedTransporter, setSelectedTransporter] = useState<Transporter | null>(null)
     const [viewDialogOpen, setViewDialogOpen] = useState(false)
+    const [messageTransporter, setMessageTransporter] = useState<Transporter | null>(null)
     const { toast } = useToast()
     const router = useRouter()
 
@@ -309,6 +311,13 @@ export function TransporterManagementTab() {
                                         View Details
                                     </Button>
                                     <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setMessageTransporter(transporter)}
+                                    >
+                                        <MessageSquare className="h-4 w-4" />
+                                    </Button>
+                                    <Button
                                         size="sm"
                                         className={`flex-1 ${(transporter.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
                                         onClick={() => handleToggleActive(transporter)}
@@ -438,6 +447,15 @@ export function TransporterManagementTab() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+      {/* Admin Message Dialog */}
+      {messageTransporter && (
+        <AdminMessageDialog
+          isOpen={!!messageTransporter}
+          onClose={() => setMessageTransporter(null)}
+          recipientId={messageTransporter.user_id}
+          recipientName={messageTransporter.users?.full_name || messageTransporter.business_name || "Transporter"}
+        />
+      )}
         </div>
     )
 }
