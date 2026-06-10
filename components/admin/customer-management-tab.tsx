@@ -156,15 +156,32 @@ export function CustomerManagementTab() {
                                     <span>Joined {new Date(customer.created_at).toLocaleDateString()}</span>
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full mt-4"
-                                onClick={() => handleViewDetails(customer)}
-                            >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                            </Button>
+                            <div className="flex gap-2 mt-4">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1"
+                                    onClick={() => handleViewDetails(customer)}
+                                >
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View Details
+                                </Button>
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {
+                                        if (
+                                            confirm(
+                                                `Are you absolutely sure you want to permanently delete customer "${customer.full_name || customer.email}"? This action cannot be undone and will delete all their orders, cart items, support tickets, and user accounts.`
+                                            )
+                                        ) {
+                                            handleDeleteCustomer(customer.id)
+                                        }
+                                    }}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}

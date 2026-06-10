@@ -325,6 +325,21 @@ export function TransporterManagementTab() {
                                             </>
                                         )}
                                     </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => {
+                                            if (
+                                                confirm(
+                                                    `Are you absolutely sure you want to permanently delete this transporter? This action cannot be undone and will delete all their assignments, withdrawals, and user accounts.`
+                                                )
+                                            ) {
+                                                handleDeleteTransporter(transporter.id)
+                                            }
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
