@@ -55,6 +55,7 @@ import { AdminUsersManagementTab } from "./admin-users-management-tab"
 import { HRApplicationsTab } from "./hr-applications-tab"
 import { ServerLogsTab } from "./server-logs-tab"
 import { SystemHealthTab } from "./system-health-tab"
+import { MessagingTab } from "./messaging-tab"
 import { InfrastructureTab } from "./infrastructure-tab"
 import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
 import { AgentManagementTab } from "./agent-management-tab"
@@ -745,6 +746,25 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {(adminRole?.permissions.includes("manage_vendors") ||
+                  adminRole?.permissions.includes("manage_customers") ||
+                  adminRole?.permissions.includes("manage_transporters")) && (
+                  <Button
+                    variant={activeTab === "messaging" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "messaging"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("messaging")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Mail className="h-4 w-4" />
+                      <span>Direct Messaging</span>
+                    </span>
+                  </Button>
+                )}
+
                 {adminRole?.permissions.includes("view_analytics") && (
                   <Button
                     variant={activeTab === "validation" ? "default" : "ghost"}
@@ -901,6 +921,13 @@ export function AdminDashboardContent({
                       </TabsTrigger>
                     </>
                   )}
+                  {(adminRole?.permissions.includes("manage_vendors") ||
+                    adminRole?.permissions.includes("manage_customers") ||
+                    adminRole?.permissions.includes("manage_transporters")) && (
+                    <TabsTrigger value="messaging" className="px-5 rounded-full text-xs font-semibold">
+                      Direct Messaging
+                    </TabsTrigger>
+                  )}
                   {adminRole?.permissions.includes("view_analytics") && (
                     <TabsTrigger value="validation" className="px-5 rounded-full text-xs font-semibold">
                       Validation
@@ -1032,6 +1059,14 @@ export function AdminDashboardContent({
               {adminRole?.permissions.includes("view_logs") && (
                 <TabsContent value="logs" className="border-none p-0 outline-none">
                   <ServerLogsTab />
+                </TabsContent>
+              )}
+
+              {(adminRole?.permissions.includes("manage_vendors") ||
+                adminRole?.permissions.includes("manage_customers") ||
+                adminRole?.permissions.includes("manage_transporters")) && (
+                <TabsContent value="messaging" className="border-none p-0 outline-none">
+                  <MessagingTab />
                 </TabsContent>
               )}
 
