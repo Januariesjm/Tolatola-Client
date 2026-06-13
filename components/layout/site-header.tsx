@@ -323,28 +323,63 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         </Link>
                       </DropdownMenuItem>
 
-                      {(authProfile?.user_type === "vendor" || authProfile?.user_type === "admin" || authProfile?.user_type === "agent") && (
-                        <div className="mt-2 pt-2 border-t border-stone-50">
-                          <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
-                            <Link 
-                              href={
-                                authProfile?.user_type === "admin" 
-                                  ? "/admin" 
-                                  : authProfile?.user_type === "agent"
-                                  ? "/agent"
-                                  : "/vendor/dashboard"
-                              } 
-                              className="flex justify-between items-center w-full px-4"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Settings className="h-4 w-4 text-primary" />
-                                <span className="font-black text-xs uppercase tracking-widest">Dashboard</span>
-                              </div>
-                              <ArrowRight className="h-4 w-4 opacity-50" />
-                            </Link>
-                          </DropdownMenuItem>
-                        </div>
-                      )}
+                      {/* Dashboard links for all approved roles */}
+                      {(() => {
+                        const vendorApproved = authProfile?.vendor?.kyc_status === "approved" || authProfile?.user_type === "vendor";
+                        const transporterApproved = authProfile?.transporter?.kyc_status === "approved" || authProfile?.user_type === "transporter";
+                        const isAdmin = authProfile?.user_type === "admin";
+                        const isAgent = authProfile?.user_type === "agent";
+                        const showSection = vendorApproved || transporterApproved || isAdmin || isAgent;
+                        if (!showSection) return null;
+                        return (
+                          <div className="mt-2 pt-2 border-t border-stone-50 space-y-1">
+                            {vendorApproved && (
+                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
+                                <Link href="/vendor/dashboard" className="flex justify-between items-center w-full px-4">
+                                  <div className="flex items-center gap-3">
+                                    <Settings className="h-4 w-4 text-primary" />
+                                    <span className="font-black text-xs uppercase tracking-widest">Seller Dashboard</span>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 opacity-50" />
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            {transporterApproved && (
+                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-emerald-900 text-white focus:bg-emerald-800 focus:text-white">
+                                <Link href="/transporter/dashboard" className="flex justify-between items-center w-full px-4">
+                                  <div className="flex items-center gap-3">
+                                    <Truck className="h-4 w-4 text-emerald-300" />
+                                    <span className="font-black text-xs uppercase tracking-widest">Transporter</span>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 opacity-50" />
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            {isAdmin && (
+                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
+                                <Link href="/admin" className="flex justify-between items-center w-full px-4">
+                                  <div className="flex items-center gap-3">
+                                    <Settings className="h-4 w-4 text-primary" />
+                                    <span className="font-black text-xs uppercase tracking-widest">Admin Dashboard</span>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 opacity-50" />
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                            {isAgent && (
+                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
+                                <Link href="/agent" className="flex justify-between items-center w-full px-4">
+                                  <div className="flex items-center gap-3">
+                                    <Settings className="h-4 w-4 text-primary" />
+                                    <span className="font-black text-xs uppercase tracking-widest">Agent Dashboard</span>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 opacity-50" />
+                                </Link>
+                              </DropdownMenuItem>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <DropdownMenuSeparator className="mx-2 bg-stone-50" />
                     <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">

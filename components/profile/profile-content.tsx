@@ -14,10 +14,17 @@ import {
   LogOut,
   ChevronRight,
   Headphones,
-  ClipboardList
+  ClipboardList,
+  Store,
+  Truck,
+  ArrowRight,
+  Clock,
+  XCircle,
+  CheckCircle2
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { clientApiPost } from "@/lib/api-client"
 
 import PersonalInfoTab from "./personal-info-tab"
 import KycVerificationTab from "./kyc-verification-tab"
@@ -30,6 +37,8 @@ interface ProfileContentProps {
   user: any
   profile: any
   kyc: any
+  vendor?: any
+  transporter?: any
   orders: any[]
   transactions: any[]
   tickets: any[]
@@ -37,9 +46,10 @@ interface ProfileContentProps {
   readOnlyFields?: string[]
 }
 
-export default function ProfileContent({ user, profile, kyc, orders, transactions, tickets, editableFields, readOnlyFields }: ProfileContentProps) {
+export default function ProfileContent({ user, profile, kyc, vendor, transporter, orders, transactions, tickets, editableFields, readOnlyFields }: ProfileContentProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("personal")
+  const [switchingRole, setSwitchingRole] = useState<string | null>(null)
 
   const getKycStatusBadge = () => {
     if (!kyc) return <Badge variant="secondary">Not Verified</Badge>
@@ -98,6 +108,141 @@ export default function ProfileContent({ user, profile, kyc, orders, transaction
               Take Survey <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
+        </div>
+
+        {/* Your Business Roles */}
+        <div className="mb-6">
+          <h2 className="text-base font-bold text-zinc-900 mb-1">Your Business Roles</h2>
+          <p className="text-xs text-zinc-500 mb-3">Expand your account — sell products or deliver orders</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Seller Card */}
+            {(() => {
+              const vStatus = vendor?.kyc_status;
+              const isApproved = vStatus === "approved";
+              const isPending = vStatus === "pending";
+              const isRejected = vStatus === "rejected";
+              return (
+                <div className={cn(
+                  "rounded-2xl border-2 p-4 sm:p-5 transition-all",
+                  isApproved ? "border-green-200 bg-green-50/50" : isPending ? "border-yellow-200 bg-yellow-50/50" : isRejected ? "border-red-200 bg-red-50/50" : "border-zinc-200 bg-white"
+                )}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={cn(
+                      "h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-md",
+                      isApproved ? "bg-green-600" : isPending ? "bg-yellow-500" : isRejected ? "bg-red-500" : "bg-indigo-600"
+                    )}>
+                      <Store className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-zinc-900 text-sm">Seller</p>
+                      <p className="text-xs text-zinc-500">
+                        {isApproved ? "Your seller account is active" : isPending ? "Application under review" : isRejected ? "Application was not approved" : "Sell your products on TOLA"}
+                      </p>
+                    </div>
+                    {isApproved && (
+                      <Badge className="bg-green-100 text-green-800 border-green-200 gap-1"><CheckCircle2 className="h-3 w-3" /> Active</Badge>
+                    )}
+                    {isPending && (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 gap-1"><Clock className="h-3 w-3" /> Pending</Badge>
+                    )}
+                    {isRejected && (
+                      <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Rejected</Badge>
+                    )}
+                  </div>
+                  {isRejected && vendor?.kyc_notes && (
+                    <div className="mb-3 p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800">
+                      <span className="font-bold">Reason: </span>{vendor.kyc_notes}
+                    </div>
+                  )}
+                  <Button
+                    className={cn(
+                      "w-full rounded-xl h-10 font-bold text-sm gap-2",
+                      isApproved ? "bg-green-600 hover:bg-green-700" : isRejected ? "bg-red-600 hover:bg-red-700" : isPending ? "bg-zinc-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+                    )}
+                    disabled={isPending || switchingRole === "vendor"}
+                    onClick={async () => {
+                      if (isApproved) {
+                        try {
+                          setSwitchingRole("vendor");
+                          await clientApiPost("profile/switch-role", { role: "vendor" });
+                          router.push("/vendor/dashboard");
+                        } catch { /* ignore */ } finally { setSwitchingRole(null); }
+                      } else {
+                        router.push("/vendor/register");
+                      }
+                    }}
+                  >
+                    {switchingRole === "vendor" ? "Switching..." : isApproved ? "Switch to Seller Dashboard" : isPending ? "Under Review" : isRejected ? "Reapply" : "Become a Seller"}
+                    {!isPending && switchingRole !== "vendor" && <ArrowRight className="h-4 w-4" />}
+                  </Button>
+                </div>
+              );
+            })()}
+
+            {/* Transporter Card */}
+            {(() => {
+              const tStatus = transporter?.kyc_status;
+              const isApproved = tStatus === "approved";
+              const isPending = tStatus === "pending";
+              const isRejected = tStatus === "rejected";
+              return (
+                <div className={cn(
+                  "rounded-2xl border-2 p-4 sm:p-5 transition-all",
+                  isApproved ? "border-green-200 bg-green-50/50" : isPending ? "border-yellow-200 bg-yellow-50/50" : isRejected ? "border-red-200 bg-red-50/50" : "border-zinc-200 bg-white"
+                )}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={cn(
+                      "h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-md",
+                      isApproved ? "bg-green-600" : isPending ? "bg-yellow-500" : isRejected ? "bg-red-500" : "bg-emerald-600"
+                    )}>
+                      <Truck className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-zinc-900 text-sm">Transporter</p>
+                      <p className="text-xs text-zinc-500">
+                        {isApproved ? "Your transporter account is active" : isPending ? "Application under review" : isRejected ? "Application was not approved" : "Deliver orders across Tanzania"}
+                      </p>
+                    </div>
+                    {isApproved && (
+                      <Badge className="bg-green-100 text-green-800 border-green-200 gap-1"><CheckCircle2 className="h-3 w-3" /> Active</Badge>
+                    )}
+                    {isPending && (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200 gap-1"><Clock className="h-3 w-3" /> Pending</Badge>
+                    )}
+                    {isRejected && (
+                      <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Rejected</Badge>
+                    )}
+                  </div>
+                  {isRejected && transporter?.kyc_notes && (
+                    <div className="mb-3 p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800">
+                      <span className="font-bold">Reason: </span>{transporter.kyc_notes}
+                    </div>
+                  )}
+                  <Button
+                    className={cn(
+                      "w-full rounded-xl h-10 font-bold text-sm gap-2",
+                      isApproved ? "bg-green-600 hover:bg-green-700" : isRejected ? "bg-red-600 hover:bg-red-700" : isPending ? "bg-zinc-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+                    )}
+                    disabled={isPending || switchingRole === "transporter"}
+                    onClick={async () => {
+                      if (isApproved) {
+                        try {
+                          setSwitchingRole("transporter");
+                          await clientApiPost("profile/switch-role", { role: "transporter" });
+                          router.push("/transporter/dashboard");
+                        } catch { /* ignore */ } finally { setSwitchingRole(null); }
+                      } else {
+                        router.push("/transporter/register");
+                      }
+                    }}
+                  >
+                    {switchingRole === "transporter" ? "Switching..." : isApproved ? "Switch to Transporter Dashboard" : isPending ? "Under Review" : isRejected ? "Reapply" : "Become a Transporter"}
+                    {!isPending && switchingRole !== "transporter" && <ArrowRight className="h-4 w-4" />}
+                  </Button>
+                </div>
+              );
+            })()}
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">

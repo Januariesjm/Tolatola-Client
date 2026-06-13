@@ -79,6 +79,8 @@ export default async function ProfilePage() {
         user={user}
         profile={profile}
         kyc={kyc}
+        vendor={profile?.vendor || null}
+        transporter={profile?.transporter || null}
         orders={orders || []}
         transactions={transactions || []}
         tickets={tickets || []}
