@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
 import { createClient as createServerClient } from "@/lib/supabase/server"
+import { serverApiPost } from "@/lib/api-server"
 
 export async function POST(request: Request) {
     try {
@@ -14,35 +14,15 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        // 2. Use the Service Role Key to delete the user from Supabase Auth
-        // We need the service role key to delete users.
-        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY // Fallback (likely wont work for delete)
-        const supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            serviceRoleKey,
-            {
-                auth: {
-                    autoRefreshToken: false,
-                    persistSession: false,
-                },
-            }
-        )
+        // 2. Delegate the user deletion and database cleanup to the backend API
+        const response = await serverApiPost<{ success: boolean; message?: string }>("profile/delete")
 
-        const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
-            user.id
-        )
-
-        if (deleteError) {
-            console.error("Error deleting user from Auth:", deleteError)
-            throw deleteError
-        }
-
-        // 3. Optional: Clean up public.users data if not handled by ON DELETE CASCADE
-        // Trigger should handle this, or we trust CASCADE.
-
-        return NextResponse.json({ success: true })
-    } catch (error) {
+        return NextResponse.json(response)
+    } catch (error: any) {
         console.error("Error deleting account:", error)
-        return NextResponse.json({ error: "Failed to delete account" }, { status: 500 })
+        return NextResponse.json(
+            { error: error?.message || "Failed to delete account" },
+            { status: 500 }
+        )
     }
 }

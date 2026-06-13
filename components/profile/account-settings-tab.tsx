@@ -35,6 +35,7 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
   const [isLoading, setIsLoading] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -187,7 +188,7 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
               <h4 className="font-medium text-gray-900 dark:text-gray-100">Delete Account</h4>
               <p className="text-sm text-muted-foreground">Permanently delete your account and all data.</p>
             </div>
-            <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+            <AlertDialog open={showDeleteConfirm} onOpenChange={(open) => { setShowDeleteConfirm(open); if (!open) setDeleteConfirmText(""); }}>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" className="bg-red-600 hover:bg-red-700">Delete Account</Button>
               </AlertDialogTrigger>
@@ -197,13 +198,26 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete your account and remove your data from our servers.
                   </AlertDialogDescription>
+                  <div className="mt-4 space-y-2 text-left">
+                    <Label htmlFor="delete-confirm-input" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      To confirm, type <span className="font-bold text-red-600 dark:text-red-400">DELETE</span> below:
+                    </Label>
+                    <Input
+                      id="delete-confirm-input"
+                      type="text"
+                      placeholder="DELETE"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      className="border-red-300 focus-visible:ring-red-500"
+                    />
+                  </div>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteAccount}
                     className="bg-red-600 text-white hover:bg-red-700"
-                    disabled={isDeleting}
+                    disabled={isDeleting || deleteConfirmText !== "DELETE"}
                   >
                     {isDeleting ? "Deleting..." : "Delete Account"}
                   </AlertDialogAction>
