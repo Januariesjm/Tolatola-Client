@@ -280,16 +280,16 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2 py-2">
+            <div className="flex items-center space-x-2 py-2 opacity-75">
               <input
                 type="checkbox"
                 id="delivery_available"
-                checked={deliveryAvailable}
-                onChange={(e) => setDeliveryAvailable(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                checked={true}
+                disabled
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-not-allowed"
               />
-              <Label htmlFor="delivery_available" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Delivery available handled by Tola
+              <Label htmlFor="delivery_available" className="text-sm font-medium leading-none cursor-not-allowed">
+                Delivery available handled by Tola (Always Enabled)
               </Label>
             </div>
             <div className="space-y-2">
