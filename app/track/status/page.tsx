@@ -18,6 +18,10 @@ import {
   MessageCircle,
   AlertTriangle,
   Loader2,
+  ShieldCheck,
+  Lock,
+  Wallet,
+  Coins,
 } from "lucide-react"
 import type { OrderTrackingInfo } from "../../../lib/types"
 import SiteHeader from "../../../components/layout/site-header"
@@ -260,6 +264,63 @@ function StatusDashboardInner() {
                 })}
               </ul>
             </div>
+
+            {/* Real-time Fund Status Widget */}
+            {data.fund_status && (
+              <div className="space-y-4 pt-6 border-t">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                    Real-time Fund Status
+                  </h3>
+                  <Badge variant="outline" className="ml-auto bg-primary/5 text-primary border-primary/20 capitalize font-semibold px-2 py-0.5">
+                    {data.fund_status.status.replace(/_/g, " ").toLowerCase()}
+                  </Badge>
+                </div>
+
+                <div className="relative pl-6 border-l-2 border-muted space-y-6 ml-3 mt-4">
+                  {data.fund_status.timeline.map((step) => {
+                    const isCompleted = step.status === "completed";
+                    const StepIcon = {
+                      payment_received: Coins,
+                      protected: Lock,
+                      pending_settlement: Clock,
+                      vendor_paid: Wallet,
+                      transporter_paid: Truck,
+                      settlement_completed: CheckCircle2
+                    }[step.key] || Circle;
+
+                    return (
+                      <div key={step.key} className="relative flex items-start gap-3 transition-all duration-200">
+                        {/* Dot indicator on the timeline border */}
+                        <div className={`absolute -left-[33px] top-0.5 p-1 rounded-full border-2 bg-background transition-colors duration-300 ${
+                          isCompleted ? "border-green-600 text-green-600" : "border-muted text-muted-foreground"
+                        }`}>
+                          <StepIcon className="h-3.5 w-3.5" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className={`text-sm font-bold transition-colors duration-200 ${
+                            isCompleted ? "text-foreground" : "text-muted-foreground/70"
+                          }`}>
+                            {step.label}
+                          </span>
+                          <span className="text-xs text-muted-foreground mt-0.5">
+                            {step.description}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="bg-muted/40 rounded-xl p-3 border border-muted text-xs text-muted-foreground flex gap-2 items-start mt-4">
+                  <AlertTriangle className="h-4 w-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    TOLA does not hold customer funds or operate a wallet; it only displays the real-time fund status provided by our payment and escrow partners.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Delivery details */}
             {data.transporter && (

@@ -57,6 +57,15 @@ export interface OrderTrackingInfo {
   }
   shop_location?: { lat: number; lng: number } | null
   timeline: Array<{ status: OrderStatus | string; label: string; completed_at?: string }>
+  fund_status?: {
+    status: string
+    timeline: Array<{
+      key: string
+      label: string
+      status: "completed" | "pending"
+      description: string
+    }>
+  }
 }
 
 export interface DisputeInfo {
