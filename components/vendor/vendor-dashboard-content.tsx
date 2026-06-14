@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Package, Store, Plus, LogOut, Edit, Trash2, PackageX, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { clientApiPost, clientApiGet } from "@/lib/api-client"
+import { clientApiPost, clientApiGet, clientApiDelete } from "@/lib/api-client"
 import Image from "next/image"
 import { AddProductDialog } from "./add-product-dialog"
 import { EditProductDialog } from "./edit-product-dialog"
@@ -93,7 +93,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
     setIsDeleting(true)
 
     try {
-      await clientApiPost(`products/delete`, { productId: productToDelete.id })
+      await clientApiDelete(`products/${productToDelete.id}`)
       setShowDeleteDialog(false)
       setProductToDelete(null)
       router.refresh()
