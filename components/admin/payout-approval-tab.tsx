@@ -81,12 +81,19 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
         setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing" } : p))
         router.refresh()
       } else {
-        throw new Error("Failed to approve payout")
+        let errMsg = "Failed to approve payout"
+        try {
+          const data = await response.json()
+          if (data && data.error) {
+            errMsg = data.error
+          }
+        } catch (e) {}
+        throw new Error(errMsg)
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to approve payout",
+        description: error.message || "Failed to approve payout",
         variant: "destructive",
       })
     } finally {
@@ -228,6 +235,11 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                         {payout.approved_by_name && (
                           <span className="font-semibold text-emerald-600 dark:text-emerald-500">
                             {payout.status === "failed" ? "Rejected by" : "Approved by"}: {payout.approved_by_name}
+                          </span>
+                        )}
+                        {payout.status === "failed" && payout.failure_reason && (
+                          <span className="text-red-500 font-medium dark:text-red-400">
+                            Reason: {payout.failure_reason}
                           </span>
                         )}
                       </p>

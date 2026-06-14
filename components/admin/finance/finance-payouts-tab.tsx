@@ -126,10 +126,17 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
         setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing" } : p))
         router.refresh()
       } else {
-        throw new Error("Failed to approve payout")
+        let errMsg = "Failed to approve payout"
+        try {
+          const data = await response.json()
+          if (data && data.error) {
+            errMsg = data.error
+          }
+        } catch (e) {}
+        throw new Error(errMsg)
       }
-    } catch {
-      toast({ title: "Error", description: "Failed to approve payout", variant: "destructive" })
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to approve payout", variant: "destructive" })
     } finally {
       setProcessing(null)
     }
@@ -329,6 +336,11 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
                         {payout.approved_by_name && (
                           <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md dark:bg-emerald-950/30 dark:text-emerald-400">
                             {payout.status === "failed" ? "Rejected by" : "Approved by"}: {payout.approved_by_name}
+                          </span>
+                        )}
+                        {payout.status === "failed" && payout.failure_reason && (
+                          <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-md dark:bg-red-950/30 dark:text-red-400">
+                            Reason: {payout.failure_reason}
                           </span>
                         )}
                       </div>

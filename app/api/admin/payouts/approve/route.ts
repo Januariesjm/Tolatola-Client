@@ -26,7 +26,16 @@ export async function POST(request: Request) {
     if (!backendRes.ok) {
       const errBody = await backendRes.text()
       console.error("[v0] Backend payout approval error:", errBody)
-      return NextResponse.json({ error: "Failed to approve payout" }, { status: backendRes.status })
+      let errorMessage = "Failed to approve payout"
+      try {
+        const parsed = JSON.parse(errBody)
+        if (parsed && parsed.error) {
+          errorMessage = parsed.error
+        }
+      } catch (e) {
+        // ignore
+      }
+      return NextResponse.json({ error: errorMessage }, { status: backendRes.status })
     }
 
     return NextResponse.json({ success: true })
