@@ -79,13 +79,6 @@ export async function clientApiPostProfileAvatar(image: string): Promise<{
 
 async function getToken() {
   const supabase = createClientComponentClient<Database>()
-  // Verify user is authenticated with server
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return undefined
-  
-  // Get the session to retrieve the access token
   const {
     data: { session },
   } = await supabase.auth.getSession()

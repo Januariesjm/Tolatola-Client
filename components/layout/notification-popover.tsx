@@ -33,8 +33,16 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
   const supabase = createClient()
 
   const loadData = useCallback(async () => {
-    setLoading(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        setNotifications([])
+        setConversations([])
+        setUnreadCount(0)
+        return
+      }
+
+      setLoading(true)
       const [notifList, convResult, globalUnreadNotes] = await Promise.all([
         fetchNotifications({ limit: 20 }).catch(err => {
           console.error("Error fetching notifications:", err)
@@ -63,7 +71,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [supabase])
 
   const handleMarkRead = async (id: string) => {
     try {
@@ -89,36 +97,93 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
   }
 
   useEffect(() => {
-    loadData()
+    let channel: any = null
 
-    const channel = supabase
-      .channel("global_notifications_realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        () => {
-          loadData()
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "notifications",
-        },
-        () => {
-          loadData()
-        },
-      )
-      .subscribe()
+    const setupAuthAndRealtime = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        loadData()
+
+        channel = supabase
+          .channel("global_notifications_realtime")
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "messages",
+            },
+            () => {
+              loadData()
+            },
+          )
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "notifications",
+            },
+            () => {
+              loadData()
+            },
+          )
+          .subscribe()
+      } else {
+        setNotifications([])
+        setConversations([])
+        setUnreadCount(0)
+      }
+    }
+
+    setupAuthAndRealtime()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        loadData()
+        if (!channel) {
+          channel = supabase
+            .channel("global_notifications_realtime")
+            .on(
+              "postgres_changes",
+              {
+                event: "INSERT",
+                schema: "public",
+                table: "messages",
+              },
+              () => {
+                loadData()
+              },
+            )
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "notifications",
+              },
+              () => {
+                loadData()
+              },
+            )
+            .subscribe()
+        }
+      } else {
+        setNotifications([])
+        setConversations([])
+        setUnreadCount(0)
+        if (channel) {
+          supabase.removeChannel(channel)
+          channel = null
+        }
+      }
+    })
 
     return () => {
-      supabase.removeChannel(channel)
+      subscription.unsubscribe()
+      if (channel) {
+        supabase.removeChannel(channel)
+      }
     }
   }, [loadData, supabase])
 

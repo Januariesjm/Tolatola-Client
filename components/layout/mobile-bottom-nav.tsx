@@ -34,6 +34,11 @@ export function MobileBottomNav() {
 
     const loadUnreadCount = useCallback(async () => {
         try {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session?.user) {
+                setUnreadCount(0)
+                return
+            }
             const [globalUnread, convResult] = await Promise.all([
                 fetchUnreadCount().catch(() => 0),
                 getUserConversations().catch(() => ({ conversations: [] }))
@@ -43,7 +48,7 @@ export function MobileBottomNav() {
         } catch (error) {
             console.error("Error fetching unread count for bottom nav:", error)
         }
-    }, [])
+    }, [supabase])
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -63,41 +68,100 @@ export function MobileBottomNav() {
 
         fetchCategories()
         updateCartCount()
-        loadUnreadCount()
 
         window.addEventListener("cartUpdated", updateCartCount)
         window.addEventListener("storage", updateCartCount)
 
-        const channel = supabase
-            .channel("bottom_nav_notifications_realtime")
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "messages",
-                },
-                () => {
-                    loadUnreadCount()
-                },
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "*",
-                    schema: "public",
-                    table: "notifications",
-                },
-                () => {
-                    loadUnreadCount()
-                },
-            )
-            .subscribe()
-
         return () => {
             window.removeEventListener("cartUpdated", updateCartCount)
             window.removeEventListener("storage", updateCartCount)
-            supabase.removeChannel(channel)
+        }
+    }, [])
+
+    useEffect(() => {
+        let channel: any = null
+
+        const setupAuthAndRealtime = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.user) {
+                loadUnreadCount()
+
+                channel = supabase
+                    .channel("bottom_nav_notifications_realtime")
+                    .on(
+                        "postgres_changes",
+                        {
+                            event: "INSERT",
+                            schema: "public",
+                            table: "messages",
+                        },
+                        () => {
+                            loadUnreadCount()
+                        },
+                    )
+                    .on(
+                        "postgres_changes",
+                        {
+                            event: "*",
+                            schema: "public",
+                            table: "notifications",
+                        },
+                        () => {
+                            loadUnreadCount()
+                        },
+                    )
+                    .subscribe()
+            } else {
+                setUnreadCount(0)
+            }
+        }
+
+        setupAuthAndRealtime()
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session?.user) {
+                loadUnreadCount()
+                if (!channel) {
+                    channel = supabase
+                        .channel("bottom_nav_notifications_realtime")
+                        .on(
+                            "postgres_changes",
+                            {
+                                event: "INSERT",
+                                schema: "public",
+                                table: "messages",
+                            },
+                            () => {
+                                loadUnreadCount()
+                            },
+                        )
+                        .on(
+                            "postgres_changes",
+                            {
+                                event: "*",
+                                schema: "public",
+                                table: "notifications",
+                            },
+                            () => {
+                                loadUnreadCount()
+                            },
+                        )
+                        .subscribe()
+                }
+            } else {
+                setUnreadCount(0)
+                if (channel) {
+                    supabase.removeChannel(channel)
+                    channel = null
+                }
+            }
+        })
+
+        return () => {
+            subscription.unsubscribe()
+            if (channel) {
+                supabase.removeChannel(channel)
+            }
         }
     }, [loadUnreadCount, supabase])
 
