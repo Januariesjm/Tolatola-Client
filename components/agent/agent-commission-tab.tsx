@@ -213,7 +213,7 @@ export function AgentCommissionTab({
   }
 
   // Fees calculation
-  const calculatedFee = withdrawAmount ? Math.round(Number(withdrawAmount) * 0.035) : 0
+  const calculatedFee = withdrawAmount ? Math.round(Number(withdrawAmount) * 0.10) : 0
   const expectedPayout = withdrawAmount ? Math.max(0, Number(withdrawAmount) - calculatedFee) : 0
 
   return (
@@ -635,7 +635,7 @@ export function AgentCommissionTab({
                 </div>
                 <div className="flex justify-between text-rose-500 font-semibold">
                   <span className="flex items-center gap-1">
-                    Gharama ya Muamala (3.5%):
+                    Gharama ya Muamala (10%):
                   </span>
                   <span>-{formatTzs(calculatedFee)}</span>
                 </div>

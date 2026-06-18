@@ -17,7 +17,7 @@ interface TransporterWithdrawalsTabProps {
   availableBalance: number
 }
 
-const COMMISSION_RATE = 0.035
+const COMMISSION_RATE = 0.10
 
 export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: TransporterWithdrawalsTabProps) {
   const [amount, setAmount] = useState("")
@@ -113,7 +113,7 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                   <span>TZS {Number(amount).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-stone-600">
-                  <span>Service Fee (3.5%):</span>
+                  <span>Service Fee (10%):</span>
                   <span>- TZS {(Number(amount) * COMMISSION_RATE).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t border-green-200">
