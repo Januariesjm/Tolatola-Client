@@ -35,7 +35,7 @@ export function OrderTrackingMap({ origin, destination, transporterLocation, cla
         let script: HTMLScriptElement | null = null
 
         const loadMap = async () => {
-            if (window.google?.maps) {
+            if (window.google?.maps?.Map) {
                 setScriptLoaded(true)
                 return
             }
@@ -46,7 +46,7 @@ export function OrderTrackingMap({ origin, destination, transporterLocation, cla
             // Check if script already exists
             const existingScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`)
             if (existingScript) {
-                if (window.google?.maps) {
+                if (window.google?.maps?.Map) {
                     setScriptLoaded(true)
                 } else {
                     existingScript.addEventListener("load", () => setScriptLoaded(true))
@@ -68,7 +68,7 @@ export function OrderTrackingMap({ origin, destination, transporterLocation, cla
         loadMap()
 
         return () => {
-            // Cleanup if needed
+            window.initGoogleMapsCallback = () => {}
         }
     }, [])
 

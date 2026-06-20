@@ -49,7 +49,7 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
   const { toast } = useToast()
 
   useEffect(() => {
-    if (window.google?.maps?.places) {
+    if (window.google?.maps?.places?.Autocomplete) {
       setIsGoogleLoaded(true)
       setIsLoadingGoogle(false)
       return
@@ -63,15 +63,15 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           return
         }
 
-        const script = document.createElement("script")
-        script.src = scriptUrl
-        script.async = true
-        script.defer = true
-
         window.initGoogleMapsCallback = () => {
           setIsGoogleLoaded(true)
           setIsLoadingGoogle(false)
         }
+
+        const script = document.createElement("script")
+        script.src = scriptUrl
+        script.async = true
+        script.defer = true
 
         script.onerror = () => {
           toast({ title: "Map Loading Error", description: "Address autocomplete failed to load.", variant: "destructive" })
@@ -85,7 +85,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
     }
 
     loadScript()
-    return () => { delete window.initGoogleMapsCallback }
+    return () => {
+      window.initGoogleMapsCallback = () => {}
+    }
   }, [toast])
 
   useEffect(() => {

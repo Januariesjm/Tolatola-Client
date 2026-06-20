@@ -28,7 +28,7 @@ export function WebMapPicker({
   // Poll for window.google
   useEffect(() => {
     const checkGoogle = () => {
-      if (window.google?.maps) {
+      if (window.google?.maps?.Map) {
         setIsGoogleLoaded(true)
       } else {
         setTimeout(checkGoogle, 500)
