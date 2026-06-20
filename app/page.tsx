@@ -258,7 +258,7 @@ export default async function HomePage() {
               return (
                 <Link
                   key={cat.id}
-                  href={`/shop?category=${cat.id}`}
+                  href={`/shop?category=${cat.slug || cat.id}`}
                   className="group relative aspect-[3/1.5] rounded-xl overflow-hidden border border-stone-100 hover:border-primary/50 hover:shadow-md transition-all duration-300"
                 >
                   {/* Background Image */}

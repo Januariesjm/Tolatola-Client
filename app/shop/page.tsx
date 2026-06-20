@@ -11,13 +11,66 @@ import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
-  title: "Shop | TOLA Digital Trade & Supply Chain Ecosystem",
-  description:
-    "Shop from verified vendors within TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure checkout with M-Pesa & Tigo Pesa, integrated logistics and verified businesses.",
-  alternates: {
-    canonical: "https://tolatola.co/shop",
-  },
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { category?: string }
+}): Promise<Metadata> {
+  const baseUrl = "https://tolatola.co"
+  let title = "Shop | TOLA Digital Trade & Supply Chain Ecosystem"
+  let description = "Shop from verified vendors within TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure checkout with M-Pesa & Tigo Pesa, integrated logistics and verified businesses."
+  let canonical = `${baseUrl}/shop`
+
+  const currentCategory = searchParams.category
+  if (currentCategory) {
+    let catName = ""
+    let catSlug = currentCategory
+
+    // Static fallback lookup for robustness
+    const categoryStaticMap: Record<string, string> = {
+      "fast-moving-consumer-goods": "Fast Moving Consumer Goods",
+      "agriculture": "Agriculture",
+      "construction-hardware": "Construction & Hardware",
+      "handicrafts": "Handicrafts",
+      "food-beverages": "Food & Beverages",
+      "textiles": "Textiles",
+      "electronics": "Electronics",
+      "home-garden": "Home & Garden",
+      "health-beauty": "Health & Beauty",
+      "services": "Services",
+      "vehicles": "Vehicles",
+    }
+
+    if (categoryStaticMap[currentCategory]) {
+      catName = categoryStaticMap[currentCategory]
+    } else {
+      try {
+        const categoriesRes = await serverApiGet<{ data: any[] }>("categories", { next: { revalidate: 60 } }).catch(() => ({ data: [] }))
+        const categories = categoriesRes.data || []
+        const cat = categories.find((c: any) => c.slug === currentCategory || c.id === currentCategory)
+        if (cat) {
+          catName = cat.name
+          catSlug = cat.slug
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (catName) {
+      title = `${catName} | Shop | TOLA Tanzania`
+      description = `Buy ${catName} from verified vendors on TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure payments & nationwide logistics.`
+      canonical = `${baseUrl}/shop?category=${catSlug}`
+    }
+  }
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+    },
+  }
 }
 
 export default async function ShopPage({
@@ -57,7 +110,7 @@ export default async function ShopPage({
   let productsUrl = "products"
   const params = new URLSearchParams()
   if (currentCategory) {
-    const cat = categories.find((c: any) => c.slug === currentCategory)
+    const cat = categories.find((c: any) => c.slug === currentCategory || c.id === currentCategory)
     if (cat) {
       params.append("category", cat.id)
     }

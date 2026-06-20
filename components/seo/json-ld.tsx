@@ -74,7 +74,18 @@ export function JsonLd() {
             { "@type": "SiteNavigationElement", "position": 5, "name": "Become a Transporter", "description": "Join TOLA logistics. Deliver across Tanzania and earn.", "url": "https://tolatola.co/transporter/register" },
             { "@type": "SiteNavigationElement", "position": 6, "name": "About Us", "description": "About TOLA – Tanzania's Digital Trade and Supply Chain Ecosystem.", "url": "https://tolatola.co/about" },
             { "@type": "SiteNavigationElement", "position": 7, "name": "Contact", "description": "Contact TOLA Tanzania – support and inquiries.", "url": "https://tolatola.co/contact" },
-            { "@type": "SiteNavigationElement", "position": 8, "name": "FAQ", "description": "Frequently asked questions about TOLA Tanzania.", "url": "https://tolatola.co/faq" }
+            { "@type": "SiteNavigationElement", "position": 8, "name": "FAQ", "description": "Frequently asked questions about TOLA Tanzania.", "url": "https://tolatola.co/faq" },
+            { "@type": "SiteNavigationElement", "position": 9, "name": "Fast Moving Consumer Goods", "description": "Everyday items like food, beverages, and personal care products on TOLA.", "url": "https://tolatola.co/shop?category=fast-moving-consumer-goods" },
+            { "@type": "SiteNavigationElement", "position": 10, "name": "Agriculture", "description": "Fresh farm produce including crops, seeds, and livestock on TOLA.", "url": "https://tolatola.co/shop?category=agriculture" },
+            { "@type": "SiteNavigationElement", "position": 11, "name": "Construction & Hardware", "description": "Building materials, power tools, and hardware supplies on TOLA.", "url": "https://tolatola.co/shop?category=construction-hardware" },
+            { "@type": "SiteNavigationElement", "position": 12, "name": "Handicrafts", "description": "Handmade crafts, art, and artisan products in Tanzania on TOLA.", "url": "https://tolatola.co/shop?category=handicrafts" },
+            { "@type": "SiteNavigationElement", "position": 13, "name": "Food & Beverages", "description": "Local and imported food items, drinks, and snacks on TOLA.", "url": "https://tolatola.co/shop?category=food-beverages" },
+            { "@type": "SiteNavigationElement", "position": 14, "name": "Textiles", "description": "Colorful Tanzanian fabrics, clothing, and textile materials on TOLA.", "url": "https://tolatola.co/shop?category=textiles" },
+            { "@type": "SiteNavigationElement", "position": 15, "name": "Electronics", "description": "Smartphones, computers, gadgets, and home appliances on TOLA.", "url": "https://tolatola.co/shop?category=electronics" },
+            { "@type": "SiteNavigationElement", "position": 16, "name": "Home & Garden", "description": "Furniture, decor, tools, and plants for home and garden on TOLA.", "url": "https://tolatola.co/shop?category=home-garden" },
+            { "@type": "SiteNavigationElement", "position": 17, "name": "Health & Beauty", "description": "Skincare, cosmetics, health supplements, and personal care products on TOLA.", "url": "https://tolatola.co/shop?category=health-beauty" },
+            { "@type": "SiteNavigationElement", "position": 18, "name": "Services", "description": "Professional services, agency work, and local business offerings on TOLA.", "url": "https://tolatola.co/shop?category=services" },
+            { "@type": "SiteNavigationElement", "position": 19, "name": "Vehicles", "description": "Cars, motorcycles, auto parts, and transportation options in Tanzania on TOLA.", "url": "https://tolatola.co/shop?category=vehicles" }
         ]
     }
 
