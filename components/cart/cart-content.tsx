@@ -31,17 +31,19 @@ export function CartContent() {
     setCartItems(items)
   }, [])
 
-  const updateQuantity = (productId: string, newQuantity: number) => {
+  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+
+  const updateQuantity = (itemId: string, newQuantity: number) => {
     const updatedCart = cartItems.map((item) =>
-      item.product_id === productId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
+      getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
     )
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
   }
 
-  const removeItem = (productId: string) => {
-    const updatedCart = cartItems.filter((item) => item.product_id !== productId)
+  const removeItem = (itemId: string) => {
+    const updatedCart = cartItems.filter((item) => getItemId(item) !== itemId)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
@@ -77,68 +79,91 @@ export function CartContent() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {cartItems.map((item) => (
-                <Card key={item.product_id}>
-                  <CardContent className="p-3 md:p-6 relative">
-                    <div className="flex gap-3 md:gap-4">
-                      <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                        <img
-                          src={
-                            item.product.images && item.product.images.length > 0
-                              ? item.product.images[0]
-                              : `/placeholder.svg?height=100&width=100&query=${encodeURIComponent(item.product.name)}`
-                          }
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-semibold text-sm md:text-base mb-1 truncate pr-8">{item.product.name}</h3>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 md:h-8 md:w-8 absolute top-3 right-3 md:static text-destructive hover:bg-destructive/10 -mt-1 md:mt-0"
-                            onClick={() => removeItem(item.product_id)}
-                          >
-                            <Trash2 className="h-4 w-4 md:h-5 md:w-5" />
-                          </Button>
+              {cartItems.map((item) => {
+                const itemId = getItemId(item)
+                return (
+                  <Card key={itemId}>
+                    <CardContent className="p-3 md:p-6 relative">
+                      <div className="flex gap-3 md:gap-4">
+                        <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                          <img
+                            src={
+                              item.selected_color?.image || (item.product.images && item.product.images.length > 0
+                                ? item.product.images[0]
+                                : `/placeholder.svg?height=100&width=100&query=${encodeURIComponent(item.product.name)}`)
+                            }
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <p className="text-xs md:text-sm text-muted-foreground mb-2 truncate">
-                          by{" "}
-                          TOLA Verified Vendor
-                        </p>
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-semibold text-sm md:text-base mb-1 truncate pr-8">{item.product.name}</h3>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 w-7 md:h-8 md:w-8 p-0"
-                              onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                              disabled={item.quantity <= 1}
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 md:h-8 md:w-8 absolute top-3 right-3 md:static text-destructive hover:bg-destructive/10 -mt-1 md:mt-0"
+                              onClick={() => removeItem(itemId)}
                             >
-                              <Minus className="h-3 w-3 md:h-4 md:w-4" />
-                            </Button>
-                            <span className="w-8 md:w-12 text-center font-semibold text-sm md:text-base">{item.quantity}</span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 w-7 md:h-8 md:w-8 p-0"
-                              onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                              disabled={item.quantity >= item.product.stock_quantity}
-                            >
-                              <Plus className="h-3 w-3 md:h-4 md:w-4" />
+                              <Trash2 className="h-4 w-4 md:h-5 md:w-5" />
                             </Button>
                           </div>
-                          <span className="text-sm md:text-lg font-semibold text-primary">
-                            TZS {(item.product.price * item.quantity).toLocaleString()}
-                          </span>
+                          <p className="text-xs md:text-sm text-muted-foreground mb-1 truncate">
+                            by TOLA Verified Vendor
+                          </p>
+
+                          {/* Color & Size Variation Badge */}
+                          {(item.selected_color || item.selected_size) && (
+                            <div className="flex flex-wrap gap-1.5 mb-2">
+                              {item.selected_color && (
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
+                                  <span 
+                                    className="w-2.5 h-2.5 rounded-full border border-stone-300"
+                                    style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
+                                  />
+                                  Color: {item.selected_color.name}
+                                </span>
+                              )}
+                              {item.selected_size && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
+                                  Size: {item.selected_size}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                onClick={() => updateQuantity(itemId, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="h-3 w-3 md:h-4 md:w-4" />
+                              </Button>
+                              <span className="w-8 md:w-12 text-center font-semibold text-sm md:text-base">{item.quantity}</span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                onClick={() => updateQuantity(itemId, item.quantity + 1)}
+                                disabled={item.quantity >= item.product.stock_quantity}
+                              >
+                                <Plus className="h-3 w-3 md:h-4 md:w-4" />
+                              </Button>
+                            </div>
+                            <span className="text-sm md:text-lg font-semibold text-primary">
+                              TZS {(item.product.price * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
 
             {/* Order Summary */}

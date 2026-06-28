@@ -41,6 +41,12 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [qualityGrade, setQualityGrade] = useState("")
   const [moq, setMoq] = useState("1")
   const [deliveryAvailable, setDeliveryAvailable] = useState(true)
+  const [colors, setColors] = useState<{ name: string; image: string }[]>([])
+  const [newColorName, setNewColorName] = useState("")
+  const [newColorImage, setNewColorImage] = useState("")
+  const [uploadingColorImage, setUploadingColorImage] = useState(false)
+  const [sizes, setSizes] = useState<string[]>([])
+  const [newSize, setNewSize] = useState("")
 
   useEffect(() => {
     if (product && open) {
@@ -53,6 +59,8 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setQualityGrade(product.quality_grade || "")
       setMoq(product.moq?.toString() || "1")
       setDeliveryAvailable(product.delivery_available ?? true)
+      setColors(product.colors || [])
+      setSizes(product.sizes || [])
     }
   }, [product, open])
 
@@ -67,6 +75,63 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
     }
     fetchCategories()
   }, [])
+
+  const selectedCategory = categories.find((c) => c.id === categoryId)
+  const isFashion = selectedCategory?.name?.toLowerCase() === "fashion"
+
+  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploadingColorImage(true)
+    setError(null)
+
+    try {
+      const file = files[0]
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload-product-image", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload image")
+      }
+
+      const data = await response.json()
+      setNewColorImage(data.url)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to upload color image")
+    } finally {
+      setUploadingColorImage(false)
+    }
+  }
+
+  const handleAddColor = () => {
+    if (!newColorName.trim()) return
+    setColors([...colors, { name: newColorName.trim(), image: newColorImage }])
+    setNewColorName("")
+    setNewColorImage("")
+  }
+
+  const handleRemoveColor = (index: number) => {
+    setColors(colors.filter((_, i) => i !== index))
+  }
+
+  const handleAddSize = () => {
+    if (!newSize.trim()) return
+    const sizeFormatted = newSize.trim().toUpperCase()
+    if (!sizes.includes(sizeFormatted)) {
+      setSizes([...sizes, sizeFormatted])
+    }
+    setNewSize("")
+  }
+
+  const handleRemoveSize = (index: number) => {
+    setSizes(sizes.filter((_, i) => i !== index))
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -113,7 +178,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
     setError(null)
 
     try {
-      await clientApiPut(`products/${product.id}`, {
+      const payload: any = {
         category_id: categoryId || null,
         name,
         description,
@@ -124,7 +189,11 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         moq: Number.parseInt(moq) || 1,
         delivery_available: deliveryAvailable,
         updated_at: new Date().toISOString(),
-      })
+        colors: isFashion ? colors : null,
+        sizes: isFashion ? sizes : null,
+      }
+
+      await clientApiPut(`products/${product.id}`, payload)
 
       onOpenChange(false)
       onSuccess()
@@ -298,6 +367,133 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 </SelectContent>
               </Select>
             </div>
+            {isFashion && (
+              <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
+                <h4 className="font-bold text-sm text-stone-900">Fashion Variations</h4>
+
+                {/* Sizes Section */}
+                <div className="space-y-2">
+                  <Label>Available Sizes</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. S, M, L, XL, 40, 42"
+                      value={newSize}
+                      onChange={(e) => setNewSize(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleAddSize()
+                        }
+                      }}
+                      className="flex-1"
+                    />
+                    <Button type="button" onClick={handleAddSize} variant="secondary">
+                      Add Size
+                    </Button>
+                  </div>
+                  {sizes.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {sizes.map((size, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-stone-100 text-stone-800 border border-stone-200"
+                        >
+                          {size}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSize(idx)}
+                            className="text-stone-400 hover:text-stone-600 font-bold ml-1"
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Colors Section */}
+                <div className="space-y-2">
+                  <Label>Color Variations (with Image Placeholders)</Label>
+                  <div className="p-4 border rounded-xl bg-stone-50/50 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label htmlFor="color-name" className="text-xs text-stone-500">Color Name</Label>
+                        <Input
+                          id="color-name"
+                          placeholder="e.g. Cherry Red"
+                          value={newColorName}
+                          onChange={(e) => setNewColorName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-stone-500">Color Image Placeholder</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="color-image-file"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleColorImageUpload}
+                            disabled={uploadingColorImage}
+                            className="hidden"
+                          />
+                          <Label
+                            htmlFor="color-image-file"
+                            className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-accent bg-white text-xs font-semibold"
+                          >
+                            {uploadingColorImage ? "Uploading..." : "Upload Image"}
+                          </Label>
+                          {newColorImage && (
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-stone-200">
+                              <img src={newColorImage} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleAddColor}
+                      variant="secondary"
+                      className="w-full text-xs font-bold"
+                      disabled={!newColorName.trim()}
+                    >
+                      Add Color Variation
+                    </Button>
+                  </div>
+
+                  {colors.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      {colors.map((color, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between p-2 rounded-xl border bg-white shadow-sm"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-stone-100 flex-shrink-0 bg-stone-50">
+                              {color.image ? (
+                                <img src={color.image} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="absolute inset-0" style={{ backgroundColor: color.name.toLowerCase() }} />
+                              )}
+                            </div>
+                            <span className="text-xs font-bold truncate text-stone-800">{color.name}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveColor(idx)}
+                            className="text-stone-400 hover:text-stone-600 text-sm font-bold pr-1"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <DialogFooter>

@@ -111,17 +111,19 @@ export function CartPopover() {
     }
   }, [isMobile, isOpen])
 
-  const updateQuantity = (productId: string, newQuantity: number) => {
+  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+
+  const updateQuantity = (itemId: string, newQuantity: number) => {
     const updatedCart = cartItems.map((item) =>
-      item.product_id === productId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
+      getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
     )
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
   }
 
-  const removeItem = (productId: string) => {
-    const updatedCart = cartItems.filter((item) => item.product_id !== productId)
+  const removeItem = (itemId: string) => {
+    const updatedCart = cartItems.filter((item) => getItemId(item) !== itemId)
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
@@ -189,73 +191,96 @@ export function CartPopover() {
             ) : (
               <>
                 <div className="p-4 space-y-4">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.product_id}
-                      className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      {/* Product Image */}
-                      <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
-                        <img
-                          src={
-                            item.product.images && item.product.images.length > 0
-                              ? item.product.images[0]
-                              : `/placeholder.svg?height=64&width=64&query=${encodeURIComponent(item.product.name)}`
-                          }
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-
-                      {/* Product Info */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{item.product.name}</h4>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {/* {item.product.shops?.vendors?.business_name || item.product.shops?.name || "Unknown Vendor"} */}
-                          TOLA Verified Vendor
-                        </p>
-                        <div className="flex items-center justify-between mt-2">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6 bg-transparent"
-                              onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                              disabled={item.quantity <= 1}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-6 w-6 bg-transparent"
-                              onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                              disabled={item.quantity >= item.product.stock_quantity}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
-
-                          {/* Price */}
-                          <span className="text-sm font-semibold">
-                            TZS {(item.product.price * item.quantity).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Remove Button */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 flex-shrink-0"
-                        onClick={() => removeItem(item.product_id)}
+                  {cartItems.map((item) => {
+                    const itemId = getItemId(item)
+                    return (
+                      <div
+                        key={itemId}
+                        className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
+                        {/* Product Image */}
+                        <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                          <img
+                            src={
+                              item.selected_color?.image || (item.product.images && item.product.images.length > 0
+                                ? item.product.images[0]
+                                : `/placeholder.svg?height=64&width=64&query=${encodeURIComponent(item.product.name)}`)
+                            }
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">{item.product.name}</h4>
+                          <p className="text-xs text-muted-foreground truncate">
+                            TOLA Verified Vendor
+                          </p>
+
+                          {/* Color & Size Variation Badges */}
+                          {(item.selected_color || item.selected_size) && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {item.selected_color && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+                                  <span 
+                                    className="w-2 h-2 rounded-full border border-stone-300"
+                                    style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
+                                  />
+                                  {item.selected_color.name}
+                                </span>
+                              )}
+                              {item.selected_size && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+                                  {item.selected_size}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between mt-2">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6 bg-transparent"
+                                onClick={() => updateQuantity(itemId, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6 bg-transparent"
+                                onClick={() => updateQuantity(itemId, item.quantity + 1)}
+                                disabled={item.quantity >= item.product.stock_quantity}
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+
+                            {/* Price */}
+                            <span className="text-sm font-semibold">
+                              TZS {(item.product.price * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Remove Button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 flex-shrink-0"
+                          onClick={() => removeItem(itemId)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Footer */}

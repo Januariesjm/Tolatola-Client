@@ -371,6 +371,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           delivery_distance_km: dInfo?.distanceKm || 0,
           pickup_latitude: dInfo?.shopLat,
           pickup_longitude: dInfo?.shopLng,
+          selected_color: item.selected_color || null,
+          selected_size: item.selected_size || null,
         }
       })
 
@@ -875,24 +877,48 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 </div>
                 <CardContent className="p-6 space-y-6">
                   <div className="space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-2">
-                    {cartItems.map((item) => (
-                      <div key={item.product_id} className="flex gap-4">
-                        <div className="h-16 w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
-                          {item.product.images?.[0] ? (
-                            <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-6 w-6 text-stone-200" /></div>
-                          )}
-                        </div>
-                        <div className="flex-1 space-y-1 min-w-0">
-                          <p className="font-black text-stone-900 leading-tight truncate">{item.product.name}</p>
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-stone-400 font-bold">Qty: {item.quantity}</span>
-                            <span className="text-stone-900 font-black">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
+                    {cartItems.map((item) => {
+                      const itemId = `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+                      return (
+                        <div key={itemId} className="flex gap-4">
+                          <div className="h-16 w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
+                            {item.selected_color?.image || item.product.images?.[0] ? (
+                              <img src={item.selected_color?.image || item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-6 w-6 text-stone-200" /></div>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-1 min-w-0">
+                            <p className="font-black text-stone-900 leading-tight truncate">{item.product.name}</p>
+
+                            {/* Color & Size Variation Badges */}
+                            {(item.selected_color || item.selected_size) && (
+                              <div className="flex flex-wrap gap-1">
+                                {item.selected_color && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+                                    <span 
+                                      className="w-1.5 h-1.5 rounded-full border border-stone-300"
+                                      style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
+                                    />
+                                    {item.selected_color.name}
+                                  </span>
+                                )}
+                                {item.selected_size && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+                                    {item.selected_size}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-stone-400 font-bold">Qty: {item.quantity}</span>
+                              <span className="text-stone-900 font-black">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   <div className="pt-6 border-t border-stone-100 space-y-2">

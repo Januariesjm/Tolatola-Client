@@ -47,6 +47,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
+  const [selectedColor, setSelectedColor] = useState<any>(null)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -70,6 +73,25 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     return () => window.removeEventListener("cartUpdated", loadCart)
   }, [product.id])
 
+  const isFashion = product.categories?.name?.toLowerCase() === "fashion" ||
+                    product.category_name?.toLowerCase() === "fashion" ||
+                    (product.colors && product.colors.length > 0) ||
+                    (product.sizes && product.sizes.length > 0)
+
+  useEffect(() => {
+    if (isFashion) {
+      if (product.colors && product.colors.length > 0 && !selectedColor) {
+        setSelectedColor(product.colors[0])
+        if (product.colors[0].image) {
+          setSelectedImageUrl(product.colors[0].image)
+        }
+      }
+      if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+        setSelectedSize(product.sizes[0])
+      }
+    }
+  }, [product, isFashion, selectedColor, selectedSize])
+
   const handleLike = async () => {
     setIsLoading(true)
     await toggleFavorite(product.id)
@@ -77,8 +99,33 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   }
 
   const handleAddToCart = async () => {
+    if (isFashion) {
+      if (product.colors && product.colors.length > 0 && !selectedColor) {
+        toast({
+          title: "Select Color",
+          description: "Please select a color option.",
+          variant: "destructive"
+        })
+        return
+      }
+      if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+        toast({
+          title: "Select Size",
+          description: "Please select a size option.",
+          variant: "destructive"
+        })
+        return
+      }
+    }
+
     const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existingItem = cartItems.find((item: any) => item.product_id === product.id)
+    const existingItem = cartItems.find((item: any) => 
+      item.product_id === product.id &&
+      (!isFashion || (
+        (!item.selected_color || item.selected_color?.name === selectedColor?.name) &&
+        (!item.selected_size || item.selected_size === selectedSize)
+      ))
+    )
 
     if (existingItem) {
       existingItem.quantity += quantity
@@ -86,6 +133,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
       cartItems.push({
         product_id: product.id,
         quantity,
+        selected_color: selectedColor,
+        selected_size: selectedSize,
         product: {
           ...product,
           shops: product.shops,
@@ -115,9 +164,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
           >
-            {product.images?.[0] ? (
+            {product.images?.[0] || selectedImageUrl ? (
               <Image
-                src={product.images[selectedImageIndex]}
+                src={selectedImageUrl || product.images[selectedImageIndex]}
                 alt={product.name}
                 fill
                 className={cn(
@@ -153,10 +202,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               {product.images.map((image: string, index: number) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedImageIndex(index)}
+                  onClick={() => {
+                    setSelectedImageIndex(index)
+                    setSelectedImageUrl(null)
+                  }}
                   className={cn(
                     "relative h-24 w-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all duration-500",
-                    selectedImageIndex === index
+                    selectedImageIndex === index && !selectedImageUrl
                       ? "border-primary ring-4 ring-primary/10 scale-105"
                       : "border-transparent hover:border-stone-200 shadow-sm"
                   )}
@@ -228,6 +280,88 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               </span>
               <span className="text-stone-400 font-black uppercase text-xs tracking-widest">TZS</span>
             </div>
+
+            {/* Colors & Sizes Selector */}
+            {isFashion && (
+              <div className="space-y-6 pt-4 border-t border-stone-100">
+                {product.colors && product.colors.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Color Variation</span>
+                      <span className="text-xs font-bold text-stone-900">{selectedColor?.name || "Select a color"}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      {product.colors.map((color: any, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setSelectedColor(color)
+                            if (color.image) {
+                              setSelectedImageUrl(color.image)
+                            }
+                          }}
+                          className={cn(
+                            "group relative flex items-center justify-center p-0.5 rounded-full border-2 transition-all duration-300",
+                            selectedColor?.name === color.name
+                              ? "border-primary scale-110 shadow-md"
+                              : "border-transparent hover:border-stone-200"
+                          )}
+                          title={color.name}
+                        >
+                          <div className="relative w-12 h-12 rounded-full overflow-hidden border border-stone-100 bg-stone-50">
+                            {color.image ? (
+                              <img
+                                src={color.image}
+                                alt={color.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span 
+                                className="absolute inset-0 rounded-full" 
+                                style={{ backgroundColor: color.name.toLowerCase() }}
+                              />
+                            )}
+                            <div className={cn(
+                              "absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-300",
+                              selectedColor?.name === color.name ? "opacity-100" : "opacity-0 group-hover:opacity-10"
+                            )}>
+                              <Check className="h-4 w-4 text-white drop-shadow-md" />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {product.sizes && product.sizes.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Size Option</span>
+                      <span className="text-xs font-bold text-stone-900">{selectedSize || "Select a size"}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {product.sizes.map((size: string, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedSize(size)}
+                          className={cn(
+                            "min-w-[3rem] h-12 px-3 rounded-xl border-2 text-xs font-black uppercase transition-all duration-300 flex items-center justify-center",
+                            selectedSize === size
+                              ? "border-stone-950 bg-stone-950 text-white shadow-md scale-105"
+                              : "border-stone-100 hover:border-stone-200 text-stone-900 bg-stone-50"
+                          )}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-2xl bg-stone-50 border border-stone-100">
