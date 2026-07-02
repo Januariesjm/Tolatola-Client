@@ -123,96 +123,124 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-20">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">My Favorites</h1>
-          <p className="text-muted-foreground text-lg">
-            {displayLikes.length} {displayLikes.length === 1 ? 'item' : 'items'} saved for later
+    <div className="min-h-screen bg-stone-50/50 pb-24">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="mb-10 space-y-2 text-center md:text-left">
+          <h1 className="text-4xl font-black tracking-tight text-stone-900 bg-gradient-to-r from-stone-950 to-stone-850 bg-clip-text text-transparent">
+            Saved Creations
+          </h1>
+          <p className="text-stone-500 font-medium text-base">
+            You have {displayLikes.length} {displayLikes.length === 1 ? 'masterpiece' : 'masterpieces'} curated in your wishlist
           </p>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="aspect-[3/4] rounded-xl bg-gray-100 animate-pulse" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-[3/4] rounded-3xl bg-stone-200/60 animate-pulse" />
             ))}
           </div>
         ) : displayLikes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border shadow-sm">
-            <div className="bg-red-50 p-6 rounded-full mb-6">
-              <Heart className="h-12 w-12 text-red-500" />
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[2.5rem] border border-stone-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] max-w-2xl mx-auto px-6">
+            <div className="bg-rose-50/80 p-8 rounded-full mb-6 animate-bounce">
+              <Heart className="h-14 w-14 text-rose-500 fill-rose-500/10" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">No favorites yet</h2>
-            <p className="text-muted-foreground mb-8 max-w-sm">
-              Start exploring and save items you love. They will appear here for easy access.
+            <h2 className="text-2xl font-black text-stone-950 mb-3">Your curation is empty</h2>
+            <p className="text-stone-500 mb-8 max-w-md text-sm leading-relaxed">
+              Explore the marketplace, discover incredible unique products, and tap the heart icon to save them here for later.
             </p>
             <Link href="/shop">
-              <Button size="lg" className="rounded-full px-8">Start Exploring</Button>
+              <Button size="lg" className="rounded-full px-10 py-6 bg-stone-950 text-white hover:bg-stone-900 transition-all duration-300 shadow-lg hover:shadow-stone-950/20 font-bold uppercase tracking-wider text-xs">
+                Start Curation <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {displayLikes.map((like) => {
               const product = like.products
+              if (!product) return null
               const imageUrl = product.images?.[0] || product.primary_image_url || "/placeholder-product.png";
+              
+              const hasDiscount = product.compare_at_price && Number(product.compare_at_price) > Number(product.price);
+              const discountPercent = hasDiscount 
+                ? Math.round(((Number(product.compare_at_price) - Number(product.price)) / Number(product.compare_at_price)) * 100)
+                : 0;
 
               return (
                 <Link href={`/products/${product.id}`} key={like.id || product.id} className="group block h-full">
-                  <Card className="h-full border-border/60 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group-hover:-translate-y-1">
-                    <div className="aspect-[4/3] relative overflow-hidden bg-gray-100">
+                  <Card className="h-full rounded-[2rem] border-stone-200/50 hover:border-stone-300 bg-white hover:shadow-[0_30px_60px_rgba(0,0,0,0.06)] transition-all duration-500 overflow-hidden flex flex-col group-hover:-translate-y-2">
+                    <div className="aspect-[4/3] relative overflow-hidden bg-stone-50">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = `https://placehold.co/400x300?text=${encodeURIComponent(product.name.substring(0, 2))}`
                         }}
                       />
-                      <div className="absolute top-3 right-3 z-10">
+                      
+                      {/* Glassmorphic Actions */}
+                      <div className="absolute top-4 right-4 z-10">
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="h-9 w-9 rounded-full bg-white/90 shadow-sm hover:bg-red-50 hover:text-red-500 transition-colors"
+                          className="h-10 w-10 rounded-full bg-white/90 backdrop-blur-md border border-stone-100 shadow-md hover:bg-rose-50 text-rose-500 transition-all duration-300 hover:scale-110 active:scale-95"
                           onClick={(e) => handleRemove(e, product.id)}
+                          title="Remove from favorites"
                         >
-                          <Trash2 className="h-4.5 w-4.5" />
+                          <Heart className="h-5 w-5 fill-rose-500 text-rose-500" />
                         </Button>
                       </div>
+
+                      {hasDiscount && (
+                        <div className="absolute top-4 left-4 z-10">
+                          <span className="px-3.5 py-1.5 rounded-full bg-stone-950 text-white font-black text-[10px] tracking-widest uppercase shadow-sm">
+                            {discountPercent}% OFF
+                          </span>
+                        </div>
+                      )}
+
                       {product.stock_quantity <= 0 && (
-                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[1px]">
-                          <Badge variant="secondary" className="bg-white/90 text-gray-900 border-gray-200">Out of Stock</Badge>
+                        <div className="absolute inset-0 bg-white/70 flex items-center justify-center backdrop-blur-[2px]">
+                          <Badge variant="secondary" className="bg-stone-900 text-white border-transparent px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-lg">
+                            Out of Stock
+                          </Badge>
                         </div>
                       )}
                     </div>
 
-                    <CardContent className="p-4 flex flex-col flex-1">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
-                            {product.name}
-                          </h3>
-                        </div>
+                    <CardContent className="p-6 flex flex-col flex-1">
+                      <div className="flex-1 space-y-3">
+                        <h3 className="font-extrabold text-stone-900 text-lg line-clamp-2 leading-tight group-hover:text-stone-950 transition-colors">
+                          {product.name}
+                        </h3>
 
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Store className="h-3.5 w-3.5" />
-                          <span className="line-clamp-1">{product.shops?.vendors?.business_name || product.shops?.name || "Verified Merchant"}</span>
-                        </div>
-
-                        <div className="flex items-baseline gap-2 pt-1">
-                          <span className="text-lg font-bold text-primary">TZS {product.price?.toLocaleString()}</span>
+                        <div className="flex flex-wrap items-baseline gap-2">
+                          <span className="text-xl font-black text-stone-950">
+                            TZS {product.price?.toLocaleString()}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-xs text-stone-400 line-through font-semibold">
+                              TZS {Number(product.compare_at_price).toLocaleString()}
+                            </span>
+                          )}
+                          {product.weight_unit && (
+                            <span className="text-stone-400 font-bold uppercase text-[10px] tracking-widest ml-1">
+                              / {product.weight_unit}
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      <div className="pt-4 mt-auto">
+                      <div className="pt-6 mt-auto">
                         <Button
-                          className="w-full rounded-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          size="sm"
+                          className="w-full rounded-2xl bg-stone-950 text-white hover:bg-stone-900 active:scale-98 transition-all duration-300 font-bold text-xs uppercase tracking-wider py-5.5 h-auto flex items-center justify-center gap-2 border border-transparent"
                           onClick={(e) => handleAddToCart(e, product)}
                           disabled={product.stock_quantity <= 0}
                         >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          <ShoppingCart className="h-4 w-4" />
                           {product.stock_quantity > 0 ? "Add to Cart" : "Out of Stock"}
                         </Button>
                       </div>
