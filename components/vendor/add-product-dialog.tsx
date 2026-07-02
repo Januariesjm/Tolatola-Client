@@ -546,8 +546,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
               </div>
             )}
           </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

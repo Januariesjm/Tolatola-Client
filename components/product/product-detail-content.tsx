@@ -241,42 +241,46 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         </div>
 
         {/* Elite Buy Box & Product Architecture */}
-        <div className="lg:col-span-5 space-y-10">
-          <div className="space-y-4">
-            <button onClick={scrollToTestimony} className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "h-4 w-4",
-                      i < Math.round(averageRating) ? "fill-amber-400 text-amber-400" : "text-stone-200"
-                    )}
-                  />
-                ))}
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">
-                {averageRating.toFixed(1)} Rating / {reviews.length} Client Reviews
-              </span>
+        <div className="lg:col-span-5 space-y-8">
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-2 items-center">
+              <button 
+                onClick={scrollToTestimony} 
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-sm"
+              >
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-3.5 w-3.5",
+                        i < Math.round(averageRating) ? "fill-amber-400 text-amber-400" : "text-stone-200"
+                      )}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-wider">
+                  {averageRating.toFixed(1)} ({reviews.length} reviews)
+                </span>
+              </button>
+
               {product.quality_grade && (
-                <Badge variant="outline" className="rounded-lg font-black text-[10px] uppercase tracking-widest border-primary/20 text-primary">
+                <Badge variant="outline" className="rounded-full font-black text-[10px] uppercase tracking-wider px-3 py-1 border-primary/20 text-primary bg-primary/5">
                   Grade {product.quality_grade}
                 </Badge>
               )}
-            </button>
 
-            <h1 className="font-serif text-5xl md:text-6xl text-stone-950 leading-tight tracking-tight">
-              {product.name}
-            </h1>
-
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Verified by TOLA</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-black uppercase tracking-wider">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                <span>Verified Stock</span>
               </div>
             </div>
 
-            <p className="text-stone-500 text-lg leading-relaxed font-medium">
+            <h1 className="font-sans font-black text-4xl md:text-5xl text-stone-900 leading-tight tracking-tight hover:text-stone-950 transition-colors">
+              {product.name}
+            </h1>
+
+            <p className="text-stone-600 text-base leading-relaxed font-medium bg-stone-50/50 p-4 rounded-2xl border border-stone-100/50">
               {product.description}
             </p>
 
@@ -286,16 +290,16 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   <ShoppingBag className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-red-700 uppercase tracking-widest">Sold Out Profile</p>
+                  <p className="text-xs font-black text-red-700 uppercase tracking-widest">Sold Out</p>
                   <p className="text-xs font-bold text-red-600/60">This item is currently unavailable.</p>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="p-8 rounded-[2.5rem] bg-white border-2 border-stone-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] space-y-8">
+          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white to-stone-50/30 border-2 border-stone-100/80 shadow-[0_20px_50px_rgba(0,0,0,0.03)] space-y-8">
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-stone-950 tracking-tighter">
+              <span className="text-5xl font-black text-stone-950 tracking-tighter bg-gradient-to-r from-stone-900 to-stone-800 bg-clip-text text-transparent">
                 {product.price.toLocaleString()}
               </span>
               <span className="text-stone-400 font-black uppercase text-xs tracking-widest">
@@ -386,27 +390,27 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             )}
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-stone-50 border border-stone-100">
-                <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Order Quantity</span>
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between p-4.5 rounded-2xl bg-stone-50/80 border border-stone-200/40 backdrop-blur-md">
+                <span className="text-[10px] font-black uppercase tracking-wider text-stone-500">Order Quantity</span>
+                <div className="flex items-center gap-3">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
-                    className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-md transition-all"
+                    className="h-8 w-8 rounded-xl bg-white border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300"
                     onClick={() => setQuantity(Math.max(product.moq || 1, quantity - 1))}
                     disabled={quantity <= (product.moq || 1)}
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-3.5 w-3.5" />
                   </Button>
-                  <span className="text-lg font-black w-8 text-center">{quantity}</span>
+                  <span className="text-base font-black w-8 text-center text-stone-900">{quantity}</span>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
-                    className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-md transition-all"
+                    className="h-8 w-8 rounded-xl bg-white border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300"
                     onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
                     disabled={quantity >= product.stock_quantity}
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
@@ -415,124 +419,125 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   Min Order: {product.moq || 1} {product.weight_unit || product.unit || "Units"}
                 </p>
                 <p className="text-[10px] font-bold text-stone-400 italic">
-                  {product.stock_quantity} {product.weight_unit || product.unit || "Units"} in inventory
+                  {product.stock_quantity} {product.weight_unit || product.unit || "Units"} available
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-4">
               <Button
                 className={cn(
-                  "h-16 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 shadow-xl transition-all hover:-translate-y-1",
+                  "h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.98]",
                   isInCart
-                    ? "bg-stone-100 text-stone-600 hover:bg-stone-200 shadow-stone-100 border border-stone-200"
-                    : "bg-stone-950 hover:bg-stone-800 text-white shadow-stone-200"
+                    ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm shadow-emerald-500/5"
+                    : "bg-[#0B5ED7] hover:bg-[#094cb0] text-white shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5"
                 )}
                 onClick={handleAddToCart}
                 disabled={product.stock_quantity === 0}
               >
                 {product.stock_quantity === 0 ? (
-                  <>
-                    Sold Out
-                  </>
+                  <>Sold Out</>
                 ) : isInCart ? (
                   <>
-                    <Check className="h-5 w-5 text-green-600" />
+                    <Check className="h-4.5 w-4.5 text-emerald-600 animate-in fade-in zoom-in-50" />
                     In Your Cart
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="h-5 w-5 text-primary" />
+                    <ShoppingCart className="h-4.5 w-4.5 text-primary" />
                     Add Product to Cart
                   </>
                 )}
               </Button>
 
               <div className="flex gap-3">
-                <ChatButton
-                  shopId={product.shops?.id}
-                  shopName={product.shops?.name || "Seller"}
-                  productId={product.id}
-                  productName={product.name}
-                />
+                <div className="flex-1">
+                  <ChatButton
+                    shopId={product.shops?.id}
+                    shopName={product.shops?.name || "Seller"}
+                    productId={product.id}
+                    productName={product.name}
+                  />
+                </div>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-14 w-14 rounded-2xl border-stone-200 hover:border-primary hover:text-primary transition-all"
+                  className={cn(
+                    "h-14 w-14 rounded-2xl border-stone-200 hover:border-primary/40 hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md",
+                    isLiked && "bg-rose-50 border-rose-100 text-rose-600 hover:text-rose-700 hover:border-rose-200"
+                  )}
                   onClick={handleLike}
                   disabled={isLoading}
                 >
-                  <Heart className={cn("h-6 w-6", isLiked && "fill-primary text-primary")} />
+                  <Heart className={cn("h-5.5 w-5.5 transition-transform duration-300", isLiked && "fill-rose-500 text-rose-500 scale-105")} />
                 </Button>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-stone-50 space-y-4">
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
+            <div className="pt-6 border-t border-stone-100 space-y-4">
+              <div className="flex items-start gap-3 bg-blue-50/50 p-4 rounded-2xl border border-blue-100/30">
+                <ShieldCheck className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <p className="text-xs font-black text-stone-900 uppercase tracking-tight">Tola Protect Enabled</p>
-                  <p className="text-[10px] text-stone-400 font-medium">100% Payment Protection Guaranteed.</p>
+                  <p className="text-xs font-black text-stone-900 uppercase tracking-wide">Tola Protect Enabled</p>
+                  <p className="text-[10px] text-stone-500 font-medium">100% Payment Protection Guaranteed. Shop with full security.</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 rounded-3xl bg-stone-50 border border-stone-100 group hover:border-primary/20 transition-all">
-              <Truck className="h-5 w-5 text-primary mb-3" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Logistics</p>
-              <p className="text-xs font-bold text-stone-900 mt-1">
-                {product.delivery_available !== false ? "Door-to-Door Delivery Available" : "Self-Collection Only"}
+            <div className="p-6 rounded-3xl bg-stone-50 border border-stone-150 group hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300">
+              <Truck className="h-5 w-5 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
+              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">Logistics</p>
+              <p className="text-xs font-bold text-stone-800 mt-1">
+                {product.delivery_available !== false ? "Door-to-Door Delivery" : "Self-Collection Only"}
               </p>
             </div>
-            <div className="p-6 rounded-3xl bg-stone-50 border border-stone-100 group hover:border-primary/20 transition-all">
-              <RotateCcw className="h-5 w-5 text-primary mb-3" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Return Policy</p>
-              <p className="text-xs font-bold text-stone-900 mt-1">7-Day Verification</p>
+            <div className="p-6 rounded-3xl bg-stone-50 border border-stone-150 group hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300">
+              <RotateCcw className="h-5 w-5 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
+              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">Return Policy</p>
+              <p className="text-xs font-bold text-stone-800 mt-1">7-Day Verification</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Merchant Spotlight & Specification Tab */}
-      <div className="mt-24 grid md:grid-cols-12 gap-12">
-
+      <div className="mt-28 grid md:grid-cols-12 gap-12 border-t border-stone-100 pt-16">
         <div className="md:col-span-4 space-y-8">
-          <div className="p-8 rounded-[2.5rem] bg-stone-950 text-white space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl overflow-hidden ring-4 ring-stone-900 shadow-2xl">
-                <div className="h-full w-full bg-stone-900 flex items-center justify-center">
-                  <Lock className="h-8 w-8 text-primary/40" />
-                </div>
+          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-stone-900 to-stone-950 text-white space-y-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="h-16 w-16 rounded-2xl bg-stone-800 flex items-center justify-center border border-stone-700 shadow-inner">
+                <Lock className="h-7 w-7 text-primary" />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Verified Merchant</p>
-                <h3 className="text-xl font-black tracking-tight tracking-widest blur-[4px] select-none">XXXXXX XXXXXX</h3>
+                <h3 className="text-lg font-black tracking-widest blur-[4px] select-none text-stone-300">XXXXXX XXXXXX</h3>
               </div>
             </div>
 
-            <div className="space-y-4 pt-4">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-stone-500">
+            <div className="space-y-4 pt-4 border-t border-stone-800 relative z-10">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-stone-400">
                 <span>Identity Status</span>
-                <span className="text-primary">Verified by TOLA</span>
+                <span className="text-primary font-black">Verified by TOLA</span>
               </div>
-              <div className="p-4 rounded-xl bg-stone-900/50 border border-white/5 text-[10px] font-medium text-stone-400 leading-relaxed italic">
+              <p className="p-4 rounded-2xl bg-stone-800/40 border border-stone-800 text-[11px] font-medium text-stone-400 leading-relaxed italic">
                 Seller details are hidden to prevent off-platform deals and ensure secure trade. Identity will be revealed after order placement.
-              </div>
+              </p>
             </div>
           </div>
 
-          <div className="space-y-4 px-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-400">Metadata Architecture</p>
+          <div className="space-y-4 bg-stone-50/50 p-6 rounded-[2rem] border border-stone-100">
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Metadata Specifications</p>
             <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-stone-50">
-                <span className="text-xs font-bold text-stone-400">Identifier (SKU)</span>
-                <span className="text-xs font-black text-stone-900 uppercase">{product.sku || "N/A"}</span>
+              <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                <span className="text-xs font-semibold text-stone-500">Identifier (SKU)</span>
+                <span className="text-xs font-black text-stone-950 uppercase">{product.sku || "N/A"}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-stone-50">
-                <span className="text-xs font-bold text-stone-400">Category Node</span>
-                <span className="text-xs font-black text-stone-900 uppercase">{product.categories?.name || "Inventory"}</span>
+              <div className="flex justify-between items-center py-2.5">
+                <span className="text-xs font-semibold text-stone-500">Category Node</span>
+                <span className="text-xs font-black text-stone-950 uppercase">{product.categories?.name || "Inventory"}</span>
               </div>
             </div>
           </div>
