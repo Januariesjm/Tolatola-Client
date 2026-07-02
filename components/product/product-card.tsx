@@ -192,7 +192,7 @@ export function ProductCard({
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] md:text-[10px] font-bold">
                         <div className="flex items-center gap-1 text-[#2563EB]">
                             <ShoppingBag className="h-3 w-3" />
-                            <span>MOQ: {product.moq || 1} {product.unit || "Units"}</span>
+                            <span>MOQ: {product.moq || 1} {product.weight_unit || product.unit || "Units"}</span>
                         </div>
                         <div className="flex items-center gap-1 text-[#16A34A]">
                             <Truck className="h-3.5 w-3.5" />
@@ -204,7 +204,7 @@ export function ProductCard({
                 <div className="flex items-end justify-between mt-auto">
                     <div className="space-y-0.5">
                         <p className="text-lg font-bold text-[#0B5ED7] tracking-tight leading-none">
-                            {product.price.toLocaleString()} <span className="text-[10px] uppercase font-medium">TZS</span>
+                            {product.price.toLocaleString()} <span className="text-[10px] uppercase font-medium">TZS{product.weight_unit ? ` / ${product.weight_unit}` : ""}</span>
                         </p>
                         {product.compare_at_price > product.price && (
                             <p className="text-[10px] md:text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">

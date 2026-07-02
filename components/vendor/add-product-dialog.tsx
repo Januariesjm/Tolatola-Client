@@ -47,6 +47,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const [uploadingColorImage, setUploadingColorImage] = useState(false)
   const [sizes, setSizes] = useState<string[]>([])
   const [newSize, setNewSize] = useState("")
+  const [weightUnit, setWeightUnit] = useState("")
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -62,6 +63,13 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
   const isFashion = selectedCategory?.name?.toLowerCase() === "fashion"
+  const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
+
+  useEffect(() => {
+    if (!isAgriculture) {
+      setWeightUnit("")
+    }
+  }, [isAgriculture])
 
   const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -161,6 +169,18 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
     setIsLoading(true)
     setError(null)
 
+    if (!categoryId) {
+      setError("Please select a product category before uploading.")
+      setIsLoading(false)
+      return
+    }
+
+    if (isAgriculture && !weightUnit) {
+      setError("Please select a weight unit for agricultural products.")
+      setIsLoading(false)
+      return
+    }
+
     try {
       console.log("[v0] Creating product with data:", {
         shop_id: shopId,
@@ -193,6 +213,10 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
         payload.sizes = sizes
       }
 
+      if (isAgriculture && weightUnit) {
+        payload.weight_unit = weightUnit
+      }
+
       const res = await clientApiPost<{ product: any }>(`shops/${shopId}/products`, payload)
 
       console.log("[v0] Product created successfully:", res.product)
@@ -208,6 +232,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
       setImages([])
       setColors([])
       setSizes([])
+      setWeightUnit("")
     } catch (error: unknown) {
       console.error("[v0] Product creation failed:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
@@ -365,7 +390,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
               </Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
@@ -379,6 +404,21 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 </SelectContent>
               </Select>
             </div>
+            {isAgriculture && (
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <Label htmlFor="weight_unit">Sold by Weight (Weight Unit) *</Label>
+                <Select value={weightUnit} onValueChange={setWeightUnit}>
+                  <SelectTrigger id="weight_unit">
+                    <SelectValue placeholder="Select a weight unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Kg">Kilograms (Kg)</SelectItem>
+                    <SelectItem value="g">Grams (g)</SelectItem>
+                    <SelectItem value="Tons">Tons (Tons)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {isFashion && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
                 <h4 className="font-bold text-sm text-stone-900">Fashion Variations</h4>

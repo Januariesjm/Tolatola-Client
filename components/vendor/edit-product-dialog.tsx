@@ -47,6 +47,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [uploadingColorImage, setUploadingColorImage] = useState(false)
   const [sizes, setSizes] = useState<string[]>([])
   const [newSize, setNewSize] = useState("")
+  const [weightUnit, setWeightUnit] = useState("")
 
   useEffect(() => {
     if (product && open) {
@@ -61,6 +62,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setDeliveryAvailable(product.delivery_available ?? true)
       setColors(product.colors || [])
       setSizes(product.sizes || [])
+      setWeightUnit(product.weight_unit || "")
     }
   }, [product, open])
 
@@ -78,6 +80,13 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
   const isFashion = selectedCategory?.name?.toLowerCase() === "fashion"
+  const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
+
+  useEffect(() => {
+    if (!isAgriculture) {
+      setWeightUnit("")
+    }
+  }, [isAgriculture])
 
   const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -177,6 +186,18 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
     setIsLoading(true)
     setError(null)
 
+    if (!categoryId) {
+      setError("Please select a product category before uploading.")
+      setIsLoading(false)
+      return
+    }
+
+    if (isAgriculture && !weightUnit) {
+      setError("Please select a weight unit for agricultural products.")
+      setIsLoading(false)
+      return
+    }
+
     try {
       const payload: any = {
         category_id: categoryId || null,
@@ -191,6 +212,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         updated_at: new Date().toISOString(),
         colors: isFashion ? colors : null,
         sizes: isFashion ? sizes : null,
+        weight_unit: isAgriculture ? weightUnit : null,
       }
 
       await clientApiPut(`products/${product.id}`, payload)
@@ -353,7 +375,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
               </Label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
@@ -367,6 +389,21 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 </SelectContent>
               </Select>
             </div>
+            {isAgriculture && (
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <Label htmlFor="weight_unit">Sold by Weight (Weight Unit) *</Label>
+                <Select value={weightUnit} onValueChange={setWeightUnit}>
+                  <SelectTrigger id="weight_unit">
+                    <SelectValue placeholder="Select a weight unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Kg">Kilograms (Kg)</SelectItem>
+                    <SelectItem value="g">Grams (g)</SelectItem>
+                    <SelectItem value="Tons">Tons (Tons)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {isFashion && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
                 <h4 className="font-bold text-sm text-stone-900">Fashion Variations</h4>

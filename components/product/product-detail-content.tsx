@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -50,8 +50,28 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   const [selectedColor, setSelectedColor] = useState<any>(null)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  const [recommendations, setRecommendations] = useState<any[]>([])
+  const testimonyRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { toast } = useToast()
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
+        const res = await fetch(`${baseUrl}/products/${product.id}/recommendations`)
+        if (res.ok) {
+          const json = await res.json()
+          setRecommendations(json.data || [])
+        }
+      } catch {}
+    }
+    fetchRecommendations()
+  }, [product.id])
+
+  const scrollToTestimony = () => {
+    testimonyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
 
   const averageRating = reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length : 0
 
@@ -223,7 +243,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         {/* Elite Buy Box & Product Architecture */}
         <div className="lg:col-span-5 space-y-10">
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
+            <button onClick={scrollToTestimony} className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
@@ -243,7 +263,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   Grade {product.quality_grade}
                 </Badge>
               )}
-            </div>
+            </button>
 
             <h1 className="font-serif text-5xl md:text-6xl text-stone-950 leading-tight tracking-tight">
               {product.name}
@@ -278,7 +298,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               <span className="text-4xl font-black text-stone-950 tracking-tighter">
                 {product.price.toLocaleString()}
               </span>
-              <span className="text-stone-400 font-black uppercase text-xs tracking-widest">TZS</span>
+              <span className="text-stone-400 font-black uppercase text-xs tracking-widest">
+                TZS{product.weight_unit ? ` / ${product.weight_unit}` : ""}
+              </span>
             </div>
 
             {/* Colors & Sizes Selector */}
@@ -390,10 +412,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               </div>
               <div className="flex justify-between items-center px-1">
                 <p className="text-[10px] font-bold text-stone-400 italic">
-                  Min Order: {product.moq || 1} {product.unit || "Units"}
+                  Min Order: {product.moq || 1} {product.weight_unit || product.unit || "Units"}
                 </p>
                 <p className="text-[10px] font-bold text-stone-400 italic">
-                  {product.stock_quantity} Units in inventory
+                  {product.stock_quantity} {product.weight_unit || product.unit || "Units"} in inventory
                 </p>
               </div>
             </div>
@@ -517,7 +539,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         </div>
 
         <div className="md:col-span-8 space-y-8">
-          <div className="flex items-center gap-4">
+          <div ref={testimonyRef} className="flex items-center gap-4 scroll-mt-24">
             <MessageCircle className="h-6 w-6 text-primary" />
             <h3 className="text-2xl font-black tracking-tighter text-stone-950">Client Testimony</h3>
             <div className="h-px flex-1 bg-stone-100" />
@@ -555,6 +577,51 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         </div>
 
       </div>
+
+      {/* Cross-Selling Recommendations */}
+      {recommendations.length > 0 && (
+        <div className="mt-24">
+          <div className="flex items-center gap-4 mb-8">
+            <TrendingUp className="h-6 w-6 text-primary" />
+            <h3 className="text-2xl font-black tracking-tighter text-stone-950">You May Also Like</h3>
+            <div className="h-px flex-1 bg-stone-100" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {recommendations.map((rec: any) => (
+              <Link
+                key={rec.id}
+                href={`/product/${rec.id}`}
+                className="group rounded-[1.5rem] overflow-hidden bg-white border border-stone-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-stone-50">
+                  {rec.images?.[0] ? (
+                    <Image
+                      src={rec.images[0]}
+                      alt={rec.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ShoppingBag className="h-10 w-10 text-stone-200" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 space-y-2">
+                  <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-primary">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Verified by TOLA</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-tight">{rec.name}</h4>
+                  <p className="text-base font-bold text-[#0B5ED7] tracking-tight">
+                    {rec.price?.toLocaleString()} <span className="text-[10px] font-medium uppercase">TZS{rec.weight_unit ? ` / ${rec.weight_unit}` : ""}</span>
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
