@@ -61,6 +61,7 @@ import { InfrastructureTab } from "./infrastructure-tab"
 import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
 import { AgentManagementTab } from "./agent-management-tab"
 import { ValidationSurveysTab } from "./validation-surveys-tab"
+import { BlogManagementTab } from "./blog-management-tab"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
 
 interface AdminDashboardContentProps {
@@ -576,6 +577,23 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
+                {adminRole?.permissions.includes("manage_blog") && (
+                  <Button
+                    variant={activeTab === "blog" ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-between rounded-xl ${activeTab === "blog"
+                        ? "bg-primary text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    onClick={() => setActiveTab("blog")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <Mail className="h-4 w-4" />
+                      <span>TOLA Journal</span>
+                    </span>
+                  </Button>
+                )}
+
                 {adminRole?.permissions.includes("manage_vendors") && (
                   <Button
                     variant={activeTab === "vendors" ? "default" : "ghost"}
@@ -881,6 +899,11 @@ export function AdminDashboardContent({
                       Promotions
                     </TabsTrigger>
                   )}
+                  {adminRole?.permissions.includes("manage_blog") && (
+                    <TabsTrigger value="blog" className="px-5 rounded-full text-xs font-semibold">
+                      Journal
+                    </TabsTrigger>
+                  )}
                   {adminRole?.permissions.includes("manage_vendors") && (
                     <TabsTrigger value="vendors" className="px-5 rounded-full text-xs font-semibold">
                       Vendors
@@ -994,6 +1017,12 @@ export function AdminDashboardContent({
               <TabsContent value="promotions" className="border-none p-0 outline-none">
                 <PromotionsManagementTab promotions={actualPromotions} />
               </TabsContent>
+
+              {adminRole?.permissions.includes("manage_blog") && (
+                <TabsContent value="blog" className="border-none p-0 outline-none">
+                  <BlogManagementTab />
+                </TabsContent>
+              )}
 
               <TabsContent value="vendors" className="border-none p-0 outline-none">
                 <VendorManagementTab />

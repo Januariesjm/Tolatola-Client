@@ -1,9 +1,15 @@
 import type { MetadataRoute } from "next"
+import { serverApiGet } from "@/lib/api-server"
 
-export default function sitemap(): MetadataRoute.Sitemap {
+interface BlogPost {
+  slug: string
+  published_at: string | null
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://tolatola.co"
 
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     // Priority 1: Homepage (most important)
     {
       url: baseUrl,
@@ -174,4 +180,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
   ]
+
+  // Dynamically fetch and append blog posts
+  try {
+    const postsRes = await serverApiGet<{ data: BlogPost[] }>("blog/posts?limit=500")
+    if (postsRes && postsRes.data) {
+      const blogRoutes = postsRes.data.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: post.published_at ? new Date(post.published_at) : new Date(),
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      }))
+      return [...staticRoutes, ...blogRoutes]
+    }
+  } catch (error) {
+    console.error("[SITEMAP] Error fetching blog posts dynamically:", error)
+  }
+
+  return staticRoutes
 }
