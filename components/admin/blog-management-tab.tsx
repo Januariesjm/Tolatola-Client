@@ -31,7 +31,8 @@ import {
   Settings2,
   Tag,
   ArrowLeft,
-  Loader2
+  Loader2,
+  X
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { clientApiGet, clientApiPost, clientApiPut, clientApiDelete } from "@/lib/api-client"
@@ -88,6 +89,9 @@ export function BlogManagementTab() {
   // Search & Filter state
   const [postSearch, setPostSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // Tag editor input state
+  const [tagInput, setTagInput] = useState("")
 
   // Editor ref for ContentEditable
   const editorRef = useRef<HTMLDivElement>(null)
@@ -287,6 +291,43 @@ export function BlogManagementTab() {
       alert(error?.message || "Failed to delete category.")
     }
   }
+
+  // =============================================================================
+  // TAG EDITOR ACTIONS
+  // =============================================================================
+  const handleAddTag = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    const cleanTag = tagInput.trim().toLowerCase()
+    if (cleanTag && editingPost) {
+      const currentTags = editingPost.tags || []
+      if (!currentTags.includes(cleanTag)) {
+        setEditingPost({
+          ...editingPost,
+          tags: [...currentTags, cleanTag]
+        })
+      }
+      setTagInput("")
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    if (editingPost) {
+      setEditingPost({
+        ...editingPost,
+        tags: (editingPost.tags || []).filter(t => t !== tagToRemove)
+      })
+    }
+  }
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault()
+      handleAddTag()
+    }
+  }
+
 
   // =============================================================================
   // EDITOR FORMATTING HELPERS
@@ -516,18 +557,44 @@ export function BlogManagementTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-tags" className="text-xs font-black uppercase tracking-wider text-slate-500">Tags (comma separated)</Label>
-                  <Input
-                    id="post-tags"
-                    placeholder="e.g. ecommerce, security, updates"
-                    value={editingPost?.tags?.join(", ") || ""}
-                    onChange={(e) => setEditingPost(prev => ({
-                      ...prev,
-                      tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean)
-                    }))}
-                    className="rounded-xl"
-                  />
+                  <Label htmlFor="post-tags" className="text-xs font-black uppercase tracking-wider text-slate-500">Tags</Label>
+                  <div className="flex flex-wrap gap-1.5 mb-2 min-h-6">
+                    {(editingPost?.tags || []).map((tag) => (
+                      <Badge key={tag} variant="secondary" className="px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 border-none">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="text-stone-400 hover:text-stone-600 rounded-full focus:outline-none shrink-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    {(editingPost?.tags || []).length === 0 && (
+                      <span className="text-xs text-stone-400 italic">No tags added yet.</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      id="post-tags"
+                      placeholder="Type tag & press Enter or comma..."
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleTagKeyDown}
+                      className="rounded-xl flex-1 h-9 text-xs"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleAddTag()}
+                      className="rounded-xl px-4 h-9 text-xs font-bold shrink-0"
+                    >
+                      Add
+                    </Button>
+                  </div>
                 </div>
+
 
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="space-y-0.5">
