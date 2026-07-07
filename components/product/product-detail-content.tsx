@@ -112,6 +112,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     }
   }, [product, isFashion, selectedColor, selectedSize])
 
+  const resolvedPrice = (isFashion && selectedSize && product.size_prices?.[selectedSize])
+    ? product.size_prices[selectedSize]
+    : ((isFashion && selectedColor?.price) ? selectedColor.price : product.price)
+
   const handleLike = async () => {
     setIsLoading(true)
     await toggleFavorite(product.id)
@@ -149,6 +153,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
 
     if (existingItem) {
       existingItem.quantity += quantity
+      if (existingItem.product) {
+        existingItem.product.price = resolvedPrice
+      }
     } else {
       cartItems.push({
         product_id: product.id,
@@ -157,6 +164,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         selected_size: selectedSize,
         product: {
           ...product,
+          price: resolvedPrice,
           shops: product.shops,
           categories: product.categories,
         },
@@ -300,7 +308,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
           <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-white to-stone-50/30 border-2 border-stone-100/80 shadow-[0_20px_50px_rgba(0,0,0,0.03)] space-y-8">
             <div className="flex items-baseline gap-2">
               <span className="text-5xl font-black text-stone-950 tracking-tighter bg-gradient-to-r from-stone-900 to-stone-800 bg-clip-text text-transparent">
-                {product.price.toLocaleString()}
+                {resolvedPrice.toLocaleString()}
               </span>
               <span className="text-stone-400 font-black uppercase text-xs tracking-widest">
                 TZS{product.weight_unit ? ` / ${product.weight_unit}` : ""}
@@ -314,7 +322,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Color Variation</span>
-                      <span className="text-xs font-bold text-stone-900">{selectedColor?.name || "Select a color"}</span>
+                      <span className="text-xs font-bold text-stone-900">{selectedColor?.name || "Select a color"}{selectedColor?.price ? ` (TZS ${selectedColor.price.toLocaleString()})` : ""}</span>
                     </div>
                     <div className="flex flex-wrap gap-3">
                       {product.colors.map((color: any, idx: number) => (
@@ -374,13 +382,21 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                           type="button"
                           onClick={() => setSelectedSize(size)}
                           className={cn(
-                            "min-w-[3rem] h-12 px-3 rounded-xl border-2 text-xs font-black uppercase transition-all duration-300 flex items-center justify-center",
+                            "min-w-[3.5rem] h-12 px-4 rounded-xl border-2 text-xs font-black uppercase transition-all duration-300 flex flex-col items-center justify-center gap-0.5",
                             selectedSize === size
                               ? "border-stone-950 bg-stone-950 text-white shadow-md scale-105"
                               : "border-stone-100 hover:border-stone-200 text-stone-900 bg-stone-50"
                           )}
                         >
-                          {size}
+                          <span>{size}</span>
+                          {product.size_prices?.[size] && (
+                            <span className={cn(
+                              "text-[8px] font-bold block normal-case",
+                              selectedSize === size ? "text-stone-300" : "text-stone-500"
+                            )}>
+                              TZS {product.size_prices[size].toLocaleString()}
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>

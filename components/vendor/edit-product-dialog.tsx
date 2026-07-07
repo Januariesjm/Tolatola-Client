@@ -41,12 +41,15 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [qualityGrade, setQualityGrade] = useState("")
   const [moq, setMoq] = useState("1")
   const [deliveryAvailable, setDeliveryAvailable] = useState(true)
-  const [colors, setColors] = useState<{ name: string; image: string }[]>([])
+  const [colors, setColors] = useState<{ name: string; image: string; price?: number }[]>([])
   const [newColorName, setNewColorName] = useState("")
+  const [newColorPrice, setNewColorPrice] = useState("")
   const [newColorImage, setNewColorImage] = useState("")
   const [uploadingColorImage, setUploadingColorImage] = useState(false)
   const [sizes, setSizes] = useState<string[]>([])
+  const [sizePrices, setSizePrices] = useState<Record<string, number>>({})
   const [newSize, setNewSize] = useState("")
+  const [newSizePrice, setNewSizePrice] = useState("")
   const [weightUnit, setWeightUnit] = useState("")
 
   useEffect(() => {
@@ -62,6 +65,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setDeliveryAvailable(product.delivery_available ?? true)
       setColors(product.colors || [])
       setSizes(product.sizes || [])
+      setSizePrices(product.size_prices || {})
       setWeightUnit(product.weight_unit || "")
     }
   }, [product, open])
@@ -120,9 +124,15 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
 
   const handleAddColor = () => {
     if (!newColorName.trim()) return
-    setColors([...colors, { name: newColorName.trim(), image: newColorImage }])
+    const parsedPrice = Number.parseFloat(newColorPrice)
+    const colorObj: any = { name: newColorName.trim(), image: newColorImage }
+    if (!isNaN(parsedPrice) && parsedPrice > 0) {
+      colorObj.price = parsedPrice
+    }
+    setColors([...colors, colorObj])
     setNewColorName("")
     setNewColorImage("")
+    setNewColorPrice("")
   }
 
   const handleRemoveColor = (index: number) => {
@@ -134,12 +144,23 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
     const sizeFormatted = newSize.trim().toUpperCase()
     if (!sizes.includes(sizeFormatted)) {
       setSizes([...sizes, sizeFormatted])
+      const parsedPrice = Number.parseFloat(newSizePrice)
+      if (!isNaN(parsedPrice) && parsedPrice > 0) {
+        setSizePrices(prev => ({ ...prev, [sizeFormatted]: parsedPrice }))
+      }
     }
     setNewSize("")
+    setNewSizePrice("")
   }
 
   const handleRemoveSize = (index: number) => {
+    const sizeToRemove = sizes[index]
     setSizes(sizes.filter((_, i) => i !== index))
+    setSizePrices(prev => {
+      const copy = { ...prev }
+      delete copy[sizeToRemove]
+      return copy
+    })
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -212,6 +233,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         updated_at: new Date().toISOString(),
         colors: isFashion ? colors : null,
         sizes: isFashion ? sizes : null,
+        size_prices: isFashion ? (Object.keys(sizePrices).length > 0 ? sizePrices : null) : null,
         weight_unit: isAgriculture ? weightUnit : null,
       }
 
@@ -411,22 +433,33 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 {/* Sizes Section */}
                 <div className="space-y-2">
                   <Label>Available Sizes</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g. S, M, L, XL, 40, 42"
-                      value={newSize}
-                      onChange={(e) => setNewSize(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleAddSize()
-                        }
-                      }}
-                      className="flex-1"
-                    />
-                    <Button type="button" onClick={handleAddSize} variant="secondary">
-                      Add Size
-                    </Button>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-2 flex gap-2">
+                      <Input
+                        placeholder="e.g. S, M, L, XL, 40, 42"
+                        value={newSize}
+                        onChange={(e) => setNewSize(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddSize()
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Price (Optional)"
+                        type="number"
+                        value={newSizePrice}
+                        onChange={(e) => setNewSizePrice(e.target.value)}
+                        className="flex-1 text-xs"
+                      />
+                      <Button type="button" onClick={handleAddSize} variant="secondary">
+                        Add
+                      </Button>
+                    </div>
                   </div>
                   {sizes.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
@@ -436,6 +469,11 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-stone-100 text-stone-800 border border-stone-200"
                         >
                           {size}
+                          {sizePrices[size] && (
+                            <span className="text-[10px] text-stone-500 font-normal ml-1">
+                              (TZS {sizePrices[size].toLocaleString()})
+                            </span>
+                          )}
                           <button
                             type="button"
                             onClick={() => handleRemoveSize(idx)}
@@ -453,7 +491,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 <div className="space-y-2">
                   <Label>Color Variations (with Image Placeholders)</Label>
                   <div className="p-4 border rounded-xl bg-stone-50/50 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-1">
                         <Label htmlFor="color-name" className="text-xs text-stone-500">Color Name</Label>
                         <Input
@@ -461,6 +499,16 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                           placeholder="e.g. Cherry Red"
                           value={newColorName}
                           onChange={(e) => setNewColorName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="color-price" className="text-xs text-stone-500">Price (Optional)</Label>
+                        <Input
+                          id="color-price"
+                          placeholder="e.g. 15000"
+                          type="number"
+                          value={newColorPrice}
+                          onChange={(e) => setNewColorPrice(e.target.value)}
                         />
                       </div>
                       <div className="space-y-1">
@@ -514,7 +562,14 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                                 <span className="absolute inset-0" style={{ backgroundColor: color.name.toLowerCase() }} />
                               )}
                             </div>
-                            <span className="text-xs font-bold truncate text-stone-800">{color.name}</span>
+                            <span className="text-xs font-bold truncate text-stone-800">
+                              {color.name}
+                              {color.price && (
+                                <span className="text-[10px] text-stone-500 font-normal block">
+                                  TZS {color.price.toLocaleString()}
+                                </span>
+                              )}
+                            </span>
                           </div>
                           <button
                             type="button"
