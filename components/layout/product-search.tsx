@@ -234,16 +234,16 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
             {/* Products Section */}
             {productResults.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Curated Items</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Available Items</span>
                   </div>
                   <div className="h-px flex-1 bg-stone-100 mx-4" />
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid gap-2">
                   {productResults.map((product) => (
                     <Link
                       key={product.id}
@@ -252,28 +252,28 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                         setIsOpen(false)
                         setQuery("")
                       }}
-                      className="flex items-center gap-5 p-4 rounded-2xl hover:bg-stone-50 transition-all group/item"
+                      className="flex items-center gap-4 p-2.5 rounded-2xl hover:bg-stone-50 transition-all group/item"
                     >
-                      <div className="relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden shadow-md border border-stone-100 bg-white">
+                      <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-md border border-stone-100 bg-white">
                         {product.images?.[0] ? (
                           <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-500 group-hover/item:scale-110" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-stone-50">
-                            <ShoppingBag className="h-8 w-8 text-stone-200" />
+                            <ShoppingBag className="h-6 w-6 text-stone-200" />
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <p className="text-base font-black text-stone-900 truncate tracking-tight">{product.name}</p>
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <p className="text-xs md:text-sm font-black text-stone-900 truncate tracking-tight">{product.name}</p>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-primary px-2 py-0.5 bg-primary/10 rounded-full">
+                          <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-primary px-2 py-0.5 bg-primary/10 rounded-full">
                             Verified Item
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-black text-stone-950 tracking-tighter">
-                          {product.price.toLocaleString()} <span className="text-[10px] uppercase">TZS</span>
+                        <p className="text-sm md:text-base font-black text-stone-950 tracking-tighter">
+                          {product.price.toLocaleString()} <span className="text-[8px] md:text-[9px] uppercase">TZS</span>
                         </p>
                       </div>
                     </Link>
@@ -281,6 +281,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                 </div>
               </div>
             )}
+
 
             {/* Always show "View All Results" link if there are results */}
             {(productResults.length > 0 && query.trim().length >= 2) && (
