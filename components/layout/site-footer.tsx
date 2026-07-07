@@ -10,8 +10,10 @@ export function SiteFooter() {
   const footerLinks = {
     company: [
       { name: "About us", href: "/about" },
+      { name: "Meet the Founder", href: "/founder" },
       { name: "Careers", href: "/careers" },
       { name: "Our Blog", href: "/blog" },
+
       { name: "Privacy Policy", href: "/privacy" },
       { name: "Terms & Conditions", href: "/terms" },
       { name: "Vendor SLA", href: "/legal/sla-vendor" },
