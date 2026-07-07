@@ -216,7 +216,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
       {/* Filters Popover */}
       {showFilters && categories.length > 0 && (
         <div 
-          className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white border border-stone-200 rounded-3xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
@@ -226,7 +226,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
       {/* Search Results Dropdown */}
       {isOpen && !showFilters && (
-        <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
+
           <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto scrollbar-hide">
 
             {/* Shops Section intentionally removed to protect vendor identities */}
