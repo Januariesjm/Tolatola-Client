@@ -19,7 +19,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const imageUrl = product.images?.[0]?.url || product.image_url || "/logo-new.png"
+  const rawImageUrl = typeof product.images?.[0] === "string"
+    ? product.images[0]
+    : (product.images?.[0]?.url || product.images?.[0])
+  let imageUrl = rawImageUrl || product.image_url || "/logo-new.png"
+  if (imageUrl.startsWith("/")) {
+    imageUrl = `https://tolatola.co${imageUrl}`
+  }
   const description = product.description
     ? (product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description)
     : `Buy ${product.name} on TOLA Tanzania. Verified vendors, secure checkout, M-Pesa & Tigo Pesa.`
@@ -31,13 +37,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       canonical: `https://tolatola.co/product/${id}`,
     },
     openGraph: {
-      title: product.name,
+      title: `${product.name} | TOLA Tanzania`,
       description: description,
+      url: `https://tolatola.co/product/${id}`,
+      siteName: "TOLA Tanzania",
+      locale: "en_TZ",
       images: [
         {
           url: imageUrl,
-          width: 800,
-          height: 600,
+          width: 1200,
+          height: 630,
           alt: product.name,
         },
       ],
