@@ -52,6 +52,23 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [newSizePrice, setNewSizePrice] = useState("")
   const [weightUnit, setWeightUnit] = useState("")
 
+  // Vehicles & Spare Parts state
+  const [vehicleSection, setVehicleSection] = useState("")
+  const [brand, setBrand] = useState("")
+  const [model, setModel] = useState("")
+  const [year, setYear] = useState("")
+  const [mileage, setMileage] = useState("")
+  const [transmission, setTransmission] = useState("")
+  const [fuelType, setFuelType] = useState("")
+  const [engineSize, setEngineSize] = useState("")
+  const [partNumber, setPartNumber] = useState("")
+  const [compatibility, setCompatibility] = useState("")
+  const [condition, setCondition] = useState("")
+
+  // Ready to Eat state
+  const [dietaryInfo, setDietaryInfo] = useState("")
+  const [prepTime, setPrepTime] = useState("")
+
   useEffect(() => {
     if (product && open) {
       setName(product.name || "")
@@ -67,6 +84,19 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setSizes(product.sizes || [])
       setSizePrices(product.size_prices || {})
       setWeightUnit(product.weight_unit || "")
+      setVehicleSection(product.vehicle_section || "")
+      setBrand(product.brand || "")
+      setModel(product.model || "")
+      setYear(product.year?.toString() || "")
+      setMileage(product.mileage?.toString() || "")
+      setTransmission(product.transmission || "")
+      setFuelType(product.fuel_type || "")
+      setEngineSize(product.engine_size || "")
+      setPartNumber(product.part_number || "")
+      setCompatibility(product.compatibility || "")
+      setCondition(product.condition || "")
+      setDietaryInfo(product.dietary_info || "")
+      setPrepTime(product.prep_time || "")
     }
   }, [product, open])
 
@@ -85,6 +115,8 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const selectedCategory = categories.find((c) => c.id === categoryId)
   const isFashion = selectedCategory?.name?.toLowerCase() === "fashion"
   const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
+  const isVehicles = selectedCategory?.name?.toLowerCase() === "vehicles"
+  const isReadyToEat = selectedCategory?.name?.toLowerCase() === "ready to eat" || selectedCategory?.slug === "ready-to-eat"
 
   useEffect(() => {
     if (!isAgriculture) {
@@ -235,6 +267,19 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         sizes: isFashion ? sizes : null,
         size_prices: isFashion ? (Object.keys(sizePrices).length > 0 ? sizePrices : null) : null,
         weight_unit: isAgriculture ? weightUnit : null,
+        vehicle_section: isVehicles ? (vehicleSection || null) : null,
+        brand: isVehicles ? (brand || null) : null,
+        condition: isVehicles ? (condition || null) : null,
+        model: (isVehicles && vehicleSection === "vehicle") ? (model || null) : null,
+        year: (isVehicles && vehicleSection === "vehicle") ? (year ? parseInt(year) : null) : null,
+        mileage: (isVehicles && vehicleSection === "vehicle") ? (mileage ? parseInt(mileage) : null) : null,
+        transmission: (isVehicles && vehicleSection === "vehicle") ? (transmission || null) : null,
+        fuel_type: (isVehicles && vehicleSection === "vehicle") ? (fuelType || null) : null,
+        engine_size: (isVehicles && vehicleSection === "vehicle") ? (engineSize || null) : null,
+        part_number: (isVehicles && vehicleSection === "spare_part") ? (partNumber || null) : null,
+        compatibility: (isVehicles && vehicleSection === "spare_part") ? (compatibility || null) : null,
+        dietary_info: isReadyToEat ? (dietaryInfo || null) : null,
+        prep_time: isReadyToEat ? (prepTime || null) : null,
       }
 
       await clientApiPut(`products/${product.id}`, payload)
@@ -424,6 +469,147 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                     <SelectItem value="Tons">Tons (Tons)</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+            {isVehicles && (
+              <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
+                <h4 className="font-bold text-sm text-stone-900">Vehicles / Spare Parts Details</h4>
+                <div className="space-y-2">
+                  <Label>Section *</Label>
+                  <Select value={vehicleSection} onValueChange={setVehicleSection}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vehicle">Vehicle</SelectItem>
+                      <SelectItem value="spare_part">Spare Part</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Brand / Make</Label>
+                    <Input placeholder="e.g. Toyota, Honda" value={brand} onChange={(e) => setBrand(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Condition</Label>
+                    <Select value={condition} onValueChange={setCondition}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select condition" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="New">New</SelectItem>
+                        <SelectItem value="Used">Used</SelectItem>
+                        <SelectItem value="Reconditioned">Reconditioned</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {vehicleSection === "vehicle" && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Model</Label>
+                        <Input placeholder="e.g. Corolla, Civic" value={model} onChange={(e) => setModel(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Year</Label>
+                        <Input type="number" placeholder="e.g. 2020" value={year} onChange={(e) => setYear(e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Mileage (km)</Label>
+                        <Input type="number" placeholder="e.g. 50000" value={mileage} onChange={(e) => setMileage(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Transmission</Label>
+                        <Select value={transmission} onValueChange={setTransmission}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Automatic">Automatic</SelectItem>
+                            <SelectItem value="Manual">Manual</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Fuel Type</Label>
+                        <Select value={fuelType} onValueChange={setFuelType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Petrol">Petrol</SelectItem>
+                            <SelectItem value="Diesel">Diesel</SelectItem>
+                            <SelectItem value="Hybrid">Hybrid</SelectItem>
+                            <SelectItem value="Electric">Electric</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Engine Size</Label>
+                        <Input placeholder="e.g. 2.0L, 1500cc" value={engineSize} onChange={(e) => setEngineSize(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {vehicleSection === "spare_part" && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Part Number</Label>
+                        <Input placeholder="OEM / Manufacturer Part #" value={partNumber} onChange={(e) => setPartNumber(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Compatible Vehicles</Label>
+                        <Input placeholder="e.g. Toyota Corolla 2015-2020" value={compatibility} onChange={(e) => setCompatibility(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {isReadyToEat && (
+              <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
+                <h4 className="font-bold text-sm text-stone-900">Ready to Eat Details</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Dietary Information</Label>
+                    <Select value={dietaryInfo} onValueChange={setDietaryInfo}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select dietary info" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Halal">Halal</SelectItem>
+                        <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                        <SelectItem value="Vegan">Vegan</SelectItem>
+                        <SelectItem value="Gluten-Free">Gluten-Free</SelectItem>
+                        <SelectItem value="None">None / Not Applicable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Preparation Time</Label>
+                    <Select value={prepTime} onValueChange={setPrepTime}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select prep time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ready Now">Ready Now</SelectItem>
+                        <SelectItem value="5-10 min">5-10 min</SelectItem>
+                        <SelectItem value="10-20 min">10-20 min</SelectItem>
+                        <SelectItem value="20-30 min">20-30 min</SelectItem>
+                        <SelectItem value="30-60 min">30-60 min</SelectItem>
+                        <SelectItem value="1+ hour">1+ hour</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             )}
             {isFashion && (

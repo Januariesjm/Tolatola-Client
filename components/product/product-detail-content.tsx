@@ -551,10 +551,112 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <span className="text-xs font-semibold text-stone-500">Identifier (SKU)</span>
                 <span className="text-xs font-black text-stone-950 uppercase">{product.sku || "N/A"}</span>
               </div>
-              <div className="flex justify-between items-center py-2.5">
+              <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
                 <span className="text-xs font-semibold text-stone-500">Category Node</span>
                 <span className="text-xs font-black text-stone-950 uppercase">{product.categories?.name || "Inventory"}</span>
               </div>
+
+              {/* Vehicle Specifications */}
+              {product.vehicle_section === "vehicle" && (
+                <>
+                  {product.brand && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Brand / Make</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.brand}</span>
+                    </div>
+                  )}
+                  {product.model && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Model</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.model}</span>
+                    </div>
+                  )}
+                  {product.year && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Year</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.year}</span>
+                    </div>
+                  )}
+                  {product.mileage != null && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Mileage</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.mileage.toLocaleString()} km</span>
+                    </div>
+                  )}
+                  {product.transmission && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Transmission</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.transmission}</span>
+                    </div>
+                  )}
+                  {product.fuel_type && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Fuel Type</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.fuel_type}</span>
+                    </div>
+                  )}
+                  {product.engine_size && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Engine Size</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.engine_size}</span>
+                    </div>
+                  )}
+                  {product.condition && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Condition</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.condition}</span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Spare Parts Specifications */}
+              {product.vehicle_section === "spare_part" && (
+                <>
+                  {product.brand && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Brand</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.brand}</span>
+                    </div>
+                  )}
+                  {product.part_number && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Part Number</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.part_number}</span>
+                    </div>
+                  )}
+                  {product.compatibility && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Compatible Vehicles</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.compatibility}</span>
+                    </div>
+                  )}
+                  {product.condition && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Condition</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.condition}</span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Ready to Eat Specifications */}
+              {(product.dietary_info || product.prep_time) && (
+                <>
+                  {product.dietary_info && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Dietary Info</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.dietary_info}</span>
+                    </div>
+                  )}
+                  {product.prep_time && (
+                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                      <span className="text-xs font-semibold text-stone-500">Prep Time</span>
+                      <span className="text-xs font-black text-stone-950 uppercase">{product.prep_time}</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

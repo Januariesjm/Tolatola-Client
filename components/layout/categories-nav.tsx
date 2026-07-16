@@ -26,6 +26,8 @@ const categoryImages: Record<string, string> = {
   "health-beauty": "/beauty-and-skincare-products.jpg",
   services: "/professional-services-and-business.jpg",
   vehicles: "/category-vehicles.jpg",
+  "ready-to-eat": "/category-food-beverages.jpg",
+  "spare-parts": "/category-vehicles.jpg",
 }
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {

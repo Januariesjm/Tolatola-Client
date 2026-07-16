@@ -91,6 +91,8 @@ export default async function HomePage() {
     vehicles: "/category-vehicles.jpg",
     cars: "/category-vehicles.jpg",
     transport: "/category-vehicles.jpg",
+    "ready-to-eat": "/category-food-beverages.jpg",
+    "spare-parts": "/category-vehicles.jpg",
     // Fallback to local images if category doesn't match
     default: "/abstract-categories.png",
   }
@@ -247,6 +249,12 @@ export default async function HomePage() {
                 }
                 if (nameLower.includes("fast moving") || nameLower.includes("consumer goods") || nameLower.includes("fmcg")) {
                   return categoryImages["fast-moving-consumer-goods"]
+                }
+                if (nameLower.includes("ready to eat") || nameLower.includes("ready-to-eat")) {
+                  return categoryImages["ready-to-eat"]
+                }
+                if (nameLower.includes("spare") || nameLower.includes("part")) {
+                  return categoryImages["spare-parts"]
                 }
 
                 // Default fallback
