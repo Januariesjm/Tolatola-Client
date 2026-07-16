@@ -69,6 +69,9 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const [dietaryInfo, setDietaryInfo] = useState("")
   const [prepTime, setPrepTime] = useState("")
 
+  // Drinks state
+  const [drinkSection, setDrinkSection] = useState("")
+
   useEffect(() => {
     if (product && open) {
       setName(product.name || "")
@@ -97,6 +100,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
       setCondition(product.condition || "")
       setDietaryInfo(product.dietary_info || "")
       setPrepTime(product.prep_time || "")
+      setDrinkSection(product.drink_section || "")
     }
   }, [product, open])
 
@@ -117,6 +121,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
   const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
   const isVehicles = selectedCategory?.name?.toLowerCase() === "vehicles"
   const isReadyToEat = selectedCategory?.name?.toLowerCase() === "ready to eat" || selectedCategory?.slug === "ready-to-eat"
+  const isDrinks = selectedCategory?.name?.toLowerCase() === "drinks" || selectedCategory?.slug === "drinks"
 
   useEffect(() => {
     if (!isAgriculture) {
@@ -280,6 +285,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         compatibility: (isVehicles && vehicleSection === "spare_part") ? (compatibility || null) : null,
         dietary_info: isReadyToEat ? (dietaryInfo || null) : null,
         prep_time: isReadyToEat ? (prepTime || null) : null,
+        drink_section: isDrinks ? (drinkSection || null) : null,
       }
 
       await clientApiPut(`products/${product.id}`, payload)
@@ -609,6 +615,23 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </div>
+            )}
+            {isDrinks && (
+              <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
+                <h4 className="font-bold text-sm text-stone-900">Drinks Details</h4>
+                <div className="space-y-2">
+                  <Label>Section *</Label>
+                  <Select value={drinkSection} onValueChange={setDrinkSection}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alcoholic">Alcoholic</SelectItem>
+                      <SelectItem value="non_alcoholic">Non-Alcoholic</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             )}

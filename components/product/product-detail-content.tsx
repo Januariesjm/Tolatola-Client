@@ -657,6 +657,16 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   )}
                 </>
               )}
+
+              {/* Drinks Specifications */}
+              {product.drink_section && (
+                <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
+                  <span className="text-xs font-semibold text-stone-500">Drink Type</span>
+                  <span className="text-xs font-black text-stone-950 uppercase">
+                    {product.drink_section === "alcoholic" ? "Alcoholic" : "Non-Alcoholic"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

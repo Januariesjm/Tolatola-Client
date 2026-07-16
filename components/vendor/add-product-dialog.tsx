@@ -69,6 +69,9 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const [dietaryInfo, setDietaryInfo] = useState("")
   const [prepTime, setPrepTime] = useState("")
 
+  // Drinks state
+  const [drinkSection, setDrinkSection] = useState("")
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -86,6 +89,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
   const isVehicles = selectedCategory?.name?.toLowerCase() === "vehicles"
   const isReadyToEat = selectedCategory?.name?.toLowerCase() === "ready to eat" || selectedCategory?.slug === "ready-to-eat"
+  const isDrinks = selectedCategory?.name?.toLowerCase() === "drinks" || selectedCategory?.slug === "drinks"
 
   useEffect(() => {
     if (!isAgriculture) {
@@ -279,6 +283,10 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
         payload.prep_time = prepTime || null
       }
 
+      if (isDrinks) {
+        payload.drink_section = drinkSection || null
+      }
+
       const res = await clientApiPost<{ product: any }>(`shops/${shopId}/products`, payload)
 
       console.log("[v0] Product created successfully:", res.product)
@@ -311,6 +319,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
       setCondition("")
       setDietaryInfo("")
       setPrepTime("")
+      setDrinkSection("")
     } catch (error: unknown) {
       console.error("[v0] Product creation failed:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
@@ -635,6 +644,23 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </div>
+            )}
+            {isDrinks && (
+              <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
+                <h4 className="font-bold text-sm text-stone-900">Drinks Details</h4>
+                <div className="space-y-2">
+                  <Label>Section *</Label>
+                  <Select value={drinkSection} onValueChange={setDrinkSection}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alcoholic">Alcoholic</SelectItem>
+                      <SelectItem value="non_alcoholic">Non-Alcoholic</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             )}

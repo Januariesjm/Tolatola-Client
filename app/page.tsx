@@ -93,6 +93,7 @@ export default async function HomePage() {
     transport: "/category-vehicles.jpg",
     "ready-to-eat": "/category-food-beverages.jpg",
     "spare-parts": "/category-vehicles.jpg",
+    drinks: "/category-food-beverages.jpg",
     // Fallback to local images if category doesn't match
     default: "/abstract-categories.png",
   }
@@ -255,6 +256,9 @@ export default async function HomePage() {
                 }
                 if (nameLower.includes("spare") || nameLower.includes("part")) {
                   return categoryImages["spare-parts"]
+                }
+                if (nameLower.includes("drink") || nameLower.includes("alcohol")) {
+                  return categoryImages.drinks
                 }
 
                 // Default fallback
