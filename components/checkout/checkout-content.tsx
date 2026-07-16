@@ -443,11 +443,18 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       )
 
       if (payRes.success) {
-        // Payment initiated successfully — clear cart and redirect immediately
+        // Payment initiated successfully — clear cart
         isNavigatingAway.current = true
         localStorage.removeItem("cart")
         window.dispatchEvent(new Event("cartUpdated"))
-        router.push(`/checkout/success/${orderId}`)
+
+        // For card payments, redirect to ClickPesa's secure hosted payment page
+        const isCard = ["visa", "mastercard", "unionpay"].includes(paymentMethod)
+        if (isCard && payRes.controlNumber && payRes.controlNumber.startsWith("http")) {
+          window.location.href = payRes.controlNumber
+        } else {
+          router.push(`/checkout/success/${orderId}`)
+        }
       } else {
         throw new Error(payRes.message || "Failed to initiate payment")
       }

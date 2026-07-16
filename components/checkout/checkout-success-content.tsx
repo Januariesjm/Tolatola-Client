@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast"
 import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Package, Truck, Home, ShoppingBag, ShieldCheck, MapPin, Phone, User, Building2, Loader2, AlertCircle } from "lucide-react"
+import { CheckCircle2, Package, Truck, Home, ShoppingBag, ShieldCheck, MapPin, Phone, User, Building2, Loader2, AlertCircle, CreditCard, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CheckoutSuccessContentProps {
@@ -331,6 +331,31 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                       <li>Follow prompts to complete payment</li>
                     </ul>
                   </div>
+                </div>
+              )}
+
+              {/* Card Payment Link (for card payments with pending status) */}
+              {paymentStatus !== "paid" &&
+                ["visa", "mastercard", "unionpay"].includes(order.payment_method) &&
+                order.stripe_payment_intent_id &&
+                order.stripe_payment_intent_id.startsWith("http") && (
+                <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    <p className="text-sm font-black text-stone-900">Complete Card Payment</p>
+                  </div>
+                  <p className="text-xs text-stone-500 leading-relaxed">
+                    Tap the button below to open the secure payment gateway and complete your card transaction.
+                  </p>
+                  <a
+                    href={order.stripe_payment_intent_id}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-primary hover:bg-stone-900 text-white font-bold text-sm rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Pay Securely with Card
+                  </a>
                 </div>
               )}
 
