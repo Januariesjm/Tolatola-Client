@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Check } from "lucide-react"
 import { useFavorites } from "@/hooks/use-favorites"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface ProductDetailContentProps {
   product: any
@@ -40,6 +41,7 @@ interface ProductDetailContentProps {
 }
 
 export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked }: ProductDetailContentProps) {
+  const { t } = useLanguage()
   const [quantity, setQuantity] = useState(1)
   const { isFavorite, toggleFavorite } = useFavorites()
   const isLiked = isFavorite(product.id)
@@ -452,16 +454,16 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 disabled={product.stock_quantity === 0}
               >
                 {product.stock_quantity === 0 ? (
-                  <>Sold Out</>
+                  <>{t("products.sold_out")}</>
                 ) : isInCart ? (
                   <>
                     <Check className="h-4.5 w-4.5 text-emerald-600 animate-in fade-in zoom-in-50" />
-                    In Your Cart
+                    {t("products.in_cart")}
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="h-4.5 w-4.5 text-primary" />
-                    Add Product to Cart
+                    {t("products.add_to_cart_long")}
                   </>
                 )}
               </Button>
@@ -494,8 +496,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               <div className="flex items-start gap-3 bg-blue-50/50 p-4 rounded-2xl border border-blue-100/30">
                 <ShieldCheck className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <p className="text-xs font-black text-stone-900 uppercase tracking-wide">Tola Protect Enabled</p>
-                  <p className="text-[10px] text-stone-500 font-medium">100% Payment Protection Guaranteed. Shop with full security.</p>
+                  <p className="text-xs font-black text-stone-900 uppercase tracking-wide">{t("products.protect")}</p>
+                  <p className="text-[10px] text-stone-500 font-medium">{t("products.protect_desc")}</p>
                 </div>
               </div>
             </div>
@@ -504,15 +506,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
           <div className="grid grid-cols-2 gap-4">
             <div className="p-6 rounded-3xl bg-stone-50 border border-stone-150 group hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300">
               <Truck className="h-5 w-5 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">Logistics</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">{t("products.logistics")}</p>
               <p className="text-xs font-bold text-stone-800 mt-1">
-                {product.delivery_available !== false ? "Door-to-Door Delivery" : "Self-Collection Only"}
+                {product.delivery_available !== false ? t("products.delivery_door") : t("products.self_collect")}
               </p>
             </div>
             <div className="p-6 rounded-3xl bg-stone-50 border border-stone-150 group hover:border-blue-100 hover:bg-blue-50/10 transition-all duration-300">
               <RotateCcw className="h-5 w-5 text-blue-600 mb-3 group-hover:scale-110 transition-transform" />
-              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">Return Policy</p>
-              <p className="text-xs font-bold text-stone-800 mt-1">7-Day Verification</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-stone-400">{t("products.return_policy")}</p>
+              <p className="text-xs font-bold text-stone-800 mt-1">{t("products.return_7day")}</p>
             </div>
           </div>
         </div>

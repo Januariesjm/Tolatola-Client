@@ -32,11 +32,14 @@ import { WebMapPicker } from "@/components/checkout/web-map-picker"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 
 
+import { useLanguage } from "@/lib/i18n/language-context"
+
 interface CheckoutContentProps {
   user: any
 }
 
 export function CheckoutContent({ user }: CheckoutContentProps) {
+  const { t } = useLanguage()
   const [cartItems, setCartItems] = useState<any[]>([])
   const [fullName, setFullName] = useState(user?.full_name || "")
   const [phone, setPhone] = useState(user?.phone || "")
@@ -502,17 +505,17 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-[10px]">
                 <ShieldCheck className="h-4 w-4" />
-                <span>Secure Checkout</span>
+                <span>{t("checkout.title")}</span>
               </div>
               <h1 className="text-3xl md:text-5xl font-black tracking-tight text-stone-900 leading-none">
-                Complete <span className="text-primary">Order.</span>
+                {t("checkout.place_order")}
               </h1>
               <p className="text-stone-600 text-base font-medium max-w-xl">
                 Complete your purchase securely below.
               </p>
             </div>
             <div className="hidden md:flex flex-col items-end gap-1 p-4 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Total Amount</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">{t("cart.total")}</p>
               <p className="text-2xl font-black text-primary tracking-tight">TZS {total.toLocaleString()}</p>
             </div>
           </div>
@@ -524,7 +527,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 <section className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
-                    <h2 className="text-xl font-bold tracking-tight text-stone-900">Enter Location</h2>
+                    <h2 className="text-xl font-bold tracking-tight text-stone-900">{t("checkout.shipping")}</h2>
                   </div>
 
                   <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">

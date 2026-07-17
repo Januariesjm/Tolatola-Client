@@ -53,6 +53,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { Database } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { useFavorites } from "@/hooks/use-favorites"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface SiteHeaderProps {
   user: any
@@ -61,6 +62,7 @@ interface SiteHeaderProps {
 }
 
 export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps) {
+  const { t } = useLanguage()
   const [authUser, setAuthUser] = useState<any>(user)
   const [authProfile, setAuthProfile] = useState<any>(profile)
   const [authKyc, setAuthKyc] = useState<string | null>(kycStatus || null)
@@ -151,24 +153,30 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <Image src="/logo-new.png" alt="Tola" width={48} height={48} className="object-cover" />
                     </div>
                     <div>
-                      <SheetTitle className="text-2xl font-black tracking-tighter text-white">Menu</SheetTitle>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Navigation</p>
+                      <SheetTitle className="text-2xl font-black tracking-tighter text-white">{t("nav.menu")}</SheetTitle>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("nav.navigation")}</p>
                     </div>
                   </div>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Mobile Language Switcher Row */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-150 flex items-center justify-between">
+                    <span className="text-sm font-bold text-stone-700">Language / Lugha</span>
+                    <LanguageSwitcher />
+                  </div>
+
                   <nav className="grid gap-3">
                     {[
-                      { href: "/", label: "Home", icon: Home },
-                      { href: "/shop", label: "Shop", icon: ShoppingBag },
-                      { href: "/track", label: "Track Order", icon: Truck },
-                      { href: "/validation", label: "Market Survey", icon: ClipboardList },
-                      { href: "/profile", label: "Profile", icon: User },
-                      { href: "/orders", label: "Orders", icon: Package },
-                      { href: "/favorites", label: "Favorites", icon: Sparkles }
+                      { href: "/", label: t("nav.home"), icon: Home },
+                      { href: "/shop", label: t("nav.shop"), icon: ShoppingBag },
+                      { href: "/track", label: t("nav.track"), icon: Truck },
+                      { href: "/validation", label: t("nav.survey"), icon: ClipboardList },
+                      { href: "/profile", label: t("nav.profile"), icon: User },
+                      { href: "/orders", label: t("nav.orders"), icon: Package },
+                      { href: "/favorites", label: t("nav.favorites"), icon: Sparkles }
                     ].map((item) => (
-                      <Link key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                         <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
                           <div className="flex items-center gap-4">
                             <item.icon className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
@@ -185,8 +193,8 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
                         <ShieldCheck className="h-5 w-5 text-green-600" />
                         <div>
-                          <p className="text-sm font-bold text-stone-900">Verified Account</p>
-                          <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Secure</p>
+                          <p className="text-sm font-bold text-stone-900">{t("nav.verified_account")}</p>
+                          <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">{t("nav.secure")}</p>
                         </div>
                       </div>
                       <Button
@@ -198,7 +206,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         }}
                       >
                         <LogOut className="mr-3 h-5 w-5" />
-                        Logout
+                        {t("nav.logout")}
                       </Button>
                     </div>
                   )}
@@ -232,7 +240,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
               pathname === "/shop" ? "text-primary" : "text-stone-500"
             )}>
-              Shop
+              {t("nav.shop")}
               <span className={cn(
                 "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
                 pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
@@ -242,7 +250,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
               pathname?.startsWith("/track") ? "text-primary" : "text-stone-500"
             )}>
-              Track Order
+              {t("nav.track")}
               <span className={cn(
                 "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
                 pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
@@ -281,7 +289,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                           <Avatar className="h-full w-full rounded-none">
                             <AvatarImage src={authProfile?.profile_image_url || ""} />
                             <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-xs">
-                              {getInitials(authProfile?.full_name || authProfile?.email || "User")}
+                              {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
                             </AvatarFallback>
                           </Avatar>
                         </div>
@@ -297,7 +305,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     <DropdownMenuLabel className="p-4">
                       <div className="flex flex-col gap-1">
                         <p className="text-base font-black text-stone-900 leading-none truncate">
-                          {authProfile?.full_name || "Merchant"}
+                          {authProfile?.full_name || t("nav.profile")}
                         </p>
                         <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
                       </div>
@@ -307,19 +315,19 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/profile" className="flex items-center gap-3">
                           <User className="h-4 w-4 text-primary" />
-                          <span className="font-bold">Your Profile</span>
+                          <span className="font-bold">{t("nav.your_profile")}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/orders" className="flex items-center gap-3">
                           <Package className="h-4 w-4 text-primary" />
-                          <span className="font-bold">Order History</span>
+                          <span className="font-bold">{t("nav.order_history")}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
                         <Link href="/favorites" className="flex items-center gap-3">
                           <Sparkles className="h-4 w-4 text-amber-500" />
-                          <span className="font-bold">Wishlist</span>
+                          <span className="font-bold">{t("nav.wishlist")}</span>
                         </Link>
                       </DropdownMenuItem>
 
@@ -338,7 +346,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                                 <Link href="/vendor/dashboard" className="flex justify-between items-center w-full px-4">
                                   <div className="flex items-center gap-3">
                                     <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">Seller Dashboard</span>
+                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.seller_dashboard")}</span>
                                   </div>
                                   <ArrowRight className="h-4 w-4 opacity-50" />
                                 </Link>
@@ -349,7 +357,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                                 <Link href="/transporter/dashboard" className="flex justify-between items-center w-full px-4">
                                   <div className="flex items-center gap-3">
                                     <Truck className="h-4 w-4 text-emerald-300" />
-                                    <span className="font-black text-xs uppercase tracking-widest">Transporter</span>
+                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.transporter")}</span>
                                   </div>
                                   <ArrowRight className="h-4 w-4 opacity-50" />
                                 </Link>
@@ -360,7 +368,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                                 <Link href="/admin" className="flex justify-between items-center w-full px-4">
                                   <div className="flex items-center gap-3">
                                     <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">Admin Dashboard</span>
+                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.admin_dashboard")}</span>
                                   </div>
                                   <ArrowRight className="h-4 w-4 opacity-50" />
                                 </Link>
@@ -371,7 +379,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                                 <Link href="/agent" className="flex justify-between items-center w-full px-4">
                                   <div className="flex items-center gap-3">
                                     <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">Agent Dashboard</span>
+                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.agent_dashboard")}</span>
                                   </div>
                                   <ArrowRight className="h-4 w-4 opacity-50" />
                                 </Link>
@@ -384,7 +392,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     <DropdownMenuSeparator className="mx-2 bg-stone-50" />
                     <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
                       <LogOut className="h-4 w-4 mr-3" />
-                      Logout
+                      {t("nav.logout")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -405,28 +413,28 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
-                {/* Mobile: Shop button + combined Login/Sign Up */}
+                 {/* Mobile: Shop button + combined Login/Sign Up */}
                 <Link href="/shop" className="lg:hidden">
                   <Button variant="ghost" className="h-9 rounded-full px-3.5 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 flex items-center gap-1.5 transition-all">
                     <ShoppingBag className="h-3.5 w-3.5" />
-                    <span className="text-[11px] font-extrabold">Shop</span>
+                    <span className="text-[11px] font-extrabold">{t("nav.shop")}</span>
                   </Button>
                 </Link>
                 <Link href="/auth/login" className="lg:hidden">
                   <Button className="h-9 rounded-full px-4 text-[11px] font-extrabold uppercase tracking-wider shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5">
-                    Login / Sign Up
+                    {t("auth.login_signup")}
                   </Button>
                 </Link>
 
                 {/* Desktop: separate Login and Sign Up */}
                 <Link href="/auth/login" className="hidden lg:inline-flex">
                   <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
-                    Login
+                    {t("nav.login")}
                   </Button>
                 </Link>
                 <Link href="/auth/sign-up" className="hidden lg:inline-flex">
                   <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
-                    Sign Up
+                    {t("nav.signup")}
                   </Button>
                 </Link>
               </div>
@@ -442,7 +450,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           <Link href="/track" className="flex-shrink-0">
             <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-full px-3.5 h-9 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
               <MapPin className="h-3.5 w-3.5" />
-              Track Order
+              {t("nav.track")}
             </Button>
           </Link>
           <div className="flex-1">

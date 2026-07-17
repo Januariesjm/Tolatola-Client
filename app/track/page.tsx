@@ -12,10 +12,12 @@ import { PackageSearch, ArrowRight, AlertCircle, Loader2 } from "lucide-react"
 import { clientApiPostPublic } from "../../lib/api-client"
 import { useToast } from "../../hooks/use-toast"
 import SiteHeader from "../../components/layout/site-header"
+import { useLanguage } from "../../lib/i18n/language-context"
 
 const TRACKING_STORAGE_KEY = "tolatola_track_request"
 
 function TrackOrderInner() {
+  const { t } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -78,7 +80,7 @@ function TrackOrderInner() {
       <main className="container max-w-md mx-auto px-4 py-12">
         <div className="mb-8">
           <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
-            ← Back to home
+            ← {t("track.back_home")}
           </Link>
         </div>
         <Card className="border-2 shadow-xl rounded-2xl overflow-hidden">
@@ -86,15 +88,15 @@ function TrackOrderInner() {
             <div className="mx-auto h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <PackageSearch className="h-7 w-7 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-black tracking-tight">Track your order</CardTitle>
+            <CardTitle className="text-2xl font-black tracking-tight">{t("track.title")}</CardTitle>
             <CardDescription>
-              Enter your tracking code and the phone number or email used for the order. We&apos;ll send a one-time code to verify.
+              {t("track.desc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="tracking_code">Tracking code or Order number</Label>
+                <Label htmlFor="tracking_code">{t("track.code_label")}</Label>
                 <Input
                   id="tracking_code"
                   placeholder="e.g. TDX-12345-6789 or TOLA-2026-XXXXXXXX"
@@ -105,7 +107,7 @@ function TrackOrderInner() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="contact">Phone number or Email</Label>
+                <Label htmlFor="contact">{t("track.contact_label")}</Label>
                 <Input
                   id="contact"
                   type="text"
@@ -126,7 +128,7 @@ function TrackOrderInner() {
                 className="w-full h-12 rounded-xl font-bold text-base"
                 disabled={loading}
               >
-                {loading ? "Sending…" : "Send OTP"}
+                {loading ? t("track.sending") : t("track.send_otp")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </form>

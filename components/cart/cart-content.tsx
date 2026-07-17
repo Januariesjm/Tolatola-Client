@@ -8,7 +8,10 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
+import { useLanguage } from "@/lib/i18n/language-context"
+
 export function CartContent() {
+  const { t } = useLanguage()
   const [cartItems, setCartItems] = useState<any[]>([])
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
@@ -61,17 +64,17 @@ export function CartContent() {
     <div className="min-h-screen bg-muted/30">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Shopping Cart</h1>
-          <p className="text-muted-foreground">{cartItems.length} items in your cart</p>
+          <h1 className="text-3xl font-bold mb-2">{t("cart.title")}</h1>
+          <p className="text-muted-foreground">{cartItems.length} {t("cart.items_in_cart")}</p>
         </div>
 
         {cartItems.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-4">Your cart is empty</p>
+              <p className="text-muted-foreground mb-4">{t("cart.empty")}</p>
               <Link href="/shop">
-                <Button>Browse Products</Button>
+                <Button>{t("cart.continue_shopping")}</Button>
               </Link>
             </CardContent>
           </Card>
@@ -109,7 +112,7 @@ export function CartContent() {
                             </Button>
                           </div>
                           <p className="text-xs md:text-sm text-muted-foreground mb-1 truncate">
-                            by TOLA Verified Vendor
+                            {t("cart.by_verified_vendor")}
                           </p>
 
                           {/* Color & Size Variation Badge */}
@@ -121,12 +124,12 @@ export function CartContent() {
                                     className="w-2.5 h-2.5 rounded-full border border-stone-300"
                                     style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
                                   />
-                                  Color: {item.selected_color.name}
+                                  {t("cart.color") || "Color"}: {item.selected_color.name}
                                 </span>
                               )}
                               {item.selected_size && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
-                                  Size: {item.selected_size}
+                                  {t("cart.size") || "Size"}: {item.selected_size}
                                 </span>
                               )}
                             </div>
@@ -166,39 +169,39 @@ export function CartContent() {
               })}
             </div>
 
-            {/* Order Summary */}
+             {/* Order Summary */}
             <div className="lg:col-span-1">
               <Card className="sticky top-24">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle>{t("cart.order_summary")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-muted-foreground">{t("cart.subtotal")}</span>
                       <span>TZS {subtotal.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground flex items-center gap-1">
                         <Truck className="h-4 w-4" />
-                        Delivery Fee
+                        {t("cart.delivery")}
                       </span>
                       <span>TZS {deliveryFee.toLocaleString()}</span>
                     </div>
                     <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                      Delivery fee will be calculated based on your location at checkout
+                      {t("cart.delivery_calc_info")}
                     </div>
                     <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-                      <span>Total</span>
+                      <span>{t("cart.total")}</span>
                       <span>TZS {total.toLocaleString()}</span>
                     </div>
                   </div>
                   <Button className="w-full" size="lg" onClick={handleCheckout} disabled={isCheckingAuth}>
-                    {isCheckingAuth ? "Loading..." : "Proceed to Checkout"}
+                    {isCheckingAuth ? t("common.loading") : t("cart.proceed")}
                   </Button>
                   <Link href="/shop">
                     <Button variant="outline" className="w-full bg-transparent">
-                      Continue Shopping
+                      {t("cart.continue_shopping")}
                     </Button>
                   </Link>
                 </CardContent>

@@ -24,7 +24,10 @@ import { createClient } from "@/lib/supabase/client"
 import { getUserConversations } from "@/app/actions/messaging"
 import { fetchUnreadCount } from "@/lib/services/notifications.service"
 
+import { useLanguage } from "@/lib/i18n/language-context"
+
 export function MobileBottomNav() {
+    const { t } = useLanguage()
     const pathname = usePathname()
     const [categories, setCategories] = useState<any[]>([])
     const [cartCount, setCartCount] = useState(0)
@@ -182,7 +185,7 @@ export function MobileBottomNav() {
                     <div className="relative">
                         <Home className={cn("h-5 w-5 transition-transform", pathname === "/" && "scale-110")} />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Tola</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.home")}</span>
                     {pathname === "/" && (
                         <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
                     )}
@@ -193,12 +196,12 @@ export function MobileBottomNav() {
                     <SheetTrigger asChild>
                         <button className="flex flex-col items-center justify-center gap-1 w-full h-full text-white/70 hover:text-white transition-colors relative z-10">
                             <Grid3x3 className="h-5 w-5" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider">Categories</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.categories")}</span>
                         </button>
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[70vh] rounded-t-[2.5rem] border-none p-0 bg-white">
                         <SheetHeader className="p-6 border-b border-stone-100">
-                            <SheetTitle className="text-xl font-black tracking-tight text-stone-900">Explore Categories</SheetTitle>
+                            <SheetTitle className="text-xl font-black tracking-tight text-stone-900">{t("nav.explore_categories")}</SheetTitle>
                         </SheetHeader>
                         <div className="overflow-y-auto h-full pb-20 p-4">
                             <div className="grid gap-2">
@@ -241,7 +244,7 @@ export function MobileBottomNav() {
                             </span>
                         )}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">messages</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.messages")}</span>
                     {pathname === "/messages" && (
                         <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
                     )}
@@ -263,7 +266,7 @@ export function MobileBottomNav() {
                             </span>
                         )}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Cart</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.cart")}</span>
                     {pathname === "/cart" && (
                         <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
                     )}

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "@/components/product/product-card"
 import { useToast } from "@/hooks/use-toast"
 import { useFavorites } from "@/hooks/use-favorites"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface ShopContentProps {
   products: any[]
@@ -15,6 +16,7 @@ interface ShopContentProps {
 }
 
 export function ShopContent({ products, categories, trendingProducts, searchQuery = "" }: ShopContentProps) {
+  const { t } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -70,7 +72,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         {searchQuery && (
           <div className="mb-4 md:mb-6">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-              {products.length} {products.length === 1 ? "product" : "products"} found for "{searchQuery}"
+              {products.length} {products.length === 1 ? t("products.found") : t("products.found_plural")} "{searchQuery}"
             </h1>
           </div>
         )}
@@ -80,9 +82,9 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
           {products.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <p className="text-gray-600">No products found</p>
+                <p className="text-gray-600">{t("products.none")}</p>
                 {searchQuery && (
-                  <p className="text-sm text-gray-500 mt-2">Try adjusting your search or filters</p>
+                  <p className="text-sm text-gray-500 mt-2">{t("products.adjust")}</p>
                 )}
               </CardContent>
             </Card>

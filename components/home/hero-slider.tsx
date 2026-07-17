@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, ShoppingCart, Store, ArrowRight, Sparkles, Truck } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface Promotion {
     id: string
@@ -24,6 +25,7 @@ interface HeroSliderProps {
 }
 
 export function HeroSlider({ promotions }: HeroSliderProps) {
+    const { t } = useLanguage()
     const [currentSlide, setCurrentSlide] = useState(0)
 
     const allSlides = [...promotions.sort((a, b) => a.display_order - b.display_order)]
@@ -74,7 +76,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                 {/* Badge */}
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm w-fit">
                                     <Sparkles className="h-2.5 w-2.5" />
-                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">Special Offer</span>
+                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">{t("hero.special_offer")}</span>
                                 </div>
 
                                 {/* Title */}
@@ -96,7 +98,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                         textShadow: "0 1px 2px rgba(0,0,0,0.3)"
                                     }}
                                 >
-                                    {slide.description || "Discover amazing deals and shop from trusted sellers."}
+                                    {slide.description || t("hero.description")}
                                 </p>
 
                                 {/* Action Buttons */}
@@ -109,7 +111,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-bold rounded-lg md:rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all group bg-primary text-white hover:bg-primary/90 px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
                                                     <ShoppingCart className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    Start Shopping
+                                                    {t("hero.start_shopping")}
                                                 </Button>
                                             </Link>
                                             <Link href="/auth/sign-up?userType=vendor" className="w-full lg:w-auto">
@@ -119,7 +121,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
                                                     <Store className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    Become Seller
+                                                    {t("hero.become_seller")}
                                                 </Button>
                                             </Link>
                                             <Link href="/auth/sign-up?userType=transporter" className="w-full lg:w-auto">
@@ -129,7 +131,7 @@ export function HeroSlider({ promotions }: HeroSliderProps) {
                                                     className="w-full lg:w-auto h-7 md:h-10 text-[8px] md:text-sm font-semibold rounded-lg md:rounded-xl bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-stone-950 transition-all px-1.5 md:px-6 flex items-center justify-center gap-1"
                                                 >
                                                     <Truck className="h-2.5 w-2.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                                                    Become Transporter
+                                                    {t("hero.become_transporter")}
                                                 </Button>
                                             </Link>
                                         </div>
