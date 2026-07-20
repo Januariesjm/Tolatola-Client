@@ -523,6 +523,13 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   onValueChange={(val) => {
                     setSubCategoryId(val)
                     setCategoryId(val)
+                    // Auto-derive vehicle_section from subcategory slug
+                    const subCat = categories.find(c => c.id === val)
+                    if (subCat?.slug === 'spare-parts') {
+                      setVehicleSection('spare_part')
+                    } else if (subCat?.slug === 'vehicles-sub') {
+                      setVehicleSection('vehicle')
+                    }
                   }}
                 >
                   <SelectTrigger id="subcategory">
@@ -558,18 +565,29 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
             {isVehicles && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
                 <h4 className="font-bold text-sm text-stone-900">Vehicles / Spare Parts Details</h4>
-                <div className="space-y-2">
-                  <Label>Section *</Label>
-                  <Select value={vehicleSection} onValueChange={setVehicleSection}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="vehicle">Vehicle</SelectItem>
-                      <SelectItem value="spare_part">Spare Part</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Section is auto-derived from subcategory for the Vehicles category */}
+                {vehicleSection ? (
+                  <div className="space-y-2">
+                    <Label>Section</Label>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-700">
+                      <span className="font-medium">{vehicleSection === 'vehicle' ? '🚗 Vehicle' : '🔧 Spare Part'}</span>
+                      <span className="text-stone-400 text-xs">(derived from subcategory)</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label>Section *</Label>
+                    <Select value={vehicleSection} onValueChange={setVehicleSection}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vehicle">Vehicle</SelectItem>
+                        <SelectItem value="spare_part">Spare Part</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Brand / Make</Label>
