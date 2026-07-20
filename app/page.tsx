@@ -76,6 +76,7 @@ export default async function HomePage() {
     food: "/category-food-beverages.jpg",
     beverages: "/category-food-beverages.jpg",
     textiles: "/category-textiles.jpg",
+    fashion: "/category-textiles.jpg",
     fabric: "/category-textiles.jpg",
     clothing: "/category-textiles.jpg",
     electronics: "/category-electronics.jpg",
@@ -234,7 +235,7 @@ export default async function HomePage() {
                 if (nameLower.includes("food") || nameLower.includes("beverage")) {
                   return categoryImages.food
                 }
-                if (nameLower.includes("textile") || nameLower.includes("fabric") || nameLower.includes("cloth")) {
+                if (nameLower.includes("textile") || nameLower.includes("fabric") || nameLower.includes("cloth") || nameLower.includes("fashion")) {
                   return categoryImages.textiles
                 }
                 if (nameLower.includes("electronic") || nameLower.includes("gadget")) {

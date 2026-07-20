@@ -22,6 +22,7 @@ const categoryImages: Record<string, string> = {
   handicrafts: "/category-handicrafts.jpg",
   "food-beverages": "/category-food-beverages.jpg",
   textiles: "/category-textiles.jpg",
+  fashion: "/category-textiles.jpg",
   electronics: "/category-electronics.jpg",
   "home-garden": "/category-home-garden.jpg",
   "health-beauty": "/category-health-beauty.jpg",
