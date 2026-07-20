@@ -2,39 +2,79 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-// Category images mapping with Unsplash URLs
+// Unique high quality category images mapping with Unsplash URLs
 const categoryImages = {
   agriculture: {
-    url: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=800&h=1000&fit=crop&q=80',
     filename: 'category-agriculture.jpg'
   },
   handicrafts: {
-    url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&h=1000&fit=crop&q=80',
     filename: 'category-handicrafts.jpg'
   },
   'food-beverages': {
-    url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=1000&fit=crop&q=80',
     filename: 'category-food-beverages.jpg'
   },
   textiles: {
-    url: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1584184924103-e310d9dc82fc?w=800&h=1000&fit=crop&q=80',
     filename: 'category-textiles.jpg'
   },
   electronics: {
-    url: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&h=1000&fit=crop&q=80',
     filename: 'category-electronics.jpg'
   },
   'home-garden': {
-    url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=1000&fit=crop&q=80',
     filename: 'category-home-garden.jpg'
   },
   'health-beauty': {
-    url: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=1000&fit=crop&q=80',
     filename: 'category-health-beauty.jpg'
   },
   services: {
-    url: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=1000&fit=crop&q=80',
+    url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=1000&fit=crop&q=80',
     filename: 'category-services.jpg'
+  },
+  'fast-moving-consumer-goods': {
+    url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-fmcg.jpg'
+  },
+  'construction-hardware': {
+    url: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-hardware.jpg'
+  },
+  vehicles: {
+    url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-vehicles.jpg'
+  },
+  'vehicles-sub': {
+    url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-vehicles-sub.jpg'
+  },
+  'ready-to-eat': {
+    url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-ready-to-eat.jpg'
+  },
+  'spare-parts': {
+    url: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-spare-parts.jpg'
+  },
+  drinks: {
+    url: 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-drinks.jpg'
+  },
+  'non-alcoholic': {
+    url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-non-alcoholic.jpg'
+  },
+  alcoholic: {
+    url: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-alcoholic.jpg'
+  },
+  motorcycles: {
+    url: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&h=1000&fit=crop&q=80',
+    filename: 'category-motorcycles.jpg'
   }
 };
 
@@ -96,4 +136,3 @@ async function downloadAllImages() {
 
 // Run the download
 downloadAllImages().catch(console.error);
-

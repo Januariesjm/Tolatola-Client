@@ -91,10 +91,13 @@ export default async function HomePage() {
     vehicles: "/category-vehicles.jpg",
     cars: "/category-vehicles.jpg",
     transport: "/category-vehicles.jpg",
-    "ready-to-eat": "/category-food-beverages.jpg",
-    "spare-parts": "/category-vehicles.jpg",
-    drinks: "/category-food-beverages.jpg",
-    motorcycles: "/category-vehicles.jpg",
+    "vehicles-sub": "/category-vehicles-sub.jpg",
+    "ready-to-eat": "/category-ready-to-eat.jpg",
+    "spare-parts": "/category-spare-parts.jpg",
+    drinks: "/category-drinks.jpg",
+    "non-alcoholic": "/category-non-alcoholic.jpg",
+    alcoholic: "/category-alcoholic.jpg",
+    motorcycles: "/category-motorcycles.jpg",
     // Fallback to local images if category doesn't match
     default: "/abstract-categories.png",
   }
