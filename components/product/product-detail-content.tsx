@@ -546,67 +546,70 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             </div>
           </div>
 
-          <div className="space-y-4 bg-stone-50/50 p-6 rounded-[2rem] border border-stone-100">
-            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Metadata Specifications</p>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                <span className="text-xs font-semibold text-stone-500">Identifier (SKU)</span>
-                <span className="text-xs font-black text-stone-950 uppercase">{product.sku || "N/A"}</span>
+          <div className="space-y-5 bg-gradient-to-br from-white to-stone-50/50 p-7 rounded-[2rem] border border-stone-200/60 shadow-sm shadow-stone-100/50">
+            <div className="flex items-center gap-2 pb-2 border-b border-stone-100">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <p className="text-[11px] font-black uppercase tracking-widest text-stone-900">Product details</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                <span className="text-xs font-medium text-stone-500">Identifier (SKU)</span>
+                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">{product.sku || "N/A"}</span>
               </div>
-              <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                <span className="text-xs font-semibold text-stone-500">Category Node</span>
-                <span className="text-xs font-black text-stone-950 uppercase">{product.categories?.name || "Inventory"}</span>
+              <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                <span className="text-xs font-medium text-stone-500">Category</span>
+                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">{product.categories?.name || "Inventory"}</span>
               </div>
 
               {/* Vehicle Specifications */}
               {product.vehicle_section === "vehicle" && (
                 <>
                   {product.brand && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Brand / Make</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.brand}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Brand / Make</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.brand}</span>
                     </div>
                   )}
                   {product.model && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Model</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.model}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Model</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.model}</span>
                     </div>
                   )}
                   {product.year && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Year</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.year}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Year</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.year}</span>
                     </div>
                   )}
                   {product.mileage != null && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Mileage</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.mileage.toLocaleString()} km</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Mileage</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.mileage.toLocaleString()} km</span>
                     </div>
                   )}
                   {product.transmission && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Transmission</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.transmission}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Transmission</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.transmission}</span>
                     </div>
                   )}
                   {product.fuel_type && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Fuel Type</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.fuel_type}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Fuel Type</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.fuel_type}</span>
                     </div>
                   )}
                   {product.engine_size && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Engine Size</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.engine_size}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Engine Size</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.engine_size}</span>
                     </div>
                   )}
                   {product.condition && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Condition</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.condition}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Condition</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.condition}</span>
                     </div>
                   )}
                 </>
@@ -616,27 +619,27 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               {product.vehicle_section === "spare_part" && (
                 <>
                   {product.brand && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Brand</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.brand}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Brand</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.brand}</span>
                     </div>
                   )}
                   {product.part_number && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Part Number</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.part_number}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Part Number</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.part_number}</span>
                     </div>
                   )}
                   {product.compatibility && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Compatible Vehicles</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.compatibility}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Compatible Vehicles</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.compatibility}</span>
                     </div>
                   )}
                   {product.condition && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Condition</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.condition}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Condition</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.condition}</span>
                     </div>
                   )}
                 </>
@@ -646,15 +649,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               {(product.dietary_info || product.prep_time) && (
                 <>
                   {product.dietary_info && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Dietary Info</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.dietary_info}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Dietary Info</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.dietary_info}</span>
                     </div>
                   )}
                   {product.prep_time && (
-                    <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                      <span className="text-xs font-semibold text-stone-500">Prep Time</span>
-                      <span className="text-xs font-black text-stone-950 uppercase">{product.prep_time}</span>
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Prep Time</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.prep_time}</span>
                     </div>
                   )}
                 </>
@@ -662,9 +665,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
 
               {/* Drinks Specifications */}
               {product.drink_section && (
-                <div className="flex justify-between items-center py-2.5 border-b border-stone-200/50">
-                  <span className="text-xs font-semibold text-stone-500">Drink Type</span>
-                  <span className="text-xs font-black text-stone-950 uppercase">
+                <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                  <span className="text-xs font-medium text-stone-500">Drink Type</span>
+                  <span className="text-xs font-bold text-stone-900 uppercase">
                     {product.drink_section === "alcoholic" ? "Alcoholic" : "Non-Alcoholic"}
                   </span>
                 </div>
