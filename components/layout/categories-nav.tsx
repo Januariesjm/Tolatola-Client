@@ -7,6 +7,7 @@ interface Category {
   name: string
   slug: string
   description: string | null
+  parent_id?: string | null
 }
 
 interface CategoriesNavProps {
@@ -29,9 +30,12 @@ const categoryImages: Record<string, string> = {
   "ready-to-eat": "/category-food-beverages.jpg",
   "spare-parts": "/category-vehicles.jpg",
   drinks: "/delicious-food-and-beverages.jpg",
+  motorcycles: "/category-vehicles.jpg",
 }
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
+  const parentCategories = categories.filter(c => !c.parent_id)
+
   return (
     <nav className="sticky top-[108px] lg:top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="container mx-auto px-4">
@@ -49,7 +53,7 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
           </Link>
 
           {/* Category Links */}
-          {categories.slice(0, 12).map((category) => {
+          {parentCategories.slice(0, 12).map((category) => {
             const imageUrl = categoryImages[category.slug] || "/abstract-categories.png"
             const isActive = currentCategory === category.slug
 

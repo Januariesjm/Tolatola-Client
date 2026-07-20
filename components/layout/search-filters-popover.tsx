@@ -124,7 +124,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 mt-2 max-h-48 overflow-y-auto">
-          {categories.map((category) => (
+          {categories.filter((c: any) => !c.parent_id).map((category) => (
             <div key={category.id} className="flex items-center space-x-2">
               <Checkbox
                 id={`filter-category-${category.id}`}

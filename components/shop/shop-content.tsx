@@ -65,6 +65,11 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   }
 
 
+  const categorySlug = searchParams.get("category")
+  const activeCategory = categorySlug ? categories.find(c => c.slug === categorySlug || c.id === categorySlug) : null
+  const parentCategory = activeCategory?.parent_id ? categories.find(c => c.id === activeCategory.parent_id) : activeCategory
+  const subCategories = parentCategory ? categories.filter(c => c.parent_id === parentCategory.id) : []
+
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
@@ -74,6 +79,43 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">
               {products.length} {products.length === 1 ? t("products.found") : t("products.found_plural")} "{searchQuery}"
             </h1>
+          </div>
+        )}
+
+        {/* Subcategories Filter Bar */}
+        {subCategories.length > 0 && parentCategory && activeCategory && (
+          <div className="flex items-center gap-2 overflow-x-auto py-2 mb-6 border-b border-stone-100 scrollbar-hide">
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString())
+                params.set("category", parentCategory.slug)
+                router.push(`/shop?${params.toString()}`, { scroll: false })
+              }}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                activeCategory.id === parentCategory.id
+                  ? "bg-primary text-white shadow-md shadow-primary/20"
+                  : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+              }`}
+            >
+              All {parentCategory.name}
+            </button>
+            {subCategories.map((sub) => (
+              <button
+                key={sub.id}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  params.set("category", sub.slug)
+                  router.push(`/shop?${params.toString()}`, { scroll: false })
+                }}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  activeCategory.id === sub.id
+                    ? "bg-primary text-white shadow-md shadow-primary/20"
+                    : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+                }`}
+              >
+                {sub.name}
+              </button>
+            ))}
           </div>
         )}
 

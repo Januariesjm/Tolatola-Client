@@ -94,6 +94,7 @@ export default async function HomePage() {
     "ready-to-eat": "/category-food-beverages.jpg",
     "spare-parts": "/category-vehicles.jpg",
     drinks: "/category-food-beverages.jpg",
+    motorcycles: "/category-vehicles.jpg",
     // Fallback to local images if category doesn't match
     default: "/abstract-categories.png",
   }
@@ -202,7 +203,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {categories.slice(0, 12).map((cat: any, i) => {
+            {categories.filter((c: any) => !c.parent_id).slice(0, 12).map((cat: any, i) => {
               // Get background image based on category slug, name, or use image_url from database
               const getCategoryImage = () => {
                 // First try database image_url

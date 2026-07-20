@@ -33,6 +33,8 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const [price, setPrice] = useState("")
   const [stockQuantity, setStockQuantity] = useState("")
   const [categoryId, setCategoryId] = useState("")
+  const [parentCategoryId, setParentCategoryId] = useState("")
+  const [subCategoryId, setSubCategoryId] = useState("")
   const [categories, setCategories] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -85,11 +87,17 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   }, [])
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
-  const isFashion = selectedCategory?.name?.toLowerCase() === "fashion"
-  const isAgriculture = selectedCategory?.name?.toLowerCase() === "agriculture"
-  const isVehicles = selectedCategory?.name?.toLowerCase() === "vehicles"
-  const isReadyToEat = selectedCategory?.name?.toLowerCase() === "ready to eat" || selectedCategory?.slug === "ready-to-eat"
-  const isDrinks = selectedCategory?.name?.toLowerCase() === "drinks" || selectedCategory?.slug === "drinks"
+  const selectedParentCategory = selectedCategory?.parent_id
+    ? categories.find(c => c.id === selectedCategory.parent_id)
+    : selectedCategory
+
+  const isFashion = selectedParentCategory?.name?.toLowerCase() === "fashion"
+  const isAgriculture = selectedParentCategory?.name?.toLowerCase() === "agriculture"
+  const isVehicles = selectedParentCategory?.name?.toLowerCase() === "vehicles" ||
+                     selectedParentCategory?.name?.toLowerCase() === "motorcycles" ||
+                     selectedParentCategory?.name?.toLowerCase() === "motorcyles"
+  const isReadyToEat = selectedParentCategory?.name?.toLowerCase() === "ready to eat" || selectedParentCategory?.slug === "ready-to-eat"
+  const isDrinks = selectedParentCategory?.name?.toLowerCase() === "drinks" || selectedParentCategory?.slug === "drinks"
 
   useEffect(() => {
     if (!isAgriculture) {
@@ -299,6 +307,8 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
       setPrice("")
       setStockQuantity("")
       setCategoryId("")
+      setParentCategoryId("")
+      setSubCategoryId("")
       setImages([])
       setColors([])
       setSizes([])
@@ -478,12 +488,25 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
+              <Select
+                value={parentCategoryId}
+                onValueChange={(val) => {
+                  setParentCategoryId(val)
+                  const subs = categories.filter(c => c.parent_id === val)
+                  if (subs.length > 0) {
+                    setSubCategoryId(subs[0].id)
+                    setCategoryId(subs[0].id)
+                  } else {
+                    setSubCategoryId("")
+                    setCategoryId(val)
+                  }
+                }}
+              >
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
+                  {categories.filter(c => !c.parent_id).map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
@@ -491,6 +514,32 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 </SelectContent>
               </Select>
             </div>
+
+            {categories.filter(c => c.parent_id === parentCategoryId).length > 0 && (
+              <div className="space-y-2 animate-in fade-in duration-300">
+                <Label htmlFor="subcategory">Subcategory *</Label>
+                <Select
+                  value={subCategoryId}
+                  onValueChange={(val) => {
+                    setSubCategoryId(val)
+                    setCategoryId(val)
+                  }}
+                >
+                  <SelectTrigger id="subcategory">
+                    <SelectValue placeholder="Select a subcategory" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories
+                      .filter(c => c.parent_id === parentCategoryId)
+                      .map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {isAgriculture && (
               <div className="space-y-2 animate-in fade-in duration-300">
                 <Label htmlFor="weight_unit">Sold by Weight (Weight Unit) *</Label>

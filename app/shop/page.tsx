@@ -39,6 +39,11 @@ export async function generateMetadata({
       "health-beauty": "Health & Beauty",
       "services": "Services",
       "vehicles": "Vehicles",
+      "motorcycles": "Motorcycles",
+      "bajaj": "Bajaj",
+      "bodaboda": "Bodaboda",
+      "guta": "Guta",
+      "others": "others",
     }
 
     if (categoryStaticMap[currentCategory]) {
