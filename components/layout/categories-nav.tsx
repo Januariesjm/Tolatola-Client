@@ -30,6 +30,8 @@ const categoryImages: Record<string, string> = {
   "ready-to-eat": "/category-food-beverages.jpg",
   "spare-parts": "/category-vehicles.jpg",
   drinks: "/delicious-food-and-beverages.jpg",
+  "non-alcoholic": "/delicious-food-and-beverages.jpg",
+  alcoholic: "/delicious-food-and-beverages.jpg",
   motorcycles: "/category-vehicles.jpg",
 }
 

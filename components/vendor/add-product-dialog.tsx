@@ -529,6 +529,10 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                       setVehicleSection('spare_part')
                     } else if (subCat?.slug === 'vehicles-sub') {
                       setVehicleSection('vehicle')
+                    } else if (subCat?.slug === 'non-alcoholic') {
+                      setDrinkSection('non_alcoholic')
+                    } else if (subCat?.slug === 'alcoholic') {
+                      setDrinkSection('alcoholic')
                     }
                   }}
                 >
@@ -718,16 +722,23 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
                 <h4 className="font-bold text-sm text-stone-900">Drinks Details</h4>
                 <div className="space-y-2">
-                  <Label>Section *</Label>
-                  <Select value={drinkSection} onValueChange={setDrinkSection}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="alcoholic">Alcoholic</SelectItem>
-                      <SelectItem value="non_alcoholic">Non-Alcoholic</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Section</Label>
+                  {drinkSection ? (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-700">
+                      <span className="font-medium">{drinkSection === 'alcoholic' ? '🍹 Alcoholic' : '🥤 Non-Alcoholic'}</span>
+                      <span className="text-stone-400 text-xs">(derived from subcategory)</span>
+                    </div>
+                  ) : (
+                    <Select value={drinkSection} onValueChange={setDrinkSection}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="alcoholic">Alcoholic</SelectItem>
+                        <SelectItem value="non_alcoholic">Non-Alcoholic</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
             )}
