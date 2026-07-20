@@ -618,6 +618,12 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               {/* Spare Parts Specifications */}
               {product.vehicle_section === "spare_part" && (
                 <>
+                  {product.model && (
+                    <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-medium text-stone-500">Part Name</span>
+                      <span className="text-xs font-bold text-stone-900 uppercase">{product.model}</span>
+                    </div>
+                  )}
                   {product.brand && (
                     <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
                       <span className="text-xs font-medium text-stone-500">Brand</span>

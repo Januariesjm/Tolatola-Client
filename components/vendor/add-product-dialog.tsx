@@ -281,6 +281,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
           payload.fuel_type = fuelType || null
           payload.engine_size = engineSize || null
         } else if (vehicleSection === "spare_part") {
+          payload.model = model || null
           payload.part_number = partNumber || null
           payload.compatibility = compatibility || null
         }
@@ -533,6 +534,9 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                       setDrinkSection('non_alcoholic')
                     } else if (subCat?.slug === 'alcoholic') {
                       setDrinkSection('alcoholic')
+                    } else {
+                      // Reset vehicle section for subcategories that don't auto-derive
+                      setVehicleSection('')
                     }
                   }}
                 >
@@ -568,7 +572,13 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
             )}
             {isVehicles && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
-                <h4 className="font-bold text-sm text-stone-900">Vehicles / Spare Parts Details</h4>
+                <h4 className="font-bold text-sm text-stone-900">{(() => {
+                  const subCatName = categories.find(c => c.id === subCategoryId)?.name
+                  const sectionLabel = vehicleSection === 'vehicle' ? 'Vehicle' : vehicleSection === 'spare_part' ? 'Spare Part' : ''
+                  if (subCatName && sectionLabel) return `${subCatName} / ${sectionLabel} Details`
+                  if (subCatName) return `${subCatName} Details`
+                  return 'Vehicles / Spare Parts Details'
+                })()}</h4>
                 {/* Section is auto-derived from subcategory for the Vehicles category */}
                 {vehicleSection ? (
                   <div className="space-y-2">
@@ -666,6 +676,10 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 )}
                 {vehicleSection === "spare_part" && (
                   <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="space-y-2">
+                      <Label>Spare Part Name *</Label>
+                      <Input placeholder="e.g. Brake Pad, Oil Filter, Chain" value={model} onChange={(e) => setModel(e.target.value)} />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Part Number</Label>

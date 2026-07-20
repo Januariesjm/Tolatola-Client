@@ -308,7 +308,7 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
         vehicle_section: isVehicles ? (vehicleSection || null) : null,
         brand: isVehicles ? (brand || null) : null,
         condition: isVehicles ? (condition || null) : null,
-        model: (isVehicles && vehicleSection === "vehicle") ? (model || null) : null,
+        model: (isVehicles && (vehicleSection === "vehicle" || vehicleSection === "spare_part")) ? (model || null) : null,
         year: (isVehicles && vehicleSection === "vehicle") ? (year ? parseInt(year) : null) : null,
         mileage: (isVehicles && vehicleSection === "vehicle") ? (mileage ? parseInt(mileage) : null) : null,
         transmission: (isVehicles && vehicleSection === "vehicle") ? (transmission || null) : null,
@@ -527,6 +527,9 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                       setDrinkSection('non_alcoholic')
                     } else if (subCat?.slug === 'alcoholic') {
                       setDrinkSection('alcoholic')
+                    } else {
+                      // Reset vehicle section for subcategories that don't auto-derive
+                      setVehicleSection('')
                     }
                   }}
                 >
@@ -562,7 +565,13 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
             )}
             {isVehicles && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
-                <h4 className="font-bold text-sm text-stone-900">Vehicles / Spare Parts Details</h4>
+                <h4 className="font-bold text-sm text-stone-900">{(() => {
+                  const subCatName = categories.find(c => c.id === subCategoryId)?.name
+                  const sectionLabel = vehicleSection === 'vehicle' ? 'Vehicle' : vehicleSection === 'spare_part' ? 'Spare Part' : ''
+                  if (subCatName && sectionLabel) return `${subCatName} / ${sectionLabel} Details`
+                  if (subCatName) return `${subCatName} Details`
+                  return 'Vehicles / Spare Parts Details'
+                })()}</h4>
                 {/* Section is auto-derived from subcategory for the Vehicles category */}
                 {vehicleSection ? (
                   <div className="space-y-2">
@@ -660,6 +669,10 @@ export function EditProductDialog({ open, onOpenChange, product, onSuccess }: Ed
                 )}
                 {vehicleSection === "spare_part" && (
                   <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="space-y-2">
+                      <Label>Spare Part Name *</Label>
+                      <Input placeholder="e.g. Brake Pad, Oil Filter, Chain" value={model} onChange={(e) => setModel(e.target.value)} />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Part Number</Label>
