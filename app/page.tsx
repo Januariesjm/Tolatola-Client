@@ -112,6 +112,7 @@ export default async function HomePage() {
   }) || []
 
   const featuredProducts = productsWithDiscount.slice(0, 10)
+  const bestSelling = [...productsWithDiscount].sort((a, b) => (b.sales_count || 0) - (a.sales_count || 0)).filter((p) => (p.sales_count || 0) > 0).slice(0, 10)
   const bestDeals = productsWithDiscount.filter((p) => p.discountPercent > 0).slice(0, 10)
 
   const features = [
@@ -169,7 +170,7 @@ export default async function HomePage() {
         <HeroSlider promotions={promotions || []} />
 
         {/* Featured Products Section - Handpicked for You */}
-        <HomeProductsSection featuredProducts={featuredProducts} bestDeals={bestDeals} />
+        <HomeProductsSection featuredProducts={featuredProducts} bestDeals={bestDeals} bestSelling={bestSelling} />
 
         {/* Benefits Strip */}
         <section className="bg-stone-900 overflow-hidden py-10">

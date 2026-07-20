@@ -34,7 +34,7 @@ interface ProductCardProps {
     }
     badge?: {
         text: string
-        variant: "new" | "deal"
+        variant: "new" | "deal" | "hot"
     }
     isTrending?: boolean
     onAddToCart?: (product: any) => void
@@ -140,7 +140,7 @@ export function ProductCard({
                     {/* Sophisticated Badges */}
                     <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none">
                         {badge && (
-                            <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/20 ${badge.variant === "new" ? "bg-primary/90 text-white" : "bg-destructive/90 text-white"
+                            <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/20 ${badge.variant === "new" ? "bg-primary/90 text-white" : badge.variant === "hot" ? "bg-amber-500/90 text-white" : "bg-destructive/90 text-white"
                                 }`}>
                                 {badge.text}
                             </div>

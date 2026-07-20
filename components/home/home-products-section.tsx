@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, TrendingUp, Sparkles, ArrowRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, TrendingUp, Sparkles, ArrowRight, Flame } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useRef, useState, useEffect } from "react"
@@ -14,9 +14,10 @@ import { useFavorites } from "@/hooks/use-favorites"
 interface HomeProductsSectionProps {
   featuredProducts: any[]
   bestDeals: any[]
+  bestSelling: any[]
 }
 
-export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProductsSectionProps) {
+export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }: HomeProductsSectionProps) {
   const router = useRouter()
   const { toast } = useToast()
   const featuredScrollRef = useRef<HTMLDivElement>(null)
@@ -97,7 +98,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
                 <div key={product.id} className="snap-start flex-shrink-0 w-[240px] md:w-[280px]">
                   <ProductCard
                     product={product}
-                    badge={{ text: "HOT", variant: "new" }}
+                    badge={{ text: "NEW", variant: "new" }}
                     isLiked={isFavorite(product.id)}
                     isInCart={cartItems.some((item) => item.product_id === product.id)}
                     onAddToCart={handleAddToCart}
@@ -111,6 +112,59 @@ export function HomeProductsSection({ featuredProducts, bestDeals }: HomeProduct
               variant="outline"
               size="icon"
               className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-primary hover:text-white"
+              onClick={() => scroll(featuredScrollRef, "right")}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {/* Most Selling Section */}
+      {bestSelling && bestSelling.length > 0 && (
+        <section className="container mx-auto px-4 relative">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-amber-500 font-bold uppercase tracking-wider text-[10px]">
+                <Flame className="h-3.5 w-3.5" />
+                <span>Top Sellers</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Most <span className="text-amber-500 italic">Selling</span></h2>
+            </div>
+          </div>
+
+          <div className="relative group/scroll">
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-amber-500 hover:text-white"
+              onClick={() => scroll(featuredScrollRef, "left")}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+
+            <div
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {bestSelling.map((product) => (
+                <div key={product.id} className="snap-start flex-shrink-0 w-[240px] md:w-[280px]">
+                  <ProductCard
+                    product={product}
+                    badge={{ text: "HOT", variant: "hot" }}
+                    isLiked={isFavorite(product.id)}
+                    isInCart={cartItems.some((item) => item.product_id === product.id)}
+                    onAddToCart={handleAddToCart}
+                    onToggleLike={handleToggleLike}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-amber-500 hover:text-white"
               onClick={() => scroll(featuredScrollRef, "right")}
             >
               <ChevronRight className="h-6 w-6" />
