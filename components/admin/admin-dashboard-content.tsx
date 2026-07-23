@@ -136,7 +136,10 @@ export function AdminDashboardContent({
   }
 
   const pendingTickets = tickets.filter((t) => t.status === "open")
-  const showAdminManagement = adminRole?.permissions.includes("manage_admins")
+  const roleName = (adminRole?.role?.role_name || "").toLowerCase()
+  const isSuperAdmin = roleName.includes("super") || roleName.includes("owner") || roleName.includes("master")
+  const showAdminManagement = isSuperAdmin || adminRole?.permissions?.includes("manage_admins")
+  const canManageAgents = isSuperAdmin || adminRole?.permissions?.includes("manage_agents")
 
   // Filter out the meta-info added to promotions array if present
   const actualPromotions = promotions.filter(p => !p._adminUsers && !p.id?.includes('_'))
@@ -340,6 +343,23 @@ export function AdminDashboardContent({
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">
                   {careerApplications.filter(a => a.status === "pending").length}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {canManageAgents && (
+            <Card className="shadow-sm rounded-xl border border-teal-100 bg-white">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Sales Agents
+                </CardTitle>
+                <div className="h-8 w-8 rounded-full bg-teal-50 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-teal-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">
+                  {initialAgents.length}
                 </div>
               </CardContent>
             </Card>
@@ -801,7 +821,7 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                {adminRole?.permissions.includes("manage_agents") && (
+                {canManageAgents && (
                   <Button
                     variant={activeTab === "agents" ? "default" : "ghost"}
                     size="sm"
@@ -957,7 +977,7 @@ export function AdminDashboardContent({
                       Validation
                     </TabsTrigger>
                   )}
-                  {adminRole?.permissions.includes("manage_agents") && (
+                  {canManageAgents && (
                     <TabsTrigger value="agents" className="px-5 rounded-full text-xs font-semibold">
                       Sales Agents
                     </TabsTrigger>
@@ -1106,7 +1126,7 @@ export function AdminDashboardContent({
                 </TabsContent>
               )}
 
-              {adminRole?.permissions.includes("manage_agents") && (
+              {canManageAgents && (
                 <TabsContent value="agents" className="border-none p-0 outline-none">
                   <AgentManagementTab initialAgents={initialAgents} />
                 </TabsContent>
