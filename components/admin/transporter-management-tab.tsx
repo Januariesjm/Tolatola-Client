@@ -175,187 +175,227 @@ export function TransporterManagementTab() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div>
-                    <h2 className="text-2xl font-bold">Transporter Management</h2>
-                    <p className="text-muted-foreground">View and manage all transporter accounts</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">Transporter Management</h2>
+                    <p className="text-sm text-slate-500 mt-0.5">View and manage all transporter accounts</p>
                 </div>
-                <Badge variant="outline" className="text-lg px-4 py-2">
+                <Badge variant="outline" className="text-sm px-4 py-2 border-slate-200 bg-white font-semibold tabular-nums self-start sm:self-auto">
                     {transporters.length} Total Transporters
                 </Badge>
             </div>
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                     placeholder="Search transporters by name, email, or plate number..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-11 rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-primary/30 placeholder:text-slate-400"
                 />
             </div>
 
             {/* Stats Cards */}
-            <div className="grid md:grid-cols-4 gap-4">
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">{transporters.length}</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Available</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold text-green-600">
-                            {transporters.filter((t) => t.availability_status === "available").length}
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Approved KYC</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold text-blue-600">
-                            {transporters.filter((t) => t.kyc_status === "approved").length}
-                        </p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Deliveries</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {transporters.reduce((sum, t) => sum + (t.total_deliveries || 0), 0)}
-                        </p>
-                    </CardContent>
-                </Card>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-slate-400 to-slate-500" />
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Total</p>
+                    <p className="text-2xl font-bold text-slate-900 tabular-nums">{transporters.length}</p>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
+                    <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-emerald-400 to-emerald-500" />
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Available</p>
+                    <p className="text-2xl font-bold text-emerald-600 tabular-nums">
+                        {transporters.filter((t) => t.availability_status === "available").length}
+                    </p>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
+                    <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-blue-400 to-blue-500" />
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">KYC Approved</p>
+                    <p className="text-2xl font-bold text-blue-600 tabular-nums">
+                        {transporters.filter((t) => t.kyc_status === "approved").length}
+                    </p>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-purple-100 bg-white p-4 shadow-sm">
+                    <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-purple-400 to-purple-500" />
+                    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Total Deliveries</p>
+                    <p className="text-2xl font-bold text-purple-600 tabular-nums">
+                        {transporters.reduce((sum, t) => sum + (t.total_deliveries || 0), 0)}
+                    </p>
+                </div>
             </div>
 
             {/* Transporters List */}
             {filteredTransporters.length === 0 ? (
-                <Card>
-                    <CardContent className="py-12 text-center">
-                        <p className="text-muted-foreground">
+                <Card className="border-dashed">
+                    <CardContent className="py-16 text-center">
+                        <Truck className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium text-slate-500">
                             {searchQuery ? "No transporters found matching your search" : "No transporters found"}
+                        </p>
+                        <p className="text-sm text-slate-400 mt-1">
+                            {searchQuery ? "Try adjusting your search terms" : "Transporters will appear here once registered"}
                         </p>
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredTransporters.map((transporter, idx) => (
-                        <Card key={transporter.id} className="hover:shadow-lg transition-shadow">
-                            <CardHeader>
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <CardTitle className="flex items-center gap-2 min-w-0 w-full">
-                                            <Truck className="h-5 w-5 text-primary shrink-0" />
-                                            <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                                                #{idx + 1}
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {filteredTransporters.map((transporter, idx) => {
+                        const isActive = transporter.is_active ?? true
+
+                        return (
+                            <div
+                                key={transporter.id}
+                                className={`group relative rounded-2xl border bg-white overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 ${
+                                    isActive ? "border-slate-200" : "border-slate-200 opacity-75"
+                                }`}
+                            >
+                                {/* Top accent bar */}
+                                <div className={`h-1 w-full ${
+                                    transporter.kyc_status === "approved"
+                                        ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                                        : transporter.kyc_status === "pending"
+                                            ? "bg-gradient-to-r from-amber-400 to-amber-500"
+                                            : "bg-gradient-to-r from-red-400 to-red-500"
+                                }`} />
+
+                                {/* Card Header */}
+                                <div className="px-5 pt-4 pb-3">
+                                    <div className="flex items-start gap-3">
+                                        {/* Avatar */}
+                                        <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0 ${
+                                            transporter.kyc_status === "approved"
+                                                ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                                                : transporter.kyc_status === "pending"
+                                                    ? "bg-gradient-to-br from-amber-500 to-amber-600"
+                                                    : "bg-gradient-to-br from-red-500 to-red-600"
+                                        }`}>
+                                            <Truck className="h-5 w-5" />
+                                        </div>
+
+                                        {/* Name & email */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
+                                                    #{idx + 1}
+                                                </span>
+                                                <h3 className="font-semibold text-slate-900 truncate text-sm leading-tight">
+                                                    {transporter.users?.full_name || "Unnamed Transporter"}
+                                                </h3>
+                                            </div>
+                                            <p className="text-xs text-slate-400 truncate mt-0.5">{transporter.users?.email}</p>
+                                        </div>
+
+                                        {/* Status badges */}
+                                        <div className="flex flex-col gap-1 shrink-0 items-end">
+                                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                                                isActive
+                                                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                                                    : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+                                            }`}>
+                                                <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
+                                                {isActive ? "Active" : "Inactive"}
                                             </span>
-                                            <span className="truncate block flex-1 min-w-0">{transporter.users?.full_name || "Unnamed"}</span>
-                                        </CardTitle>
-                                        <CardDescription className="mt-1 truncate">{transporter.users?.email}</CardDescription>
-                                    </div>
-                                    <div className="flex flex-col gap-1 shrink-0 items-end">
-                                        <Badge
-                                            variant={(transporter.is_active ?? true) ? "default" : "secondary"}
-                                            className={(transporter.is_active ?? true) ? "bg-green-600" : "bg-gray-500"}
-                                        >
-                                            {(transporter.is_active ?? true) ? "Active" : "Inactive"}
-                                        </Badge>
-                                        <Badge className={getVehicleTypeBadge(transporter.vehicle_type)}>
-                                            {transporter.vehicle_type?.replace("_", " ").toUpperCase()}
-                                        </Badge>
+                                            <span className="inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 ring-1 ring-slate-200 uppercase">
+                                                {transporter.vehicle_type?.replace("_", " ") || "Vehicle"}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Mail className="h-4 w-4" />
-                                        <span>{transporter.users?.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Phone className="h-4 w-4" />
+
+                                {/* Divider */}
+                                <div className="mx-5 border-t border-slate-100" />
+
+                                {/* Details */}
+                                <div className="px-5 py-3 space-y-2">
+                                    <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                                        <Phone className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                                         <span>{transporter.phone || transporter.users?.phone || "N/A"}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <ShieldCheck className="h-4 w-4" />
-                                        <span>KYC: {transporter.kyc_status}</span>
+                                    <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                                        <ShieldCheck className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                        <span>KYC: <span className="font-medium capitalize">{transporter.kyc_status || "pending"}</span></span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Truck className="h-4 w-4" />
-                                        <span>Plate: {transporter.vehicle_registration}</span>
+                                    <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                                        <Truck className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                        <span>Plate: <span className="font-medium font-mono">{transporter.vehicle_registration || "N/A"}</span></span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Calendar className="h-4 w-4" />
+                                    <div className="flex items-center gap-2.5 text-xs text-slate-600">
+                                        <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                                         <span>Joined {new Date(transporter.created_at).toLocaleDateString()}</span>
                                     </div>
                                 </div>
 
-                                <div className="flex gap-2 pt-4 border-t">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="flex-1"
-                                        onClick={() => handleViewDetails(transporter)}
-                                    >
-                                        <Eye className="h-4 w-4 mr-2" />
-                                        View Details
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="flex-1"
-                                        onClick={() => setMessageTransporter(transporter)}
-                                        title="Send Message"
-                                    >
-                                        <MessageSquare className="h-4 w-4 mr-2" />
-                                        Message
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        className={`flex-1 ${(transporter.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
-                                        onClick={() => handleToggleActive(transporter)}
-                                    >
-                                        {(transporter.is_active ?? true) ? (
-                                            <>
-                                                <XCircle className="h-4 w-4 mr-2" />
-                                                Deactivate
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle2 className="h-4 w-4 mr-2" />
-                                                Activate
-                                            </>
-                                        )}
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => {
-                                            if (
-                                                confirm(
-                                                    `Are you absolutely sure you want to permanently delete this transporter? This action cannot be undone and will delete all their assignments, withdrawals, and user accounts.`
-                                                )
-                                            ) {
-                                                handleDeleteTransporter(transporter.id)
-                                            }
-                                        }}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                {/* Actions */}
+                                <div className="px-5 pb-4 pt-2 space-y-2">
+                                    <div className="border-t border-slate-100 pt-3" />
+                                    {/* Row 1: View Details + Message */}
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex-1 h-8 text-xs rounded-lg border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                                            onClick={() => handleViewDetails(transporter)}
+                                        >
+                                            <Eye className="h-3.5 w-3.5 mr-1.5" />
+                                            View Details
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="flex-1 h-8 text-xs rounded-lg border-slate-200 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                                            onClick={() => setMessageTransporter(transporter)}
+                                        >
+                                            <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+                                            Message
+                                        </Button>
+                                    </div>
+                                    {/* Row 2: Toggle Active + Delete */}
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            className={`flex-1 h-8 text-xs rounded-lg font-medium transition-colors ${
+                                                isActive
+                                                    ? "bg-red-500 hover:bg-red-600 text-white"
+                                                    : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                            }`}
+                                            onClick={() => handleToggleActive(transporter)}
+                                        >
+                                            {isActive ? (
+                                                <>
+                                                    <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                                                    Deactivate
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                                                    Activate
+                                                </>
+                                            )}
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 rounded-lg border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors shrink-0"
+                                            onClick={() => {
+                                                if (
+                                                    confirm(
+                                                        `Are you absolutely sure you want to permanently delete this transporter? This action cannot be undone and will delete all their assignments, withdrawals, and user accounts.`
+                                                    )
+                                                ) {
+                                                    handleDeleteTransporter(transporter.id)
+                                                }
+                                            }}
+                                            title="Delete transporter permanently"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            </div>
+                        )
+                    })}
                 </div>
             )}
 
