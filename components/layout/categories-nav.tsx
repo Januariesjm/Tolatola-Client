@@ -35,6 +35,9 @@ const categoryImages: Record<string, string> = {
   "non-alcoholic": "/category-non-alcoholic.jpg",
   alcoholic: "/category-alcoholic.jpg",
   motorcycles: "/category-motorcycles.jpg",
+  men: "/category-textiles.jpg",
+  women: "/category-textiles.jpg",
+  kids: "/category-textiles.jpg",
 }
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
