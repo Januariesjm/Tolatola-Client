@@ -156,109 +156,119 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         {/* Row 1: Logo, nav, actions */}
         <div className="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 h-16 lg:py-0 lg:flex-1 lg:h-full">
 
-        {/* Mobile Hamburger Menu - First on Left */}
-        <div className="lg:hidden flex-shrink-0">
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
-              <div className="flex flex-col h-full">
-                <SheetHeader className="p-6 text-left bg-stone-950 text-white relative">
-                  <SheetClose asChild>
-                    <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-50">
-                      <X className="h-5 w-5" />
-                      <span className="sr-only">Close menu</span>
-                    </button>
-                  </SheetClose>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="h-12 w-12 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
-                      <Image src="/logo-new.png" alt="Tola" width={48} height={48} className="object-cover" />
-                    </div>
-                    <div>
-                      <SheetTitle className="text-2xl font-black tracking-tighter text-white">{t("nav.menu")}</SheetTitle>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("nav.navigation")}</p>
-                    </div>
-                  </div>
-                </SheetHeader>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  {/* Mobile Language Switcher Row */}
-                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-150 flex items-center justify-between">
-                    <span className="text-sm font-bold text-stone-700">Language / Lugha</span>
-                    <LanguageSwitcher />
-                  </div>
-
-                  <nav className="grid gap-3">
-                    {[
-                      { href: "/", label: t("nav.home"), icon: Home },
-                      { href: "/shop", label: t("nav.shop"), icon: ShoppingBag },
-                      { href: "/track", label: t("nav.track"), icon: Truck },
-                      { href: "/validation", label: t("nav.survey"), icon: ClipboardList },
-                      { href: "/profile", label: t("nav.profile"), icon: User },
-                      { href: "/orders", label: t("nav.orders"), icon: Package },
-                      { href: "/favorites", label: t("nav.favorites"), icon: Sparkles }
-                    ].map((item) => (
-                      <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
-                        <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
-                          <div className="flex items-center gap-4">
-                            <item.icon className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
-                            <span className="text-lg font-bold tracking-tight">{item.label}</span>
-                          </div>
-                          <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
-                        </div>
-                      </Link>
-                    ))}
-                  </nav>
-
-                  {authUser ? (
-                    <div className="pt-6 border-t border-stone-100 flex flex-col gap-3">
-                      <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
-                        <ShieldCheck className="h-5 w-5 text-green-600" />
-                        <div>
-                          <p className="text-sm font-bold text-stone-900">{t("nav.verified_account")}</p>
-                          <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">{t("nav.secure")}</p>
-                        </div>
+        {/* Mobile Left Group: Hamburger + Logo + Mobile Shop Button */}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="lg:hidden flex-shrink-0">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
+                <div className="flex flex-col h-full">
+                  <SheetHeader className="p-6 text-left bg-stone-950 text-white relative">
+                    <SheetClose asChild>
+                      <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-50">
+                        <X className="h-5 w-5" />
+                        <span className="sr-only">Close menu</span>
+                      </button>
+                    </SheetClose>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="h-12 w-12 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
+                        <Image src="/logo-new.png" alt="Tola" width={48} height={48} className="object-cover" />
                       </div>
-                      <Button
-                        variant="ghost"
-                        className="h-14 rounded-2xl text-destructive font-bold text-sm hover:bg-destructive/5"
-                        onClick={() => {
-                          setMobileMenuOpen(false)
-                          handleLogout()
-                        }}
-                      >
-                        <LogOut className="mr-3 h-5 w-5" />
-                        {t("nav.logout")}
-                      </Button>
+                      <div>
+                        <SheetTitle className="text-2xl font-black tracking-tighter text-white">{t("nav.menu")}</SheetTitle>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("nav.navigation")}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="pt-6 border-t border-stone-100">
-                      <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                        <Button className="w-full h-14 rounded-2xl font-extrabold uppercase tracking-wider text-xs shadow-lg shadow-primary/20">
-                          {t("auth.login_signup")}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+                  </SheetHeader>
 
-        {/* Logo & Brand Identity */}
-        <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
-          <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
-            <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {/* Mobile Language Switcher Row */}
+                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-150 flex items-center justify-between">
+                      <span className="text-sm font-bold text-stone-700">Language / Lugha</span>
+                      <LanguageSwitcher />
+                    </div>
+
+                    <nav className="grid gap-3">
+                      {[
+                        { href: "/", label: t("nav.home"), icon: Home },
+                        { href: "/shop", label: t("nav.shop"), icon: ShoppingBag },
+                        { href: "/track", label: t("nav.track"), icon: Truck },
+                        { href: "/validation", label: t("nav.survey"), icon: ClipboardList },
+                        { href: "/profile", label: t("nav.profile"), icon: User },
+                        { href: "/orders", label: t("nav.orders"), icon: Package },
+                        { href: "/favorites", label: t("nav.favorites"), icon: Sparkles }
+                      ].map((item) => (
+                        <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                          <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
+                            <div className="flex items-center gap-4">
+                              <item.icon className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
+                              <span className="text-lg font-bold tracking-tight">{item.label}</span>
+                            </div>
+                            <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                          </div>
+                        </Link>
+                      ))}
+                    </nav>
+
+                    {authUser ? (
+                      <div className="pt-6 border-t border-stone-100 flex flex-col gap-3">
+                        <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
+                          <ShieldCheck className="h-5 w-5 text-green-600" />
+                          <div>
+                            <p className="text-sm font-bold text-stone-900">{t("nav.verified_account")}</p>
+                            <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">{t("nav.secure")}</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="h-14 rounded-2xl text-destructive font-bold text-sm hover:bg-destructive/5"
+                          onClick={() => {
+                            setMobileMenuOpen(false)
+                            handleLogout()
+                          }}
+                        >
+                          <LogOut className="mr-3 h-5 w-5" />
+                          {t("nav.logout")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="pt-6 border-t border-stone-100">
+                        <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                          <Button className="w-full h-14 rounded-2xl font-extrabold uppercase tracking-wider text-xs shadow-lg shadow-primary/20">
+                            {t("auth.login_signup")}
+                          </Button>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-          <div className="hidden sm:flex flex-col">
-            <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
-          </div>
-        </Link>
+
+          {/* Logo & Brand Identity */}
+          <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
+            <div className="relative h-10 w-10 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-2 md:ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
+              <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
+            </div>
+            <div className="hidden sm:flex flex-col">
+              <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
+            </div>
+          </Link>
+
+          {/* Mobile Shop Button next to Logo */}
+          <Link href="/shop" className="lg:hidden flex-shrink-0">
+            <Button variant="ghost" className="h-9 rounded-full px-3 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 flex items-center gap-1.5 transition-all">
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-extrabold">{t("nav.shop")}</span>
+            </Button>
+          </Link>
+        </div>
 
         {/* Search Architecture - Elite Footprint */}
         <div className="hidden lg:flex flex-1 max-w-2xl mx-4 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
