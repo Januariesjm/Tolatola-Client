@@ -174,7 +174,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               window.location.href = `/shop?search=${encodeURIComponent(query)}`
             }
           }}
-          className="pl-9 lg:pl-12 pr-9 lg:pr-12 h-9 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-[11px] lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
+          className="pl-9 lg:pl-12 pr-9 lg:pr-12 h-11 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-xs lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
         />
 
         <div className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 lg:gap-1">

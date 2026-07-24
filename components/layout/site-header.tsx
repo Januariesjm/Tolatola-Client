@@ -128,7 +128,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
   return (
     <header className={cn(
-      "sticky top-0 z-[100] will-change-transform transform-gpu w-full h-[108px] bg-white border-b border-stone-200/50 lg:border-none lg:bg-transparent",
+      "sticky top-0 z-[100] will-change-transform transform-gpu w-full h-[116px] bg-white border-b border-stone-200/50 lg:border-none lg:bg-transparent",
       scrolled
         ? "lg:bg-white/80 lg:backdrop-blur-2xl lg:border-b lg:border-stone-200/50 lg:shadow-xl lg:shadow-stone-200/20 lg:h-[72px]"
         : "lg:bg-transparent lg:border-b lg:border-transparent lg:h-[96px]"
@@ -462,14 +462,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         </div>
 
         {/* Row 2: Track Order + Search (Mobile Only) */}
-        <div className="lg:hidden flex items-center gap-2.5 w-full h-11 pb-2">
+        <div className="lg:hidden flex items-center gap-2 w-full h-12 pb-2">
           <Link href="/track" className="flex-shrink-0">
-            <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[11px] uppercase tracking-wider rounded-full px-3.5 h-9 shadow-md shadow-primary/25 flex items-center gap-1.5 transition-all hover:-translate-y-0.5">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[10px] tracking-tight rounded-full px-2.5 h-10 shadow-md shadow-primary/20 flex items-center gap-1 transition-all hover:-translate-y-0.5">
               <MapPin className="h-3.5 w-3.5" />
               {t("nav.track")}
             </Button>
           </Link>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <ProductSearch />
           </div>
         </div>
