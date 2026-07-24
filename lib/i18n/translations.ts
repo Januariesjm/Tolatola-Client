@@ -103,7 +103,7 @@ export const translations = {
     "auth.password": "Password",
     "auth.full_name": "Full Name",
     "auth.forgot_password": "Forgot Password?",
-    "auth.login_signup": "Login / Sign Up",
+    "auth.login_signup": "Sign In",
 
     // Footer
     "footer.about": "About TOLA",
@@ -225,7 +225,7 @@ export const translations = {
     "auth.password": "Nenosiri",
     "auth.full_name": "Jina Kamili",
     "auth.forgot_password": "Umesahau Nenosiri?",
-    "auth.login_signup": "Ingia / Jisajili",
+    "auth.login_signup": "Ingia",
 
     // Footer
     "footer.about": "Kuhusu TOLA",
@@ -346,7 +346,7 @@ export const translations = {
     "auth.password": "كلمة المرور",
     "auth.full_name": "الاسم الكامل",
     "auth.forgot_password": "نسيت كلمة المرور؟",
-    "auth.login_signup": "تسجيل الدخول / التسجيل",
+    "auth.login_signup": "تسجيل الدخول",
 
     // Footer
     "footer.about": "عن TOLA",
@@ -467,7 +467,7 @@ export const translations = {
     "auth.password": "密码",
     "auth.full_name": "全名",
     "auth.forgot_password": "忘记密码？",
-    "auth.login_signup": "登录 / 注册",
+    "auth.login_signup": "登录",
 
     // Footer
     "footer.about": "关于 TOLA",

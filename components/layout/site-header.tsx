@@ -188,7 +188,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     ))}
                   </nav>
 
-                  {authUser && (
+                  {authUser ? (
                     <div className="pt-6 border-t border-stone-100 flex flex-col gap-3">
                       <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
                         <ShieldCheck className="h-5 w-5 text-green-600" />
@@ -208,6 +208,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         <LogOut className="mr-3 h-5 w-5" />
                         {t("nav.logout")}
                       </Button>
+                    </div>
+                  ) : (
+                    <div className="pt-6 border-t border-stone-100">
+                      <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                        <Button className="w-full h-14 rounded-2xl font-extrabold uppercase tracking-wider text-xs shadow-lg shadow-primary/20">
+                          {t("auth.login_signup")}
+                        </Button>
+                      </Link>
                     </div>
                   )}
                 </div>
