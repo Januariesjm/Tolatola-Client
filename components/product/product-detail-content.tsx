@@ -21,7 +21,8 @@ import {
   Lock,
   MessageCircle,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  MapPin
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -189,6 +190,12 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     })
   }
 
+  const productLocation = product.location || 
+    [product.shops?.ward, product.shops?.district, product.shops?.region].filter(Boolean).join(", ") || 
+    product.shops?.address || 
+    product.shops?.region || 
+    null
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
@@ -216,20 +223,6 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <ShoppingBag className="h-32 w-32" />
               </div>
             )}
-
-            {/* Overlay Badges */}
-            <div className="absolute top-8 left-8 flex flex-col gap-2">
-              <Badge className="bg-white/80 backdrop-blur-xl text-stone-900 border-none px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">
-                <Sparkles className="h-3 w-3 mr-2 text-primary" />
-                Premium Inventory
-              </Badge>
-              {product.stock_quantity > 0 && (
-                <Badge className="bg-stone-900/80 backdrop-blur-xl text-white border-none px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">
-                  <Zap className="h-3 w-3 mr-2 text-primary" />
-                  Instant Dispatch
-                </Badge>
-              )}
-            </div>
           </div>
 
           {/* Boutique Thumbnails */}
@@ -296,6 +289,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                 <span>{isService ? "Available Offering" : "Verified Stock"}</span>
               </div>
+
+              {productLocation && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 border border-stone-200/60 text-[10px] font-black uppercase tracking-wider">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  <span>{productLocation}</span>
+                </div>
+              )}
             </div>
 
             <h1 className="font-sans font-black text-4xl md:text-5xl text-stone-900 leading-tight tracking-tight hover:text-stone-950 transition-colors">
@@ -469,45 +469,36 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             </div>
 
             <div className="grid gap-4">
-              <Button
-                className={cn(
-                  "h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.98]",
-                  isInCart
-                    ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm shadow-emerald-500/5"
-                    : "bg-[#0B5ED7] hover:bg-[#094cb0] text-white shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5"
-                )}
-                onClick={handleAddToCart}
-                disabled={product.stock_quantity === 0}
-              >
-                {product.stock_quantity === 0 ? (
-                  <>{t("products.sold_out")}</>
-                ) : isInCart ? (
-                  <>
-                    <Check className="h-4.5 w-4.5 text-emerald-600 animate-in fade-in zoom-in-50" />
-                    {t("products.in_cart")}
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="h-4.5 w-4.5 text-primary" />
-                    {t("products.add_to_cart_long")}
-                  </>
-                )}
-              </Button>
-
               <div className="flex gap-3">
-                <div className="flex-1">
-                  <ChatButton
-                    shopId={product.shops?.id}
-                    shopName={product.shops?.name || "Seller"}
-                    productId={product.id}
-                    productName={product.name}
-                  />
-                </div>
+                <Button
+                  className={cn(
+                    "flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.98]",
+                    isInCart
+                      ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm shadow-emerald-500/5"
+                      : "bg-[#0B5ED7] hover:bg-[#094cb0] text-white shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5"
+                  )}
+                  onClick={handleAddToCart}
+                  disabled={product.stock_quantity === 0}
+                >
+                  {product.stock_quantity === 0 ? (
+                    <>{t("products.sold_out")}</>
+                  ) : isInCart ? (
+                    <>
+                      <Check className="h-4.5 w-4.5 text-emerald-600 animate-in fade-in zoom-in-50" />
+                      {t("products.in_cart")}
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-4.5 w-4.5 text-primary" />
+                      {t("products.add_to_cart_long")}
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   className={cn(
-                    "h-14 w-14 rounded-2xl border-stone-200 hover:border-primary/40 hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md",
+                    "h-14 w-14 rounded-2xl border-stone-200 hover:border-primary/40 hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md shrink-0",
                     isLiked && "bg-rose-50 border-rose-100 text-rose-600 hover:text-rose-700 hover:border-rose-200"
                   )}
                   onClick={handleLike}
@@ -586,6 +577,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <span className="text-xs font-medium text-stone-500">Category</span>
                 <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">{product.categories?.name || "Inventory"}</span>
               </div>
+              {productLocation && (
+                <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
+                  <span className="text-xs font-medium text-stone-500">Location</span>
+                  <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md flex items-center gap-1">
+                    <MapPin className="h-3 w-3 text-primary" />
+                    {productLocation}
+                  </span>
+                </div>
+              )}
 
               {/* Vehicle Specifications */}
               {product.vehicle_section === "vehicle" && (
