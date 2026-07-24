@@ -313,22 +313,22 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 </div>
 
                 {/* Mobile: Favorites + Cart icons */}
-                <div className="flex lg:hidden items-center gap-0.5">
+                <div className="flex lg:hidden items-center gap-1">
                   <Link href="/favorites" className="relative">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <Heart className="h-[18px] w-[18px]" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-700 hover:text-amber-500 hover:bg-amber-50 transition-all">
+                      <Heart className="h-5 w-5" />
                       {favorites.length > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-black h-4.5 w-4.5 min-w-[18px] rounded-full flex items-center justify-center ring-2 ring-white shadow-sm px-1">
                           {favorites.length > 9 ? "9+" : favorites.length}
                         </span>
                       )}
                     </Button>
                   </Link>
                   <Link href="/cart" className="relative">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-primary hover:bg-primary/5 transition-all">
-                      <ShoppingCart className="h-[18px] w-[18px]" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-700 hover:text-primary hover:bg-primary/5 transition-all">
+                      <ShoppingCart className="h-5 w-5" />
                       {cartCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black h-4.5 w-4.5 min-w-[18px] rounded-full flex items-center justify-center ring-2 ring-white shadow-sm px-1">
                           {cartCount > 99 ? "99+" : cartCount}
                         </span>
                       )}
@@ -471,22 +471,22 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 </div>
 
                 {/* Mobile: Favorites + Cart + Login/Sign Up */}
-                <div className="flex lg:hidden items-center gap-0.5">
+                <div className="flex lg:hidden items-center gap-1">
                   <Link href="/favorites" className="relative">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <Heart className="h-[18px] w-[18px]" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-700 hover:text-amber-500 hover:bg-amber-50 transition-all">
+                      <Heart className="h-5 w-5" />
                       {favorites.length > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] font-black h-4.5 w-4.5 min-w-[18px] rounded-full flex items-center justify-center ring-2 ring-white shadow-sm px-1">
                           {favorites.length > 9 ? "9+" : favorites.length}
                         </span>
                       )}
                     </Button>
                   </Link>
                   <Link href="/cart" className="relative">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-primary hover:bg-primary/5 transition-all">
-                      <ShoppingCart className="h-[18px] w-[18px]" />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-700 hover:text-primary hover:bg-primary/5 transition-all">
+                      <ShoppingCart className="h-5 w-5" />
                       {cartCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black h-4.5 w-4.5 min-w-[18px] rounded-full flex items-center justify-center ring-2 ring-white shadow-sm px-1">
                           {cartCount > 99 ? "99+" : cartCount}
                         </span>
                       )}
