@@ -87,6 +87,26 @@ export function SiteFooter() {
             <p className="text-xs sm:text-sm leading-relaxed max-w-sm">
               Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with global accessibility.
             </p>
+            <div className="pt-2">
+              <a
+                href="https://play.google.com/store/apps/details?id=co.tolata.tolamobile&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-black border border-white/20 text-white hover:bg-stone-900 transition-all duration-300 shadow-xl group hover:scale-[1.02] active:scale-95"
+              >
+                <svg className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0" viewBox="0 0 24 24">
+                  <path fill="#ea4335" d="M3.609 1.814L13.792 12 3.61 22.186a1.94 1.94 0 0 1-.61-1.428V3.242c0-.555.226-1.055.609-1.428z" />
+                  <path fill="#fbbc04" d="M17.483 8.309l-3.691 3.691 3.691 3.691 4.298-2.456c.749-.428.749-1.127 0-1.555l-4.298-2.371z" />
+                  <path fill="#4285f4" d="M13.792 12L3.609 1.814c.338-.338.838-.456 1.341-.17l12.533 7.165-3.691 3.191z" />
+                  <path fill="#34a853" d="M13.792 12l3.691 3.191L4.95 22.356c-.503.286-1.003.168-1.341-.17L13.792 12z" />
+                </svg>
+                <div className="flex flex-col text-left leading-none">
+                  <span className="text-[9px] uppercase font-bold text-stone-300 tracking-wider">Get it On</span>
+                  <span className="text-xs sm:text-sm font-black text-white tracking-tight mt-0.5">Google Play</span>
+                </div>
+              </a>
+            </div>
+
             <div className="flex items-center gap-3 sm:gap-4">
               {[
                 { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61585501071622" },
