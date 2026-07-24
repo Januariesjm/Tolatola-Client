@@ -8,6 +8,7 @@ interface Category {
   slug: string
   description: string | null
   parent_id?: string | null
+  image_url?: string | null
 }
 
 interface CategoriesNavProps {
@@ -40,43 +41,60 @@ const categoryImages: Record<string, string> = {
   kids: "/category-textiles.jpg",
 }
 
+function getCatImage(cat: Category): string {
+  if (cat.image_url) return cat.image_url
+  if (cat.slug && categoryImages[cat.slug]) return categoryImages[cat.slug]
+  return "/abstract-categories.png"
+}
+
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
   const parentCategories = categories.filter(c => !c.parent_id)
 
   return (
     <nav className="sticky top-[108px] lg:top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-4">
+        <div className="flex items-start gap-5 lg:gap-6 overflow-x-auto scrollbar-hide py-4">
           {/* All Categories */}
           <Link
             href="/shop"
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl whitespace-nowrap transition-all font-black text-xs uppercase tracking-widest ${!currentCategory
-              ? "bg-primary text-white shadow-xl shadow-primary/20"
-              : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
-              }`}
+            className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
-            <Grid3x3 className="h-4 w-4" />
-            <span>All Categories</span>
+            <div className={`h-12 w-12 lg:h-14 lg:w-14 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg ${!currentCategory
+              ? "bg-primary text-white shadow-xl shadow-primary/20 ring-2 ring-primary/30"
+              : "bg-stone-100 text-stone-500 group-hover:bg-stone-200"
+              }`}>
+              <Grid3x3 className="h-5 w-5 lg:h-6 lg:w-6" />
+            </div>
+            <span className={`text-[10px] lg:text-[11px] font-bold text-center leading-tight max-w-[64px] ${!currentCategory ? "text-primary" : "text-stone-600"}`}>
+              All
+            </span>
           </Link>
 
           {/* Category Links */}
           {parentCategories.slice(0, 12).map((category) => {
-            const imageUrl = categoryImages[category.slug] || "/abstract-categories.png"
+            const imageUrl = getCatImage(category)
             const isActive = currentCategory === category.slug
 
             return (
               <Link
                 key={category.id}
                 href={`/shop?category=${category.slug}`}
-                className={`flex items-center gap-3 px-5 py-2 rounded-2xl whitespace-nowrap transition-all border font-bold text-xs ${isActive
-                  ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
-                  : "bg-white text-stone-600 border-stone-100 hover:border-primary/30 hover:bg-stone-50"
-                  }`}
+                className="flex flex-col items-center gap-2 flex-shrink-0 group"
               >
-                <div className="relative h-6 w-6 rounded-lg overflow-hidden flex-shrink-0 bg-stone-100">
-                  <Image src={imageUrl || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
+                <div className={`relative h-12 w-12 lg:h-14 lg:w-14 rounded-full overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg ${isActive
+                  ? "ring-2 ring-primary shadow-xl shadow-primary/20"
+                  : "ring-1 ring-stone-200 group-hover:ring-primary/40"
+                  }`}>
+                  <Image
+                    src={imageUrl || "/placeholder.svg"}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <span>{category.name}</span>
+                <span className={`text-[10px] lg:text-[11px] font-bold text-center leading-tight max-w-[64px] line-clamp-2 ${isActive ? "text-primary" : "text-stone-600"}`}>
+                  {category.name}
+                </span>
               </Link>
             )
           })}

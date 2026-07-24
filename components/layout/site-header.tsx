@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -39,7 +40,8 @@ import {
   Truck,
   MapPin,
   Search,
-  ClipboardList
+  ClipboardList,
+  X
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -145,9 +147,15 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
+            <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
               <div className="flex flex-col h-full">
-                <SheetHeader className="p-6 text-left bg-stone-950 text-white">
+                <SheetHeader className="p-6 text-left bg-stone-950 text-white relative">
+                  <SheetClose asChild>
+                    <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-50">
+                      <X className="h-5 w-5" />
+                      <span className="sr-only">Close menu</span>
+                    </button>
+                  </SheetClose>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="h-12 w-12 rounded-2xl overflow-hidden ring-4 ring-white/10 shadow-2xl">
                       <Image src="/logo-new.png" alt="Tola" width={48} height={48} className="object-cover" />

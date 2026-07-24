@@ -203,24 +203,25 @@ export function MobileBottomNav() {
                         <SheetHeader className="p-6 border-b border-stone-100">
                             <SheetTitle className="text-xl font-black tracking-tight text-stone-900">{t("nav.explore_categories")}</SheetTitle>
                         </SheetHeader>
-                        <div className="overflow-y-auto h-full pb-20 p-4">
-                            <div className="grid gap-2">
+                        <div className="overflow-y-auto h-full pb-20 p-6">
+                            <div className="grid grid-cols-3 gap-x-4 gap-y-5">
                                 {categories.map((cat) => (
                                     <Link
                                         key={cat.id}
                                         href={`/shop?category=${cat.slug}`}
                                         onClick={() => setIsCategoriesOpen(false)}
-                                        className="flex items-center justify-between p-4 rounded-2xl bg-stone-50 hover:bg-stone-100 transition-colors group"
+                                        className="flex flex-col items-center gap-2 group"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            {cat.image_url && (
-                                                <div className="h-10 w-10 rounded-xl overflow-hidden relative border border-stone-200">
-                                                    <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
+                                        <div className="relative h-16 w-16 rounded-full overflow-hidden ring-1 ring-stone-200 group-hover:ring-2 group-hover:ring-primary/50 transition-all group-hover:scale-105">
+                                            {cat.image_url ? (
+                                                <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-stone-100 flex items-center justify-center">
+                                                    <Grid3x3 className="h-5 w-5 text-stone-400" />
                                                 </div>
                                             )}
-                                            <span className="font-bold text-stone-900">{cat.name}</span>
                                         </div>
-                                        <ChevronRight className="h-4 w-4 text-stone-300 group-hover:text-primary transition-colors" />
+                                        <span className="text-[11px] font-bold text-stone-700 text-center leading-tight line-clamp-2 max-w-[72px]">{cat.name}</span>
                                     </Link>
                                 ))}
                             </div>

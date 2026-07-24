@@ -192,9 +192,9 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Trending Categories - Redesigned for density */}
-        <section className="py-2 md:py-4 container mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-2 md:mb-4 gap-2">
+        {/* Trending Categories - Circular Icons */}
+        <section className="py-4 md:py-6 container mx-auto px-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 md:mb-6 gap-2">
             <div className="space-y-0.5 text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-1 text-primary font-bold uppercase tracking-wider text-[8px]">
                 <Sparkles className="h-2.5 w-2.5" />
@@ -207,67 +207,31 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-5 md:gap-x-6 md:gap-y-6">
             {categories.filter((c: any) => !c.parent_id).slice(0, 12).map((cat: any, i) => {
-              // Get background image based on category slug, name, or use image_url from database
               const getCategoryImage = () => {
-                // First try database image_url
                 if (cat.image_url) return cat.image_url
-
-                // Try matching by slug
                 if (cat.slug && categoryImages[cat.slug.toLowerCase()]) {
                   return categoryImages[cat.slug.toLowerCase()]
                 }
-
-                // Try matching by name (normalized)
                 const categoryName = (cat.name || "").toLowerCase().replace(/\s+/g, "-")
                 if (categoryImages[categoryName]) {
                   return categoryImages[categoryName]
                 }
-
-                // Try partial matches for common category names
                 const nameLower = (cat.name || "").toLowerCase()
-                if (nameLower.includes("agriculture") || nameLower.includes("farm")) {
-                  return categoryImages.agriculture
-                }
-                if (nameLower.includes("handicraft") || nameLower.includes("craft")) {
-                  return categoryImages.handicrafts
-                }
-                if (nameLower.includes("food") || nameLower.includes("beverage")) {
-                  return categoryImages.food
-                }
-                if (nameLower.includes("textile") || nameLower.includes("fabric") || nameLower.includes("cloth") || nameLower.includes("fashion")) {
-                  return categoryImages.textiles
-                }
-                if (nameLower.includes("electronic") || nameLower.includes("gadget")) {
-                  return categoryImages.electronics
-                }
-                if (nameLower.includes("home") || nameLower.includes("garden")) {
-                  return categoryImages["home-garden"]
-                }
-                if (nameLower.includes("health") || nameLower.includes("beauty")) {
-                  return categoryImages["health-beauty"]
-                }
-                if (nameLower.includes("service") || nameLower.includes("business")) {
-                  return categoryImages.services
-                }
-                if (nameLower.includes("construction") || nameLower.includes("hardware")) {
-                  return categoryImages["construction-hardware"]
-                }
-                if (nameLower.includes("fast moving") || nameLower.includes("consumer goods") || nameLower.includes("fmcg")) {
-                  return categoryImages["fast-moving-consumer-goods"]
-                }
-                if (nameLower.includes("ready to eat") || nameLower.includes("ready-to-eat")) {
-                  return categoryImages["ready-to-eat"]
-                }
-                if (nameLower.includes("spare") || nameLower.includes("part")) {
-                  return categoryImages["spare-parts"]
-                }
-                if (nameLower.includes("drink") || nameLower.includes("alcohol")) {
-                  return categoryImages.drinks
-                }
-
-                // Default fallback
+                if (nameLower.includes("agriculture") || nameLower.includes("farm")) return categoryImages.agriculture
+                if (nameLower.includes("handicraft") || nameLower.includes("craft")) return categoryImages.handicrafts
+                if (nameLower.includes("food") || nameLower.includes("beverage")) return categoryImages.food
+                if (nameLower.includes("textile") || nameLower.includes("fabric") || nameLower.includes("cloth") || nameLower.includes("fashion")) return categoryImages.textiles
+                if (nameLower.includes("electronic") || nameLower.includes("gadget")) return categoryImages.electronics
+                if (nameLower.includes("home") || nameLower.includes("garden")) return categoryImages["home-garden"]
+                if (nameLower.includes("health") || nameLower.includes("beauty")) return categoryImages["health-beauty"]
+                if (nameLower.includes("service") || nameLower.includes("business")) return categoryImages.services
+                if (nameLower.includes("construction") || nameLower.includes("hardware")) return categoryImages["construction-hardware"]
+                if (nameLower.includes("fast moving") || nameLower.includes("consumer goods") || nameLower.includes("fmcg")) return categoryImages["fast-moving-consumer-goods"]
+                if (nameLower.includes("ready to eat") || nameLower.includes("ready-to-eat")) return categoryImages["ready-to-eat"]
+                if (nameLower.includes("spare") || nameLower.includes("part")) return categoryImages["spare-parts"]
+                if (nameLower.includes("drink") || nameLower.includes("alcohol")) return categoryImages.drinks
                 return categoryImages.default || "/abstract-categories.png"
               }
 
@@ -277,21 +241,17 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/shop?category=${cat.slug || cat.id}`}
-                  className="group relative aspect-[3/1.5] rounded-xl overflow-hidden border border-stone-100 hover:border-primary/50 hover:shadow-md transition-all duration-300"
+                  className="group flex flex-col items-center gap-2"
                 >
-                  {/* Background Image */}
-                  <div
-                    className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-80"
-                    style={{ backgroundImage: `url(${backgroundImage})` }}
-                  />
-
-                  {/* Stronger Overlay for text readability on small cards */}
-                  <div className="absolute inset-0 bg-stone-950/40 group-hover:bg-stone-950/50 transition-colors" />
-
-                  {/* Content - Centered for menu-like feel */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
-                    <h3 className="text-white text-[10px] md:text-xs font-semibold tracking-tight leading-tight">{cat.name}</h3>
+                  <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden ring-1 ring-stone-200 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300 group-hover:scale-105">
+                    <Image
+                      src={backgroundImage}
+                      alt={cat.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
+                  <h3 className="text-[10px] md:text-xs font-bold text-stone-700 text-center leading-tight line-clamp-2 max-w-[80px] md:max-w-[96px]">{cat.name}</h3>
                 </Link>
               )
             })}
