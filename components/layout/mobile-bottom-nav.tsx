@@ -26,6 +26,31 @@ import { fetchUnreadCount } from "@/lib/services/notifications.service"
 
 import { useLanguage } from "@/lib/i18n/language-context"
 
+const categoryImageMap: Record<string, string> = {
+    "fast-moving-consumer-goods": "/category-fmcg.jpg",
+    agriculture: "/category-agriculture.jpg",
+    "construction-hardware": "/category-hardware.jpg",
+    handicrafts: "/category-handicrafts.jpg",
+    "food-beverages": "/category-food-beverages.jpg",
+    textiles: "/category-textiles.jpg",
+    fashion: "/category-textiles.jpg",
+    electronics: "/category-electronics.jpg",
+    "home-garden": "/category-home-garden.jpg",
+    "health-beauty": "/category-health-beauty.jpg",
+    services: "/category-services.jpg",
+    vehicles: "/category-vehicles.jpg",
+    "vehicles-sub": "/category-vehicles-sub.jpg",
+    "ready-to-eat": "/category-ready-to-eat.jpg",
+    "spare-parts": "/category-spare-parts.jpg",
+    drinks: "/category-drinks.jpg",
+    "non-alcoholic": "/category-non-alcoholic.jpg",
+    alcoholic: "/category-alcoholic.jpg",
+    motorcycles: "/category-motorcycles.jpg",
+    men: "/category-textiles.jpg",
+    women: "/category-textiles.jpg",
+    kids: "/category-textiles.jpg",
+}
+
 export function MobileBottomNav() {
     const { t } = useLanguage()
     const pathname = usePathname()
@@ -204,26 +229,36 @@ export function MobileBottomNav() {
                             <SheetTitle className="text-xl font-black tracking-tight text-stone-900">{t("nav.explore_categories")}</SheetTitle>
                         </SheetHeader>
                         <div className="overflow-y-auto h-full pb-20 p-6">
-                            <div className="grid grid-cols-3 gap-x-4 gap-y-5">
-                                {categories.map((cat) => (
-                                    <Link
-                                        key={cat.id}
-                                        href={`/shop?category=${cat.slug}`}
-                                        onClick={() => setIsCategoriesOpen(false)}
-                                        className="flex flex-col items-center gap-2 group"
-                                    >
-                                        <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/50 transition-all group-hover:scale-105 group-hover:shadow-md">
-                                            {cat.image_url ? (
-                                                <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full bg-stone-100 flex items-center justify-center">
-                                                    <Grid3x3 className="h-6 w-6 text-stone-400" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <span className="text-xs font-bold text-stone-800 text-center leading-tight line-clamp-2 max-w-[80px]">{cat.name}</span>
-                                    </Link>
-                                ))}
+                            <div className="flex flex-wrap justify-start gap-x-5 gap-y-5">
+                                {/* All Categories tile */}
+                                <Link
+                                    href="/shop"
+                                    onClick={() => setIsCategoriesOpen(false)}
+                                    className="flex flex-col items-center gap-2 group"
+                                >
+                                    <div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-primary text-white shadow-lg shadow-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
+                                        <Grid3x3 className="h-7 w-7" />
+                                    </div>
+                                    <span className="text-[11px] font-extrabold text-primary text-center leading-tight max-w-[72px]">All</span>
+                                </Link>
+
+                                {/* Category tiles */}
+                                {categories.filter(c => !c.parent_id).map((cat) => {
+                                    const imageUrl = cat.image_url || categoryImageMap[cat.slug] || "/abstract-categories.png"
+                                    return (
+                                        <Link
+                                            key={cat.id}
+                                            href={`/shop?category=${cat.slug}`}
+                                            onClick={() => setIsCategoriesOpen(false)}
+                                            className="flex flex-col items-center gap-2 group"
+                                        >
+                                            <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
+                                                <Image src={imageUrl} alt={cat.name} fill className="object-cover" />
+                                            </div>
+                                            <span className="text-[11px] font-bold text-stone-700 text-center leading-tight max-w-[72px] line-clamp-2">{cat.name}</span>
+                                        </Link>
+                                    )
+                                })}
                             </div>
                         </div>
                     </SheetContent>
