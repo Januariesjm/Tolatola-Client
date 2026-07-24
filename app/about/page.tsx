@@ -123,18 +123,16 @@ export default async function AboutPage() {
                   <div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Company Information</h3>
                     <p className="text-xl font-bold leading-tight">
-                      TOLA is owned and operated by <span className="underline decoration-primary/30 decoration-2 underline-offset-4">Dan’G Group of Companies Limited</span>, a legally registered company in the United Republic of Tanzania.
+                      TOLA is owned and operated by <span className="underline decoration-primary/30 decoration-2 underline-offset-4">TOLA GLOBAL SYSTEMS LIMITED</span>, a legally registered company in the United Republic of Tanzania.
                     </p>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
                     {[
-                      { label: "Legal Company Name", value: "Dan’G Group of Companies Limited" },
+                      { label: "Legal Company Name", value: "TOLA GLOBAL SYSTEMS LIMITED" },
                       { label: "Business Name", value: "TOLA" },
-                      { label: "Company Registration (BRELA)", value: "165214285" },
-                      { label: "Business Name Registration", value: "627634" },
-                      { label: "TIN", value: "165-214-285" },
-                      { label: "NSSF Number", value: "1042932" },
+                      { label: "Company Registration (BRELA)", value: "REGISTRATION NO 207121622" },
+                      { label: "TIN", value: "207121622" },
                       { label: "Country of Incorporation", value: "United Republic of Tanzania" }
                     ].map((item, i) => (
                       <div key={i} className="space-y-0.5">
@@ -151,8 +149,8 @@ export default async function AboutPage() {
                   <MapPin className="h-10 w-10 mb-6" />
                   <h3 className="text-xl font-black mb-4">Registered Address</h3>
                   <div className="space-y-1 text-base">
-                    <p className="font-bold">P.O. Box 372</p>
-                    <p>Kibaha-Pwani</p>
+                    <p className="font-bold">P O BOX 372</p>
+                    <p>Mikocheni Dar Es Salaam</p>
                     <p>Tanzania</p>
                   </div>
                 </div>
@@ -179,15 +177,15 @@ export default async function AboutPage() {
               {[
                 {
                   icon: <Phone className="h-5 w-5" />,
-                  title: "Dar es Salaam HQ",
+                  title: "Mikocheni Dar Es Salaam HQ",
                   detail: "+255 678 227 227",
                   desc: "Head Office"
                 },
                 {
                   icon: <Phone className="h-5 w-5" />,
-                  title: "Kibaha Pwani - Main Branch",
+                  title: "Kibaha Pwani Main Branch",
                   detail: "+255 625 377 978",
-                  desc: "Regional Branch"
+                  desc: "Main Branch"
                 },
                 {
                   icon: <Mail className="h-5 w-5" />,
@@ -259,7 +257,7 @@ export default async function AboutPage() {
             <h2 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Legal Disclaimer</h2>
             <div className="space-y-4 text-muted-foreground/80 leading-relaxed text-xs">
               <p>
-                TOLA is a digital trade and supply chain ecosystem operated by Dan’G Group of Companies Limited. All information provided on this website is for general informational purposes only and does not constitute legal, financial, or professional advice.
+                TOLA is a digital trade and supply chain ecosystem operated by TOLA GLOBAL SYSTEMS LIMITED. All information provided on this website is for general informational purposes only and does not constitute legal, financial, or professional advice.
               </p>
               <p className="font-bold underline underline-offset-2 decoration-primary/20">
                 Use of the platform is subject to our Terms of Service and Privacy Policy.

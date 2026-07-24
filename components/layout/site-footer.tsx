@@ -30,8 +30,8 @@ export function SiteFooter() {
       { name: "Site Map", href: "/sitemap" },
     ],
     offices: [
-      { name: "Dar Es Salaam HQ", phone: "+255 678 227 227", icon: MapPin },
-      { name: "Kibaha Pwani - Main Branch", phone: "+255 625 377 978", icon: Globe },
+      { name: "Mikocheni Dar Es Salaam HQ", phone: "+255 678 227 227", icon: MapPin },
+      { name: "Kibaha Pwani Main Branch", phone: "+255 625 377 978", icon: Globe },
     ]
   }
 
@@ -198,19 +198,15 @@ export function SiteFooter() {
             {/* Company Registration Info */}
             <div className="text-center space-y-1.5 sm:space-y-2">
               <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-cyan-300/80">
-                Owned and Operated by DAN'G GROUP OF COMPANIES LIMITED
+                Owned and Operated by TOLA GLOBAL SYSTEMS LIMITED
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-cyan-300/60">
-                <span>Company Reg: 165214285</span>
+                <span>Company Reg: REGISTRATION NO 207121622</span>
                 <span className="hidden sm:inline">•</span>
-                <span>TIN: 165-214-285</span>
-                <span className="hidden sm:inline">•</span>
-                <span>NSSF: 1042932</span>
-                <span className="hidden sm:inline">•</span>
-                <span>Business Name Reg: 627634</span>
+                <span>TIN NO: 207121622</span>
               </div>
               <p className="text-[8px] sm:text-[9px] font-medium tracking-wider text-cyan-300/50">
-                P.O. Box 372, Kibaha-Pwani, Tanzania
+                P O BOX 372, MIKOCHENI DAR ES SALAAM, TANZANIA
               </p>
             </div>
 

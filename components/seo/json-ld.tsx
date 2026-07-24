@@ -23,15 +23,15 @@ export function JsonLd() {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "TOLA Tanzania",
-        "alternateName": ["TolaTola", "TOLA Digital Trade", "DAN'G GROUP OF COMPANIES LIMITED"],
+        "alternateName": ["TolaTola", "TOLA Digital Trade", "TOLA GLOBAL SYSTEMS LIMITED"],
         "url": "https://tolatola.co",
         "logo": "https://tolatola.co/logo-new.png",
         "description": "Tanzania's Digital Trade and Supply Chain Ecosystem. Registered with TRA, BRELA and TCRA. Connect buyers, vendors and transporters with verified trade, secure payments (M-Pesa, Tigo Pesa) and integrated logistics.",
         "address": {
             "@type": "PostalAddress",
-            "streetAddress": "P.O. Box 372",
-            "addressLocality": "Kibaha",
-            "addressRegion": "Pwani",
+            "streetAddress": "P O BOX 372",
+            "addressLocality": "Mikocheni",
+            "addressRegion": "Dar Es Salaam",
             "addressCountry": "TZ"
         },
         "sameAs": [
@@ -49,7 +49,7 @@ export function JsonLd() {
                 "areaServed": "TZ",
                 "availableLanguage": ["English", "Swahili"],
                 "url": "https://tolatola.co/contact",
-                "name": "Dar Es Salaam HQ"
+                "name": "Mikocheni Dar Es Salaam HQ"
             },
             {
                 "@type": "ContactPoint",
@@ -57,7 +57,7 @@ export function JsonLd() {
                 "telephone": "+255-625-377-978",
                 "areaServed": "TZ",
                 "url": "https://tolatola.co/contact",
-                "name": "Kibaha Pwani - Main Branch"
+                "name": "Kibaha Pwani Main Branch"
             }
         ]
     }
