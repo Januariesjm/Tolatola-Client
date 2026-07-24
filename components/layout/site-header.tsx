@@ -313,25 +313,29 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 </div>
 
                 {/* Mobile: Favorites + Cart icons */}
-                <div className="flex lg:hidden items-center gap-2.5">
-                  <Link href="/favorites" className="relative">
+                <div className="flex lg:hidden items-center gap-2">
+                  <Link href="/favorites">
                     <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <Heart className="h-8 w-8 stroke-[2.2]" />
-                      {favorites.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                          {favorites.length > 9 ? "9+" : favorites.length}
-                        </span>
-                      )}
+                      <div className="relative inline-flex items-center justify-center">
+                        <Heart className="h-8 w-8 stroke-[2.2]" />
+                        {favorites.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                            {favorites.length > 9 ? "9+" : favorites.length}
+                          </span>
+                        )}
+                      </div>
                     </Button>
                   </Link>
-                  <Link href="/cart" className="relative">
+                  <Link href="/cart">
                     <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-primary hover:bg-primary/5 transition-all">
-                      <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                          {cartCount > 99 ? "99+" : cartCount}
-                        </span>
-                      )}
+                      <div className="relative inline-flex items-center justify-center">
+                        <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
+                        {cartCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                            {cartCount > 99 ? "99+" : cartCount}
+                          </span>
+                        )}
+                      </div>
                     </Button>
                   </Link>
                 </div>
@@ -471,25 +475,29 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                 </div>
 
                 {/* Mobile: Favorites + Cart + Login/Sign Up */}
-                <div className="flex lg:hidden items-center gap-2.5">
-                  <Link href="/favorites" className="relative">
+                <div className="flex lg:hidden items-center gap-2">
+                  <Link href="/favorites">
                     <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <Heart className="h-8 w-8 stroke-[2.2]" />
-                      {favorites.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                          {favorites.length > 9 ? "9+" : favorites.length}
-                        </span>
-                      )}
+                      <div className="relative inline-flex items-center justify-center">
+                        <Heart className="h-8 w-8 stroke-[2.2]" />
+                        {favorites.length > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                            {favorites.length > 9 ? "9+" : favorites.length}
+                          </span>
+                        )}
+                      </div>
                     </Button>
                   </Link>
-                  <Link href="/cart" className="relative">
+                  <Link href="/cart">
                     <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-primary hover:bg-primary/5 transition-all">
-                      <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                          {cartCount > 99 ? "99+" : cartCount}
-                        </span>
-                      )}
+                      <div className="relative inline-flex items-center justify-center">
+                        <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
+                        {cartCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                            {cartCount > 99 ? "99+" : cartCount}
+                          </span>
+                        )}
+                      </div>
                     </Button>
                   </Link>
                 </div>
