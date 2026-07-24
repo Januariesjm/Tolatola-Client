@@ -197,13 +197,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     null
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
+    <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
 
-        {/* Cinematic Gallery - High Impact Visuals */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* Product Gallery — Professional Ecommerce Size */}
+        <div className="space-y-4">
           <div
-            className="relative aspect-square rounded-[3rem] overflow-hidden bg-stone-50 border border-stone-100 shadow-2xl group cursor-zoom-in"
+            className="relative aspect-[4/5] max-h-[520px] w-full rounded-2xl overflow-hidden bg-stone-50 border border-stone-100 shadow-lg group cursor-zoom-in"
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
           >
@@ -220,25 +220,26 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-stone-200">
-                <ShoppingBag className="h-32 w-32" />
+                <ShoppingBag className="h-24 w-24" />
               </div>
             )}
           </div>
 
-          {/* Boutique Thumbnails */}
+          {/* Thumbnails */}
           {product.images && product.images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {product.images.map((image: string, index: number) => (
                 <button
                   key={index}
+                  type="button"
                   onClick={() => {
                     setSelectedImageIndex(index)
                     setSelectedImageUrl(null)
                   }}
                   className={cn(
-                    "relative h-24 w-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all duration-500",
+                    "relative h-16 w-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300",
                     selectedImageIndex === index && !selectedImageUrl
-                      ? "border-primary ring-4 ring-primary/10 scale-105"
+                      ? "border-primary ring-2 ring-primary/20 scale-105"
                       : "border-transparent hover:border-stone-200 shadow-sm"
                   )}
                 >
@@ -249,8 +250,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
           )}
         </div>
 
-        {/* Elite Buy Box & Product Architecture */}
-        <div className="lg:col-span-5 space-y-8">
+        {/* Product Details & Buy Box */}
+        <div className="space-y-8">
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2 items-center">
               <button 
@@ -437,25 +438,23 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               <div className="flex items-center justify-between p-4.5 rounded-2xl bg-stone-50/80 border border-stone-200/40 backdrop-blur-md">
                 <span className="text-[10px] font-black uppercase tracking-wider text-stone-500">Order Quantity</span>
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 rounded-xl bg-white border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300"
-                    onClick={() => setQuantity(Math.max(product.moq || 1, quantity - 1))}
+                  <button
+                    type="button"
+                    className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.max(product.moq || 1, quantity - 1)); }}
                     disabled={quantity <= (product.moq || 1)}
                   >
-                    <Minus className="h-3.5 w-3.5" />
-                  </Button>
-                  <span className="text-base font-black w-8 text-center text-stone-900">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8 rounded-xl bg-white border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300"
-                    onClick={() => setQuantity(Math.min(product.stock_quantity, quantity + 1))}
-                    disabled={quantity >= product.stock_quantity}
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="text-base font-black w-10 text-center text-stone-900 select-none">{quantity}</span>
+                  <button
+                    type="button"
+                    className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.min(Number(product.stock_quantity) || 999, quantity + 1)); }}
+                    disabled={quantity >= (Number(product.stock_quantity) || 999)}
                   >
-                    <Plus className="h-3.5 w-3.5" />
-                  </Button>
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
               <div className="flex justify-between items-center px-1">
@@ -463,7 +462,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   Min Order: {product.moq || 1} {product.weight_unit || product.unit || "Units"}
                 </p>
                 <p className="text-[10px] font-bold text-stone-400 italic">
-                  {product.stock_quantity} {product.weight_unit || product.unit || "Units"} available
+                  {product.stock_quantity || 'N/A'} {product.weight_unit || product.unit || "Units"} available
                 </p>
               </div>
             </div>
