@@ -254,11 +254,14 @@ function StatusDashboardInner() {
                       >
                         {step.label}
                       </span>
-                      {timeline.find((t: any) => t.status === step.id)?.completed_at && (
-                        <span className="text-xs text-muted-foreground ml-auto">
-                          {new Date(timeline.find((t: any) => t.status === step.id).completed_at).toLocaleString()}
-                        </span>
-                      )}
+                      {(() => {
+                        const item = timeline.find((t: any) => t.status === step.id)
+                        return item?.completed_at ? (
+                          <span className="text-xs text-muted-foreground ml-auto">
+                            {new Date(item.completed_at).toLocaleString()}
+                          </span>
+                        ) : null
+                      })()}
                     </li>
                   )
                 })}

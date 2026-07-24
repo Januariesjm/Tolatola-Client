@@ -1,10 +1,10 @@
-import { cookies, headers } from "next/headers"
+import { cookies } from "next/headers"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { api } from "./api"
 import type { Database } from "./types"
 
 async function getSessionToken() {
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies })
   const {
     data: { user },
   } = await supabase.auth.getUser()

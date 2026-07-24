@@ -27,6 +27,7 @@ interface ProductCardProps {
         quality_grade?: string
         moq?: number
         unit?: string
+        weight_unit?: string
         delivery_available?: boolean
         distance_km?: number
         stock_quantity: number
@@ -145,7 +146,7 @@ export function ProductCard({
                                 {badge.text}
                             </div>
                         )}
-                        {product.compare_at_price > product.price && (
+                        {product.compare_at_price !== undefined && product.compare_at_price > product.price && (
                             <div className="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-destructive font-black text-[10px] shadow-xl border border-white/20">
                                 {Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}% OFF
                             </div>
@@ -206,7 +207,7 @@ export function ProductCard({
                         <p className="text-lg font-bold text-[#0B5ED7] tracking-tight leading-none">
                             {product.price.toLocaleString()} <span className="text-[10px] uppercase font-medium">TZS{product.weight_unit ? ` / ${product.weight_unit}` : ""}</span>
                         </p>
-                        {product.compare_at_price > product.price && (
+                        {product.compare_at_price !== undefined && product.compare_at_price > product.price && (
                             <p className="text-[10px] md:text-xs text-muted-foreground/60 line-through decoration-destructive/30 decoration-1">
                                 {product.compare_at_price.toLocaleString()} TZS
                             </p>

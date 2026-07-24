@@ -86,7 +86,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await clientApiPost("admin/hr/interviews", formData)
+      const res: any = await clientApiPost("admin/hr/interviews", formData)
       if (res.data) {
         setInterviews([res.data, ...interviews])
         setIsAddOpen(false)
@@ -119,7 +119,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await clientApiPost("admin/hr/interviews", { id, status: newStatus })
+      const res: any = await clientApiPost("admin/hr/interviews", { id, status: newStatus })
       if (res.data) {
         setInterviews(interviews.map(i => i.id === id ? res.data : i))
       }

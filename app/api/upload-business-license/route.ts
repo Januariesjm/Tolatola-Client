@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const bucketName = process.env.STORAGE_BUCKET || "uploads"
-    let supabase;
+    let supabase: any;
     let usingServiceKey = false;
 
     // Check for Service Role Key

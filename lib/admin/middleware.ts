@@ -1,5 +1,6 @@
 // Admin authentication middleware
 import { getUserAdminRole, hasPermission } from "./roles"
+import { createClient } from "../supabase/server"
 
 export async function checkAdminAccess(userId: string, requiredPermission: string) {
   try {

@@ -89,7 +89,7 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
         check_out_time: formData.status === 'absent' || formData.status === 'leave' ? null : formData.check_out_time,
       }
       
-      const res = await clientApiPost("admin/hr/attendance", payload)
+      const res: any = await clientApiPost("admin/hr/attendance", payload)
       if (res.data) {
         const staffObj = staff.find(s => s.id === formData.staff_id)
         const newRecord = { ...res.data, hr_staff_records: staffObj }

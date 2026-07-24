@@ -70,10 +70,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     deliveryFee: number
     duration?: string
     transportMethod?: string
-    transportMethodId?: string
+    transportMethodId?: string | null
     shopName: string
     shopLat: number
     shopLng: number
+    deliveryAvailable?: boolean
   }>>({})
   const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
@@ -117,7 +118,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
     try {
       // Group items and weight by shop
-      const shopsData: Record<string, { weight: number; lat: number; lng: number; name: string }> = {}
+      const shopsData: Record<string, { weight: number; lat: number; lng: number; name: string; deliveryAvailable?: boolean }> = {}
 
       cartItems.forEach((item) => {
         const sId = item.product.shop_id
@@ -175,7 +176,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         )
 
         if (result) {
-          const fee = calculateFee(method, result.distanceKm, shop.weight, shop.deliveryAvailable)
+          const fee = calculateFee(method, result.distanceKm, shop.weight, shop.deliveryAvailable !== false)
 
           newShopDeliveries[sId] = {
             ...result,

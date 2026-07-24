@@ -58,9 +58,9 @@ import { useFavorites } from "@/hooks/use-favorites"
 import { useLanguage } from "@/lib/i18n/language-context"
 
 interface SiteHeaderProps {
-  user: any
+  user?: any
   profile?: any
-  kycStatus?: string
+  kycStatus?: string | null
 }
 
 export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps) {

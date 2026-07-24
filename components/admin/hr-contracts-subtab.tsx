@@ -96,7 +96,7 @@ export function HRContractsSubtab({ contracts: initialContracts, staff }: { cont
         document_url: documentUrl,
       }
       
-      const res = await clientApiPost("admin/hr/contracts", payload)
+      const res: any = await clientApiPost("admin/hr/contracts", payload)
       if (res.data) {
         // Find staff details to attach to state
         const staffObj = staff.find(s => s.id === formData.staff_id)

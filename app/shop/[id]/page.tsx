@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld"
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies, headers } from "next/headers"
+import { cookies } from "next/headers"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
 import { ShopDetailContent } from "@/components/shop/shop-detail-content"
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ShopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = createServerComponentClient<Database>({ cookies, headers })
+  const supabase = createServerComponentClient<Database>({ cookies })
 
   const {
     data: { user },
