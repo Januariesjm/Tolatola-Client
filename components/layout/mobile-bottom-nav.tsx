@@ -25,6 +25,7 @@ import { getUserConversations } from "@/app/actions/messaging"
 import { fetchUnreadCount } from "@/lib/services/notifications.service"
 
 import { useLanguage } from "@/lib/i18n/language-context"
+import { getCategoryTranslation } from "@/lib/i18n/translations"
 
 const categoryImageMap: Record<string, string> = {
     "fast-moving-consumer-goods": "/category-fmcg.jpg",
@@ -239,7 +240,7 @@ export function MobileBottomNav() {
                                     <div className="h-16 w-16 rounded-2xl flex items-center justify-center bg-primary text-white shadow-lg shadow-primary/20 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
                                         <Grid3x3 className="h-7 w-7" />
                                     </div>
-                                    <span className="text-[11px] font-extrabold text-primary text-center leading-tight max-w-[72px]">All</span>
+                                    <span className="text-[11px] font-extrabold text-primary text-center leading-tight max-w-[72px]">{t("category.all")}</span>
                                 </Link>
 
                                 {/* Category tiles */}
@@ -255,7 +256,7 @@ export function MobileBottomNav() {
                                             <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
                                                 <Image src={imageUrl} alt={cat.name} fill className="object-cover" />
                                             </div>
-                                            <span className="text-[11px] font-bold text-stone-700 text-center leading-tight max-w-[72px] line-clamp-2">{cat.name}</span>
+                                    <span className="text-[11px] font-bold text-stone-700 text-center leading-tight max-w-[72px] line-clamp-2">{getCategoryTranslation(cat.slug, cat.name, t)}</span>
                                         </Link>
                                     )
                                 })}

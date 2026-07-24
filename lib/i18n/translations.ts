@@ -118,7 +118,32 @@ export const translations = {
     "track.contact_label": "Phone number or Email",
     "track.send_otp": "Send OTP",
     "track.sending": "Sending...",
-    "track.back_home": "Back to home"
+    "track.back_home": "Back to home",
+
+    // Categories
+    "category.all": "All",
+    "category.fast-moving-consumer-goods": "Fast Moving Consumer Goods",
+    "category.agriculture": "Agriculture",
+    "category.construction-hardware": "Construction & Hardware",
+    "category.handicrafts": "Handicrafts",
+    "category.food-beverages": "Food & Beverages",
+    "category.textiles": "Textiles",
+    "category.fashion": "Fashion",
+    "category.electronics": "Electronics",
+    "category.home-garden": "Home & Garden",
+    "category.health-beauty": "Health & Beauty",
+    "category.services": "Services",
+    "category.vehicles": "Vehicles",
+    "category.vehicles-sub": "Vehicle Parts",
+    "category.ready-to-eat": "Ready to Eat",
+    "category.spare-parts": "Spare Parts",
+    "category.drinks": "Drinks",
+    "category.non-alcoholic": "Non-Alcoholic",
+    "category.alcoholic": "Alcoholic Beverages",
+    "category.motorcycles": "Motorcycles",
+    "category.men": "Men",
+    "category.women": "Women",
+    "category.kids": "Kids"
   },
   sw: {
     // Header & Navigation
@@ -240,7 +265,32 @@ export const translations = {
     "track.contact_label": "Nambari ya simu au Barua pepe",
     "track.send_otp": "Tuma OTP",
     "track.sending": "Inatuma...",
-    "track.back_home": "Rudi nyumbani"
+    "track.back_home": "Rudi nyumbani",
+
+    // Categories
+    "category.all": "Zote",
+    "category.fast-moving-consumer-goods": "Bidhaa za Matumizi ya Haraka",
+    "category.agriculture": "Kilimo",
+    "category.construction-hardware": "Ujenzi na Zana",
+    "category.handicrafts": "Ufundi wa Mikono",
+    "category.food-beverages": "Chakula na Vinywaji",
+    "category.textiles": "Nguo na Vitambaa",
+    "category.fashion": "Mitindo",
+    "category.electronics": "Elektroniki",
+    "category.home-garden": "Nyumba na Bustani",
+    "category.health-beauty": "Afya na Uzuri",
+    "category.services": "Huduma",
+    "category.vehicles": "Magari",
+    "category.vehicles-sub": "Vipuri vya Magari",
+    "category.ready-to-eat": "Tayari Kula",
+    "category.spare-parts": "Vipuri",
+    "category.drinks": "Vinywaji",
+    "category.non-alcoholic": "Bila Pombe",
+    "category.alcoholic": "Vinywaji vya Pombe",
+    "category.motorcycles": "Pikipiki",
+    "category.men": "Wanaume",
+    "category.women": "Wanawake",
+    "category.kids": "Watoto"
   },
   ar: {
     // Header & Navigation
@@ -361,7 +411,32 @@ export const translations = {
     "track.contact_label": "رقم الهاتف أو البريد الإلكتروني",
     "track.send_otp": "إرسال رمز التحقق",
     "track.sending": "جاري الإرسال...",
-    "track.back_home": "العودة إلى الرئيسية"
+    "track.back_home": "العودة إلى الرئيسية",
+
+    // Categories
+    "category.all": "الكل",
+    "category.fast-moving-consumer-goods": "السلع الاستهلاكية السريعة",
+    "category.agriculture": "الزراعة",
+    "category.construction-hardware": "البناء والأدوات",
+    "category.handicrafts": "الحرف اليدوية",
+    "category.food-beverages": "الطعام والمشروبات",
+    "category.textiles": "المنسوجات",
+    "category.fashion": "الموضة",
+    "category.electronics": "الإلكترونيات",
+    "category.home-garden": "المنزل والحديقة",
+    "category.health-beauty": "الصحة والجمال",
+    "category.services": "الخدمات",
+    "category.vehicles": "المركبات",
+    "category.vehicles-sub": "قطع غيار المركبات",
+    "category.ready-to-eat": "جاهز للأكل",
+    "category.spare-parts": "قطع الغيار",
+    "category.drinks": "المشروبات",
+    "category.non-alcoholic": "بدون كحول",
+    "category.alcoholic": "المشروبات الكحولية",
+    "category.motorcycles": "الدراجات النارية",
+    "category.men": "رجال",
+    "category.women": "نساء",
+    "category.kids": "أطفال"
   },
   zh: {
     // Header & Navigation
@@ -482,8 +557,49 @@ export const translations = {
     "track.contact_label": "电话号码或电子邮件",
     "track.send_otp": "发送验证码",
     "track.sending": "发送中...",
-    "track.back_home": "返回主页"
+    "track.back_home": "返回主页",
+
+    // Categories
+    "category.all": "全部",
+    "category.fast-moving-consumer-goods": "快速消费品",
+    "category.agriculture": "农业",
+    "category.construction-hardware": "建筑与五金",
+    "category.handicrafts": "手工艺品",
+    "category.food-beverages": "食品与饮料",
+    "category.textiles": "纺织品",
+    "category.fashion": "时尚",
+    "category.electronics": "电子产品",
+    "category.home-garden": "家居与园艺",
+    "category.health-beauty": "健康与美容",
+    "category.services": "服务",
+    "category.vehicles": "车辆",
+    "category.vehicles-sub": "汽车零部件",
+    "category.ready-to-eat": "即食食品",
+    "category.spare-parts": "零配件",
+    "category.drinks": "饮料",
+    "category.non-alcoholic": "无酒精饮料",
+    "category.alcoholic": "含酒精饮料",
+    "category.motorcycles": "摩托车",
+    "category.men": "男士",
+    "category.women": "女士",
+    "category.kids": "儿童"
   },
+}
+
+/**
+ * Returns the translated category name for a given slug and t() function.
+ * Falls back to the raw DB name if no translation exists.
+ */
+export function getCategoryTranslation(
+  slug: string | undefined | null,
+  rawName: string,
+  t: (key: TranslationKey) => string
+): string {
+  if (!slug) return rawName
+  const key = `category.${slug}` as TranslationKey
+  const translated = t(key)
+  // If t() returns the key itself (no match), fall back to rawName
+  return translated === key ? rawName : translated
 }
 
 export type LanguageCode = keyof typeof translations

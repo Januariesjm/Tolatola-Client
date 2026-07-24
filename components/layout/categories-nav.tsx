@@ -1,6 +1,10 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Grid3x3 } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
+import { getCategoryTranslation } from "@/lib/i18n/translations"
 
 interface Category {
   id: string
@@ -48,6 +52,7 @@ function getCatImage(cat: Category): string {
 }
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
+  const { t } = useLanguage()
   const parentCategories = categories.filter(c => !c.parent_id)
 
   return (
@@ -66,7 +71,7 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
               <Grid3x3 className="h-6 w-6 lg:h-7 lg:w-7" />
             </div>
             <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] ${!currentCategory ? "text-primary font-extrabold" : "text-stone-700"}`}>
-              All
+              {t("category.all")}
             </span>
           </Link>
 
@@ -93,7 +98,7 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
                   />
                 </div>
                 <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] line-clamp-2 ${isActive ? "text-primary font-extrabold" : "text-stone-700"}`}>
-                  {category.name}
+                  {getCategoryTranslation(category.slug, category.name, t)}
                 </span>
               </Link>
             )
