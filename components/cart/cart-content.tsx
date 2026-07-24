@@ -62,33 +62,33 @@ export function CartContent() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{t("cart.title")}</h1>
-          <p className="text-muted-foreground">{cartItems.length} {t("cart.items_in_cart")}</p>
+      <div className="container mx-auto px-3 sm:px-4 py-4 md:py-8">
+        <div className="mb-4 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">{t("cart.title")}</h1>
+          <p className="text-muted-foreground text-xs md:text-sm">{cartItems.length} {t("cart.items_in_cart")}</p>
         </div>
 
         {cartItems.length === 0 ? (
-          <Card>
+          <Card className="rounded-2xl border-stone-200 shadow-sm">
             <CardContent className="py-12 text-center">
               <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground mb-4">{t("cart.empty")}</p>
               <Link href="/shop">
-                <Button>{t("cart.continue_shopping")}</Button>
+                <Button className="rounded-xl">{t("cart.continue_shopping")}</Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3 md:space-y-4">
               {cartItems.map((item) => {
                 const itemId = getItemId(item)
                 return (
-                  <Card key={itemId}>
-                    <CardContent className="p-3 md:p-6 relative">
+                  <Card key={itemId} className="rounded-2xl border-stone-200/80 shadow-sm overflow-hidden">
+                    <CardContent className="p-3 sm:p-4 md:p-6">
                       <div className="flex gap-3 md:gap-4">
-                        <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
                           <img
                             src={
                               item.selected_color?.image || (item.product.images && item.product.images.length > 0
@@ -100,18 +100,19 @@ export function CartContent() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-semibold text-sm md:text-base mb-1 truncate pr-8">{item.product.name}</h3>
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="font-bold text-sm md:text-base text-stone-900 leading-snug truncate pr-1">{item.product.name}</h3>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 md:h-8 md:w-8 absolute top-3 right-3 md:static text-destructive hover:bg-destructive/10 -mt-1 md:mt-0"
+                              className="h-7 w-7 text-destructive hover:bg-destructive/10 shrink-0 -mt-1 -mr-1"
                               onClick={() => removeItem(itemId)}
+                              title="Remove item"
                             >
-                              <Trash2 className="h-4 w-4 md:h-5 md:w-5" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                          <p className="text-xs md:text-sm text-muted-foreground mb-1 truncate">
+                          <p className="text-[11px] md:text-xs text-muted-foreground mb-1.5 truncate">
                             {t("cart.by_verified_vendor")}
                           </p>
 
@@ -119,7 +120,7 @@ export function CartContent() {
                           {(item.selected_color || item.selected_size) && (
                             <div className="flex flex-wrap gap-1.5 mb-2">
                               {item.selected_color && (
-                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
+                                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
                                   <span 
                                     className="w-2.5 h-2.5 rounded-full border border-stone-300"
                                     style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
@@ -128,36 +129,36 @@ export function CartContent() {
                                 </span>
                               )}
                               {item.selected_size && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
                                   {t("cart.size") || "Size"}: {item.selected_size}
                                 </span>
                               )}
                             </div>
                           )}
 
-                          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mt-2">
-                            <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2 border-t border-stone-100 sm:border-0 sm:pt-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                className="h-7 w-7 rounded-lg p-0"
                                 onClick={() => updateQuantity(itemId, item.quantity - 1)}
                                 disabled={item.quantity <= 1}
                               >
-                                <Minus className="h-3 w-3 md:h-4 md:w-4" />
+                                <Minus className="h-3 w-3" />
                               </Button>
-                              <span className="w-8 md:w-12 text-center font-semibold text-sm md:text-base">{item.quantity}</span>
+                              <span className="w-7 sm:w-10 text-center font-bold text-xs sm:text-sm">{item.quantity}</span>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                className="h-7 w-7 rounded-lg p-0"
                                 onClick={() => updateQuantity(itemId, item.quantity + 1)}
                                 disabled={item.quantity >= item.product.stock_quantity}
                               >
-                                <Plus className="h-3 w-3 md:h-4 md:w-4" />
+                                <Plus className="h-3 w-3" />
                               </Button>
                             </div>
-                            <span className="text-sm md:text-lg font-semibold text-primary">
+                            <span className="text-xs sm:text-base font-extrabold text-primary">
                               TZS {(item.product.price * item.quantity).toLocaleString()}
                             </span>
                           </div>
@@ -171,36 +172,36 @@ export function CartContent() {
 
              {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-24">
-                <CardHeader>
-                  <CardTitle>{t("cart.order_summary")}</CardTitle>
+              <Card className="lg:sticky lg:top-24 rounded-2xl md:rounded-3xl border-stone-200 shadow-sm">
+                <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+                  <CardTitle className="text-lg md:text-xl font-bold">{t("cart.order_summary")}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                <CardContent className="p-4 md:p-6 space-y-4">
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground">{t("cart.subtotal")}</span>
-                      <span>TZS {subtotal.toLocaleString()}</span>
+                      <span className="font-bold">TZS {subtotal.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-muted-foreground flex items-center gap-1">
-                        <Truck className="h-4 w-4" />
+                        <Truck className="h-3.5 w-3.5" />
                         {t("cart.delivery")}
                       </span>
-                      <span>TZS {deliveryFee.toLocaleString()}</span>
+                      <span className="font-bold">TZS {deliveryFee.toLocaleString()}</span>
                     </div>
-                    <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                    <div className="text-[10px] md:text-xs text-muted-foreground bg-muted/60 p-2.5 rounded-xl border border-stone-200/50 leading-relaxed">
                       {t("cart.delivery_calc_info")}
                     </div>
-                    <div className="border-t pt-2 flex justify-between font-semibold text-lg">
+                    <div className="border-t pt-2.5 flex justify-between font-extrabold text-base md:text-lg">
                       <span>{t("cart.total")}</span>
-                      <span>TZS {total.toLocaleString()}</span>
+                      <span className="text-primary">TZS {total.toLocaleString()}</span>
                     </div>
                   </div>
-                  <Button className="w-full" size="lg" onClick={handleCheckout} disabled={isCheckingAuth}>
+                  <Button className="w-full h-11 md:h-12 rounded-xl text-sm font-extrabold shadow-md shadow-primary/20" size="lg" onClick={handleCheckout} disabled={isCheckingAuth}>
                     {isCheckingAuth ? t("common.loading") : t("cart.proceed")}
                   </Button>
-                  <Link href="/shop">
-                    <Button variant="outline" className="w-full bg-transparent">
+                  <Link href="/shop" className="block">
+                    <Button variant="outline" className="w-full h-11 md:h-12 rounded-xl text-sm font-bold bg-transparent border-stone-200">
                       {t("cart.continue_shopping")}
                     </Button>
                   </Link>

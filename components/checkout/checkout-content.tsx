@@ -498,19 +498,19 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="container mx-auto px-3 sm:px-4 py-4 md:py-12">
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-            <div className="space-y-2">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-4">
+            <div className="space-y-1.5 md:space-y-2">
               <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-[10px]">
                 <ShieldCheck className="h-4 w-4" />
                 <span>{t("checkout.title")}</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-black tracking-tight text-stone-900 leading-none">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-stone-900 leading-none">
                 {t("checkout.place_order")}
               </h1>
-              <p className="text-stone-600 text-base font-medium max-w-xl">
+              <p className="text-stone-600 text-xs sm:text-base font-medium max-w-xl">
                 Complete your purchase securely below.
               </p>
             </div>
@@ -521,17 +521,17 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-8 space-y-12">
+            <div className="lg:col-span-8 space-y-6 md:space-y-12">
               <div className="space-y-4">
                 {/* Shipping Section */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
-                    <h2 className="text-xl font-bold tracking-tight text-stone-900">{t("checkout.shipping")}</h2>
+                    <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">{t("checkout.shipping")}</h2>
                   </div>
 
-                  <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
-                    <CardContent className="p-6 md:p-8 space-y-6">
+                  <Card className="border-none shadow-xl shadow-stone-200/40 rounded-2xl md:rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
+                    <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Full Name *</Label>
@@ -604,9 +604,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       )}
 
                       {deliveryError && (
-                        <div className="flex items-center gap-3 p-6 bg-destructive/5 rounded-[2rem] text-destructive border border-destructive/20">
-                          <Info className="h-5 w-5" />
-                          <span className="font-bold text-sm">{deliveryError}</span>
+                        <div className="flex items-center gap-3 p-4 md:p-6 bg-destructive/5 rounded-2xl md:rounded-[2rem] text-destructive border border-destructive/20">
+                          <Info className="h-5 w-5 shrink-0" />
+                          <span className="font-bold text-xs md:text-sm">{deliveryError}</span>
                         </div>
                       )}
 
@@ -617,37 +617,37 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             <span>Delivery Logistics Breakdown</span>
                           </div>
                           {Object.entries(shopDeliveries).map(([shopId, info]) => (
-                            <div key={shopId} className="p-6 bg-stone-50 rounded-[2rem] border border-stone-100 space-y-4">
-                              <div className="flex items-center justify-between">
-                                <div className="space-y-0.5">
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
-                                  <p className="text-sm font-black text-stone-900">TOLA Verified Vendor</p>
+                            <div key={shopId} className="p-3.5 sm:p-5 md:p-6 bg-stone-50 rounded-2xl md:rounded-[2rem] border border-stone-100 space-y-3 md:space-y-4 overflow-hidden">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="space-y-0.5 min-w-0">
+                                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
+                                  <p className="text-xs sm:text-sm font-black text-stone-900 truncate">TOLA Verified Vendor</p>
                                 </div>
-                                <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[10px] font-black text-stone-500 uppercase">
+                                <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[9px] sm:text-[10px] font-black text-stone-500 uppercase shrink-0">
                                   {info.transportMethod}
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-3 gap-2">
-                                <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
-                                  <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Distance</p>
-                                  <p className="text-xs font-black text-stone-800">{info.distanceKm} KM</p>
+                              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                                <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
+                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">Distance</p>
+                                  <p className="text-[10px] sm:text-xs font-black text-stone-800 truncate">{info.distanceKm} KM</p>
                                 </div>
-                                <div className="p-3 bg-white rounded-2xl border border-stone-50 space-y-1">
-                                  <p className="text-[8px] font-bold uppercase tracking-wide text-stone-400">Status</p>
-                                  <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
+                                <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
+                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">Status</p>
+                                  <p className={cn("text-[10px] sm:text-xs font-black truncate", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
                                     {info.deliveryAvailable !== false ? (info.duration || "Fast") : "Pickup"}
                                   </p>
                                 </div>
-                                <div className={cn("p-3 rounded-2xl border space-y-1", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
-                                  <p className={cn("text-[8px] font-bold uppercase tracking-wide", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
-                                  <p className={cn("text-xs font-black", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
+                                <div className={cn("p-2 sm:p-3 rounded-xl md:rounded-2xl border space-y-0.5 min-w-0", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
+                                  <p className={cn("text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide truncate", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
+                                  <p className={cn("text-[10px] sm:text-xs font-black truncate", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
                                     {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
                                   </p>
                                 </div>
                               </div>
                               {info.deliveryAvailable === false && (
-                                <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-2.5 sm:p-3 rounded-xl border border-amber-100">
                                   Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after payment.
                                 </p>
                               )}
@@ -661,9 +661,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
                 {/* Transport Section */}
                 <section className="space-y-4">
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
-                    <h2 className="text-xl font-bold tracking-tight text-stone-900 ">Delivery Method</h2>
+                    <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
                   </div>
 
                   <div className="w-full">
@@ -671,29 +671,29 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                       value={selectedTransportId}
                       onValueChange={setSelectedTransportId}
                     >
-                      <SelectTrigger className="w-full !h-auto !py-8 rounded-[2.5rem] border-2 border-stone-200 bg-white px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/40 shadow-sm hover:shadow-md group">
-                        <div className="flex items-center gap-6">
-                          <div className="h-14 w-14 shrink-0 rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-inner">
-                            <Truck className="h-7 w-7" />
+                      <SelectTrigger className="w-full !h-auto py-4 md:!py-8 rounded-2xl md:rounded-[2.5rem] border-2 border-stone-200 bg-white px-4 md:px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/40 shadow-sm hover:shadow-md group">
+                        <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
+                          <div className="h-10 w-10 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-inner">
+                            <Truck className="h-5 w-5 md:h-7 md:w-7" />
                           </div>
-                          <div className="flex flex-col items-start text-left gap-1.5 overflow-hidden">
-                            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
-                            <div className="font-black text-stone-900 text-xl tracking-tight">
+                          <div className="flex flex-col items-start text-left gap-0.5 md:gap-1.5 overflow-hidden min-w-0 flex-1">
+                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
+                            <div className="font-black text-stone-900 text-base md:text-xl tracking-tight truncate w-full">
                               <SelectValue placeholder="Please select delivery method" />
                             </div>
                           </div>
                         </div>
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white min-w-[300px]">
+                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white max-w-[92vw] sm:min-w-[300px] z-[150]">
                         {transportMethods.map((method) => (
                           <SelectItem
                             key={method.id}
                             value={method.id}
-                            className="rounded-xl md:rounded-[1.5rem] md:py-6 py-4 md:px-8 px-5 focus:bg-primary/5 cursor-pointer mb-2 md:mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
+                            className="rounded-xl md:rounded-[1.5rem] md:py-6 py-3 md:px-8 px-4 focus:bg-primary/5 cursor-pointer mb-2 md:mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
                           >
                             <div className="flex flex-col gap-1.5 md:gap-2.5 text-left w-full">
-                              <div className="flex items-center justify-between gap-4 md:gap-10 w-full">
-                                <span className="font-black text-stone-900 md:text-lg text-sm tracking-tight">{method.name}</span>
+                              <div className="flex items-center justify-between gap-3 md:gap-10 w-full">
+                                <span className="font-black text-stone-900 md:text-lg text-sm tracking-tight truncate">{method.name}</span>
                                 <div className="[[data-slot=select-value]_&]:hidden px-2.5 md:px-4 py-1 md:py-1.5 rounded-full bg-primary/5 border border-primary/20 flex-shrink-0">
                                   <span className="text-primary font-black md:text-[11px] text-[9px] tracking-wider uppercase">
                                     {method.rate_per_km
@@ -702,7 +702,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   </span>
                                 </div>
                               </div>
-                              <span className="md:text-sm text-xs text-stone-500 font-bold leading-relaxed pr-6 md:pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
+                              <span className="md:text-sm text-xs text-stone-500 font-bold leading-relaxed pr-2 md:pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
                                 {method.description}
                               </span>
                             </div>
@@ -718,21 +718,21 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               <section className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">3</div>
-                  <h2 className="text-xl font-bold tracking-tight text-stone-900">Choose Payment</h2>
+                  <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Choose Payment</h2>
                 </div>
 
-                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-3xl overflow-hidden bg-white">
-                  <CardContent className="p-6 md:p-8">
+                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-2xl md:rounded-3xl overflow-hidden bg-white">
+                  <CardContent className="p-4 sm:p-6 md:p-8">
                     <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                       <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
                         <AccordionItem value="mobile-money" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-[#22C55E] data-[state=open]:text-white transition-all duration-300">
+                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-[#22C55E] data-[state=open]:text-white transition-all duration-300">
                             <div className="flex items-center gap-3">
                               <Smartphone className="h-5 w-5" />
-                              <span className="text-lg font-bold tracking-tight">TOLA Pay</span>
+                              <span className="text-base sm:text-lg font-bold tracking-tight">TOLA Pay</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-4 mt-2 space-y-4">
+                          <AccordionContent className="p-2 sm:p-4 mt-2 space-y-4">
                             <div className="space-y-2">
                               <Label htmlFor="paymentPhone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Phone Number</Label>
                               <Input
@@ -744,7 +744,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                 placeholder="e.g. 2557..."
                               />
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
                               {[
                                 { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
                                 { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
@@ -784,27 +784,27 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         </AccordionItem>
 
                         <AccordionItem value="cards" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
                             <div className="flex items-center gap-3">
                               <CreditCard className="h-5 w-5" />
-                              <span className="text-lg font-bold tracking-tight">Card Payment</span>
+                              <span className="text-base sm:text-lg font-bold tracking-tight">Card Payment</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-6 mt-4 space-y-6">
-                            <div className="grid grid-cols-3 gap-2">
+                          <AccordionContent className="p-3.5 sm:p-6 mt-2 sm:mt-4 space-y-4 sm:space-y-6">
+                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                               {["visa", "mastercard", "unionpay"].map((c) => (
                                 <Label key={c} htmlFor={c} className={cn(
-                                  "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                  "flex flex-col items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
                                   paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
                                 )}>
                                   <RadioGroupItem value={c} id={c} className="sr-only" />
                                   <div className={cn(
-                                    "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+                                    "h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center transition-colors",
                                     paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
                                   )}>
-                                    <CreditCard className="h-5 w-5" />
+                                    <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </div>
-                                  <span className="font-bold uppercase tracking-wide text-[10px] text-stone-900">{c}</span>
+                                  <span className="font-bold uppercase tracking-wide text-[9px] sm:text-[10px] text-stone-900">{c}</span>
                                 </Label>
                               ))}
                             </div>
@@ -819,7 +819,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   placeholder="0000 0000 0000 0000"
                                 />
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
+                              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 <div className="space-y-2">
                                   <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Expiry</Label>
                                   <Input
@@ -846,26 +846,26 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         </AccordionItem>
 
                         <AccordionItem value="bank" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
+                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
                             <div className="flex items-center gap-3">
                               <Building2 className="h-5 w-5" />
-                              <span className="text-lg font-bold tracking-tight">Bank Transfer</span>
+                              <span className="text-base sm:text-lg font-bold tracking-tight">Bank Transfer</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="p-6 space-y-3 mt-4">
+                          <AccordionContent className="p-3.5 sm:p-6 space-y-3 mt-2 sm:mt-4">
                             {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
                               <Label key={b} htmlFor={b} className={cn(
-                                "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                "flex items-center gap-3 sm:gap-4 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all duration-300",
                                 paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
                               )}>
                                 <RadioGroupItem value={b} id={b} className="sr-only" />
                                 <div className={cn(
-                                  "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                  "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-colors shrink-0",
                                   paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
                                 )}>
-                                  <Building2 className="h-5 w-5" />
+                                  <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </div>
-                                <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
+                                <span className="font-bold text-xs sm:text-sm text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
                               </Label>
                             ))}
                           </AccordionContent>
@@ -879,27 +879,27 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
             {/* Sidebar / Summary */}
             <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-              <Card className="border-none shadow-xl shadow-stone-200/50 rounded-3xl overflow-hidden bg-white">
-                <div className="bg-[#22C55E] p-6 text-white relative overflow-hidden">
+              <Card className="border-none shadow-xl shadow-stone-200/50 rounded-2xl md:rounded-3xl overflow-hidden bg-white">
+                <div className="bg-[#22C55E] p-4 sm:p-6 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                  <h3 className="text-xl font-black tracking-tight relative z-10">Order Summary</h3>
+                  <h3 className="text-lg sm:text-xl font-black tracking-tight relative z-10">Order Summary</h3>
                   <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mt-0.5 relative z-10">Your items</p>
                 </div>
-                <CardContent className="p-6 space-y-6">
-                  <div className="space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-2">
+                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                  <div className="space-y-4 sm:space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
                     {cartItems.map((item) => {
                       const itemId = `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
                       return (
-                        <div key={itemId} className="flex gap-4">
-                          <div className="h-16 w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
+                        <div key={itemId} className="flex gap-3 sm:gap-4">
+                          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
                             {item.selected_color?.image || item.product.images?.[0] ? (
                               <img src={item.selected_color?.image || item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-6 w-6 text-stone-200" /></div>
+                              <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-5 w-5 text-stone-200" /></div>
                             )}
                           </div>
                           <div className="flex-1 space-y-1 min-w-0">
-                            <p className="font-black text-stone-900 leading-tight truncate">{item.product.name}</p>
+                            <p className="font-bold text-xs sm:text-sm text-stone-900 leading-tight truncate">{item.product.name}</p>
 
                             {/* Color & Size Variation Badges */}
                             {(item.selected_color || item.selected_size) && (
@@ -922,8 +922,8 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             )}
 
                             <div className="flex items-center justify-between text-xs">
-                              <span className="text-stone-400 font-bold">Qty: {item.quantity}</span>
-                              <span className="text-stone-900 font-black">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
+                              <span className="text-stone-400 font-bold text-[11px]">Qty: {item.quantity}</span>
+                              <span className="text-stone-900 font-extrabold text-xs">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
                             </div>
                           </div>
                         </div>
@@ -931,17 +931,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     })}
                   </div>
 
-                  <div className="pt-6 border-t border-stone-100 space-y-2">
-                    <div className="flex justify-between items-center group">
-                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
-                        Subtotal
-                      </span>
+                  <div className="pt-4 sm:pt-6 border-t border-stone-100 space-y-2">
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
+                      <span className="text-stone-500 font-bold">Subtotal</span>
                       <span className="text-stone-900 font-bold tracking-tight">{subtotal.toLocaleString()} TZS</span>
                     </div>
-                    <div className="flex justify-between items-center group">
-                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
-                        Delivery
-                      </span>
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
+                      <span className="text-stone-500 font-bold">Delivery</span>
                       <span className={cn(
                         "font-bold tracking-tight",
                         (Object.keys(shopDeliveries).length > 0) ? "text-stone-900" : "text-primary italic animate-pulse"
@@ -949,16 +945,14 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         {(Object.keys(shopDeliveries).length > 0) ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center group">
-                      <span className="text-stone-500 text-sm font-bold flex items-center gap-2">
-                        Buyer Protection (1.5%)
-                      </span>
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
+                      <span className="text-stone-500 font-bold">Buyer Protection (1.5%)</span>
                       <span className="text-stone-900 font-bold tracking-tight">{insuranceFee.toLocaleString()} TZS</span>
                     </div>
-                    <div className="pt-4 border-t border-stone-100 flex justify-between items-end">
+                    <div className="pt-3 border-t border-stone-100 flex justify-between items-end">
                       <div className="space-y-0.5">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Total Amount</p>
-                        <p className="text-2xl font-black text-stone-900 tracking-tight">
+                        <p className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
                           {total.toLocaleString()} <span className="text-[10px] uppercase">TZS</span>
                         </p>
                       </div>
