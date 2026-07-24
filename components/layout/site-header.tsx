@@ -319,7 +319,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <div className="relative inline-flex items-center justify-center">
                         <Heart className="h-8 w-8 stroke-[2.2]" />
                         {favorites.length > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                          <span className="absolute -top-2.5 -right-2.5 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
                             {favorites.length > 9 ? "9+" : favorites.length}
                           </span>
                         )}
@@ -331,7 +331,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <div className="relative inline-flex items-center justify-center">
                         <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
                         {cartCount > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                          <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
                             {cartCount > 99 ? "99+" : cartCount}
                           </span>
                         )}
@@ -481,7 +481,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <div className="relative inline-flex items-center justify-center">
                         <Heart className="h-8 w-8 stroke-[2.2]" />
                         {favorites.length > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                          <span className="absolute -top-2.5 -right-2.5 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
                             {favorites.length > 9 ? "9+" : favorites.length}
                           </span>
                         )}
@@ -493,7 +493,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       <div className="relative inline-flex items-center justify-center">
                         <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
                         {cartCount > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
+                          <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
                             {cartCount > 99 ? "99+" : cartCount}
                           </span>
                         )}
