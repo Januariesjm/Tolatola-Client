@@ -53,7 +53,15 @@ function getCatImage(cat: Category): string {
 
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
   const { t } = useLanguage()
-  const parentCategories = categories.filter(c => !c.parent_id)
+  const parentCategories = categories
+    .filter(c => !c.parent_id)
+    .sort((a, b) => {
+      const isAService = a.slug === "services" || a.name?.toLowerCase() === "services"
+      const isBService = b.slug === "services" || b.name?.toLowerCase() === "services"
+      if (isAService && !isBService) return 1
+      if (!isAService && isBService) return -1
+      return 0
+    })
 
   return (
     <nav className="sticky top-[108px] lg:top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">

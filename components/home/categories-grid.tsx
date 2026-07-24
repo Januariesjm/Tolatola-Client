@@ -43,9 +43,19 @@ export function CategoriesGrid({ categories, categoryImages }: CategoriesGridPro
     return categoryImages.default || "/abstract-categories.png"
   }
 
+  const parentCategories = categories
+    .filter((c: any) => !c.parent_id)
+    .sort((a: any, b: any) => {
+      const isAService = a.slug === "services" || a.name?.toLowerCase() === "services"
+      const isBService = b.slug === "services" || b.name?.toLowerCase() === "services"
+      if (isAService && !isBService) return 1
+      if (!isAService && isBService) return -1
+      return 0
+    })
+
   return (
     <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-5 md:gap-x-6 md:gap-y-6">
-      {categories.filter((c: any) => !c.parent_id).slice(0, 12).map((cat: any) => (
+      {parentCategories.slice(0, 12).map((cat: any) => (
         <Link
           key={cat.id}
           href={`/shop?category=${cat.slug || cat.id}`}

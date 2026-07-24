@@ -102,6 +102,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     (product.colors && product.colors.length > 0) ||
                     (product.sizes && product.sizes.length > 0)
 
+  const isService = product.categories?.slug === "services" ||
+                    product.categories?.name?.toLowerCase() === "services" ||
+                    product.category_name?.toLowerCase() === "services"
+
   useEffect(() => {
     if (isFashion) {
       if (product.colors && product.colors.length > 0 && !selectedColor) {
@@ -282,9 +286,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 </Badge>
               )}
 
+              {isService && (
+                <Badge className="bg-primary text-white font-black text-[10px] uppercase tracking-wider px-3 py-1 rounded-full">
+                  🛠️ Professional Service
+                </Badge>
+              )}
+
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-black uppercase tracking-wider">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                <span>Verified Stock</span>
+                <span>{isService ? "Available Offering" : "Verified Stock"}</span>
               </div>
             </div>
 
@@ -295,6 +305,20 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <p className="text-stone-600 text-base leading-relaxed font-medium bg-stone-50/50 p-4 rounded-2xl border border-stone-100/50">
               {product.description}
             </p>
+
+            {isService && (
+              <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-100 flex items-start gap-3">
+                <div className="h-8 w-8 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0 text-indigo-600 font-bold text-sm">
+                  ℹ️
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-indigo-950">Service Provider Details Unlocked Upon Purchase</p>
+                  <p className="text-[11px] text-indigo-700 mt-0.5 leading-relaxed">
+                    Once you purchase this service, the provider's direct phone number, email, address, and direct messaging will be instantly provided on your order confirmation page.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {product.stock_quantity === 0 && (
               <div className="p-4 rounded-2xl bg-red-50 border border-red-100 flex items-center gap-3">

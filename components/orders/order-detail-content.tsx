@@ -336,56 +336,103 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               </CardContent>
             </Card>
 
-            {/* Merchant Details */}
-            <Card className="border-indigo-100 bg-indigo-50/30 dark:bg-indigo-950/10">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Store className="h-5 w-5 text-indigo-600" />
-                  Merchant Information
-                </CardTitle>
-                <CardDescription>Contact details for the seller</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {order.order_items[0]?.products?.shops ? (
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
-                    <div className="h-16 w-16 rounded-full bg-indigo-50 border flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {order.order_items[0].products.shops.logo_url ? (
-                        <img src={order.order_items[0].products.shops.logo_url} className="object-cover w-full h-full" alt="Shop Logo" />
-                      ) : (
-                        <Store className="h-8 w-8 text-indigo-400" />
+            {/* Merchant / Service Provider Details */}
+            {(() => {
+              const isServiceOrder = order.order_items?.some((item: any) =>
+                item.products?.categories?.slug === 'services' ||
+                item.products?.categories?.name?.toLowerCase() === 'services' ||
+                item.products?.category_name?.toLowerCase() === 'services'
+              )
+              const shop = order.order_items[0]?.products?.shops
+              const vendorPhone = shop?.vendors?.users?.phone || shop?.phone
+
+              return (
+                <Card className={cn(
+                  "border-indigo-100 shadow-sm",
+                  isServiceOrder ? "bg-gradient-to-r from-emerald-50/50 via-teal-50/30 to-indigo-50/40 border-emerald-200 ring-2 ring-emerald-500/20" : "bg-indigo-50/30 dark:bg-indigo-950/10"
+                )}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Store className="h-5 w-5 text-indigo-600" />
+                        {isServiceOrder ? "🛠️ Service Provider Contact Details" : "Merchant Information"}
+                      </CardTitle>
+                      {isServiceOrder && (
+                        <Badge className="bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider px-3 py-1">
+                          Service Unlocked
+                        </Badge>
                       )}
                     </div>
-                    <div className="space-y-1 flex-1">
-                      <h4 className="font-bold text-lg text-gray-900">
-                        {order.order_items[0].products.shops.vendors?.business_name || order.order_items[0].products.shops.name}
-                      </h4>
-                      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5 text-indigo-500" />
-                          <span>{order.order_items[0].products.shops.vendors?.users?.phone || order.order_items[0].products.shops.phone || "No phone"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-indigo-500" />
-                          <span>
-                            {order.order_items[0].products.shops.address}, {order.order_items[0].products.shops.district}, {order.order_items[0].products.shops.region}
-                          </span>
+                    <CardDescription>
+                      {isServiceOrder
+                        ? "Use these contact details to schedule, coordinate, or receive your purchased service."
+                        : "Contact details for the seller"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {shop ? (
+                      <div className="space-y-4">
+                        {isServiceOrder && (
+                          <div className="p-3.5 bg-emerald-100/60 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-900 flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                            <span>Service Purchased! Contact your service provider below to coordinate your service.</span>
+                          </div>
+                        )}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
+                          <div className="h-16 w-16 rounded-full bg-indigo-50 border flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {shop.logo_url ? (
+                              <img src={shop.logo_url} className="object-cover w-full h-full" alt="Shop Logo" />
+                            ) : (
+                              <Store className="h-8 w-8 text-indigo-400" />
+                            )}
+                          </div>
+                          <div className="space-y-1 flex-1">
+                            <h4 className="font-bold text-lg text-gray-900">
+                              {shop.vendors?.business_name || shop.name}
+                            </h4>
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                              {vendorPhone && (
+                                <a href={`tel:${vendorPhone}`} className="flex items-center gap-1.5 font-bold text-primary hover:underline">
+                                  <Phone className="h-3.5 w-3.5 text-primary" />
+                                  <span>{vendorPhone}</span>
+                                </a>
+                              )}
+                              <div className="flex items-center gap-1.5">
+                                <MapPin className="h-3.5 w-3.5 text-indigo-500" />
+                                <span>
+                                  {shop.address}, {shop.district}, {shop.region}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            {vendorPhone && (
+                              <a
+                                href={`tel:${vendorPhone}`}
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex-1 sm:flex-initial"
+                              >
+                                <Phone className="h-3.5 w-3.5" />
+                                Call Provider
+                              </a>
+                            )}
+                            <ChatButton
+                              shopId={shop.id}
+                              shopName={shop.vendors?.business_name || shop.name}
+                              productId={order.order_items[0]?.product_id}
+                              productName={order.order_items[0]?.products?.name}
+                              receiverId={shop.vendors?.user_id}
+                              orderId={order.id}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <ChatButton
-                      shopId={order.order_items[0].products.shops.id}
-                      shopName={order.order_items[0].products.shops.vendors?.business_name || order.order_items[0].products.shops.name}
-                      productId={order.order_items[0].product_id}
-                      productName={order.order_items[0].products.name}
-                      receiverId={order.order_items[0].products.shops.vendors?.user_id} // We might need to ensure this field is fetched
-                      orderId={order.id}
-                    />
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">Merchant details unavailable</p>
-                )}
-              </CardContent>
-            </Card>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">Merchant details unavailable</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })()}
 
             {/* Confirm Delivery Action */}
             {order.status === "delivered" && (

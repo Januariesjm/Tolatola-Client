@@ -96,6 +96,10 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const isVehicles = selectedParentCategory?.name?.toLowerCase() === "vehicles" ||
                      selectedParentCategory?.name?.toLowerCase() === "motorcycles" ||
                      selectedParentCategory?.name?.toLowerCase() === "motorcyles"
+  const isServices = selectedParentCategory?.name?.toLowerCase() === "services" ||
+                     selectedParentCategory?.slug === "services" ||
+                     selectedCategory?.name?.toLowerCase() === "services" ||
+                     selectedCategory?.slug === "services"
   const isReadyToEat = selectedParentCategory?.name?.toLowerCase() === "ready to eat" || selectedParentCategory?.slug === "ready-to-eat"
   const isDrinks = selectedParentCategory?.name?.toLowerCase() === "drinks" || selectedParentCategory?.slug === "drinks"
 
@@ -475,18 +479,38 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2 py-2 opacity-75">
-              <input
-                type="checkbox"
-                id="delivery_available"
-                checked={true}
-                disabled
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-not-allowed"
-              />
-              <Label htmlFor="delivery_available" className="text-sm font-medium leading-none cursor-not-allowed">
-                Delivery available handled by Tola (Always Enabled)
-              </Label>
-            </div>
+            {isServices ? (
+              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="delivery_available"
+                    checked={deliveryAvailable}
+                    onChange={(e) => setDeliveryAvailable(e.target.checked)}
+                    className="h-4 w-4 rounded border-stone-300 text-primary focus:ring-primary cursor-pointer"
+                  />
+                  <Label htmlFor="delivery_available" className="text-sm font-bold text-stone-900 cursor-pointer">
+                    Offer Home Delivery / On-Site Visit
+                  </Label>
+                </div>
+                <p className="text-xs text-muted-foreground ml-6">
+                  Check this if your service includes home delivery or on-site visits to the customer's location. Uncheck if service is rendered at your business premises or remotely.
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 py-2">
+                <input
+                  type="checkbox"
+                  id="delivery_available"
+                  checked={deliveryAvailable}
+                  onChange={(e) => setDeliveryAvailable(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <Label htmlFor="delivery_available" className="text-sm font-medium leading-none cursor-pointer">
+                  Delivery available handled by Tola
+                </Label>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
               <Select
