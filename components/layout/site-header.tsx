@@ -70,6 +70,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
   const [authKyc, setAuthKyc] = useState<string | null>(kycStatus || null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClientComponentClient<Database>()
@@ -89,6 +90,22 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Track cart count for mobile header badges
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+      const count = cart.reduce((acc: number, item: any) => acc + item.quantity, 0)
+      setCartCount(count)
+    }
+    updateCartCount()
+    window.addEventListener("cartUpdated", updateCartCount)
+    window.addEventListener("storage", updateCartCount)
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount)
+      window.removeEventListener("storage", updateCartCount)
+    }
   }, [])
 
   useEffect(() => {
@@ -295,6 +312,30 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
+                {/* Mobile: Favorites + Cart icons */}
+                <div className="flex lg:hidden items-center gap-0.5">
+                  <Link href="/favorites" className="relative">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-amber-500 hover:bg-amber-50 transition-all">
+                      <Heart className="h-[18px] w-[18px]" />
+                      {favorites.length > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                          {favorites.length > 9 ? "9+" : favorites.length}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                  <Link href="/cart" className="relative">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-primary hover:bg-primary/5 transition-all">
+                      <ShoppingCart className="h-[18px] w-[18px]" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                          {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                </div>
+
                 <NotificationPopover userType={authProfile?.user_type} />
 
                 <DropdownMenu>
@@ -429,13 +470,29 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
-                 {/* Mobile: Shop button + combined Login/Sign Up */}
-                <Link href="/shop" className="lg:hidden">
-                  <Button variant="ghost" className="h-9 rounded-full px-3.5 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 flex items-center gap-1.5 transition-all">
-                    <ShoppingBag className="h-3.5 w-3.5" />
-                    <span className="text-[11px] font-extrabold">{t("nav.shop")}</span>
-                  </Button>
-                </Link>
+                {/* Mobile: Favorites + Cart + Login/Sign Up */}
+                <div className="flex lg:hidden items-center gap-0.5">
+                  <Link href="/favorites" className="relative">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-amber-500 hover:bg-amber-50 transition-all">
+                      <Heart className="h-[18px] w-[18px]" />
+                      {favorites.length > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-amber-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                          {favorites.length > 9 ? "9+" : favorites.length}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                  <Link href="/cart" className="relative">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-600 hover:text-primary hover:bg-primary/5 transition-all">
+                      <ShoppingCart className="h-[18px] w-[18px]" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+                          {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                </div>
                 <Link href="/auth/login" className="lg:hidden">
                   <Button className="h-9 rounded-full px-4 text-[11px] font-extrabold uppercase tracking-wider shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5">
                     {t("auth.login_signup")}
