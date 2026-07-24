@@ -281,7 +281,7 @@ export default async function HomePage() {
         </section>
 
         {/* Seller CTA - Compact */}
-        <section className="py-4 md:py-8 container mx-auto px-4">
+        <section className="py-2 sm:py-4 md:py-8 container mx-auto px-4">
           <div className="bg-primary rounded-2xl md:rounded-3xl p-6 md:p-12 relative overflow-hidden text-center md:text-left">
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2" />
             <div className="relative z-10 grid md:grid-cols-2 gap-6 md:gap-10 items-center">

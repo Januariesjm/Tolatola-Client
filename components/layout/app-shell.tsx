@@ -27,7 +27,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <>
-      <main className="flex-1 pb-32 lg:pb-0">{children}</main>
+      <main className="flex-1 pb-0">{children}</main>
       {!isAdmin && !isAuth && <SiteFooter />}
       {!isAdmin && !isAuth && <MobileBottomNav />}
       <FloatingSupportWidget />

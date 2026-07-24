@@ -39,7 +39,7 @@ export function SiteFooter() {
     <footer className="bg-gradient-to-br from-teal-900 via-cyan-900 to-teal-950 text-cyan-100 mt-auto selection:bg-white selection:text-teal-900">
       {/* Trust & Security Segment */}
       <div className="border-b border-teal-800/50">
-        <div className="container mx-auto px-4 py-6 sm:py-10">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-1 sm:pb-0 sm:grid sm:grid-cols-3">
             <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-teal-800/20 border border-cyan-700/30 group hover:border-white/40 transition-all duration-500 min-w-[260px] sm:min-w-0 flex-shrink-0 sm:flex-shrink">
               <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-white/10 flex items-center justify-center text-white group-hover:scale-110 transition-transform flex-shrink-0">
@@ -72,7 +72,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-10 sm:py-14 md:py-20">
+      <div className="container mx-auto px-4 py-6 sm:py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-12 md:gap-16">
 
           {/* Brand & Mission */}
