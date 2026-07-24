@@ -212,16 +212,16 @@ export function MobileBottomNav() {
                                         onClick={() => setIsCategoriesOpen(false)}
                                         className="flex flex-col items-center gap-2 group"
                                     >
-                                        <div className="relative h-16 w-16 rounded-full overflow-hidden ring-1 ring-stone-200 group-hover:ring-2 group-hover:ring-primary/50 transition-all group-hover:scale-105">
+                                        <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/50 transition-all group-hover:scale-105 group-hover:shadow-md">
                                             {cat.image_url ? (
                                                 <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
                                             ) : (
                                                 <div className="w-full h-full bg-stone-100 flex items-center justify-center">
-                                                    <Grid3x3 className="h-5 w-5 text-stone-400" />
+                                                    <Grid3x3 className="h-6 w-6 text-stone-400" />
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-[11px] font-bold text-stone-700 text-center leading-tight line-clamp-2 max-w-[72px]">{cat.name}</span>
+                                        <span className="text-xs font-bold text-stone-800 text-center leading-tight line-clamp-2 max-w-[80px]">{cat.name}</span>
                                     </Link>
                                 ))}
                             </div>

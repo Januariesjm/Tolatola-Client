@@ -241,9 +241,9 @@ export default async function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/shop?category=${cat.slug || cat.id}`}
-                  className="group flex flex-col items-center gap-2"
+                  className="group flex flex-col items-center gap-2.5"
                 >
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden ring-1 ring-stone-200 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300 group-hover:scale-105">
+                  <div className="relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl md:rounded-[22px] overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-300 group-hover:scale-105">
                     <Image
                       src={backgroundImage}
                       alt={cat.name}
@@ -251,7 +251,7 @@ export default async function HomePage() {
                       className="object-cover"
                     />
                   </div>
-                  <h3 className="text-[10px] md:text-xs font-bold text-stone-700 text-center leading-tight line-clamp-2 max-w-[80px] md:max-w-[96px]">{cat.name}</h3>
+                  <h3 className="text-xs md:text-sm font-bold text-stone-800 text-center leading-tight line-clamp-2 max-w-[96px] md:max-w-[112px]">{cat.name}</h3>
                 </Link>
               )
             })}

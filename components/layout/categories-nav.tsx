@@ -53,19 +53,19 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
   return (
     <nav className="sticky top-[108px] lg:top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-stone-100 shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-start gap-5 lg:gap-6 overflow-x-auto scrollbar-hide py-4">
+        <div className="flex items-start gap-4 lg:gap-6 overflow-x-auto scrollbar-hide py-4">
           {/* All Categories */}
           <Link
             href="/shop"
             className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
-            <div className={`h-12 w-12 lg:h-14 lg:w-14 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg ${!currentCategory
-              ? "bg-primary text-white shadow-xl shadow-primary/20 ring-2 ring-primary/30"
-              : "bg-stone-100 text-stone-500 group-hover:bg-stone-200"
+            <div className={`h-14 w-14 lg:h-16 lg:w-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${!currentCategory
+              ? "bg-primary text-white shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+              : "bg-stone-100/80 text-stone-600 border border-stone-200/60 group-hover:bg-stone-100"
               }`}>
-              <Grid3x3 className="h-5 w-5 lg:h-6 lg:w-6" />
+              <Grid3x3 className="h-6 w-6 lg:h-7 lg:w-7" />
             </div>
-            <span className={`text-[10px] lg:text-[11px] font-bold text-center leading-tight max-w-[64px] ${!currentCategory ? "text-primary" : "text-stone-600"}`}>
+            <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] ${!currentCategory ? "text-primary font-extrabold" : "text-stone-700"}`}>
               All
             </span>
           </Link>
@@ -81,9 +81,9 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
                 href={`/shop?category=${category.slug}`}
                 className="flex flex-col items-center gap-2 flex-shrink-0 group"
               >
-                <div className={`relative h-12 w-12 lg:h-14 lg:w-14 rounded-full overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg ${isActive
-                  ? "ring-2 ring-primary shadow-xl shadow-primary/20"
-                  : "ring-1 ring-stone-200 group-hover:ring-primary/40"
+                <div className={`relative h-14 w-14 lg:h-16 lg:w-16 rounded-2xl overflow-hidden bg-stone-50 border transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${isActive
+                  ? "ring-2 ring-primary border-primary shadow-lg shadow-primary/20"
+                  : "border-stone-200/80 group-hover:border-primary/40"
                   }`}>
                   <Image
                     src={imageUrl || "/placeholder.svg"}
@@ -92,7 +92,7 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
                     className="object-cover"
                   />
                 </div>
-                <span className={`text-[10px] lg:text-[11px] font-bold text-center leading-tight max-w-[64px] line-clamp-2 ${isActive ? "text-primary" : "text-stone-600"}`}>
+                <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] line-clamp-2 ${isActive ? "text-primary font-extrabold" : "text-stone-700"}`}>
                   {category.name}
                 </span>
               </Link>
