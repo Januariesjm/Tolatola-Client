@@ -82,7 +82,7 @@ export function SiteFooter() {
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" />
               </div>
               <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-black tracking-tighter text-white">TOLA<span className="text-primary">.</span></h2>
-              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-cyan-300/70 mt-1 sm:mt-2">vivid Digital trade and Supply Chain Ecosystem infrastructure</p>
+              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-cyan-300/70 mt-1 sm:mt-2">Digital trade and Supply Chain Ecosystem</p>
             </Link>
             <p className="text-xs sm:text-sm leading-relaxed max-w-sm">
               Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with global accessibility.
