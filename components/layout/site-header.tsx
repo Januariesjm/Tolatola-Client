@@ -156,13 +156,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         {/* Row 1: Logo, nav, actions */}
         <div className="flex items-center justify-between w-full lg:w-auto gap-2 md:gap-4 h-16 lg:py-0 lg:flex-1 lg:h-full">
 
-        {/* Mobile Left Group: Hamburger + Logo + Mobile Shop Button */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="lg:hidden flex-shrink-0">
+        {/* Mobile Header Row (100% Equal Spacing between all 7 items) */}
+        <div className="flex lg:hidden items-center justify-between w-full gap-1 sm:gap-1.5 md:gap-2 h-full px-0.5">
+          {/* 1. Hamburger Menu */}
+          <div className="flex-shrink-0">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900">
-                  <Menu className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="h-8.5 w-8.5 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900 p-0">
+                  <Menu className="h-4.5 w-4.5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
@@ -250,285 +251,254 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
             </Sheet>
           </div>
 
+          {/* 2. TOLA Logo Image */}
+          <Link href="/" className="flex-shrink-0 transition-transform active:scale-95">
+            <div className="relative h-8.5 w-8.5 rounded-xl overflow-hidden shadow-xs border border-stone-200/80 bg-white p-0.5 flex-shrink-0">
+              <div className="relative h-full w-full rounded-[0.4rem] overflow-hidden">
+                <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
+              </div>
+            </div>
+          </Link>
+
+          {/* 3. Word TOLA. */}
+          <Link href="/" className="flex-shrink-0 transition-transform active:scale-95">
+            <span className="text-base font-black tracking-tighter text-stone-900 leading-none">TOLA.</span>
+          </Link>
+
+          {/* 4. Shop Button */}
+          <Link href="/shop" className="flex-shrink-0">
+            <div className="h-8.5 px-2.5 sm:px-3 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-1 shadow-xs">
+              <ShoppingBag className="h-3.5 w-3.5 text-[#1D61E7]" />
+              <span className="text-[11px] sm:text-xs font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+            </div>
+          </Link>
+
+          {/* 5. Love (Favorites) Icon */}
+          <Link href="/favorites" className="relative flex-shrink-0">
+            <div className="h-8.5 w-8.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+              <Heart className="h-4 w-4 text-[#1D61E7] stroke-[2.2]" />
+              {favorites.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-xs">
+                  {favorites.length > 9 ? "9+" : favorites.length}
+                </span>
+              )}
+            </div>
+          </Link>
+
+          {/* 6. Cart Icon */}
+          <Link href="/cart" className="relative flex-shrink-0">
+            <div className="h-8.5 w-8.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+              <ShoppingCart className="h-4 w-4 fill-[#1D61E7] text-[#1D61E7]" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-xs">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </div>
+          </Link>
+
+          {/* 7. Sign In Button / User Avatar at the end */}
+          {authUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="relative group p-0.5 transition-transform active:scale-95 outline-none flex-shrink-0">
+                  <div className="relative h-8.5 w-8.5 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
+                    <Avatar className="h-full w-full rounded-full">
+                      <AvatarImage src={authProfile?.profile_image_url || ""} />
+                      <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-[10px]">
+                        {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150]" align="end">
+                <DropdownMenuLabel className="p-4">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-base font-black text-stone-900 leading-none truncate">
+                      {authProfile?.full_name || t("nav.profile")}
+                    </p>
+                    <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                <div className="p-1 space-y-1">
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                    <Link href="/profile" className="flex items-center gap-3">
+                      <User className="h-4 w-4 text-primary" />
+                      <span className="font-bold">{t("nav.your_profile")}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                    <Link href="/orders" className="flex items-center gap-3">
+                      <Package className="h-4 w-4 text-primary" />
+                      <span className="font-bold">{t("nav.order_history")}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                    <Link href="/favorites" className="flex items-center gap-3">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <span className="font-bold">{t("nav.wishlist")}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
+                <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
+                  <LogOut className="h-4 w-4 mr-3" />
+                  {t("nav.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/auth/login" className="flex-shrink-0">
+              <Button className="h-8.5 rounded-full px-2.5 sm:px-3 text-[11px] font-extrabold tracking-tight bg-[#1D61E7] hover:bg-[#1854C9] text-white shadow-xs transition-all">
+                {t("nav.login")}
+              </Button>
+            </Link>
+          )}
+        </div>
+
+        {/* Desktop Header Layout */}
+        <div className="hidden lg:flex items-center justify-between w-full gap-4 h-full">
           {/* Logo & Brand Identity */}
-          <Link href="/" className="group flex items-center gap-2 flex-shrink-0 transition-transform active:scale-95">
-            <div className="relative h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 bg-white p-0.5 group-hover:rotate-3 transition-transform duration-500 flex-shrink-0">
+          <Link href="/" className="group flex items-center gap-3 flex-shrink-0 transition-transform active:scale-95">
+            <div className="relative h-12 w-12 rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 bg-white p-0.5 group-hover:rotate-3 transition-transform duration-500 flex-shrink-0">
               <div className="relative h-full w-full rounded-[0.5rem] overflow-hidden">
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
               </div>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl md:text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
-              <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
+              <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
             </div>
           </Link>
 
-          {/* Mobile Shop Button on Left */}
-          <Link href="/shop" className="lg:hidden flex-shrink-0 ml-1">
-            <div className="h-9 px-3 sm:px-3.5 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-1.5 shadow-xs">
-              <ShoppingBag className="h-4 w-4 text-[#1D61E7]" />
-              <span className="text-xs sm:text-sm font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
-            </div>
-          </Link>
-        </div>
-
-        {/* Search Architecture - Elite Footprint */}
-        <div className="hidden lg:flex flex-1 max-w-2xl mx-4 animate-in fade-in slide-in-from-top-2 duration-700 delay-100">
-          <ProductSearch />
-        </div>
-
-        {/* Navigation & User Hub */}
-        <nav className="flex items-center gap-2 md:gap-4">
-
-          <div className="hidden xl:flex items-center gap-4 mr-2">
-            <Link href="/shop" className={cn(
-              "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
-              pathname === "/shop" ? "text-primary" : "text-stone-500"
-            )}>
-              {t("nav.shop")}
-              <span className={cn(
-                "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
-                pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
-              )} />
-            </Link>
-            <Link href="/track" className={cn(
-              "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
-              pathname?.startsWith("/track") ? "text-primary" : "text-stone-500"
-            )}>
-              {t("nav.track")}
-              <span className={cn(
-                "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
-                pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
-              )} />
-            </Link>
+          {/* Search Architecture */}
+          <div className="flex-1 max-w-2xl mx-4">
+            <ProductSearch />
           </div>
 
-          <div className="flex items-center gap-1.5 md:gap-3">
-            <div className="hidden md:block">
+          {/* Navigation & User Hub */}
+          <nav className="flex items-center gap-4">
+            <div className="hidden xl:flex items-center gap-4 mr-2">
+              <Link href="/shop" className={cn(
+                "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
+                pathname === "/shop" ? "text-primary" : "text-stone-500"
+              )}>
+                {t("nav.shop")}
+                <span className={cn(
+                  "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
+                  pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
+                )} />
+              </Link>
+              <Link href="/track" className={cn(
+                "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
+                pathname?.startsWith("/track") ? "text-primary" : "text-stone-500"
+              )}>
+                {t("nav.track")}
+                <span className={cn(
+                  "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
+                  pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
+                )} />
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-3">
               <LanguageSwitcher />
-            </div>
 
-            {authUser ? (
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="hidden lg:flex items-center gap-1.5 border-r border-stone-200 pr-2 mr-1">
-                  <Link href="/favorites" className="relative">
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
-                      <Heart className="h-5 w-5" />
-                      {favorites.length > 0 && (
-                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
-                          {favorites.length}
-                        </Badge>
-                      )}
-                    </Button>
-                  </Link>
-                  <CartPopover />
-                </div>
+              <div className="flex items-center gap-2 border-r border-stone-200 pr-3 mr-1">
+                <Link href="/favorites" className="relative">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
+                    <Heart className="h-5 w-5" />
+                    {favorites.length > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
+                        {favorites.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </Link>
+                <CartPopover />
+              </div>
 
-                {/* Mobile Header Actions (Favorites Love Circle + Cart Circle with generous spacing) */}
-                <div className="flex lg:hidden items-center gap-2.5 sm:gap-3 flex-shrink-0">
-                  {/* Favorites Love Icon Circle */}
-                  <Link href="/favorites" className="relative flex-shrink-0">
-                    <div className="h-9.5 w-9.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-                      <Heart className="h-4.5 w-4.5 text-[#1D61E7] stroke-[2.2]" />
-                      {favorites.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
-                          {favorites.length > 9 ? "9+" : favorites.length}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+              {authUser ? (
+                <div className="flex items-center gap-3">
+                  <NotificationPopover userType={authProfile?.user_type} />
 
-                  {/* Cart Icon Circle */}
-                  <Link href="/cart" className="relative flex-shrink-0">
-                    <div className="h-9.5 w-9.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-                      <ShoppingCart className="h-4.5 w-4.5 fill-[#1D61E7] text-[#1D61E7]" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
-                          {cartCount > 99 ? "99+" : cartCount}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-
-                <NotificationPopover userType={authProfile?.user_type} />
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="relative group p-1 transition-transform active:scale-95 outline-none">
-                      <div className="relative h-11 w-11 md:h-12 md:w-12 rounded-[1.25rem] overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
-                        <div className="h-full w-full rounded-[1.1rem] overflow-hidden bg-white">
-                          <Avatar className="h-full w-full rounded-none">
-                            <AvatarImage src={authProfile?.profile_image_url || ""} />
-                            <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-xs">
-                              {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-                      </div>
-                      {isVerified && (
-                        <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary text-white rounded-lg flex items-center justify-center border-2 border-white shadow-lg shadow-primary/40 animate-in zoom-in duration-500">
-                          <CheckCircle2 className="h-3 w-3" />
-                        </div>
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150] animate-in fade-in slide-in-from-top-2 duration-500" align="end">
-                    <DropdownMenuLabel className="p-4">
-                      <div className="flex flex-col gap-1">
-                        <p className="text-base font-black text-stone-900 leading-none truncate">
-                          {authProfile?.full_name || t("nav.profile")}
-                        </p>
-                        <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="mx-2 bg-stone-50" />
-                    <div className="p-1 space-y-1">
-                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
-                        <Link href="/profile" className="flex items-center gap-3">
-                          <User className="h-4 w-4 text-primary" />
-                          <span className="font-bold">{t("nav.your_profile")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
-                        <Link href="/orders" className="flex items-center gap-3">
-                          <Package className="h-4 w-4 text-primary" />
-                          <span className="font-bold">{t("nav.order_history")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
-                        <Link href="/favorites" className="flex items-center gap-3">
-                          <Sparkles className="h-4 w-4 text-amber-500" />
-                          <span className="font-bold">{t("nav.wishlist")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-
-                      {/* Dashboard links for all approved roles */}
-                      {(() => {
-                        const vendorApproved = authProfile?.vendor?.kyc_status === "approved" || authProfile?.user_type === "vendor";
-                        const transporterApproved = authProfile?.transporter?.kyc_status === "approved" || authProfile?.user_type === "transporter";
-                        const isAdmin = authProfile?.user_type === "admin";
-                        const isAgent = authProfile?.user_type === "agent";
-                        const showSection = vendorApproved || transporterApproved || isAdmin || isAgent;
-                        if (!showSection) return null;
-                        return (
-                          <div className="mt-2 pt-2 border-t border-stone-50 space-y-1">
-                            {vendorApproved && (
-                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
-                                <Link href="/vendor/dashboard" className="flex justify-between items-center w-full px-4">
-                                  <div className="flex items-center gap-3">
-                                    <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.seller_dashboard")}</span>
-                                  </div>
-                                  <ArrowRight className="h-4 w-4 opacity-50" />
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
-                            {transporterApproved && (
-                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-emerald-900 text-white focus:bg-emerald-800 focus:text-white">
-                                <Link href="/transporter/dashboard" className="flex justify-between items-center w-full px-4">
-                                  <div className="flex items-center gap-3">
-                                    <Truck className="h-4 w-4 text-emerald-300" />
-                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.transporter")}</span>
-                                  </div>
-                                  <ArrowRight className="h-4 w-4 opacity-50" />
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
-                            {isAdmin && (
-                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
-                                <Link href="/admin" className="flex justify-between items-center w-full px-4">
-                                  <div className="flex items-center gap-3">
-                                    <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.admin_dashboard")}</span>
-                                  </div>
-                                  <ArrowRight className="h-4 w-4 opacity-50" />
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
-                            {isAgent && (
-                              <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer bg-stone-950 text-white focus:bg-stone-800 focus:text-white">
-                                <Link href="/agent" className="flex justify-between items-center w-full px-4">
-                                  <div className="flex items-center gap-3">
-                                    <Settings className="h-4 w-4 text-primary" />
-                                    <span className="font-black text-xs uppercase tracking-widest">{t("nav.agent_dashboard")}</span>
-                                  </div>
-                                  <ArrowRight className="h-4 w-4 opacity-50" />
-                                </Link>
-                              </DropdownMenuItem>
-                            )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="relative group p-1 transition-transform active:scale-95 outline-none">
+                        <div className="relative h-11 w-11 rounded-[1.25rem] overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
+                          <div className="h-full w-full rounded-[1.1rem] overflow-hidden bg-white">
+                            <Avatar className="h-full w-full rounded-none">
+                              <AvatarImage src={authProfile?.profile_image_url || ""} />
+                              <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-xs">
+                                {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
+                              </AvatarFallback>
+                            </Avatar>
                           </div>
-                        );
-                      })()}
-                    </div>
-                    <DropdownMenuSeparator className="mx-2 bg-stone-50" />
-                    <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
-                      <LogOut className="h-4 w-4 mr-3" />
-                      {t("nav.logout")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 md:gap-4 animate-in fade-in slide-in-from-right-4 duration-700">
-                <div className="hidden lg:flex items-center gap-2 border-r border-stone-200 pr-4 mr-2">
-                  <Link href="/favorites" className="relative">
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
-                      <Heart className="h-5 w-5" />
-                      {favorites.length > 0 && (
-                        <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
-                          {favorites.length}
-                        </Badge>
-                      )}
+                        </div>
+                        {isVerified && (
+                          <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary text-white rounded-lg flex items-center justify-center border-2 border-white shadow-lg shadow-primary/40">
+                            <CheckCircle2 className="h-3 w-3" />
+                          </div>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150]" align="end">
+                      <DropdownMenuLabel className="p-4">
+                        <div className="flex flex-col gap-1">
+                          <p className="text-base font-black text-stone-900 leading-none truncate">
+                            {authProfile?.full_name || t("nav.profile")}
+                          </p>
+                          <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                      <div className="p-1 space-y-1">
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                          <Link href="/profile" className="flex items-center gap-3">
+                            <User className="h-4 w-4 text-primary" />
+                            <span className="font-bold">{t("nav.your_profile")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                          <Link href="/orders" className="flex items-center gap-3">
+                            <Package className="h-4 w-4 text-primary" />
+                            <span className="font-bold">{t("nav.order_history")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                          <Link href="/favorites" className="flex items-center gap-3">
+                            <Sparkles className="h-4 w-4 text-amber-500" />
+                            <span className="font-bold">{t("nav.wishlist")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </div>
+                      <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                      <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
+                        <LogOut className="h-4 w-4 mr-3" />
+                        {t("nav.logout")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link href="/auth/login">
+                    <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
+                      {t("nav.login")}
                     </Button>
                   </Link>
-                  <CartPopover />
-                </div>
-
-                {/* Mobile Header Actions (Favorites Love Circle + Cart Circle with generous spacing) */}
-                <div className="flex lg:hidden items-center gap-2.5 sm:gap-3 flex-shrink-0">
-                  {/* Favorites Love Icon Circle */}
-                  <Link href="/favorites" className="relative flex-shrink-0">
-                    <div className="h-9.5 w-9.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-                      <Heart className="h-4.5 w-4.5 text-[#1D61E7] stroke-[2.2]" />
-                      {favorites.length > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
-                          {favorites.length > 9 ? "9+" : favorites.length}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-
-                  {/* Cart Icon Circle */}
-                  <Link href="/cart" className="relative flex-shrink-0">
-                    <div className="h-9.5 w-9.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-                      <ShoppingCart className="h-4.5 w-4.5 fill-[#1D61E7] text-[#1D61E7]" />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
-                          {cartCount > 99 ? "99+" : cartCount}
-                        </span>
-                      )}
-                    </div>
+                  <Link href="/auth/sign-up">
+                    <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
+                      {t("nav.signup")}
+                    </Button>
                   </Link>
                 </div>
-
-                {/* Desktop: separate Login and Sign Up */}
-                <Link href="/auth/login" className="hidden lg:inline-flex">
-                  <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
-                    {t("nav.login")}
-                  </Button>
-                </Link>
-                <Link href="/auth/sign-up" className="hidden lg:inline-flex">
-                  <Button className="font-black text-xs uppercase tracking-[0.2em] rounded-2xl md:px-8 h-12 shadow-xl shadow-primary/20 transition-all hover:-translate-y-1">
-                    {t("nav.signup")}
-                  </Button>
-                </Link>
-              </div>
-            )}
-
-
-          </div>
-        </nav>
+              )}
+            </div>
+          </nav>
+        </div>
         </div>
 
         {/* Row 2: Track Order + Search (Mobile Only - Android App style) */}
