@@ -352,7 +352,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           ) : (
             <Link href="/auth/login" className="flex-shrink-0">
               <Button className="h-8.5 rounded-full px-2.5 sm:px-3 text-[11px] font-extrabold tracking-tight bg-[#1D61E7] hover:bg-[#1854C9] text-white shadow-xs transition-all">
-                {t("nav.login")}
+                Sign In
               </Button>
             </Link>
           )}
