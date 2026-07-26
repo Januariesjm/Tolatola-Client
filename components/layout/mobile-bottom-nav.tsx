@@ -195,34 +195,36 @@ export function MobileBottomNav() {
     }, [loadUnreadCount, supabase])
 
     return (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4">
-            <nav className="bg-[#006666] backdrop-blur-lg border border-white/10 shadow-2xl rounded-3xl h-16 flex items-center justify-around relative overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-events-none" />
-
-                {/* 1. Home (renamed to Tola) */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pt-1">
+            <nav className="bg-white/95 backdrop-blur-xl border border-stone-200/90 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] rounded-full h-16 flex items-center justify-around relative overflow-hidden">
+                {/* 1. Home */}
                 <Link
                     href="/"
                     className={cn(
                         "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
-                        pathname === "/" ? "text-white" : "text-white/60 hover:text-white"
+                        pathname === "/" ? "text-[#1D61E7]" : "text-stone-400 hover:text-stone-600"
                     )}
                 >
                     <div className="relative">
-                        <Home className={cn("h-5 w-5 transition-transform", pathname === "/" && "scale-110")} />
+                        <Home className={cn("h-5 w-5 transition-transform", pathname === "/" ? "scale-110 stroke-[2.4]" : "stroke-[1.8]")} />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.home")}</span>
+                    <span className={cn("text-[10px] font-bold tracking-tight", pathname === "/" ? "text-[#1D61E7]" : "text-stone-500")}>
+                        {t("nav.home")}
+                    </span>
                     {pathname === "/" && (
-                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                        <div className="absolute -bottom-1 w-1.5 h-1.5 bg-[#1D61E7] rounded-full shadow-xs" />
                     )}
                 </Link>
 
                 {/* 2. Categories Menu (triggers Sheet) */}
                 <Sheet open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
                     <SheetTrigger asChild>
-                        <button className="flex flex-col items-center justify-center gap-1 w-full h-full text-white/70 hover:text-white transition-colors relative z-10">
-                            <Grid3x3 className="h-5 w-5" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.categories")}</span>
+                        <button className={cn(
+                            "flex flex-col items-center justify-center gap-1 w-full h-full transition-colors relative z-10",
+                            isCategoriesOpen ? "text-[#1D61E7]" : "text-stone-400 hover:text-stone-600"
+                        )}>
+                            <Grid3x3 className="h-5 w-5 stroke-[1.8]" />
+                            <span className="text-[10px] font-bold tracking-tight text-stone-500">{t("nav.categories")}</span>
                         </button>
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[70vh] rounded-t-[2.5rem] border-none p-0 bg-white">
@@ -262,7 +264,7 @@ export function MobileBottomNav() {
                                             <div className="relative h-16 w-16 rounded-2xl overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/40 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
                                                 <Image src={imageUrl} alt={cat.name} fill className="object-cover" />
                                             </div>
-                                    <span className="text-[11px] font-bold text-stone-700 text-center leading-tight max-w-[72px] line-clamp-2">{getCategoryTranslation(cat.slug, cat.name, t)}</span>
+                                            <span className="text-[11px] font-bold text-stone-700 text-center leading-tight max-w-[72px] line-clamp-2">{getCategoryTranslation(cat.slug, cat.name, t)}</span>
                                         </Link>
                                     )
                                 })}
@@ -271,25 +273,27 @@ export function MobileBottomNav() {
                     </SheetContent>
                 </Sheet>
 
-                {/* 3. Messages / Notifications (replaces Favorites) */}
+                {/* 3. Messages / Notifications */}
                 <Link
                     href="/messages"
                     className={cn(
                         "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
-                        pathname === "/messages" ? "text-white" : "text-white/60 hover:text-white"
+                        pathname === "/messages" ? "text-[#1D61E7]" : "text-stone-400 hover:text-stone-600"
                     )}
                 >
                     <div className="relative">
-                        <Bell className={cn("h-5 w-5 transition-transform", pathname === "/messages" && "scale-110")} />
+                        <Bell className={cn("h-5 w-5 transition-transform", pathname === "/messages" ? "scale-110 stroke-[2.4]" : "stroke-[1.8]")} />
                         {unreadCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-[#006666]">
+                            <span className="absolute -top-1.5 -right-2 bg-[#E53E3E] text-white text-[8px] font-extrabold h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
                                 {unreadCount > 9 ? "9+" : unreadCount}
                             </span>
                         )}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.messages")}</span>
+                    <span className={cn("text-[10px] font-bold tracking-tight", pathname === "/messages" ? "text-[#1D61E7]" : "text-stone-500")}>
+                        {t("nav.messages")}
+                    </span>
                     {pathname === "/messages" && (
-                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                        <div className="absolute -bottom-1 w-1.5 h-1.5 bg-[#1D61E7] rounded-full shadow-xs" />
                     )}
                 </Link>
 
@@ -298,20 +302,22 @@ export function MobileBottomNav() {
                     href="/cart"
                     className={cn(
                         "flex flex-col items-center justify-center gap-1 w-full h-full transition-all relative z-10",
-                        pathname === "/cart" ? "text-white" : "text-white/60 hover:text-white"
+                        pathname === "/cart" ? "text-[#1D61E7]" : "text-stone-400 hover:text-stone-600"
                     )}
                 >
                     <div className="relative">
-                        <ShoppingCart className={cn("h-5 w-5 transition-transform", pathname === "/cart" && "scale-110")} />
+                        <ShoppingCart className={cn("h-5 w-5 transition-transform", pathname === "/cart" ? "scale-110 stroke-[2.4]" : "stroke-[1.8]")} />
                         {cartCount > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-[#006666]">
+                            <span className="absolute -top-1.5 -right-2 bg-[#E53E3E] text-white text-[8px] font-extrabold h-4 w-4 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
                                 {cartCount > 99 ? "99+" : cartCount}
                             </span>
                         )}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("nav.cart")}</span>
+                    <span className={cn("text-[10px] font-bold tracking-tight", pathname === "/cart" ? "text-[#1D61E7]" : "text-stone-500")}>
+                        {t("nav.cart")}
+                    </span>
                     {pathname === "/cart" && (
-                        <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full" />
+                        <div className="absolute -bottom-1 w-1.5 h-1.5 bg-[#1D61E7] rounded-full shadow-xs" />
                     )}
                 </Link>
             </nav>
