@@ -251,22 +251,16 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           </div>
 
           {/* Logo & Brand Identity */}
-          <Link href="/" className="group flex items-center gap-3 md:gap-4 flex-shrink-0 transition-transform active:scale-95">
-            <div className="relative h-10 w-10 md:h-16 md:w-16 rounded-[1rem] md:rounded-[1.25rem] overflow-hidden shadow-2xl shadow-primary/20 ring-2 md:ring-4 ring-white group-hover:rotate-6 transition-transform duration-500">
-              <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
+          <Link href="/" className="group flex items-center gap-2.5 flex-shrink-0 transition-transform active:scale-95">
+            <div className="relative h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 bg-white p-0.5 group-hover:rotate-3 transition-transform duration-500 flex-shrink-0">
+              <div className="relative h-full w-full rounded-[0.5rem] overflow-hidden">
+                <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
+              </div>
             </div>
-            <div className="hidden sm:flex flex-col">
-              <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
+            <div className="flex flex-col">
+              <h1 className="text-xl md:text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
+              <p className="hidden sm:block text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
             </div>
-          </Link>
-
-          {/* Mobile Shop Button next to Logo */}
-          <Link href="/shop" className="lg:hidden flex-shrink-0">
-            <Button variant="ghost" className="h-9 rounded-full px-3 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 flex items-center gap-1.5 transition-all">
-              <ShoppingBag className="h-3.5 w-3.5" />
-              <span className="text-[11px] font-extrabold">{t("nav.shop")}</span>
-            </Button>
           </Link>
         </div>
 
@@ -322,31 +316,38 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
-                {/* Mobile: Favorites + Cart icons */}
-                <div className="flex lg:hidden items-center gap-2">
-                  <Link href="/favorites">
-                    <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <div className="relative inline-flex items-center justify-center">
-                        <Heart className="h-8 w-8 stroke-[2.2]" />
-                        {favorites.length > 0 && (
-                          <span className="absolute -top-2.5 -right-2.5 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                            {favorites.length > 9 ? "9+" : favorites.length}
-                          </span>
-                        )}
-                      </div>
-                    </Button>
+                {/* Mobile Header Actions (Android App Style: Shop Pill + Heart Circle + Cart Circle) */}
+                <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                  {/* Shop Pill Button */}
+                  <Link href="/shop" className="flex-shrink-0">
+                    <div className="h-9 px-3 sm:px-3.5 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-1.5 shadow-xs">
+                      <ShoppingBag className="h-4 w-4 fill-[#1D61E7] text-[#1D61E7]" />
+                      <span className="text-xs sm:text-sm font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+                    </div>
                   </Link>
-                  <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-primary hover:bg-primary/5 transition-all">
-                      <div className="relative inline-flex items-center justify-center">
-                        <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
-                        {cartCount > 0 && (
-                          <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                            {cartCount > 99 ? "99+" : cartCount}
-                          </span>
-                        )}
-                      </div>
-                    </Button>
+
+                  {/* Favorites Love Icon Circle */}
+                  <Link href="/favorites" className="relative flex-shrink-0">
+                    <div className="h-9 w-9 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+                      <Heart className="h-4.5 w-4.5 text-[#1D61E7] stroke-[2.2]" />
+                      {favorites.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                          {favorites.length > 9 ? "9+" : favorites.length}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+
+                  {/* Cart Icon Circle */}
+                  <Link href="/cart" className="relative flex-shrink-0">
+                    <div className="h-9 w-9 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+                      <ShoppingCart className="h-4.5 w-4.5 fill-[#1D61E7] text-[#1D61E7]" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                          {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 </div>
 
@@ -484,38 +485,40 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <CartPopover />
                 </div>
 
-                {/* Mobile: Favorites + Cart + Login/Sign Up */}
-                <div className="flex lg:hidden items-center gap-2">
-                  <Link href="/favorites">
-                    <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-amber-500 hover:bg-amber-50 transition-all">
-                      <div className="relative inline-flex items-center justify-center">
-                        <Heart className="h-8 w-8 stroke-[2.2]" />
-                        {favorites.length > 0 && (
-                          <span className="absolute -top-2.5 -right-2.5 bg-amber-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                            {favorites.length > 9 ? "9+" : favorites.length}
-                          </span>
-                        )}
-                      </div>
-                    </Button>
+                {/* Mobile Header Actions (Android App Style: Shop Pill + Heart Circle + Cart Circle) */}
+                <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                  {/* Shop Pill Button */}
+                  <Link href="/shop" className="flex-shrink-0">
+                    <div className="h-9 px-3 sm:px-3.5 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-1.5 shadow-xs">
+                      <ShoppingBag className="h-4 w-4 fill-[#1D61E7] text-[#1D61E7]" />
+                      <span className="text-xs sm:text-sm font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+                    </div>
                   </Link>
-                  <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-stone-800 hover:text-primary hover:bg-primary/5 transition-all">
-                      <div className="relative inline-flex items-center justify-center">
-                        <ShoppingCart className="h-8 w-8 stroke-[2.2]" />
-                        {cartCount > 0 && (
-                          <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7.5px] font-black h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-sm">
-                            {cartCount > 99 ? "99+" : cartCount}
-                          </span>
-                        )}
-                      </div>
-                    </Button>
+
+                  {/* Favorites Love Icon Circle */}
+                  <Link href="/favorites" className="relative flex-shrink-0">
+                    <div className="h-9 w-9 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+                      <Heart className="h-4.5 w-4.5 text-[#1D61E7] stroke-[2.2]" />
+                      {favorites.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                          {favorites.length > 9 ? "9+" : favorites.length}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+
+                  {/* Cart Icon Circle */}
+                  <Link href="/cart" className="relative flex-shrink-0">
+                    <div className="h-9 w-9 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+                      <ShoppingCart className="h-4.5 w-4.5 fill-[#1D61E7] text-[#1D61E7]" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                          {cartCount > 99 ? "99+" : cartCount}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 </div>
-                <Link href="/auth/login" className="lg:hidden">
-                  <Button className="h-9 rounded-full px-4 text-[11px] font-extrabold uppercase tracking-wider shadow-md shadow-primary/20 transition-all hover:-translate-y-0.5">
-                    {t("auth.login_signup")}
-                  </Button>
-                </Link>
 
                 {/* Desktop: separate Login and Sign Up */}
                 <Link href="/auth/login" className="hidden lg:inline-flex">
@@ -536,11 +539,11 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         </nav>
         </div>
 
-        {/* Row 2: Track Order + Search (Mobile Only) */}
-        <div className="lg:hidden flex items-center gap-2 w-full h-12 pb-2">
+        {/* Row 2: Track Order + Search (Mobile Only - Android App style) */}
+        <div className="lg:hidden flex items-center gap-2 w-full h-11 pb-2 pt-1">
           <Link href="/track" className="flex-shrink-0">
-            <Button className="bg-primary hover:bg-primary/90 text-white font-extrabold text-[10px] tracking-tight rounded-full px-2.5 h-10 shadow-md shadow-primary/20 flex items-center gap-1 transition-all hover:-translate-y-0.5">
-              <MapPin className="h-3.5 w-3.5" />
+            <Button className="bg-[#1D61E7] hover:bg-[#1854C9] text-white font-bold text-xs tracking-tight rounded-full px-3.5 h-9.5 shadow-xs flex items-center gap-1.5 transition-all">
+              <MapPin className="h-4 w-4 fill-white text-white" />
               {t("nav.track")}
             </Button>
           </Link>
