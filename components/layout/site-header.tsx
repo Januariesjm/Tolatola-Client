@@ -379,43 +379,37 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           </div>
 
           {/* Navigation & User Hub */}
-          <nav className="flex items-center gap-4">
-            <div className="hidden xl:flex items-center gap-4 mr-2">
-              <Link href="/shop" className={cn(
-                "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
-                pathname === "/shop" ? "text-primary" : "text-stone-500"
-              )}>
-                {t("nav.shop")}
-                <span className={cn(
-                  "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
-                  pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"
-                )} />
+          <nav className="flex items-center gap-3">
+            {/* Shop & Track Order Pill Buttons */}
+            <div className="flex items-center gap-2.5">
+              <Link href="/shop" className="flex-shrink-0">
+                <div className="h-10 px-4 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-2 shadow-xs">
+                  <ShoppingBag className="h-4 w-4 text-[#1D61E7]" />
+                  <span className="text-sm font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+                </div>
               </Link>
-              <Link href="/track" className={cn(
-                "text-sm font-black uppercase tracking-widest transition-all hover:text-primary relative group",
-                pathname?.startsWith("/track") ? "text-primary" : "text-stone-500"
-              )}>
-                {t("nav.track")}
-                <span className={cn(
-                  "absolute -bottom-2 left-0 h-1 bg-primary transition-all duration-500 rounded-full",
-                  pathname?.startsWith("/track") ? "w-full" : "w-0 group-hover:w-full"
-                )} />
+              <Link href="/track" className="flex-shrink-0">
+                <div className="h-10 px-4 rounded-full bg-[#1D61E7] hover:bg-[#1854C9] text-white active:scale-95 transition-all flex items-center gap-2 shadow-xs">
+                  <MapPin className="h-4 w-4 text-white" />
+                  <span className="text-sm font-bold text-white tracking-tight">{t("nav.track")}</span>
+                </div>
               </Link>
             </div>
 
             <div className="flex items-center gap-3">
               <LanguageSwitcher />
 
-              <div className="flex items-center gap-2 border-r border-stone-200 pr-3 mr-1">
-                <Link href="/favorites" className="relative">
-                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-stone-500 hover:text-amber-500 hover:bg-amber-50">
-                    <Heart className="h-5 w-5" />
+              {/* Favorites Love Icon Circle & Cart Popover */}
+              <div className="flex items-center gap-2.5 border-r border-stone-200 pr-3 mr-1">
+                <Link href="/favorites" className="relative flex-shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
+                    <Heart className="h-5 w-5 text-[#1D61E7] stroke-[2.2]" />
                     {favorites.length > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-amber-500 text-white border-2 border-white rounded-full text-[10px] font-bold shadow-sm">
-                        {favorites.length}
-                      </Badge>
+                      <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                        {favorites.length > 9 ? "9+" : favorites.length}
+                      </span>
                     )}
-                  </Button>
+                  </div>
                 </Link>
                 <CartPopover />
               </div>

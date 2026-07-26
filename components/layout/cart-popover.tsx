@@ -137,19 +137,15 @@ export function CartPopover() {
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <button
-            className="relative inline-flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent cursor-pointer transition-colors"
+            className="relative h-10 w-10 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center cursor-pointer outline-none"
             onClick={handleClick}
             type="button"
           >
-            <ShoppingCart className="h-6 w-6" strokeWidth={2.5} />
-            <span className="font-bold text-base hidden sm:inline">Cart</span>
+            <ShoppingCart className="h-5 w-5 fill-[#1D61E7] text-[#1D61E7]" />
             {totalItems > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-xs font-bold"
-              >
-                {totalItems}
-              </Badge>
+              <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
             )}
           </button>
         </PopoverTrigger>
