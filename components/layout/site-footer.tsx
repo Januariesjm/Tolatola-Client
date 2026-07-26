@@ -201,7 +201,7 @@ export function SiteFooter() {
                 Owned and Operated by TOLA GLOBAL SYSTEMS LIMITED
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-cyan-300/60">
-                <span>Company Reg: REGISTRATION NO 207121622</span>
+                <span>Company Reg: 207-121-622</span>
                 <span className="hidden sm:inline">•</span>
                 <span>TIN NO: 207121622</span>
               </div>
