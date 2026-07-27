@@ -1,11 +1,14 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
+import { verifyPermanentVerifyToken } from "@/lib/tokenSigner"
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
   const token_hash = requestUrl.searchParams.get("token_hash")
+  const v_token = requestUrl.searchParams.get("v_token")
+  const uid = requestUrl.searchParams.get("uid")
   const type = requestUrl.searchParams.get("type")
   const next = requestUrl.searchParams.get("next") ?? "/"
   const error_param = requestUrl.searchParams.get("error")
@@ -152,6 +155,67 @@ export async function GET(request: Request) {
 
     console.error('[AUTH CALLBACK] No session returned from code exchange')
     return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=NoSessionReturned`)
+  }
+
+  // Handle permanent non-expiring multi-clickable verification link (v_token)
+  if (v_token) {
+    console.log('[AUTH CALLBACK] Processing permanent non-expiring verification token...')
+    const payload = verifyPermanentVerifyToken(v_token)
+    const targetUserId = payload?.u || uid
+    const targetEmail = payload?.e || requestUrl.searchParams.get("email")
+
+    if (payload && targetUserId) {
+      console.log('[AUTH CALLBACK] Permanent token signature valid for user:', targetUserId, targetEmail)
+
+      // 1. Call backend API to confirm email & update tables
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+      if (apiBase) {
+        try {
+          await fetch(`${apiBase}/auth/confirm-verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: targetUserId, email: targetEmail }),
+          })
+        } catch (e) {
+          console.error('[AUTH CALLBACK] Error calling backend confirm-verify:', e)
+        }
+      }
+
+      // 2. Directly update is_verified in public.users
+      try {
+        await (supabase.from("users") as any)
+          .update({ is_verified: true })
+          .eq("id", targetUserId)
+      } catch (e) {
+        // ignore
+      }
+
+      // 3. Fetch profile user_type for dashboard routing
+      let userType = null
+      try {
+        const { data: userProfile } = await ((supabase
+          .from("users") as any)
+          .select("user_type")
+          .eq("id", targetUserId) as any)
+          .maybeSingle()
+        userType = userProfile?.user_type
+      } catch (e) {
+        // ignore
+      }
+
+      const targetNext = requestUrl.searchParams.get("next")
+      if (targetNext && targetNext !== "/") {
+        return NextResponse.redirect(`${appUrl}${targetNext}`)
+      }
+
+      if (userType === "vendor") {
+        return NextResponse.redirect(`${appUrl}/vendor/dashboard`)
+      } else if (userType === "transporter") {
+        return NextResponse.redirect(`${appUrl}/transporter/dashboard`)
+      }
+
+      return NextResponse.redirect(`${appUrl}/auth/verified`)
+    }
   }
 
   // Handle email verification callback
