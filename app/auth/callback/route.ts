@@ -296,11 +296,15 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${appUrl}/auth/verified`)
       }
 
-      return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
+      const emailForResend = requestUrl.searchParams.get("email") || ""
+      const emailQuery = emailForResend ? `&email=${encodeURIComponent(emailForResend)}` : ""
+      return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error.message)}${emailQuery}`)
     }
   }
 
   // No valid parameters provided
   console.error('[AUTH CALLBACK] No valid parameters provided')
-  return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=MissingParameters`)
+  const fallbackEmail = requestUrl.searchParams.get("email") || ""
+  const fallbackEmailQuery = fallbackEmail ? `&email=${encodeURIComponent(fallbackEmail)}` : ""
+  return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=MissingParameters${fallbackEmailQuery}`)
 }
