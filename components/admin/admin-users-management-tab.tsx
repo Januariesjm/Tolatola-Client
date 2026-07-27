@@ -324,11 +324,11 @@ export function AdminUsersManagementTab() {
                   </TableHeader>
                   <TableBody>
                     {revokedHistory.map((history, index) => (
-                      <TableRow key={history.id}>
+                      <TableRow key={history.id || index}>
                         <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{history.user_name || "Unknown"}</div>
+                            <div className="font-medium">{history.user_name || history.user_email || "Unknown User"}</div>
                             <div className="text-xs text-muted-foreground">{history.user_email}</div>
                           </div>
                         </TableCell>
@@ -339,23 +339,23 @@ export function AdminUsersManagementTab() {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
-                            {new Date(history.revoked_at).toLocaleDateString()}
+                            {history.revoked_at ? new Date(history.revoked_at).toLocaleDateString() : "N/A"}
                             <div className="text-xs text-muted-foreground">
-                              {new Date(history.revoked_at).toLocaleTimeString()}
+                              {history.revoked_at ? new Date(history.revoked_at).toLocaleTimeString() : ""}
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Shield className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Super Admin</span>
+                            <span className="text-sm">{history.revoked_by || "Super Admin"}</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="max-w-xs">
                             <div className="flex items-start gap-2">
                               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                              <p className="text-sm text-muted-foreground">{history.revoke_reason}</p>
+                              <p className="text-sm text-muted-foreground">{history.revoke_reason || history.reason || "Admin access revoked"}</p>
                             </div>
                           </div>
                         </TableCell>
