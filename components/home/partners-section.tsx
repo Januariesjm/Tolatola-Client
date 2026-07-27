@@ -12,7 +12,7 @@ interface Partner {
 const partners: Partner[] = [
   { name: "CLICKPESA", logo: "/partners/clickpesa.png" },
   { name: "AIRTEL", logo: "/partners/airtel.svg" },
-  { name: "VODACOM", logo: "/partners/vodacom.svg" },
+  { name: "VODACOM", logo: "/partners/vodacom.png" },
   { name: "MIX BY YAS", logo: "/partners/mix-by-yas.svg" },
   { name: "HALOTEL", logo: "/partners/halotel.png" },
   { name: "CRDB BANK", logo: "/partners/crdb.png" },
