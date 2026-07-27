@@ -156,7 +156,7 @@ export async function GET(request: Request) {
 
   // Handle email verification callback
   if (token_hash && type) {
-    console.log('[AUTH CALLBACK] Processing email verification...')
+    console.log('[AUTH CALLBACK] Processing email verification...', { token_hash: token_hash.substring(0, 10), type })
 
     // If setting up agent password, redirect directly to the page without calling verifyOtp
     // to avoid consuming the single-use token on GET. The setup page will perform the OTP
@@ -168,22 +168,72 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${appUrl}${next}${next.includes('?') ? '&' : '?'}token_hash=${token_hash}&type=${type}${emailQuery}`)
     }
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { data: verifyData, error } = await supabase.auth.verifyOtp({
       type: type as any,
       token_hash,
     })
 
-    if (!error) {
-      console.log('[AUTH CALLBACK] Email verification successful')
+    if (!error && verifyData?.user) {
+      console.log('[AUTH CALLBACK] Email verification successful for user:', verifyData.user.email)
+
+      const user = verifyData.user
+      const userType = user.user_metadata?.user_type
+
+      // 1. Update public.users is_verified status
+      try {
+        await (supabase.from("users") as any)
+          .update({ is_verified: true })
+          .eq("id", user.id)
+      } catch (dbErr) {
+        console.error('[AUTH CALLBACK] Failed to update is_verified in public.users:', dbErr)
+      }
+
+      // 2. Mark incomplete registration recovery record as completed
+      if (user.email) {
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
+        if (apiBase) {
+          try {
+            await fetch(`${apiBase}/registration-recovery/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: user.email }),
+            })
+          } catch (recErr) {
+            console.error('[AUTH CALLBACK] Failed to mark incomplete registration completed:', recErr)
+          }
+        }
+      }
+
+      // Determine appropriate redirect destination
       const targetNext = requestUrl.searchParams.get("next")
-      if (targetNext) {
+      if (targetNext && targetNext !== "/") {
         return NextResponse.redirect(`${appUrl}${targetNext}`)
       }
+
+      if (userType === "vendor") {
+        return NextResponse.redirect(`${appUrl}/vendor/dashboard`)
+      } else if (userType === "transporter") {
+        return NextResponse.redirect(`${appUrl}/transporter/dashboard`)
+      }
+
       return NextResponse.redirect(`${appUrl}/auth/verified`)
     }
 
-    console.error('[AUTH CALLBACK] Email verification error:', error)
-    return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
+    if (error) {
+      console.error('[AUTH CALLBACK] Email verification error:', error)
+
+      // Fallback: Check if session user is already confirmed (e.g. link pre-fetched by email scanner)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user?.email_confirmed_at) {
+        console.log('[AUTH CALLBACK] User is already confirmed, proceeding to dashboard...')
+        const userType = session.user.user_metadata?.user_type
+        if (userType === "vendor") return NextResponse.redirect(`${appUrl}/vendor/dashboard`)
+        if (userType === "transporter") return NextResponse.redirect(`${appUrl}/transporter/dashboard`)
+        return NextResponse.redirect(`${appUrl}/auth/verified`)
+      }
+
+      return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
+    }
   }
 
   // No valid parameters provided
