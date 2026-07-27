@@ -12,6 +12,7 @@ import { CategoriesNav } from "@/components/layout/categories-nav"
 import { HeroSlider } from "@/components/home/hero-slider"
 import { ProductSearch } from "@/components/layout/product-search"
 import { CategoriesGrid } from "@/components/home/categories-grid"
+import { PartnersSection } from "@/components/home/partners-section"
 import type { Metadata } from "next"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
@@ -260,6 +261,9 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Strategic Ecosystem Partners */}
+        <PartnersSection />
 
         {/* Seller CTA - Compact */}
         <section className="py-2 sm:py-4 md:py-8 container mx-auto px-4">
