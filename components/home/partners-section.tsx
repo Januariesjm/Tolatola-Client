@@ -7,20 +7,19 @@ import { ChevronLeft, ChevronRight, Handshake } from "lucide-react"
 interface Partner {
   name: string
   logo: string
-  category: string
 }
 
 const partners: Partner[] = [
-  { name: "CLICKPESA", logo: "/partners/clickpesa.png", category: "Payment Gateway" },
-  { name: "AIRTEL", logo: "/partners/airtel.svg", category: "Mobile Money & Telecom" },
-  { name: "VODACOM", logo: "/partners/vodacom.svg", category: "Mobile Money & Telecom" },
-  { name: "MIX BY YAS", logo: "/partners/mix-by-yas.svg", category: "Mobile Money & Telecom" },
-  { name: "HALOTEL", logo: "/partners/halotel.png", category: "Telecom & Network" },
-  { name: "CRDB BANK", logo: "/partners/crdb.png", category: "Banking & Finance" },
-  { name: "EQUITY BANK", logo: "/partners/equity.png", category: "Banking & Finance" },
-  { name: "NMB BANK", logo: "/partners/nmb.png", category: "Banking & Finance" },
-  { name: "ABSA BANK", logo: "/partners/absa.svg", category: "Banking & Finance" },
-  { name: "DAN'G GROUP", logo: "/partners/dang-group.png", category: "Enterprise & Trade" },
+  { name: "CLICKPESA", logo: "/partners/clickpesa.png" },
+  { name: "AIRTEL", logo: "/partners/airtel.svg" },
+  { name: "VODACOM", logo: "/partners/vodacom.svg" },
+  { name: "MIX BY YAS", logo: "/partners/mix-by-yas.svg" },
+  { name: "HALOTEL", logo: "/partners/halotel.png" },
+  { name: "CRDB BANK", logo: "/partners/crdb.png" },
+  { name: "EQUITY BANK", logo: "/partners/equity.png" },
+  { name: "NMB BANK", logo: "/partners/nmb.png" },
+  { name: "ABSA BANK", logo: "/partners/absa.svg" },
+  { name: "DAN'G GROUP", logo: "/partners/dang-group.png" },
 ]
 
 export function PartnersSection() {
@@ -46,9 +45,6 @@ export function PartnersSection() {
             <h2 className="text-2xl md:text-3xl font-black tracking-tight text-stone-900">
               Our Strategic <span className="text-primary italic">Partners</span>
             </h2>
-            <p className="text-stone-600 text-xs md:text-sm font-medium">
-              Empowered by leading telecom operators, licensed payment service providers, and major financial institutions.
-            </p>
           </div>
 
           {/* Navigation Arrows */}
@@ -79,7 +75,7 @@ export function PartnersSection() {
           {partners.map((partner, index) => (
             <div
               key={index}
-              className="flex-none snap-start w-52 md:w-60 p-4 md:p-5 rounded-2xl bg-white border border-stone-200/80 hover:border-primary/40 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center justify-between text-center group cursor-pointer"
+              className="flex-none snap-start w-48 md:w-56 p-4 rounded-2xl bg-white border border-stone-200/80 hover:border-primary/40 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col items-center justify-between text-center group cursor-pointer"
             >
               <div className="relative w-full h-20 flex items-center justify-center p-3 rounded-xl bg-stone-50/80 border border-stone-100 group-hover:bg-white group-hover:border-primary/20 transition-all duration-300 overflow-hidden">
                 <Image
@@ -90,13 +86,10 @@ export function PartnersSection() {
                   className="object-contain max-h-14 w-auto group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="mt-3 space-y-0.5">
+              <div className="mt-3">
                 <h3 className="text-xs font-black tracking-wider text-stone-900 uppercase group-hover:text-primary transition-colors">
                   {partner.name}
                 </h3>
-                <p className="text-[10px] text-stone-500 font-semibold tracking-tight">
-                  {partner.category}
-                </p>
               </div>
             </div>
           ))}
