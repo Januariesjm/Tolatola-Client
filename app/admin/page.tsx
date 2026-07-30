@@ -24,6 +24,7 @@ export default async function AdminDashboardPage() {
   let pendingTransporters: any[] = []
   let pendingCustomerKyc: any[] = []
   let pendingProducts: any[] = []
+  let allProducts: any[] = []
   let orders: any[] = []
   let transactions: any[] = []
   let tickets: any[] = []
@@ -91,6 +92,7 @@ export default async function AdminDashboardPage() {
         serverApiGet<{ data: any[] }>("admin/agents").catch((err) => { console.error("[ADMIN DATA FETCH] Error fetching agents:", err); return { data: [] }; }),
       ])
 
+    allProducts = productsRes.data || []
     pendingVendors = vendorsRes.data?.filter((v) => v.kyc_status === "pending") || []
     pendingTransporters = transportersRes.data?.filter((t) => t.kyc_status === "pending") || []
     pendingCustomerKyc = kycRes.data?.filter((k: any) => k.kyc_status === "pending") || []
@@ -144,6 +146,7 @@ export default async function AdminDashboardPage() {
       pendingTransporters={pendingTransporters}
       pendingCustomerKyc={pendingCustomerKyc}
       pendingProducts={pendingProducts}
+      allProducts={allProducts}
       orders={orders}
       transactions={transactions}
       tickets={tickets}

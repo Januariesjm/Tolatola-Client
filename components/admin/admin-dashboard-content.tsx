@@ -28,6 +28,7 @@ import {
   UserPlus,
   ClipboardList,
   Mail,
+  PackageSearch,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -41,6 +42,7 @@ import { ActivityLogsTab } from "./activity-logs-tab"
 import { KYCApprovalTab } from "./kyc-approval-tab"
 import { TransporterKYCApprovalTab } from "./transporter-kyc-approval-tab"
 import { ProductApprovalTab } from "./product-approval-tab"
+import { ProductManagementTab } from "./product-management-tab"
 import { OrdersManagementTab } from "./orders-management-tab"
 import { SecureFundsManagementTab } from "./secure-funds-tab"
 import { PayoutApprovalTab } from "./payout-approval-tab"
@@ -70,6 +72,7 @@ interface AdminDashboardContentProps {
   pendingTransporters: any[]
   pendingCustomerKyc: any[]
   pendingProducts: any[]
+  allProducts?: any[]
   initialAgents?: any[]
   orders: any[]
   transactions: any[]
@@ -93,6 +96,7 @@ export function AdminDashboardContent({
   pendingTransporters,
   pendingCustomerKyc,
   pendingProducts,
+  allProducts = [],
   orders,
   transactions,
   tickets,
@@ -459,25 +463,42 @@ export function AdminDashboardContent({
                 )}
 
                 {adminRole?.permissions.includes("manage_products") && (
-                  <Button
-                    variant={activeTab === "products" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "products"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("products")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Package className="h-4 w-4" />
-                      <span>Products</span>
-                    </span>
-                    {pendingProducts.length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {pendingProducts.length}
+                  <>
+                    <Button
+                      variant={activeTab === "products" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "products"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("products")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <Package className="h-4 w-4" />
+                        <span>Product Approvals</span>
                       </span>
-                    )}
-                  </Button>
+                      {pendingProducts.length > 0 && (
+                        <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
+                          {pendingProducts.length}
+                        </span>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant={activeTab === "all-products" ? "default" : "ghost"}
+                      size="sm"
+                      className={`w-full justify-between rounded-xl ${activeTab === "all-products"
+                          ? "bg-primary text-white"
+                          : "text-slate-700 hover:bg-slate-100"
+                        }`}
+                      onClick={() => setActiveTab("all-products")}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <PackageSearch className="h-4 w-4" />
+                        <span>Search & Delete Products</span>
+                      </span>
+                    </Button>
+                  </>
                 )}
 
                 {adminRole?.permissions.includes("manage_orders") && (
@@ -885,9 +906,14 @@ export function AdminDashboardContent({
                     </TabsTrigger>
                   )}
                   {adminRole?.permissions.includes("manage_products") && (
-                    <TabsTrigger value="products" className="px-5 rounded-full text-xs font-semibold">
-                      Products ({pendingProducts.length})
-                    </TabsTrigger>
+                    <>
+                      <TabsTrigger value="products" className="px-5 rounded-full text-xs font-semibold">
+                        Approvals ({pendingProducts.length})
+                      </TabsTrigger>
+                      <TabsTrigger value="all-products" className="px-5 rounded-full text-xs font-semibold">
+                        Search & Delete Products
+                      </TabsTrigger>
+                    </>
                   )}
                   {adminRole?.permissions.includes("manage_orders") && (
                     <TabsTrigger value="orders" className="px-5 rounded-full text-xs font-semibold">
@@ -1008,6 +1034,10 @@ export function AdminDashboardContent({
 
               <TabsContent value="products" className="border-none p-0 outline-none">
                 <ProductApprovalTab products={pendingProducts} />
+              </TabsContent>
+
+              <TabsContent value="all-products" className="border-none p-0 outline-none">
+                <ProductManagementTab initialProducts={allProducts} />
               </TabsContent>
 
               <TabsContent value="orders" className="border-none p-0 outline-none">
