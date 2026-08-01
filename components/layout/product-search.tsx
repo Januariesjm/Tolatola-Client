@@ -94,10 +94,14 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const [minPrice, setMinPrice] = useState<string>("")
+  const [maxPrice, setMaxPrice] = useState<string>("")
+
   const handleClear = () => {
     setQuery("")
     setLocationFilter("")
-    setPriceRange([0, 50000000])
+    setMinPrice("")
+    setMaxPrice("")
     setProductResults([])
     setIsOpen(false)
     setShowFilters(false)
@@ -110,8 +114,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     const params = new URLSearchParams()
     if (query.trim()) params.set("search", query.trim())
     if (locationFilter.trim()) params.set("location", locationFilter.trim())
-    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString())
-    if (priceRange[1] < 50000000) params.set("maxPrice", priceRange[1].toString())
+    if (minPrice.trim()) params.set("minPrice", minPrice.trim())
+    if (maxPrice.trim()) params.set("maxPrice", maxPrice.trim())
     return `/shop?${params.toString()}`
   }
 
@@ -153,13 +157,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
   const activeFilterCount =
     (locationFilter.trim() ? 1 : 0) +
-    (priceRange[0] > 0 || priceRange[1] < 50000000 ? 1 : 0)
-
-  const formatPrice = (v: number) => {
-    if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`
-    if (v >= 1000) return `${(v / 1000).toFixed(0)}K`
-    return v.toString()
-  }
+    (minPrice.trim() ? 1 : 0) +
+    (maxPrice.trim() ? 1 : 0)
 
   return (
     <div ref={searchRef} className="relative w-full max-w-2xl group">
@@ -259,76 +258,70 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           onClick={(e) => e.stopPropagation()}
         >
           <div className="max-h-[75vh] overflow-y-auto">
-            {/* Inline Filter Controls — Always visible when dropdown is open */}
+            {/* Inline Filter Controls */}
             {showFilters && (
-              <div className="p-4 lg:p-5 border-b border-stone-100 bg-stone-50/50 space-y-4">
-                {/* Location Filter */}
-                <div className="space-y-1.5">
-                  <label className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-stone-500">
-                    <MapPin className="h-3.5 w-3.5 text-primary" />
-                    Filter by Location
-                  </label>
-                  <div className="flex items-center gap-2">
+              <div className="p-4 lg:p-5 border-b border-stone-100 bg-stone-50/50 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {/* Location Filter */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-primary" /> Location
+                    </label>
                     <Input
                       type="text"
-                      placeholder="e.g. Dar es Salaam, Pwani, Arusha..."
+                      placeholder="e.g. Dar es Salaam, Pwani"
                       value={locationFilter}
                       onChange={(e) => setLocationFilter(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && query.trim().length >= 2) {
-                          handleFullSearch()
-                        }
+                        if (e.key === "Enter") handleFullSearch()
                       }}
-                      className="h-9 lg:h-10 text-sm rounded-xl border-stone-200 focus-visible:ring-primary/20 bg-white"
+                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
                     />
-                    {locationFilter && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-xl hover:bg-stone-100 flex-shrink-0"
-                        onClick={() => setLocationFilter("")}
-                      >
-                        <X className="h-3.5 w-3.5 text-stone-400" />
-                      </Button>
-                    )}
+                  </div>
+
+                  {/* Min Price */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
+                      <DollarSign className="h-3 w-3 text-emerald-600" /> Min Price (TZS)
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 5000"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleFullSearch()
+                      }}
+                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
+                    />
+                  </div>
+
+                  {/* Max Price */}
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
+                      <DollarSign className="h-3 w-3 text-emerald-600" /> Max Price (TZS)
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 50000"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleFullSearch()
+                      }}
+                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
+                    />
                   </div>
                 </div>
 
-                {/* Price Filter */}
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-stone-500">
-                    <DollarSign className="h-3.5 w-3.5 text-green-600" />
-                    Price Range (TZS)
-                  </label>
-                  <div className="px-1">
-                    <Slider
-                      min={0}
-                      max={50000000}
-                      step={50000}
-                      value={priceRange}
-                      onValueChange={(values) => setPriceRange([values[0], values[1]])}
-                      className="mt-1"
-                    />
-                    <div className="flex items-center justify-between mt-1.5 text-[11px] font-bold text-stone-500">
-                      <span>{formatPrice(priceRange[0])} TZS</span>
-                      <span>{formatPrice(priceRange[1])} TZS</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Apply Filters Button */}
-                {(locationFilter.trim() || priceRange[0] > 0 || priceRange[1] < 50000000) && (
+                {/* Apply Button */}
+                {(locationFilter.trim() || minPrice.trim() || maxPrice.trim()) && (
                   <Button
                     onClick={handleFullSearch}
-                    className="w-full h-10 rounded-xl font-black text-xs uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all"
+                    className="w-full h-9 rounded-xl font-bold text-xs bg-primary hover:bg-primary/90 transition-all"
                   >
-                    <Search className="h-3.5 w-3.5 mr-2" />
-                    {query.trim().length >= 2
-                      ? `Search "${query}" ${locationFilter ? `in ${locationFilter}` : ""}`
-                      : locationFilter
-                        ? `Browse products in ${locationFilter}`
-                        : "Apply Filters"
-                    }
+                    <Search className="h-3.5 w-3.5 mr-1.5" />
+                    Apply Filters
                   </Button>
                 )}
               </div>

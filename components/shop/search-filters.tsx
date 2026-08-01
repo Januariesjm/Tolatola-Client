@@ -40,10 +40,12 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     categoryFromSlug ? [categoryFromSlug.id] : []
   )
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : 0,
-    searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : 1000000
-  ])
+  const [minPriceInput, setMinPriceInput] = useState<string>(
+    searchParams.get("minPrice") || ""
+  )
+  const [maxPriceInput, setMaxPriceInput] = useState<string>(
+    searchParams.get("maxPrice") || ""
+  )
   const [sortBy, setSortBy] = useState<FilterState["sortBy"]>(
     (searchParams.get("sort") as FilterState["sortBy"]) || "name"
   )
@@ -56,9 +58,10 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     updateFilters({ categories: newCategories })
   }
 
-  const handlePriceChange = (values: number[]) => {
-    setPriceRange([values[0], values[1]])
-    updateFilters({ minPrice: values[0], maxPrice: values[1] })
+  const handlePriceApply = () => {
+    const min = minPriceInput ? parseInt(minPriceInput) : 0
+    const max = maxPriceInput ? parseInt(maxPriceInput) : 0
+    updateFilters({ minPrice: min, maxPrice: max })
   }
 
   const handleSortChange = (newSort: FilterState["sortBy"]) => {
@@ -67,10 +70,12 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
   }
 
   const updateFilters = (partial: Partial<FilterState>) => {
+    const min = partial.minPrice ?? (minPriceInput ? parseInt(minPriceInput) : 0)
+    const max = partial.maxPrice ?? (maxPriceInput ? parseInt(maxPriceInput) : 0)
     const newFilters: FilterState = {
       categories: selectedCategories,
-      minPrice: priceRange[0],
-      maxPrice: priceRange[1],
+      minPrice: min,
+      maxPrice: max,
       sortBy,
       ...partial,
     }
@@ -79,7 +84,6 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     // Update URL params
     const params = new URLSearchParams(searchParams.toString())
     if (newFilters.categories.length > 0) {
-      // Find category by ID and use its slug
       const category = categories.find(c => c.id === newFilters.categories[0])
       if (category) {
         params.set("category", category.slug)
@@ -94,7 +98,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     } else {
       params.delete("minPrice")
     }
-    if (newFilters.maxPrice < 1000000) {
+    if (newFilters.maxPrice > 0) {
       params.set("maxPrice", newFilters.maxPrice.toString())
     } else {
       params.delete("maxPrice")
@@ -105,9 +109,10 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
 
   const clearFilters = () => {
     setSelectedCategories([])
-    setPriceRange([0, 1000000])
+    setMinPriceInput("")
+    setMaxPriceInput("")
     setSortBy("name")
-    updateFilters({ categories: [], minPrice: 0, maxPrice: 1000000, sortBy: "name" })
+    updateFilters({ categories: [], minPrice: 0, maxPrice: 0, sortBy: "name" })
   }
 
   return (
@@ -123,7 +128,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
             <Filter className="h-4 w-4" />
             <span>Filters</span>
           </div>
-          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4 text-stone-500" />}
         </Button>
       </div>
 
@@ -168,22 +173,33 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
         {/* Price Range Filter */}
         <Collapsible defaultOpen>
           <CollapsibleTrigger className="flex items-center justify-between w-full text-left font-medium mb-2">
-            <span>Price Range</span>
+            <span>Price Range (TZS)</span>
             <ChevronDown className="h-4 w-4" />
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
-            <Slider
-              value={priceRange}
-              onValueChange={handlePriceChange}
-              min={0}
-              max={1000000}
-              step={1000}
-              className="mb-4"
-            />
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>TZS {priceRange[0].toLocaleString()}</span>
-              <span>TZS {priceRange[1].toLocaleString()}</span>
+          <CollapsibleContent className="mt-2 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                placeholder="Min price"
+                value={minPriceInput}
+                onChange={(e) => setMinPriceInput(e.target.value)}
+                className="h-9 px-3 text-sm rounded-md border border-stone-200"
+              />
+              <input
+                type="number"
+                placeholder="Max price"
+                value={maxPriceInput}
+                onChange={(e) => setMaxPriceInput(e.target.value)}
+                className="h-9 px-3 text-sm rounded-md border border-stone-200"
+              />
             </div>
+            <Button
+              size="sm"
+              onClick={handlePriceApply}
+              className="w-full h-8 rounded-md text-xs font-bold"
+            >
+              Apply Price
+            </Button>
           </CollapsibleContent>
         </Collapsible>
 

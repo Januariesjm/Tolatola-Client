@@ -33,28 +33,17 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     categoryFromSlug ? [categoryFromSlug.id] : []
   )
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : 0,
-    searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : 50000000
-  ])
-  const [locationQuery, setLocationQuery] = useState<string>(
-    searchParams.get("location") || ""
+  const [minPriceInput, setMinPriceInput] = useState<string>(
+    searchParams.get("minPrice") || ""
   )
-  const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">(
-    (searchParams.get("sort") as any) || "name"
+  const [maxPriceInput, setMaxPriceInput] = useState<string>(
+    searchParams.get("maxPrice") || ""
   )
 
-  const handleCategoryToggle = (categoryId: string) => {
-    const newCategories = selectedCategories.includes(categoryId)
-      ? selectedCategories.filter((id) => id !== categoryId)
-      : [...selectedCategories, categoryId]
-    setSelectedCategories(newCategories)
-    updateFilters({ categories: newCategories })
-  }
-
-  const handlePriceChange = (values: number[]) => {
-    setPriceRange([values[0], values[1]])
-    updateFilters({ minPrice: values[0], maxPrice: values[1] })
+  const handlePriceApply = () => {
+    const min = minPriceInput ? parseInt(minPriceInput) : 0
+    const max = maxPriceInput ? parseInt(maxPriceInput) : undefined
+    updateFilters({ minPrice: min, maxPrice: max })
   }
 
   const handleLocationChange = (value: string) => {
@@ -78,15 +67,14 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     sortBy?: "name" | "price_asc" | "price_desc" | "newest"
   }) => {
     const newCategories = partial.categories ?? selectedCategories
-    const newMinPrice = partial.minPrice ?? priceRange[0]
-    const newMaxPrice = partial.maxPrice ?? priceRange[1]
+    const newMinPrice = partial.minPrice ?? (minPriceInput ? parseInt(minPriceInput) : 0)
+    const newMaxPrice = partial.maxPrice ?? (maxPriceInput ? parseInt(maxPriceInput) : undefined)
     const newLocation = partial.location ?? locationQuery
     const newSortBy = partial.sortBy ?? sortBy
     
     // Update URL params
     const params = new URLSearchParams(searchParams.toString())
     if (newCategories.length > 0) {
-      // Find category by ID and use its slug
       const category = categories.find(c => c.id === newCategories[0])
       if (category) {
         params.set("category", category.slug)
@@ -96,12 +84,12 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     } else {
       params.delete("category")
     }
-    if (newMinPrice > 0) {
+    if (newMinPrice && newMinPrice > 0) {
       params.set("minPrice", newMinPrice.toString())
     } else {
       params.delete("minPrice")
     }
-    if (newMaxPrice < 50000000) {
+    if (newMaxPrice && newMaxPrice > 0) {
       params.set("maxPrice", newMaxPrice.toString())
     } else {
       params.delete("maxPrice")
@@ -117,10 +105,11 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
 
   const clearFilters = () => {
     setSelectedCategories([])
-    setPriceRange([0, 50000000])
+    setMinPriceInput("")
+    setMaxPriceInput("")
     setLocationQuery("")
     setSortBy("name")
-    updateFilters({ categories: [], minPrice: 0, maxPrice: 50000000, location: "", sortBy: "name" })
+    updateFilters({ categories: [], minPrice: 0, maxPrice: undefined, location: "", sortBy: "name" })
   }
 
   return (
@@ -175,46 +164,55 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
           <div className="flex items-center gap-2">
             <Input
               type="text"
-              placeholder="e.g. Dar es Salaam, Arusha..."
+              placeholder="e.g. Dar es Salaam, Pwani"
               value={locationQuery}
               onChange={(e) => handleLocationChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleLocationApply()
               }}
-              className="h-9 text-sm rounded-xl border-stone-200 focus-visible:ring-primary/20"
+              className="h-9 text-sm rounded-xl border-stone-200"
             />
             <Button
               size="sm"
               onClick={handleLocationApply}
-              className="h-9 px-4 rounded-xl text-xs font-bold"
-              disabled={!locationQuery.trim()}
+              className="h-9 px-3 rounded-xl text-xs font-bold"
             >
               Apply
             </Button>
           </div>
-          <p className="text-[11px] text-stone-400 mt-1.5">Search by region, district, or ward name</p>
         </CollapsibleContent>
       </Collapsible>
 
       {/* Price Range Filter */}
       <Collapsible defaultOpen>
         <CollapsibleTrigger className="flex items-center justify-between w-full text-left font-medium mb-2">
-          <span>Price Range</span>
+          <span>Price Range (TZS)</span>
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
-          <Slider
-            value={priceRange}
-            onValueChange={handlePriceChange}
-            min={0}
-            max={50000000}
-            step={1000}
-            className="mb-4"
-          />
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>TZS {priceRange[0].toLocaleString()}</span>
-            <span>TZS {priceRange[1].toLocaleString()}</span>
+        <CollapsibleContent className="mt-2 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="number"
+              placeholder="Min price"
+              value={minPriceInput}
+              onChange={(e) => setMinPriceInput(e.target.value)}
+              className="h-9 text-sm rounded-xl"
+            />
+            <Input
+              type="number"
+              placeholder="Max price"
+              value={maxPriceInput}
+              onChange={(e) => setMaxPriceInput(e.target.value)}
+              className="h-9 text-sm rounded-xl"
+            />
           </div>
+          <Button
+            size="sm"
+            onClick={handlePriceApply}
+            className="w-full h-8 rounded-xl text-xs font-bold"
+          >
+            Apply Price
+          </Button>
         </CollapsibleContent>
       </Collapsible>
 
