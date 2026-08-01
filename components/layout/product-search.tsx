@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react"
 import { Search, X, ShoppingBag, ArrowRight, Loader2, Sparkles, SlidersHorizontal, MapPin, DollarSign, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
@@ -32,12 +31,12 @@ interface Category {
 export function ProductSearch({ categories = [] }: { categories?: Category[] }) {
   const [query, setQuery] = useState("")
   const [locationFilter, setLocationFilter] = useState("")
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000])
   const [productResults, setProductResults] = useState<Product[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [imageAnalysis, setImageAnalysis] = useState<string>("")
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -127,24 +126,33 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
   const handleImageSearch = async (file: File) => {
     setIsLoading(true)
+    setImageAnalysis("")
+    setQuery("")
     try {
       const reader = new FileReader()
       reader.onloadend = async () => {
         const base64 = reader.result as string
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: base64 }),
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ image: base64 }),
+            }
+          )
+          const data = await res.json()
+          if (data.data) {
+            setProductResults(data.data)
+            setIsOpen(true)
+            setShowFilters(false)
+            setHasSearched(true)
           }
-        )
-        const data = await res.json()
-        if (data.data) {
-          setProductResults(data.data)
-          setIsOpen(true)
-          setShowFilters(true)
-          setHasSearched(true)
+          if (data.analysis) {
+            setImageAnalysis(data.analysis)
+          }
+        } catch (fetchErr) {
+          console.error("[Image Search Fetch Error]", fetchErr)
         }
         setIsLoading(false)
       }
@@ -330,11 +338,23 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {/* Search Results */}
             {hasSearched && productResults.length > 0 && (
               <div className="p-4 lg:p-6 space-y-3">
+                {/* AI Analysis Banner */}
+                {imageAnalysis && (
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
+                    <div className="h-7 w-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Camera className="h-3.5 w-3.5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-0.5">AI Identified</p>
+                      <p className="text-xs font-medium text-stone-700 leading-relaxed">{imageAnalysis}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                      {productResults.length} Results Found
+                      {productResults.length} {imageAnalysis ? "Similar Products" : "Results Found"}
                     </span>
                   </div>
                   <div className="h-px flex-1 bg-stone-100 mx-4" />
@@ -392,10 +412,19 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {hasSearched && productResults.length === 0 && !isLoading && (
               <div className="p-8 text-center">
                 <div className="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
-                  <Search className="h-5 w-5 text-stone-300" />
+                  {imageAnalysis ? <Camera className="h-5 w-5 text-stone-300" /> : <Search className="h-5 w-5 text-stone-300" />}
                 </div>
-                <p className="text-sm font-bold text-stone-400">No products found for "{query}"</p>
-                <p className="text-xs text-stone-300 mt-1">Try a different search term or adjust your filters</p>
+                {imageAnalysis && (
+                  <p className="text-xs font-medium text-stone-500 mb-2">
+                    We identified: <span className="font-bold text-stone-700">{imageAnalysis}</span>
+                  </p>
+                )}
+                <p className="text-sm font-bold text-stone-400">
+                  {imageAnalysis ? "No similar products found" : `No products found for "${query}"`}
+                </p>
+                <p className="text-xs text-stone-300 mt-1">
+                  {imageAnalysis ? "Try uploading a different photo" : "Try a different search term or adjust your filters"}
+                </p>
               </div>
             )}
 
