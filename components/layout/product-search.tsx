@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Search, X, ShoppingBag, ArrowRight, Loader2, Sparkles, Filter, MapPin, DollarSign, Camera } from "lucide-react"
+import { Search, X, ShoppingBag, ArrowRight, Loader2, Sparkles, SlidersHorizontal, MapPin, DollarSign, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -228,10 +228,10 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             variant="ghost"
             size="icon"
             className={cn(
-              "h-6 w-6 lg:h-10 lg:w-10 rounded-full transition-colors relative",
+              "h-7 w-7 lg:h-10 lg:w-10 rounded-full transition-all duration-200 relative flex items-center justify-center",
               showFilters
-                ? "bg-primary text-white hover:bg-primary/90"
-                : "hover:bg-stone-100"
+                ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
+                : "hover:bg-stone-100 text-stone-600 hover:text-stone-900"
             )}
             onClick={(e) => {
               e.stopPropagation()
@@ -240,9 +240,9 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             }}
             title="Filters"
           >
-            <Filter className="h-3.5 w-3.5 lg:h-5 lg:w-5" />
+            <SlidersHorizontal className="h-4 w-4 lg:h-5 lg:w-5 transition-transform duration-200" />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white">
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[8px] font-black h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
                 {activeFilterCount}
               </span>
             )}
