@@ -81,7 +81,7 @@ export async function generateMetadata({
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string; minPrice?: string; maxPrice?: string; sort?: string }
+  searchParams: { category?: string; search?: string; location?: string; minPrice?: string; maxPrice?: string; sort?: string }
 }) {
   const supabase = createServerComponentClient<Database>({ cookies, headers } as any)
   const {
@@ -106,6 +106,7 @@ export default async function ShopPage({
 
   const currentCategory = searchParams.category
   const searchQuery = searchParams.search || ""
+  const locationQuery = searchParams.location || ""
   const minPrice = searchParams.minPrice ? parseInt(searchParams.minPrice) : undefined
   const maxPrice = searchParams.maxPrice ? parseInt(searchParams.maxPrice) : undefined
 
@@ -122,6 +123,9 @@ export default async function ShopPage({
   }
   if (searchQuery) {
     params.append("search", searchQuery)
+  }
+  if (locationQuery) {
+    params.append("location", locationQuery)
   }
   if (minPrice) {
     params.append("minPrice", minPrice.toString())

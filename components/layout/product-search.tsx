@@ -188,6 +188,51 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               <X className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-stone-400" />
             </Button>
           )}
+          <input
+            type="file"
+            id="image-search-input"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              setIsLoading(true)
+              try {
+                const reader = new FileReader()
+                reader.onloadend = async () => {
+                  const base64 = reader.result as string
+                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: base64 })
+                  })
+                  const data = await res.json()
+                  if (data.data) {
+                    setProductResults(data.data)
+                    setIsOpen(true)
+                    setShowFilters(false)
+                  }
+                }
+                reader.readAsDataURL(file)
+              } catch (err) {
+                console.error("[Image Search Error]", err)
+              } finally {
+                setIsLoading(false)
+              }
+            }}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              document.getElementById("image-search-input")?.click()
+            }}
+            title="Search by Image"
+          >
+            <Sparkles className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-amber-500" />
+          </Button>
           {categories.length > 0 && (
             <Button
               variant="ghost"

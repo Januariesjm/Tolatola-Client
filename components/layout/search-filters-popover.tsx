@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, ChevronDown } from "lucide-react"
+import { X, ChevronDown, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
+import { Input } from "@/components/ui/input"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -36,6 +37,9 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : 0,
     searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : 50000000
   ])
+  const [locationQuery, setLocationQuery] = useState<string>(
+    searchParams.get("location") || ""
+  )
   const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">(
     (searchParams.get("sort") as any) || "name"
   )
@@ -53,6 +57,14 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     updateFilters({ minPrice: values[0], maxPrice: values[1] })
   }
 
+  const handleLocationChange = (value: string) => {
+    setLocationQuery(value)
+  }
+
+  const handleLocationApply = () => {
+    updateFilters({ location: locationQuery })
+  }
+
   const handleSortChange = (newSort: "name" | "price_asc" | "price_desc" | "newest") => {
     setSortBy(newSort)
     updateFilters({ sortBy: newSort })
@@ -62,11 +74,13 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     categories?: string[]
     minPrice?: number
     maxPrice?: number
+    location?: string
     sortBy?: "name" | "price_asc" | "price_desc" | "newest"
   }) => {
     const newCategories = partial.categories ?? selectedCategories
     const newMinPrice = partial.minPrice ?? priceRange[0]
     const newMaxPrice = partial.maxPrice ?? priceRange[1]
+    const newLocation = partial.location ?? locationQuery
     const newSortBy = partial.sortBy ?? sortBy
     
     // Update URL params
@@ -92,6 +106,11 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     } else {
       params.delete("maxPrice")
     }
+    if (newLocation.trim()) {
+      params.set("location", newLocation.trim())
+    } else {
+      params.delete("location")
+    }
     params.set("sort", newSortBy)
     router.push(`/shop?${params.toString()}`, { scroll: false })
   }
@@ -99,8 +118,9 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
   const clearFilters = () => {
     setSelectedCategories([])
     setPriceRange([0, 50000000])
+    setLocationQuery("")
     setSortBy("name")
-    updateFilters({ categories: [], minPrice: 0, maxPrice: 50000000, sortBy: "name" })
+    updateFilters({ categories: [], minPrice: 0, maxPrice: 50000000, location: "", sortBy: "name" })
   }
 
   return (
@@ -139,6 +159,40 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
               </label>
             </div>
           ))}
+        </CollapsibleContent>
+      </Collapsible>
+
+      {/* Location Filter */}
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger className="flex items-center justify-between w-full text-left font-medium mb-2">
+          <span className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            Location
+          </span>
+          <ChevronDown className="h-4 w-4" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-2">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="e.g. Dar es Salaam, Arusha..."
+              value={locationQuery}
+              onChange={(e) => handleLocationChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleLocationApply()
+              }}
+              className="h-9 text-sm rounded-xl border-stone-200 focus-visible:ring-primary/20"
+            />
+            <Button
+              size="sm"
+              onClick={handleLocationApply}
+              className="h-9 px-4 rounded-xl text-xs font-bold"
+              disabled={!locationQuery.trim()}
+            >
+              Apply
+            </Button>
+          </div>
+          <p className="text-[11px] text-stone-400 mt-1.5">Search by region, district, or ward name</p>
         </CollapsibleContent>
       </Collapsible>
 
