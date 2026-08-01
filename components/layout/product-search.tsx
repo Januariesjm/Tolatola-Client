@@ -1,31 +1,26 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Search, X, Store, ShoppingBag, ArrowRight, Loader2, Sparkles, TrendingUp, Filter } from "lucide-react"
+import { Search, X, ShoppingBag, ArrowRight, Loader2, Sparkles, Filter, MapPin, DollarSign, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { SearchFiltersPopover } from "./search-filters-popover"
 
 interface Product {
   id: string
   name: string
   price: number
   images: string[]
+  location?: string
   shops: {
     name: string
+    region?: string
+    district?: string
   }
-}
-
-interface Shop {
-  id: string
-  name: string
-  description: string
-  logo_url: string
-  address: string
 }
 
 interface Category {
@@ -36,48 +31,49 @@ interface Category {
 
 export function ProductSearch({ categories = [] }: { categories?: Category[] }) {
   const [query, setQuery] = useState("")
+  const [locationFilter, setLocationFilter] = useState("")
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000])
   const [productResults, setProductResults] = useState<Product[]>([])
-  const [shopResults, setShopResults] = useState<Shop[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (query.trim().length < 2) {
         setProductResults([])
-        setShopResults([])
-        setIsOpen(false)
-        // If no query and filters were not manually closed, keep filters open
+        setHasSearched(false)
+        if (query.trim().length === 0 && !showFilters) {
+          setIsOpen(false)
+        }
         return
       }
 
-      // If user is typing, show search results and hide filters
-      if (query.trim().length >= 2) {
-        setShowFilters(false)
-      }
-
       setIsLoading(true)
+      setHasSearched(true)
       const supabase = createClient()
 
       try {
-        const { data: products, error: productsError } = await supabase
+        let dbQuery = supabase
           .from("products")
-          .select("id, name, price, images")
+          .select("id, name, price, images, location, shops (name, region, district)")
           .eq("is_active", true)
           .eq("status", "approved")
-          .ilike("name", `%${query}%`)
-          .limit(5)
+          .or(`name.ilike.%${query}%,description.ilike.%${query}%,location.ilike.%${query}%`)
+          .limit(8)
 
-        if (!productsError && products) {
+        const { data: products, error } = await dbQuery
+        if (!error && products) {
           setProductResults(products as Product[])
         }
-
-        setIsOpen(Boolean(products && products.length > 0))
+        setIsOpen(true)
+        setShowFilters(true) // Show filters alongside results
       } catch (err) {
-        console.error("[v0] Search error:", err)
+        console.error("[Search error]:", err)
       } finally {
         setIsLoading(false)
       }
@@ -86,26 +82,83 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     return () => clearTimeout(timeoutId)
   }, [query])
 
+  // Click outside handler
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      // Check if click is outside the search container
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false)
         setShowFilters(false)
       }
     }
-
-    // Use bubble phase (default) so input handlers fire first
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
   const handleClear = () => {
     setQuery("")
+    setLocationFilter("")
+    setPriceRange([0, 50000000])
     setProductResults([])
-    setShopResults([])
     setIsOpen(false)
+    setShowFilters(false)
+    setHasSearched(false)
     inputRef.current?.focus()
+  }
+
+  // Build the full search URL with all active filters
+  const buildSearchUrl = () => {
+    const params = new URLSearchParams()
+    if (query.trim()) params.set("search", query.trim())
+    if (locationFilter.trim()) params.set("location", locationFilter.trim())
+    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString())
+    if (priceRange[1] < 50000000) params.set("maxPrice", priceRange[1].toString())
+    return `/shop?${params.toString()}`
+  }
+
+  const handleFullSearch = () => {
+    setIsOpen(false)
+    setShowFilters(false)
+    window.location.href = buildSearchUrl()
+  }
+
+  const handleImageSearch = async (file: File) => {
+    setIsLoading(true)
+    try {
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        const base64 = reader.result as string
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: base64 }),
+          }
+        )
+        const data = await res.json()
+        if (data.data) {
+          setProductResults(data.data)
+          setIsOpen(true)
+          setShowFilters(true)
+          setHasSearched(true)
+        }
+        setIsLoading(false)
+      }
+      reader.readAsDataURL(file)
+    } catch (err) {
+      console.error("[Image Search Error]", err)
+      setIsLoading(false)
+    }
+  }
+
+  const activeFilterCount =
+    (locationFilter.trim() ? 1 : 0) +
+    (priceRange[0] > 0 || priceRange[1] < 50000000 ? 1 : 0)
+
+  const formatPrice = (v: number) => {
+    if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`
+    if (v >= 1000) return `${(v / 1000).toFixed(0)}K`
+    return v.toString()
   }
 
   return (
@@ -121,62 +174,22 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
         <Input
           ref={inputRef}
           type="text"
-          placeholder="What are you looking for..."
+          placeholder="Search products, locations..."
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-            // When user starts typing, hide filters and show search results
-            if (e.target.value.trim().length >= 2) {
-              setShowFilters(false)
-            } else {
-              // If query is cleared, show filters again
-              if (categories.length > 0) {
-                setShowFilters(true)
-                setIsOpen(false)
-              }
-            }
-          }}
-          onMouseDown={(e) => {
-            // Stop propagation to prevent click outside from firing
-            e.stopPropagation()
-            // When clicking the search box, ALWAYS show filters immediately if categories are available
-            if (categories.length > 0) {
-              setShowFilters(true)
-              setIsOpen(false)
-            }
-          }}
-          onClick={(e) => {
-            // Stop propagation to prevent click outside from firing
-            e.stopPropagation()
-            // When clicking the search box, ALWAYS show filters immediately if categories are available
-            if (categories.length > 0) {
-              setShowFilters(true)
-              setIsOpen(false)
-            } else if (query.trim().length >= 2) {
-              setShowFilters(false)
-              if (productResults.length > 0) setIsOpen(true)
-            }
-          }}
+          onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
-            // On focus, ALWAYS show filters immediately if categories are available
-            if (categories.length > 0 && query.trim().length < 2) {
-              setShowFilters(true)
-              setIsOpen(false)
-            } else if (query.trim().length >= 2) {
-              setShowFilters(false)
-              if (productResults.length > 0) setIsOpen(true)
-            }
+            setShowFilters(true)
+            setIsOpen(true)
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && query.trim().length >= 2) {
-              setIsOpen(false)
-              setShowFilters(false)
-              window.location.href = `/shop?search=${encodeURIComponent(query)}`
+              handleFullSearch()
             }
           }}
-          className="pl-9 lg:pl-12 pr-9 lg:pr-12 h-11 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-xs lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
+          className="pl-9 lg:pl-12 pr-24 lg:pr-32 h-11 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-xs lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
         />
 
+        {/* Action buttons */}
         <div className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 lg:gap-1">
           {query && (
             <Button
@@ -188,137 +201,192 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               <X className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-stone-400" />
             </Button>
           )}
+          {/* Image search */}
           <input
             type="file"
             id="image-search-input"
             accept="image/*"
             className="hidden"
-            onChange={async (e) => {
+            onChange={(e) => {
               const file = e.target.files?.[0]
-              if (!file) return
-              setIsLoading(true)
-              try {
-                const reader = new FileReader()
-                reader.onloadend = async () => {
-                  const base64 = reader.result as string
-                  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ image: base64 })
-                  })
-                  const data = await res.json()
-                  if (data.data) {
-                    setProductResults(data.data)
-                    setIsOpen(true)
-                    setShowFilters(false)
-                  }
-                }
-                reader.readAsDataURL(file)
-              } catch (err) {
-                console.error("[Image Search Error]", err)
-              } finally {
-                setIsLoading(false)
-              }
+              if (file) handleImageSearch(file)
             }}
           />
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors"
+            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-amber-50 rounded-full transition-colors"
             onClick={(e) => {
               e.stopPropagation()
               document.getElementById("image-search-input")?.click()
             }}
             title="Search by Image"
           >
-            <Sparkles className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-amber-500" />
+            <Camera className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-amber-500" />
           </Button>
-          {categories.length > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors",
-                showFilters && "bg-primary text-white hover:bg-primary/90"
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                const newShowFilters = !showFilters
-                setShowFilters(newShowFilters)
-                if (newShowFilters) {
-                  setIsOpen(false)
-                  inputRef.current?.focus()
-                }
-              }}
-              title="Filters"
-            >
-              <Filter className="h-3.5 w-3.5 lg:h-5 lg:w-5" />
-            </Button>
-          )}
+          {/* Filter toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "h-6 w-6 lg:h-10 lg:w-10 rounded-full transition-colors relative",
+              showFilters
+                ? "bg-primary text-white hover:bg-primary/90"
+                : "hover:bg-stone-100"
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowFilters(!showFilters)
+              if (!showFilters) setIsOpen(true)
+            }}
+            title="Filters"
+          >
+            <Filter className="h-3.5 w-3.5 lg:h-5 lg:w-5" />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
         </div>
       </div>
 
-      {/* Filters Popover */}
-      {showFilters && categories.length > 0 && (
-        <div 
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white border border-stone-200 rounded-3xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
+      {/* Combined Dropdown: Inline Filters + Search Results */}
+      {(isOpen || showFilters) && (
+        <div
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white border border-stone-200 rounded-3xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <SearchFiltersPopover categories={categories} onClose={() => setShowFilters(false)} />
-        </div>
-      )}
+          <div className="max-h-[75vh] overflow-y-auto">
+            {/* Inline Filter Controls — Always visible when dropdown is open */}
+            {showFilters && (
+              <div className="p-4 lg:p-5 border-b border-stone-100 bg-stone-50/50 space-y-4">
+                {/* Location Filter */}
+                <div className="space-y-1.5">
+                  <label className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-stone-500">
+                    <MapPin className="h-3.5 w-3.5 text-primary" />
+                    Filter by Location
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      placeholder="e.g. Dar es Salaam, Pwani, Arusha..."
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && query.trim().length >= 2) {
+                          handleFullSearch()
+                        }
+                      }}
+                      className="h-9 lg:h-10 text-sm rounded-xl border-stone-200 focus-visible:ring-primary/20 bg-white"
+                    />
+                    {locationFilter && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-xl hover:bg-stone-100 flex-shrink-0"
+                        onClick={() => setLocationFilter("")}
+                      >
+                        <X className="h-3.5 w-3.5 text-stone-400" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
 
-      {/* Search Results Dropdown */}
-      {isOpen && !showFilters && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white/95 backdrop-blur-xl border-2 border-stone-100 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden z-[100] animate-in fade-in slide-in-from-top-4 duration-500">
+                {/* Price Filter */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-stone-500">
+                    <DollarSign className="h-3.5 w-3.5 text-green-600" />
+                    Price Range (TZS)
+                  </label>
+                  <div className="px-1">
+                    <Slider
+                      min={0}
+                      max={50000000}
+                      step={50000}
+                      value={priceRange}
+                      onValueChange={(values) => setPriceRange([values[0], values[1]])}
+                      className="mt-1"
+                    />
+                    <div className="flex items-center justify-between mt-1.5 text-[11px] font-bold text-stone-500">
+                      <span>{formatPrice(priceRange[0])} TZS</span>
+                      <span>{formatPrice(priceRange[1])} TZS</span>
+                    </div>
+                  </div>
+                </div>
 
-          <div className="p-8 space-y-8 max-h-[80vh] overflow-y-auto scrollbar-hide">
+                {/* Apply Filters Button */}
+                {(locationFilter.trim() || priceRange[0] > 0 || priceRange[1] < 50000000) && (
+                  <Button
+                    onClick={handleFullSearch}
+                    className="w-full h-10 rounded-xl font-black text-xs uppercase tracking-widest bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all"
+                  >
+                    <Search className="h-3.5 w-3.5 mr-2" />
+                    {query.trim().length >= 2
+                      ? `Search "${query}" ${locationFilter ? `in ${locationFilter}` : ""}`
+                      : locationFilter
+                        ? `Browse products in ${locationFilter}`
+                        : "Apply Filters"
+                    }
+                  </Button>
+                )}
+              </div>
+            )}
 
-            {/* Shops Section intentionally removed to protect vendor identities */}
-
-            {/* Products Section */}
-            {productResults.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between px-2">
+            {/* Search Results */}
+            {hasSearched && productResults.length > 0 && (
+              <div className="p-4 lg:p-6 space-y-3">
+                <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Available Items</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                      {productResults.length} Results Found
+                    </span>
                   </div>
                   <div className="h-px flex-1 bg-stone-100 mx-4" />
                 </div>
 
-                <div className="grid gap-2">
+                <div className="grid gap-1.5">
                   {productResults.map((product) => (
                     <Link
                       key={product.id}
                       href={`/product/${product.id}`}
                       onClick={() => {
                         setIsOpen(false)
+                        setShowFilters(false)
                         setQuery("")
                       }}
-                      className="flex items-center gap-4 p-2.5 rounded-2xl hover:bg-stone-50 transition-all group/item"
+                      className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 transition-all group/item"
                     >
-                      <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 rounded-xl md:rounded-2xl overflow-hidden shadow-md border border-stone-100 bg-white">
+                      <div className="relative w-12 h-12 md:w-14 md:h-14 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-stone-100 bg-white">
                         {product.images?.[0] ? (
                           <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-500 group-hover/item:scale-110" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-stone-50">
-                            <ShoppingBag className="h-6 w-6 text-stone-200" />
+                            <ShoppingBag className="h-5 w-5 text-stone-200" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0.5">
-                        <p className="text-xs md:text-sm font-black text-stone-900 truncate tracking-tight">{product.name}</p>
+                        <p className="text-xs md:text-sm font-black text-stone-900 truncate tracking-tight">
+                          {product.name}
+                        </p>
                         <div className="flex items-center gap-2">
-                          <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-primary px-2 py-0.5 bg-primary/10 rounded-full">
-                            Verified Item
+                          {(product.shops?.region || product.shops?.district || product.location) && (
+                            <span className="text-[9px] font-bold text-stone-400 flex items-center gap-0.5 truncate max-w-[150px]">
+                              <MapPin className="h-2.5 w-2.5 text-stone-300 flex-shrink-0" />
+                              {product.shops?.district || product.shops?.region || product.location}
+                            </span>
+                          )}
+                          <span className="text-[8px] font-black uppercase tracking-widest text-primary px-1.5 py-0.5 bg-primary/10 rounded-full">
+                            Verified
                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <p className="text-sm md:text-base font-black text-stone-950 tracking-tighter">
-                          {product.price.toLocaleString()} <span className="text-[8px] md:text-[9px] uppercase">TZS</span>
+                          {product.price?.toLocaleString()} <span className="text-[8px] uppercase">TZS</span>
                         </p>
                       </div>
                     </Link>
@@ -327,19 +395,44 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               </div>
             )}
 
+            {/* No results message */}
+            {hasSearched && productResults.length === 0 && !isLoading && (
+              <div className="p-8 text-center">
+                <div className="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
+                  <Search className="h-5 w-5 text-stone-300" />
+                </div>
+                <p className="text-sm font-bold text-stone-400">No products found for "{query}"</p>
+                <p className="text-xs text-stone-300 mt-1">Try a different search term or adjust your filters</p>
+              </div>
+            )}
 
-            {/* Always show "View All Results" link if there are results */}
-            {(productResults.length > 0 && query.trim().length >= 2) && (
-              <Link
-                href={`/shop?search=${encodeURIComponent(query)}`}
-                onClick={() => {
-                  setIsOpen(false)
-                }}
-                className="flex items-center justify-center gap-3 w-full p-5 mt-4 text-sm font-black uppercase tracking-[0.2em] text-stone-400 border-2 border-dashed border-stone-100 rounded-3xl hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all group/all"
-              >
-                <span>View All Results</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-2 transition-transform" />
-              </Link>
+            {/* Quick start hint when no query yet */}
+            {!hasSearched && showFilters && (
+              <div className="p-5 text-center">
+                <p className="text-sm font-bold text-stone-400">
+                  Type a product name above to search
+                </p>
+                <p className="text-xs text-stone-300 mt-1">
+                  Use the location and price filters to narrow results
+                </p>
+              </div>
+            )}
+
+            {/* View All Results CTA */}
+            {hasSearched && productResults.length > 0 && query.trim().length >= 2 && (
+              <div className="p-4 lg:p-5 border-t border-stone-100">
+                <Link
+                  href={buildSearchUrl()}
+                  onClick={() => {
+                    setIsOpen(false)
+                    setShowFilters(false)
+                  }}
+                  className="flex items-center justify-center gap-3 w-full p-4 text-xs font-black uppercase tracking-[0.2em] text-stone-400 border-2 border-dashed border-stone-100 rounded-2xl hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all group/all"
+                >
+                  <span>View All Results</span>
+                  <ArrowRight className="h-4 w-4 group-hover/all:translate-x-2 transition-transform" />
+                </Link>
+              </div>
             )}
           </div>
         </div>
