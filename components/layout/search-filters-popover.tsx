@@ -193,14 +193,16 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
           <div className="grid grid-cols-2 gap-2">
             <Input
               type="number"
-              placeholder="Min price"
+              placeholder="e.g. 200 TZS"
+              min={200}
               value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
               className="h-9 text-sm rounded-xl"
             />
             <Input
               type="number"
-              placeholder="Max price"
+              placeholder="e.g. 50,000,000 TZS"
+              max={50000000}
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
               className="h-9 text-sm rounded-xl"

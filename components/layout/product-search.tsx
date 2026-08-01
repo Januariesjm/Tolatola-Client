@@ -294,7 +294,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                     </label>
                     <Input
                       type="number"
-                      placeholder="e.g. 5000"
+                      placeholder="e.g. 200 TZS"
+                      min={200}
                       value={minPrice}
                       onChange={(e) => setMinPrice(e.target.value)}
                       onKeyDown={(e) => {
@@ -311,7 +312,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                     </label>
                     <Input
                       type="number"
-                      placeholder="e.g. 50000"
+                      placeholder="e.g. 50,000,000 TZS"
+                      max={50000000}
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
                       onKeyDown={(e) => {

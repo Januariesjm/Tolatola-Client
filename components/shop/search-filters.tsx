@@ -180,14 +180,16 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="number"
-                placeholder="Min price"
+                placeholder="e.g. 200 TZS"
+                min={200}
                 value={minPriceInput}
                 onChange={(e) => setMinPriceInput(e.target.value)}
                 className="h-9 px-3 text-sm rounded-md border border-stone-200"
               />
               <input
                 type="number"
-                placeholder="Max price"
+                placeholder="e.g. 50,000,000 TZS"
+                max={50000000}
                 value={maxPriceInput}
                 onChange={(e) => setMaxPriceInput(e.target.value)}
                 className="h-9 px-3 text-sm rounded-md border border-stone-200"
