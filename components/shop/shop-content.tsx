@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProductCard } from "@/components/product/product-card"
 import { useToast } from "@/hooks/use-toast"
 import { useFavorites } from "@/hooks/use-favorites"
 import { useLanguage } from "@/lib/i18n/language-context"
+import { Camera, Loader2, Sparkles, X } from "lucide-react"
 
 interface ShopContentProps {
   products: any[]
@@ -23,6 +24,13 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   const { isFavorite, toggleFavorite } = useFavorites()
   const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
 
+  // Image search state
+  const [isImageSearching, setIsImageSearching] = useState(false)
+  const [imageSearchResults, setImageSearchResults] = useState<any[] | null>(null)
+  const [imageAnalysis, setImageAnalysis] = useState<string>("")
+  const [imageSearchKeywords, setImageSearchKeywords] = useState<string[]>([])
+  const imageSearchRan = useRef(false)
+
   useEffect(() => {
     const loadCart = () => {
       const items = JSON.parse(localStorage.getItem("cart") || "[]")
@@ -34,6 +42,66 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
     window.addEventListener("cartUpdated", loadCart)
     return () => window.removeEventListener("cartUpdated", loadCart)
   }, [])
+
+  // Image search effect: pick up image from sessionStorage and call API
+  useEffect(() => {
+    const imageSearchParam = searchParams.get("imageSearch")
+    if (imageSearchParam !== "pending" || imageSearchRan.current) return
+    imageSearchRan.current = true
+
+    const storedImage = typeof window !== "undefined" ? sessionStorage.getItem("tolatola_image_search") : null
+    if (!storedImage) {
+      // No image data — clean up the URL
+      router.replace("/shop", { scroll: false })
+      return
+    }
+
+    const runImageSearch = async () => {
+      setIsImageSearching(true)
+      setImageSearchResults(null)
+      setImageAnalysis("")
+      setImageSearchKeywords([])
+
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: storedImage }),
+          }
+        )
+        const data = await res.json()
+        setImageSearchResults(data.data || [])
+        if (data.analysis) setImageAnalysis(data.analysis)
+        if (data.keywords) setImageSearchKeywords(data.keywords)
+      } catch (err) {
+        console.error("[Image Search Error]", err)
+        setImageSearchResults([])
+        toast({
+          title: "Image search failed",
+          description: "Could not analyze your image. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsImageSearching(false)
+        // Clean up sessionStorage
+        sessionStorage.removeItem("tolatola_image_search")
+      }
+    }
+
+    runImageSearch()
+  }, [searchParams, router, toast])
+
+  const handleClearImageSearch = () => {
+    setImageSearchResults(null)
+    setImageAnalysis("")
+    setImageSearchKeywords([])
+    setIsImageSearching(false)
+    imageSearchRan.current = false
+    sessionStorage.removeItem("tolatola_image_search")
+    router.replace("/shop", { scroll: false })
+  }
 
   const handleAddToCart = (product: any) => {
     const currentCart = JSON.parse(localStorage.getItem("cart") || "[]")
@@ -70,11 +138,116 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   const parentCategory = activeCategory?.parent_id ? categories.find(c => c.id === activeCategory.parent_id) : activeCategory
   const subCategories = parentCategory ? categories.filter(c => c.parent_id === parentCategory.id) : []
 
+  // Determine if we're in image search mode
+  const isImageSearchMode = searchParams.get("imageSearch") === "pending" || imageSearchResults !== null
+
+  // Determine which products to display
+  const displayProducts = isImageSearchMode ? (imageSearchResults || []) : products
+
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
+
+        {/* Image Search Loading State */}
+        {isImageSearching && (
+          <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 p-6 md:p-10">
+              <div className="flex flex-col items-center justify-center space-y-5">
+                {/* Animated icon */}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-2xl shadow-amber-500/30">
+                    <Camera className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-white shadow-md flex items-center justify-center">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-500 animate-spin" />
+                  </div>
+                  <div className="absolute -bottom-1 -left-1 h-5 w-5 rounded-full bg-amber-200 animate-ping" />
+                </div>
+
+                <div className="text-center space-y-2 max-w-md">
+                  <h2 className="text-lg md:text-xl font-black text-stone-900 tracking-tight flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
+                    AI is Analyzing Your Image...
+                  </h2>
+                  <p className="text-sm font-medium text-stone-500 leading-relaxed">
+                    TOLATOLA AI is identifying product features, category, and visual details to find matching products for you.
+                  </p>
+                </div>
+
+                {/* Animated progress bar */}
+                <div className="w-64 h-2 bg-stone-200/50 rounded-full overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 rounded-full animate-[shimmer_2s_ease-in-out_infinite]"
+                    style={{ backgroundSize: "200% 100%", animation: "shimmer 2s ease-in-out infinite" }}
+                  />
+                </div>
+              </div>
+
+              {/* Loading skeleton grid */}
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl bg-white/60 border border-stone-100 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
+                    <div className="aspect-square bg-stone-100" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-3 bg-stone-100 rounded-full w-3/4" />
+                      <div className="h-3 bg-stone-100 rounded-full w-1/2" />
+                      <div className="h-4 bg-amber-100 rounded-full w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image Search Results Header */}
+        {!isImageSearching && isImageSearchMode && (
+          <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-400">
+            <div className="rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 p-4 md:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/20">
+                    <Camera className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sparkles className="h-4 w-4 text-amber-500" />
+                      <h2 className="text-base md:text-lg font-black text-stone-900 tracking-tight">
+                        Image Search Results
+                      </h2>
+                    </div>
+                    {imageAnalysis && (
+                      <p className="text-sm font-medium text-stone-600 leading-relaxed">
+                        AI identified: <span className="font-bold text-stone-800">{imageAnalysis}</span>
+                      </p>
+                    )}
+                    {imageSearchKeywords.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {imageSearchKeywords.slice(0, 6).map((keyword, i) => (
+                          <span key={i} className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-stone-400 mt-2 font-semibold">
+                      {displayProducts.length} {displayProducts.length === 1 ? "product" : "products"} found
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClearImageSearch}
+                  className="flex-shrink-0 h-8 w-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors"
+                  title="Clear image search"
+                >
+                  <X className="h-4 w-4 text-stone-500" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search Results Header */}
-        {searchQuery && (
+        {!isImageSearchMode && searchQuery && (
           <div className="mb-4 md:mb-6">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">
               {products.length} {products.length === 1 ? t("products.found") : t("products.found_plural")} "{searchQuery}"
@@ -83,7 +256,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         )}
 
         {/* Subcategories Filter Bar */}
-        {subCategories.length > 0 && parentCategory && activeCategory && (
+        {!isImageSearchMode && subCategories.length > 0 && parentCategory && activeCategory && (
           <div className="flex items-center gap-2 overflow-x-auto py-2 mb-6 border-b border-stone-100 scrollbar-hide">
             <button
               onClick={() => {
@@ -120,32 +293,65 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         )}
 
         {/* Products Grid */}
-        <main className="w-full">
-          {products.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-gray-600">{t("products.none")}</p>
-                {searchQuery && (
-                  <p className="text-sm text-gray-500 mt-2">{t("products.adjust")}</p>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  isLiked={isFavorite(product.id)}
-                  isInCart={cartItems.some((item) => item.product_id === product.id)}
-                  onAddToCart={handleAddToCart}
-                  onToggleLike={toggleFavorite}
-                />
-              ))}
-            </div>
-          )}
-        </main>
+        {!isImageSearching && (
+          <main className="w-full">
+            {displayProducts.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  {isImageSearchMode ? (
+                    <>
+                      <div className="h-16 w-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
+                        <Camera className="h-7 w-7 text-stone-300" />
+                      </div>
+                      {imageAnalysis && (
+                        <p className="text-sm font-medium text-stone-500 mb-2">
+                          We identified: <span className="font-bold text-stone-700">{imageAnalysis}</span>
+                        </p>
+                      )}
+                      <p className="text-base font-bold text-stone-400">No similar products found</p>
+                      <p className="text-sm text-stone-300 mt-1">Try uploading a different photo</p>
+                      <button
+                        onClick={handleClearImageSearch}
+                        className="mt-4 px-6 py-2 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors"
+                      >
+                        Back to Shop
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-600">{t("products.none")}</p>
+                      {searchQuery && (
+                        <p className="text-sm text-gray-500 mt-2">{t("products.adjust")}</p>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
+                {displayProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isLiked={isFavorite(product.id)}
+                    isInCart={cartItems.some((item) => item.product_id === product.id)}
+                    onAddToCart={handleAddToCart}
+                    onToggleLike={toggleFavorite}
+                  />
+                ))}
+              </div>
+            )}
+          </main>
+        )}
       </div>
+
+      {/* Shimmer animation keyframes */}
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
     </div>
   )
 }

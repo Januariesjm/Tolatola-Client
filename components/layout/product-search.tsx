@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Search, X, ShoppingBag, ArrowRight, Loader2, Sparkles, SlidersHorizontal, MapPin, DollarSign, Camera } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -28,13 +29,52 @@ interface Category {
   slug: string
 }
 
+const compressImageForSearch = (file: File, maxDim = 800, quality = 0.8): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = document.createElement("img")
+      img.onload = () => {
+        let width = img.width
+        let height = img.height
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width)
+            width = maxDim
+          } else {
+            width = Math.round((width * maxDim) / height)
+            height = maxDim
+          }
+        }
+        const canvas = document.createElement("canvas")
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext("2d")
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL("image/jpeg", quality))
+        } else {
+          resolve(e.target?.result as string)
+        }
+      }
+      img.onerror = () => resolve(e.target?.result as string)
+      img.src = e.target?.result as string
+    }
+    reader.onerror = () => resolve("")
+    reader.readAsDataURL(file)
+  })
+}
+
 export function ProductSearch({ categories = [] }: { categories?: Category[] }) {
+  const router = useRouter()
   const [query, setQuery] = useState("")
   const [locationFilter, setLocationFilter] = useState("")
   const [productResults, setProductResults] = useState<Product[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isImageSearching, setIsImageSearching] = useState(false)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("")
   const [hasSearched, setHasSearched] = useState(false)
   const [imageAnalysis, setImageAnalysis] = useState<string>("")
   const searchRef = useRef<HTMLDivElement>(null)
@@ -46,7 +86,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
       if (query.trim().length < 2) {
         setProductResults([])
         setHasSearched(false)
-        if (query.trim().length === 0 && !showFilters) {
+        if (query.trim().length === 0 && !showFilters && !isImageSearching) {
           setIsOpen(false)
         }
         return
@@ -102,6 +142,9 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     setMinPrice("")
     setMaxPrice("")
     setProductResults([])
+    setImagePreviewUrl("")
+    setIsImageSearching(false)
+    setImageAnalysis("")
     setIsOpen(false)
     setShowFilters(false)
     setHasSearched(false)
@@ -125,40 +168,22 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
   }
 
   const handleImageSearch = async (file: File) => {
+    // Immediately show a loading indicator while compressing
+    setIsImageSearching(true)
     setIsLoading(true)
-    setImageAnalysis("")
-    setQuery("")
+    setIsOpen(false)
+    setShowFilters(false)
+
     try {
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        const base64 = reader.result as string
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ image: base64 }),
-            }
-          )
-          const data = await res.json()
-          if (data.data) {
-            setProductResults(data.data)
-            setIsOpen(true)
-            setShowFilters(false)
-            setHasSearched(true)
-          }
-          if (data.analysis) {
-            setImageAnalysis(data.analysis)
-          }
-        } catch (fetchErr) {
-          console.error("[Image Search Fetch Error]", fetchErr)
-        }
-        setIsLoading(false)
-      }
-      reader.readAsDataURL(file)
+      // Compress image client-side before storing (shrinks size to ~80KB)
+      const compressedBase64 = await compressImageForSearch(file)
+      // Store compressed image in sessionStorage for the shop page to pick up
+      sessionStorage.setItem("tolatola_image_search", compressedBase64)
+      // Navigate to shop page with imageSearch flag — results load there
+      router.push("/shop?imageSearch=pending")
     } catch (err) {
       console.error("[Image Search Error]", err)
+      setIsImageSearching(false)
       setIsLoading(false)
     }
   }
@@ -198,7 +223,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
         {/* Action buttons */}
         <div className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 lg:gap-1">
-          {query && (
+          {(query || imagePreviewUrl) && (
             <Button
               variant="ghost"
               size="icon"
@@ -222,7 +247,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-amber-50 rounded-full transition-colors"
+            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-amber-50 rounded-full transition-colors relative"
             onClick={(e) => {
               e.stopPropagation()
               document.getElementById("image-search-input")?.click()
@@ -230,6 +255,9 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             title="Search by Image"
           >
             <Camera className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-amber-500" />
+            {isImageSearching && (
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+            )}
           </Button>
           {/* Filter toggle */}
           <Button
@@ -266,8 +294,9 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           onClick={(e) => e.stopPropagation()}
         >
           <div className="max-h-[75vh] overflow-y-auto">
+
             {/* Inline Filter Controls */}
-            {showFilters && (
+            {showFilters && !isImageSearching && (
               <div className="p-4 lg:p-5 border-b border-stone-100 bg-stone-50/50 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {/* Location Filter */}
@@ -340,23 +369,11 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {/* Search Results */}
             {hasSearched && productResults.length > 0 && (
               <div className="p-4 lg:p-6 space-y-3">
-                {/* AI Analysis Banner */}
-                {imageAnalysis && (
-                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
-                    <div className="h-7 w-7 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Camera className="h-3.5 w-3.5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-0.5">AI Identified</p>
-                      <p className="text-xs font-medium text-stone-700 leading-relaxed">{imageAnalysis}</p>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                      {productResults.length} {imageAnalysis ? "Similar Products" : "Results Found"}
+                      {productResults.length} Results Found
                     </span>
                   </div>
                   <div className="h-px flex-1 bg-stone-100 mx-4" />
@@ -414,18 +431,13 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {hasSearched && productResults.length === 0 && !isLoading && (
               <div className="p-8 text-center">
                 <div className="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
-                  {imageAnalysis ? <Camera className="h-5 w-5 text-stone-300" /> : <Search className="h-5 w-5 text-stone-300" />}
+                  <Search className="h-5 w-5 text-stone-300" />
                 </div>
-                {imageAnalysis && (
-                  <p className="text-xs font-medium text-stone-500 mb-2">
-                    We identified: <span className="font-bold text-stone-700">{imageAnalysis}</span>
-                  </p>
-                )}
                 <p className="text-sm font-bold text-stone-400">
-                  {imageAnalysis ? "No similar products found" : `No products found for "${query}"`}
+                  {`No products found for "${query}"`}
                 </p>
                 <p className="text-xs text-stone-300 mt-1">
-                  {imageAnalysis ? "Try uploading a different photo" : "Try a different search term or adjust your filters"}
+                  Try a different search term or adjust your filters
                 </p>
               </div>
             )}
