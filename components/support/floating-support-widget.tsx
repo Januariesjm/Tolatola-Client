@@ -363,6 +363,7 @@ export function FloatingSupportWidget() {
                             priority: "medium",
                             guestName: "Guest User",
                             guestEmail: "guest@tola.co",
+                            history: messages.map((m) => ({ sender: m.sender, text: m.text })),
                         }),
                     })
                     if (res.ok) {

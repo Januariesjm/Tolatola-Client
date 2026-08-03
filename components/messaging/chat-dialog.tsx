@@ -201,14 +201,29 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
               {messages.map((msg) => {
                 if (!msg) return null
                 const isOwnMessage = msg.sender_id === currentUserId
+                const isBot = msg.sender_type === "bot"
+                const senderName = isBot 
+                  ? "Aisha (AI Agent)" 
+                  : isOwnMessage 
+                  ? "You (Agent)" 
+                  : msg.sender?.full_name || "User"
+
                 return (
                   <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : ""}`}>
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={msg.sender?.profile_image_url || "/placeholder.svg"} />
-                      <AvatarFallback>{msg.sender?.full_name?.charAt(0) || "U"}</AvatarFallback>
+                      <AvatarImage src={isBot ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" : msg.sender?.profile_image_url || "/placeholder.svg"} />
+                      <AvatarFallback>{isBot ? "AI" : senderName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className={`flex flex-col ${isOwnMessage ? "items-end" : ""}`}>
-                      <div className={`rounded-lg px-4 py-2 max-w-[300px] ${isOwnMessage ? "bg-primary text-primary-foreground" : "bg-muted"
+                      <span className="text-[10px] font-bold text-muted-foreground mb-0.5 px-1">
+                        {senderName}
+                      </span>
+                      <div className={`rounded-lg px-4 py-2 max-w-[300px] ${
+                        isOwnMessage 
+                          ? "bg-primary text-primary-foreground" 
+                          : isBot 
+                          ? "bg-amber-50 text-amber-950 border border-amber-200/60" 
+                          : "bg-muted text-foreground"
                         }`}>
                         {msg.attachment_url && (
                           <div className="mb-2">

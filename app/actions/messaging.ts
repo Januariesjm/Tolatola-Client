@@ -207,7 +207,25 @@ export async function sendMessage(
 ) {
   let supabase: any = await createClient()
 
-  if (senderType === "guest") {
+  // 1. Determine conversation type to see if we should use admin client
+  let isSupportConv = false
+  let customerId: string | null = null
+  try {
+    const checkClient = await createAdminClient()
+    const { data: conv } = await checkClient
+      .from("conversations")
+      .select("type, customer_id")
+      .eq("id", conversationId)
+      .single()
+    if (conv?.type === "support") {
+      isSupportConv = true
+      customerId = conv.customer_id
+    }
+  } catch (e) {
+    console.error("[Messaging] Error checking conversation type:", e)
+  }
+
+  if (senderType === "guest" || isSupportConv) {
     supabase = await createAdminClient()
   }
 
@@ -219,21 +237,28 @@ export async function sendMessage(
     return { error: "Not authenticated" }
   }
 
-  // If guest, we assume they are allowed if they have access to the conversationId
-  // (In a real app, verify against guestId cookie/token)
+  // Determine computed sender type
+  let computedSenderType = senderType
+  if (isSupportConv && user) {
+    // If the logged in user is NOT the customer of this support conversation, they are an agent
+    if (customerId && user.id !== customerId) {
+      computedSenderType = "agent"
+    } else {
+      computedSenderType = "user"
+    }
+  }
 
   const payload: any = {
     conversation_id: conversationId,
     message,
     attachment_url: attachmentUrl,
     attachment_type: attachmentType,
-    sender_type: senderType
+    sender_type: computedSenderType
   }
 
-  if (senderType === "user" && user) {
+  if (user) {
     payload.sender_id = user.id
   }
-  // If guest, sender_id remains null
 
   // @ts-ignore
   const { data, error } = await (supabase as any)
@@ -243,6 +268,7 @@ export async function sendMessage(
     .single()
 
   if (error) {
+    console.error("[Messaging] Error inserting message:", error)
     return { error: error.message }
   }
 
