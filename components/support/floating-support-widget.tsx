@@ -285,56 +285,55 @@ export function FloatingSupportWidget() {
                 />
             )}
 
-            {/* Support Chat Window Pane (Mobile & Desktop) */}
+            {/* Support Chat Window Pane (Height reduced to 460px/480px so it never reaches the top website header) */}
             {isOpen && (
-                <div className="fixed bottom-4 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[390px] h-[min(580px,calc(100vh-2rem))] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="fixed bottom-4 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[460px] max-h-[calc(100vh-120px)] sm:h-[480px] sm:max-h-[calc(100vh-140px)] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                    
                     {/* Header Banner */}
-                    <div className="bg-[#e6d7b8] px-4 pt-3 pb-5 flex flex-col items-center relative text-stone-900 border-b border-amber-200/60 shadow-sm">
+                    <div className="bg-[#e6d7b8] px-4 pt-3 pb-4 flex flex-col items-center relative text-stone-900 border-b border-amber-200/60 shadow-sm">
                         
-                        {/* Prominent Header Action Controls */}
-                        <div className="w-full flex justify-between items-center z-10 px-1">
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setIsOpen(false)
-                                }}
-                                className="flex items-center gap-1 text-xs font-semibold text-stone-700 bg-amber-200/50 hover:bg-amber-300/60 px-2.5 py-1 rounded-full transition-colors"
-                                aria-label="Minimize chat window"
-                            >
-                                <Minus className="h-3.5 w-3.5" />
-                                <span>Minimize</span>
-                            </button>
+                        {/* Minimize Action Button (Top Left) */}
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setIsOpen(false)
+                            }}
+                            className="absolute top-3 left-3 flex items-center gap-1 text-xs font-semibold text-stone-700 bg-amber-200/60 hover:bg-amber-300/80 px-2.5 py-1 rounded-full transition-colors z-10"
+                            aria-label="Minimize chat window"
+                        >
+                            <Minus className="h-3.5 w-3.5" />
+                            <span>Minimize</span>
+                        </button>
 
-                            {/* PROMINENT CLOSE BUTTON ICON (X) */}
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setIsOpen(false)
-                                }}
-                                className="h-8 w-8 flex items-center justify-center rounded-full bg-stone-900/10 hover:bg-red-600 hover:text-white text-stone-900 shadow-sm transition-all duration-150 active:scale-90"
-                                title="Close Chat Window"
-                                aria-label="Close support chat pane"
-                            >
-                                <X className="h-5 w-5 stroke-[2.5]" />
-                            </button>
-                        </div>
+                        {/* PROMINENT CLOSE BUTTON WITH X ICON (TOP RIGHT OF SUPPORT CHAT WINDOW PANE) */}
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setIsOpen(false)
+                            }}
+                            className="absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-stone-900/10 hover:bg-red-600 hover:text-white text-stone-900 shadow-sm transition-all duration-150 active:scale-90 z-10"
+                            title="Close Chat Window"
+                            aria-label="Close support chat pane"
+                        >
+                            <X className="h-5 w-5 stroke-[2.5]" />
+                        </button>
 
                         <div className="relative mt-1">
-                            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+                            <div className="h-16 w-16 rounded-full border-3 border-white bg-white shadow-md overflow-hidden">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img src={AISHA_AVATAR} alt="Aisha Avatar" className="h-full w-full object-cover" />
                             </div>
-                            <span className="absolute bottom-1 right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+                            <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
                         </div>
 
-                        <h3 className="font-bold text-base mt-2 text-stone-900">Hello, I'm Aisha</h3>
-                        <p className="text-xs font-medium text-stone-700 mt-0.5">TOLA Digital Agent</p>
+                        <h3 className="font-bold text-base mt-1.5 text-stone-900">Hello, I'm Aisha</h3>
+                        <p className="text-[11px] font-semibold text-stone-700">TOLA Digital Agent</p>
                     </div>
 
                     {/* Messages Body */}
-                    <div className="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
+                    <div className="flex-1 p-3.5 overflow-y-auto space-y-3 text-sm">
                         {messages.map((msg) => (
                             <div
                                 key={msg.id}
@@ -345,7 +344,7 @@ export function FloatingSupportWidget() {
                                     <img src={AISHA_AVATAR} alt="Aisha" className="h-7 w-7 rounded-full object-cover border border-slate-200 mt-1" />
                                 )}
                                 <div
-                                    className={`p-3.5 rounded-2xl space-y-2 ${
+                                    className={`p-3 rounded-2xl space-y-2 ${
                                         msg.sender === "user"
                                             ? "bg-blue-600 text-white rounded-tr-none"
                                             : "bg-white text-slate-900 border border-slate-200/80 shadow-sm rounded-tl-none"
@@ -427,16 +426,7 @@ export function FloatingSupportWidget() {
                                 <Send className="h-3.5 w-3.5 ml-0.5" />
                             </button>
                         </div>
-                        <div className="w-full flex justify-between items-center mt-2 px-2 text-[10px] text-slate-400 font-medium">
-                            <span>asksuite · TOLA AI Agent</span>
-                            <button
-                                type="button"
-                                onClick={() => setIsOpen(false)}
-                                className="text-red-500 hover:text-red-700 font-bold underline transition-colors"
-                            >
-                                Close Pane
-                            </button>
-                        </div>
+                        <span className="text-[10px] text-slate-400 mt-1 font-medium">asksuite · TOLA AI Agent</span>
                     </div>
                 </div>
             )}
