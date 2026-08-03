@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Send, Minus, X, Headphones, RefreshCw, LogOut } from "lucide-react"
-import { ChatDialog } from "@/components/messaging/chat-dialog"
+import { Send, Minus, X, Headphones, RefreshCw, LogOut, MessageCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { createSupportTicket } from "@/app/actions/support"
+import { sendMessage as sendLiveMessage } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 
 const AISHA_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
@@ -33,7 +33,7 @@ interface ChatMessage {
 export function FloatingSupportWidget() {
     const [isOpen, setIsOpen] = useState(false)
     const [activeTicket, setActiveTicket] = useState<any>(null)
-    const [chatOpen, setChatOpen] = useState(false)
+    const [liveConversationId, setLiveConversationId] = useState<string | null>(null)
 
     // AI Chat State
     const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_WELCOME_MSG])
@@ -49,6 +49,7 @@ export function FloatingSupportWidget() {
     // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [userToken, setUserToken] = useState<string | null>(null)
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -67,10 +68,12 @@ export function FloatingSupportWidget() {
             if (session?.user) {
                 setIsAuthenticated(true)
                 setUserToken(session.access_token)
+                setCurrentUserId(session.user.id)
 
+                // Check for existing open support ticket
                 const { data: tickets } = await supabase
                     .from("support_tickets")
-                    .select("*")
+                    .select("*, conversations:conversation_id(*)")
                     .eq("user_id", session.user.id)
                     .in("status", ["open", "in_progress"])
                     .order("created_at", { ascending: false })
@@ -78,6 +81,9 @@ export function FloatingSupportWidget() {
 
                 if (tickets && tickets.length > 0) {
                     setActiveTicket(tickets[0])
+                    if (tickets[0].conversation_id) {
+                        setLiveConversationId(tickets[0].conversation_id)
+                    }
                 }
             }
         }
@@ -88,7 +94,44 @@ export function FloatingSupportWidget() {
         return () => window.removeEventListener("open-support-chat", handleOpenSupport)
     }, [])
 
-    // 1-Hour Inactivity Monitor & 2-Minute Countdown Timer
+    // Subscribe to realtime messages from admin support agent when live conversation is active
+    useEffect(() => {
+        if (!liveConversationId) return
+
+        const supabase = createClient()
+        const channel = supabase
+            .channel(`support-live:${liveConversationId}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                    filter: `conversation_id=eq.${liveConversationId}`,
+                },
+                (payload: any) => {
+                    const newMsg = payload.new
+                    // Only show messages from the admin/support agent (not from the current user)
+                    if (newMsg && newMsg.sender_id !== currentUserId) {
+                        const agentMsg: ChatMessage = {
+                            id: `live-${newMsg.id}`,
+                            sender: "agent",
+                            text: newMsg.message || "[Attachment]",
+                            timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                        }
+                        setMessages((prev) => [...prev, agentMsg])
+                        resetActivityTimer()
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [liveConversationId, currentUserId])
+
+    // 1-Hour Inactivity Monitor
     useEffect(() => {
         const interval = setInterval(() => {
             const now = Date.now()
@@ -149,6 +192,7 @@ export function FloatingSupportWidget() {
     const handleEndChatSession = (reason: "user" | "inactivity" = "user") => {
         setInactivityPromptActive(false)
         setActiveTicket(null)
+        setLiveConversationId(null)
         setMessages([INITIAL_WELCOME_MSG])
         setInputText("")
         setIsOpen(false)
@@ -174,6 +218,18 @@ export function FloatingSupportWidget() {
 
         setMessages((prev) => [...prev, userMsg])
         if (!customText) setInputText("")
+
+        // If connected to live human support, also send the message to the conversation
+        if (liveConversationId) {
+            try {
+                await sendLiveMessage(liveConversationId, text)
+            } catch (e) {
+                console.error("Error sending live message:", e)
+            }
+            // Don't call AI — user is chatting with a human agent now
+            return
+        }
+
         setIsTyping(true)
 
         try {
@@ -221,8 +277,9 @@ export function FloatingSupportWidget() {
 
     const handleEscalateToHuman = async () => {
         resetActivityTimer()
+
         if (!isAuthenticated) {
-            toast({ title: "Sign In Required", description: "Please sign in to start a live support ticket.", variant: "destructive" })
+            toast({ title: "Sign In Required", description: "Please sign in to connect with our human support team.", variant: "destructive" })
             return
         }
 
@@ -233,18 +290,31 @@ export function FloatingSupportWidget() {
             const body = messages.map((m) => `${m.sender.toUpperCase()}: ${m.text}`).join("\n")
 
             const result = await createSupportTicket(subject, body, "medium")
+
+            if (result?.error) {
+                toast({ title: "Connection Failed", description: result.error, variant: "destructive" })
+                return
+            }
+
             if (result?.ticket) {
-                setActiveTicket(result.ticket)
+                // Store the conversation_id from the result (not from ticket, which may be stale)
+                const convId = result.conversation?.id || result.ticket.conversation_id
+                setActiveTicket({ ...result.ticket, conversation_id: convId })
+
+                if (convId) {
+                    setLiveConversationId(convId)
+                }
+
                 const botMsg: ChatMessage = {
                     id: Date.now().toString(),
                     sender: "bot",
-                    text: `✅ Connected! Ticket #${result.ticket.id.substring(0, 8)} created. Customer support will reply shortly.`,
+                    text: `✅ You are now connected to Tola Human Support!\n\nTicket #${result.ticket.id.substring(0, 8)} has been created. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
                     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                 }
                 setMessages((prev) => [...prev, botMsg])
             }
         } catch (e: any) {
-            toast({ title: "Escalation Failed", description: e.message, variant: "destructive" })
+            toast({ title: "Connection Failed", description: e.message || "Failed to connect to human support", variant: "destructive" })
         } finally {
             setIsEscalating(false)
             resetActivityTimer()
@@ -285,13 +355,13 @@ export function FloatingSupportWidget() {
                 />
             )}
 
-            {/* Support Chat Window Pane (Height reduced to 460px/480px so it never reaches the top website header) */}
+            {/* Support Chat Window Pane */}
             {isOpen && (
                 <div className="fixed bottom-4 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[460px] max-h-[calc(100vh-120px)] sm:h-[480px] sm:max-h-[calc(100vh-140px)] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-                    
+
                     {/* Header Banner */}
                     <div className="bg-[#e6d7b8] px-4 pt-3 pb-4 flex flex-col items-center relative text-stone-900 border-b border-amber-200/60 shadow-sm">
-                        
+
                         {/* Minimize Action Button (Top Left) */}
                         <button
                             type="button"
@@ -306,7 +376,7 @@ export function FloatingSupportWidget() {
                             <span>Minimize</span>
                         </button>
 
-                        {/* PROMINENT CLOSE BUTTON WITH X ICON (TOP RIGHT OF SUPPORT CHAT WINDOW PANE) */}
+                        {/* CLOSE BUTTON (X) - TOP RIGHT */}
                         <button
                             type="button"
                             onClick={(e) => {
@@ -332,6 +402,24 @@ export function FloatingSupportWidget() {
                         <p className="text-[11px] font-semibold text-stone-700">TOLA Digital Agent</p>
                     </div>
 
+                    {/* Live Support Connection Banner */}
+                    {liveConversationId && activeTicket && (
+                        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 flex items-center gap-2">
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                            </span>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-emerald-800 truncate">
+                                    Connected to Live Support
+                                </p>
+                                <p className="text-[10px] text-emerald-600">
+                                    Ticket #{activeTicket.id?.substring(0, 8)} · Messages sync in real-time
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Messages Body */}
                     <div className="flex-1 p-3.5 overflow-y-auto space-y-3 text-sm">
                         {messages.map((msg) => (
@@ -341,34 +429,53 @@ export function FloatingSupportWidget() {
                             >
                                 {msg.sender !== "user" && (
                                     // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={AISHA_AVATAR} alt="Aisha" className="h-7 w-7 rounded-full object-cover border border-slate-200 mt-1" />
+                                    <img
+                                        src={AISHA_AVATAR}
+                                        alt={msg.sender === "agent" ? "Support Agent" : "Aisha"}
+                                        className="h-7 w-7 rounded-full object-cover border border-slate-200 mt-1"
+                                    />
                                 )}
                                 <div
                                     className={`p-3 rounded-2xl space-y-2 ${
                                         msg.sender === "user"
                                             ? "bg-blue-600 text-white rounded-tr-none"
+                                            : msg.sender === "agent"
+                                            ? "bg-emerald-50 text-emerald-900 border border-emerald-200 shadow-sm rounded-tl-none"
                                             : "bg-white text-slate-900 border border-slate-200/80 shadow-sm rounded-tl-none"
                                     }`}
                                 >
+                                    {/* Agent label for live support messages */}
+                                    {msg.sender === "agent" && (
+                                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">
+                                            Support Agent
+                                        </span>
+                                    )}
                                     <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                                    <span className={`text-[10px] block ${msg.sender === "user" ? "text-blue-100 text-right" : "text-slate-400"}`}>
+                                    <span className={`text-[10px] block ${
+                                        msg.sender === "user" ? "text-blue-100 text-right"
+                                        : msg.sender === "agent" ? "text-emerald-500"
+                                        : "text-slate-400"
+                                    }`}>
                                         {msg.timestamp}
                                     </span>
 
-                                    {/* Human Escalation Option */}
+                                    {/* Human Escalation Button */}
                                     {msg.showEscalationOption && !activeTicket && (
-                                        <Button
-                                            size="sm"
-                                            onClick={handleEscalateToHuman}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleEscalateToHuman()
+                                            }}
                                             disabled={isEscalating}
-                                            className="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold gap-2 rounded-xl py-2"
+                                            className="w-full mt-2 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 disabled:opacity-50 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-colors cursor-pointer"
                                         >
                                             <Headphones className="h-3.5 w-3.5" />
                                             {isEscalating ? "Connecting..." : "Connect to Human Support"}
-                                        </Button>
+                                        </button>
                                     )}
 
-                                    {/* 1-Hour Inactivity Termination Action Prompt */}
+                                    {/* Inactivity Termination Action Prompt */}
                                     {msg.showInactivityPrompt && inactivityPromptActive && (
                                         <div className="pt-2 border-t border-slate-100 space-y-2">
                                             <p className="text-xs font-bold text-amber-700">
@@ -414,7 +521,7 @@ export function FloatingSupportWidget() {
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                                placeholder="Type your message"
+                                placeholder={liveConversationId ? "Type message to support agent..." : "Type your message"}
                                 className="flex-1 bg-transparent text-sm text-slate-900 border-none outline-none px-2 py-1.5"
                             />
                             <button
@@ -426,20 +533,11 @@ export function FloatingSupportWidget() {
                                 <Send className="h-3.5 w-3.5 ml-0.5" />
                             </button>
                         </div>
-                        <span className="text-[10px] text-slate-400 mt-1 font-medium">asksuite · TOLA AI Agent</span>
+                        <span className="text-[10px] text-slate-400 mt-1 font-medium">
+                            {liveConversationId ? "Live Support · TOLA" : "asksuite · TOLA AI Agent"}
+                        </span>
                     </div>
                 </div>
-            )}
-
-            {/* Active Ticket Live Chat Dialog */}
-            {activeTicket && (
-                <ChatDialog
-                    open={chatOpen}
-                    onOpenChange={setChatOpen}
-                    conversationId={activeTicket.conversation_id}
-                    shopName="Customer Support"
-                    productName={`Ticket #${activeTicket.id.substring(0, 8)}`}
-                />
             )}
         </>
     )
