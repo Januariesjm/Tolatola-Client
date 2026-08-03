@@ -100,7 +100,7 @@ export function FloatingSupportWidget() {
 
         const supabase = createClient()
         const channel = supabase
-            .channel(`support-live:${liveConversationId}`)
+            .channel(`conversation:${liveConversationId}`)
             .on(
                 "postgres_changes",
                 {
