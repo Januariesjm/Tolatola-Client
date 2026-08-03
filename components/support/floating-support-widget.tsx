@@ -274,6 +274,12 @@ export function FloatingSupportWidget() {
                 if (data.ticket) {
                     setActiveTicket(data.ticket)
                 }
+
+                const convId = data.conversation?.id || data.ticket?.conversation_id
+                if (convId) {
+                    console.log("[AI Chat] Live conversation established automatically:", convId)
+                    setLiveConversationId(convId)
+                }
             } else {
                 throw new Error("Invalid AI response")
             }
@@ -293,10 +299,25 @@ export function FloatingSupportWidget() {
     }
 
     const handleEscalateToHuman = async () => {
+        console.log("[Support Escalation] handleEscalateToHuman triggered", {
+            isAuthenticated,
+            hasUserToken: !!userToken,
+            activeTicketId: activeTicket?.id,
+            liveConversationId,
+        })
+
         resetActivityTimer()
 
-        if (!isAuthenticated || !userToken) {
-            toast({ title: "Sign In Required", description: "Please sign in to connect with our human support team.", variant: "destructive" })
+        // If conversation is already established, confirm connection immediately
+        if (liveConversationId && activeTicket) {
+            console.log("[Support Escalation] Active conversation already present:", liveConversationId)
+            const connectedMsg: ChatMessage = {
+                id: `connected-${Date.now()}`,
+                sender: "bot",
+                text: `✅ Connected to Tola Human Support!\n\nTicket #${activeTicket.id.substring(0, 8)} is active. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
+                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+            }
+            setMessages((prev) => [...prev, connectedMsg])
             return
         }
 
@@ -313,41 +334,51 @@ export function FloatingSupportWidget() {
 
         try {
             const lastMsg = [...messages].reverse().find((m) => m.sender === "user")
-            const subject = lastMsg ? lastMsg.text.slice(0, 45) : "General Inquiry"
+            const subject = lastMsg ? lastMsg.text.slice(0, 45) : "General Support Request"
             const body = messages.map((m) => `${m.sender.toUpperCase()}: ${m.text}`).join("\n")
 
-            // Step 2: Call backend API directly (not server action)
             const base = (process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co").replace(/\/$/, "")
             const endpoints = [
                 `${base}/api/support/tickets`,
                 `${base}/support/tickets`,
+                "https://api.tolatola.co/api/support/tickets",
+                "https://api.tolatola.co/support/tickets",
             ]
+
+            const headers: Record<string, string> = { "Content-Type": "application/json" }
+            if (userToken) {
+                headers["Authorization"] = `Bearer ${userToken}`
+            }
 
             let result: any = null
             for (const url of endpoints) {
                 try {
+                    console.log("[Support Escalation] Posting ticket to:", url)
                     const res = await fetch(url, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${userToken}`,
-                        },
-                        body: JSON.stringify({ subject, message: body, priority: "medium" }),
+                        headers,
+                        body: JSON.stringify({
+                            subject,
+                            message: body,
+                            priority: "medium",
+                            guestName: "Guest User",
+                            guestEmail: "guest@tola.co",
+                        }),
                     })
                     if (res.ok) {
                         result = await res.json()
+                        console.log("[Support Escalation] Ticket created successfully:", result)
                         break
                     }
-                } catch {
-                    // Try next endpoint
+                } catch (fetchErr) {
+                    console.warn("[Support Escalation] Failed endpoint:", url, fetchErr)
                 }
             }
 
             if (!result || (!result.ticket && !result.id)) {
-                throw new Error("Could not create support ticket. Please try again.")
+                throw new Error("Could not connect to support service. Please try again.")
             }
 
-            // Normalize: the API may return { ticket, conversation } or the ticket directly
             const ticket = result.ticket || result
             const convId = result.conversation?.id || ticket.conversation_id
 
@@ -356,7 +387,7 @@ export function FloatingSupportWidget() {
                 setLiveConversationId(convId)
             }
 
-            // Step 3: Replace connecting message with connected message
+            // Replace connecting message with connected message
             setMessages((prev) => {
                 const filtered = prev.filter((m) => m.id !== connectingMsg.id)
                 const connectedMsg: ChatMessage = {
@@ -368,7 +399,7 @@ export function FloatingSupportWidget() {
                 return [...filtered, connectedMsg]
             })
         } catch (e: any) {
-            // Replace connecting message with error
+            console.error("[Support Escalation Error]", e)
             setMessages((prev) => {
                 const filtered = prev.filter((m) => m.id !== connectingMsg.id)
                 const errorMsg: ChatMessage = {
@@ -525,18 +556,20 @@ export function FloatingSupportWidget() {
                                     </span>
 
                                     {/* Human Escalation Button */}
-                                    {msg.showEscalationOption && !activeTicket && (
+                                    {msg.showEscalationOption && !liveConversationId && (
                                         <button
                                             type="button"
                                             onClick={(e) => {
+                                                e.preventDefault()
                                                 e.stopPropagation()
+                                                console.log("[UI Click] Connect to Human Support button clicked by user")
                                                 handleEscalateToHuman()
                                             }}
                                             disabled={isEscalating}
-                                            className="w-full mt-2 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 disabled:opacity-50 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-colors cursor-pointer"
+                                            className="w-full mt-2 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 disabled:opacity-50 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-colors cursor-pointer shadow-md"
                                         >
                                             <Headphones className="h-3.5 w-3.5" />
-                                            {isEscalating ? "Connecting..." : "Connect to Human Support"}
+                                            {isEscalating ? "Connecting to Support..." : "Connect to Human Support"}
                                         </button>
                                     )}
 
