@@ -51,6 +51,7 @@ export function FloatingSupportWidget() {
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const channelRef = useRef<any>(null)
 
     const resetActivityTimer = () => {
         lastActivityRef.current = Date.now()
@@ -118,15 +119,42 @@ export function FloatingSupportWidget() {
                             text: newMsg.message || "[Attachment]",
                             timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                         }
-                        setMessages((prev) => [...prev, agentMsg])
+                        setMessages((prev) => {
+                            if (prev.some(m => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
+                            return [...prev, agentMsg]
+                        })
+                        resetActivityTimer()
+                    }
+                }
+            )
+            .on(
+                "broadcast",
+                { event: "message" },
+                (payload: any) => {
+                    console.log("[Support Widget] Broadcast message received:", payload)
+                    const newMsg = payload.payload
+                    if (newMsg && (newMsg.sender_type === "agent" || newMsg.sender_type === "bot")) {
+                        const agentMsg: ChatMessage = {
+                            id: `live-${newMsg.id}`,
+                            sender: newMsg.sender_type === "bot" ? "bot" : "agent",
+                            text: newMsg.message || "[Attachment]",
+                            timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                        }
+                        setMessages((prev) => {
+                            if (prev.some(m => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
+                            return [...prev, agentMsg]
+                        })
                         resetActivityTimer()
                     }
                 }
             )
             .subscribe()
 
+        channelRef.current = channel
+
         return () => {
             supabase.removeChannel(channel)
+            channelRef.current = null
         }
     }, [liveConversationId, currentUserId])
 
@@ -221,7 +249,20 @@ export function FloatingSupportWidget() {
         // If connected to live human support, also send the message to the conversation
         if (liveConversationId) {
             try {
-                await sendLiveMessage(liveConversationId, text)
+                const result = await sendLiveMessage(
+                    liveConversationId,
+                    text,
+                    undefined,
+                    undefined,
+                    userToken ? "user" : "guest"
+                )
+                if (result.message && channelRef.current) {
+                    channelRef.current.send({
+                        type: "broadcast",
+                        event: "message",
+                        payload: result.message,
+                    })
+                }
             } catch (e) {
                 console.error("Error sending live message:", e)
             }

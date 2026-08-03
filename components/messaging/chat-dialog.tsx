@@ -29,6 +29,7 @@ interface Message {
   attachment_type?: string
   created_at: string
   sender_id: string
+  sender_type?: string
   sender: {
     id: string
     full_name: string
@@ -46,6 +47,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   const [callType, setCallType] = useState<"voice" | "video">("voice")
   const scrollRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const channelRef = useRef<any>(null)
   const supabase = createClient()
 
   const loadMessages = async () => {
@@ -89,17 +91,34 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             filter: `conversation_id=eq.${conversationId}`,
           },
           (payload) => {
-            console.log("[ChatDialog] Realtime message received:", payload)
+            console.log("[ChatDialog] Postgres Realtime message received:", payload)
             loadMessages()
           },
+        )
+        .on(
+          "broadcast",
+          { event: "message" },
+          (payload: any) => {
+            console.log("[ChatDialog] Broadcast message received:", payload)
+            const newMsg = payload.payload
+            if (newMsg) {
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === newMsg.id)) return prev
+                return [...prev, newMsg]
+              })
+            }
+          }
         )
         .subscribe((status) => {
           console.log(`[ChatDialog] Realtime status for ${conversationId}:`, status)
         })
 
+      channelRef.current = channel
+
       return () => {
         console.log("[ChatDialog] Cleaning up subscription for:", conversationId)
         supabase.removeChannel(channel)
+        channelRef.current = null
       }
     }
   }, [open, conversationId])
@@ -141,6 +160,20 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
           description: sendResult.error,
           variant: "destructive",
         })
+      } else if (sendResult.message) {
+        // Broadcast the message
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: "broadcast",
+            event: "message",
+            payload: sendResult.message,
+          })
+        }
+        // Locally append to keep UI instantaneous
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === sendResult.message.id)) return prev
+          return [...prev, sendResult.message]
+        })
       }
     }
     setUploading(false)
@@ -160,10 +193,21 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
         description: result.error,
         variant: "destructive",
       })
-    } else {
+    } else if (result.message) {
       setNewMessage("")
-      // Proactively load messages after sending
-      loadMessages()
+      // Broadcast the message
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: "broadcast",
+          event: "message",
+          payload: result.message,
+        })
+      }
+      // Locally append to keep UI instantaneous
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === result.message.id)) return prev
+        return [...prev, result.message]
+      })
     }
     setSending(false)
   }
