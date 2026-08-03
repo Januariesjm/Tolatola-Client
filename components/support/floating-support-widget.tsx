@@ -29,7 +29,7 @@ export function FloatingSupportWidget() {
         {
             id: "welcome-1",
             sender: "bot",
-            text: "Welcome to Tolatola! I'm Aisha, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
+            text: "Welcome to Tola! I'm Aisha, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
         },
     ])
@@ -210,7 +210,7 @@ export function FloatingSupportWidget() {
                         </div>
 
                         <h3 className="font-bold text-base mt-2 text-stone-900">Hello, I'm Aisha</h3>
-                        <p className="text-xs font-medium text-stone-700 mt-0.5">TOLATOLA Digital Agent</p>
+                        <p className="text-xs font-medium text-stone-700 mt-0.5">TOLA Digital Agent</p>
                     </div>
 
                     {/* Messages Body */}
@@ -279,7 +279,7 @@ export function FloatingSupportWidget() {
                                 <Send className="h-3.5 w-3.5 ml-0.5" />
                             </button>
                         </div>
-                        <span className="text-[10px] text-slate-400 mt-1 font-medium">asksuite · TOLATOLA AI Agent</span>
+                        <span className="text-[10px] text-slate-400 mt-1 font-medium">asksuite · TOLA AI Agent</span>
                     </div>
                 </div>
             )}
