@@ -1,55 +1,61 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { MessageCircle, Headphones, X } from "lucide-react"
+import { Send, Minus, X, Headphones, UserCheck } from "lucide-react"
 import { ChatDialog } from "@/components/messaging/chat-dialog"
 import { createClient } from "@/lib/supabase/client"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createSupportTicket } from "@/app/actions/support"
 import { toast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
+
+const AISHA_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co"
+
+interface ChatMessage {
+    id: string
+    sender: "bot" | "user" | "agent"
+    text: string
+    timestamp: string
+    showEscalationOption?: boolean
+}
 
 export function FloatingSupportWidget() {
-    const router = useRouter()
+    const [isOpen, setIsOpen] = useState(false)
     const [activeTicket, setActiveTicket] = useState<any>(null)
     const [chatOpen, setChatOpen] = useState(false)
-    const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
-    // Form State
-    const [subject, setSubject] = useState("")
-    const [message, setMessage] = useState("")
-    const [priority, setPriority] = useState("low")
-    const [guestName, setGuestName] = useState("")
-    const [guestEmail, setGuestEmail] = useState("")
-    const [loading, setLoading] = useState(false)
+    // AI Chat State
+    const [messages, setMessages] = useState<ChatMessage[]>([
+        {
+            id: "welcome-1",
+            sender: "bot",
+            text: "Welcome to Tolatola! I'm Aisha, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        },
+    ])
+    const [inputText, setInputText] = useState("")
+    const [isTyping, setIsTyping] = useState(false)
+    const [isEscalating, setIsEscalating] = useState(false)
 
-    // Auth & Guest State
+    // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false)
-    const [guestId, setGuestId] = useState<string | null>(null)
+    const [userToken, setUserToken] = useState<string | null>(null)
+
+    const messagesEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const init = async () => {
             const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
+            const { data: { session } } = await supabase.auth.getSession()
 
-            if (user) {
+            if (session?.user) {
                 setIsAuthenticated(true)
+                setUserToken(session.access_token)
+
                 const { data: tickets } = await supabase
                     .from("support_tickets")
                     .select("*")
-                    .eq("user_id", user.id)
+                    .eq("user_id", session.user.id)
                     .in("status", ["open", "in_progress"])
                     .order("created_at", { ascending: false })
                     .limit(1)
@@ -57,204 +63,235 @@ export function FloatingSupportWidget() {
                 if (tickets && tickets.length > 0) {
                     setActiveTicket(tickets[0])
                 }
-            } else {
-                const storedGuestId = localStorage.getItem("guestSupportId")
-                if (storedGuestId) {
-                    setGuestId(storedGuestId)
-                    setGuestName(localStorage.getItem("guestSupportName") || "")
-                    setGuestEmail(localStorage.getItem("guestSupportEmail") || "")
-
-                    const lastTicketId = localStorage.getItem("lastActiveSupportTicketId")
-                    if (lastTicketId) {
-                        const { data: ticket } = await supabase
-                            .from("support_tickets")
-                            .select("*")
-                            .eq("id", lastTicketId)
-                            .single()
-
-                        if (ticket && (ticket.status === 'open' || ticket.status === 'in_progress')) {
-                            setActiveTicket(ticket)
-                        }
-                    }
-                }
             }
         }
         init()
 
-        const handleOpenSupport = () => {
-            if (activeTicket) setChatOpen(true)
-            else setCreateDialogOpen(true)
-        }
-        window.addEventListener('open-support-chat', handleOpenSupport)
-        return () => window.removeEventListener('open-support-chat', handleOpenSupport)
-    }, [activeTicket])
+        const handleOpenSupport = () => setIsOpen(true)
+        window.addEventListener("open-support-chat", handleOpenSupport)
+        return () => window.removeEventListener("open-support-chat", handleOpenSupport)
+    }, [])
 
-    const handleFabClick = () => {
-        if (activeTicket) {
-            setChatOpen(true)
-        } else {
-            setCreateDialogOpen(true)
-        }
-    }
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [messages, isTyping])
 
-    const handleCreateTicket = async () => {
-        if (!subject || !message) {
-            toast({ title: "Please fill in subject and message", variant: "destructive" })
-            return
-        }
-        if (!isAuthenticated && (!guestName || !guestEmail)) {
-            toast({ title: "Name and Email are required", variant: "destructive" })
-            return
+    const handleSendMessage = async (customText?: string) => {
+        const text = (customText || inputText).trim()
+        if (!text) return
+
+        const userMsg: ChatMessage = {
+            id: Date.now().toString(),
+            sender: "user",
+            text,
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
         }
 
-        setLoading(true)
-        let currentGuestId = guestId
-        if (!isAuthenticated && !currentGuestId) {
-            currentGuestId = crypto.randomUUID()
-            setGuestId(currentGuestId)
-            localStorage.setItem("guestSupportId", currentGuestId)
-            localStorage.setItem("guestSupportName", guestName)
-            localStorage.setItem("guestSupportEmail", guestEmail)
-        }
+        setMessages((prev) => [...prev, userMsg])
+        if (!customText) setInputText("")
+        setIsTyping(true)
 
-        const guestInfo = !isAuthenticated ? {
-            name: guestName,
-            email: guestEmail,
-            guestId: currentGuestId!
-        } : undefined
+        try {
+            const chatHistory = messages.map((m) => ({ sender: m.sender, text: m.text }))
+            const res = await fetch(`${API_BASE_URL}/support/ai-chat`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
+                },
+                body: JSON.stringify({ message: text, history: chatHistory }),
+            })
 
-        const result = await createSupportTicket(subject, message, priority, guestInfo)
-        setLoading(false)
+            const data = await res.json()
+            if (data?.response) {
+                const botMsg: ChatMessage = {
+                    id: (Date.now() + 1).toString(),
+                    sender: "bot",
+                    text: data.response,
+                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                    showEscalationOption: data.needs_human,
+                }
+                setMessages((prev) => [...prev, botMsg])
 
-        if (result.error) {
-            toast({ title: "Error", description: result.error, variant: "destructive" })
-        } else {
-            toast({ title: "Support Connected" })
-            setCreateDialogOpen(false)
-            setActiveTicket(result.ticket)
-            if (!isAuthenticated) {
-                localStorage.setItem("lastActiveSupportTicketId", result.ticket.id)
+                if (data.ticket) {
+                    setActiveTicket(data.ticket)
+                }
+            } else {
+                throw new Error("Invalid AI response")
             }
-            setChatOpen(true)
-            setSubject("")
-            setMessage("")
+        } catch (e) {
+            // Fallback response
+            const botMsg: ChatMessage = {
+                id: (Date.now() + 1).toString(),
+                sender: "bot",
+                text: "I couldn't quite process that. Would you like me to connect you directly with human support?",
+                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                showEscalationOption: true,
+            }
+            setMessages((prev) => [...prev, botMsg])
+        } finally {
+            setIsTyping(false)
         }
     }
 
-    if (!isAuthenticated && typeof window !== 'undefined' && window.location.pathname.includes('/auth')) {
+    const handleEscalateToHuman = async () => {
+        if (!isAuthenticated) {
+            toast({ title: "Sign In Required", description: "Please sign in to start a live support ticket.", variant: "destructive" })
+            return
+        }
+
+        setIsEscalating(true)
+        try {
+            const lastMsg = [...messages].reverse().find((m) => m.sender === "user")
+            const subject = lastMsg ? lastMsg.text.slice(0, 45) : "General Inquiry"
+            const body = messages.map((m) => `${m.sender.toUpperCase()}: ${m.text}`).join("\n")
+
+            const result = await createSupportTicket(subject, body, "medium")
+            if (result?.ticket) {
+                setActiveTicket(result.ticket)
+                const botMsg: ChatMessage = {
+                    id: Date.now().toString(),
+                    sender: "bot",
+                    text: `✅ Connected! Ticket #${result.ticket.id.substring(0, 8)} created. Customer support will reply shortly.`,
+                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                }
+                setMessages((prev) => [...prev, botMsg])
+            }
+        } catch (e: any) {
+            toast({ title: "Escalation Failed", description: e.message, variant: "destructive" })
+        } finally {
+            setIsEscalating(false)
+        }
+    }
+
+    if (!isAuthenticated && typeof window !== "undefined" && window.location.pathname.includes("/auth")) {
         return null
     }
 
     return (
         <>
-            {/* HIDDEN ON MOBILE: Use hidden md:block or hidden md:flex */}
-            <div className="hidden md:block fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-1000">
-                <Button
-                    size="lg"
-                    className="h-14 w-14 rounded-full shadow-2xl bg-indigo-600 hover:bg-indigo-700 text-white p-0 relative group"
-                    onClick={handleFabClick}
+            {/* FAB Trigger Matching Image 1 */}
+            <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative group transition-transform hover:scale-105 active:scale-95 focus:outline-none"
                 >
-                    {activeTicket ? (
-                        <>
-                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                            <MessageCircle className="h-6 w-6" />
-                        </>
-                    ) : (
-                        <Headphones className="h-6 w-6 text-white" />
-                    )}
-
-                    <span className="absolute right-full mr-4 bg-white text-stone-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        {activeTicket ? "Resume Chat" : "Need Help?"}
-                    </span>
-                </Button>
+                    <div className="h-16 w-16 rounded-full border-2 border-white bg-white shadow-2xl relative overflow-hidden flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={AISHA_AVATAR} alt="Aisha AI Agent" className="h-full w-full object-cover rounded-full" />
+                        {/* Red Notification Badge '1' matching Image 1 */}
+                        <span className="absolute -top-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 border-2 border-white text-[11px] font-black text-white shadow">
+                            1
+                        </span>
+                    </div>
+                </button>
             </div>
 
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Contact Support</DialogTitle>
-                        <DialogDescription>
-                            How can we help you today? Start a chat with us.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        {!isAuthenticated && (
-                            <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="guest-name">Name</Label>
-                                    <Input
-                                        id="guest-name"
-                                        placeholder="Your Name"
-                                        value={guestName}
-                                        onChange={(e) => setGuestName(e.target.value)}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="guest-email">Email</Label>
-                                    <Input
-                                        id="guest-email"
-                                        type="email"
-                                        placeholder="your@email.com"
-                                        value={guestEmail}
-                                        onChange={(e) => setGuestEmail(e.target.value)}
-                                    />
-                                </div>
-                            </>
-                        )}
-                        <div className="grid gap-2">
-                            <Label htmlFor="fab-subject">Subject/Topic</Label>
-                            <Input
-                                id="fab-subject"
-                                placeholder="e.g. Order Issue"
-                                value={subject}
-                                onChange={(e) => setSubject(e.target.value)}
-                            />
+            {/* Chat Drawer / Popup Window Matching Image 2 */}
+            {isOpen && (
+                <div className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-8rem)] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                    {/* Header Banner matching Image 2 */}
+                    <div className="bg-[#e6d7b8] px-4 pt-4 pb-6 flex flex-col items-center relative text-stone-900 border-b border-amber-200/60 shadow-sm">
+                        <div className="w-full flex justify-between items-center absolute top-3 px-4">
+                            <button onClick={() => setIsOpen(false)} className="p-1 text-stone-700 hover:text-stone-900 transition-colors">
+                                <Minus className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => setIsOpen(false)} className="p-1 text-stone-700 hover:text-stone-900 transition-colors">
+                                <X className="h-4 w-4" />
+                            </button>
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="fab-priority">Priority</Label>
-                            <Select value={priority} onValueChange={setPriority}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select priority" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="low">Low - General Inquiry</SelectItem>
-                                    <SelectItem value="medium">Medium - Product Issue</SelectItem>
-                                    <SelectItem value="high">High - Payment/Order</SelectItem>
-                                    <SelectItem value="urgent">Urgent - Security/Account</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="fab-message">Message</Label>
-                            <Textarea
-                                id="fab-message"
-                                placeholder="Describe your issue..."
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                rows={3}
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="ghost" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleCreateTicket} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700">
-                            {loading ? "Starting..." : "Start Chat"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
-            {/* Actual Chat Dialog */}
+                        <div className="relative mt-2">
+                            <div className="h-20 w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={AISHA_AVATAR} alt="Aisha Avatar" className="h-full w-full object-cover" />
+                            </div>
+                            <span className="absolute bottom-1 right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+                        </div>
+
+                        <h3 className="font-bold text-base mt-2 text-stone-900">Hello, I'm Aisha</h3>
+                        <p className="text-xs font-medium text-stone-700 mt-0.5">TOLATOLA Digital Agent</p>
+                    </div>
+
+                    {/* Messages Body */}
+                    <div className="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
+                        {messages.map((msg) => (
+                            <div
+                                key={msg.id}
+                                className={`flex gap-2 max-w-[85%] ${msg.sender === "user" ? "ml-auto flex-row-reverse" : "mr-auto"}`}
+                            >
+                                {msg.sender !== "user" && (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={AISHA_AVATAR} alt="Aisha" className="h-7 w-7 rounded-full object-cover border border-slate-200 mt-1" />
+                                )}
+                                <div
+                                    className={`p-3.5 rounded-2xl space-y-1 ${
+                                        msg.sender === "user"
+                                            ? "bg-blue-600 text-white rounded-tr-none"
+                                            : "bg-white text-slate-900 border border-slate-200/80 shadow-sm rounded-tl-none"
+                                    }`}
+                                >
+                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                    <span className={`text-[10px] block ${msg.sender === "user" ? "text-blue-100 text-right" : "text-slate-400"}`}>
+                                        {msg.timestamp}
+                                    </span>
+
+                                    {msg.showEscalationOption && !activeTicket && (
+                                        <Button
+                                            size="sm"
+                                            onClick={handleEscalateToHuman}
+                                            disabled={isEscalating}
+                                            className="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold gap-2 rounded-xl py-2"
+                                        >
+                                            <Headphones className="h-3.5 w-3.5" />
+                                            {isEscalating ? "Connecting..." : "Connect to Human Support"}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        {isTyping && (
+                            <div className="flex gap-2 items-center text-slate-400 text-xs italic">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={AISHA_AVATAR} alt="Aisha" className="h-6 w-6 rounded-full object-cover" />
+                                Aisha is typing...
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Footer Input Bar */}
+                    <div className="p-3 bg-white border-t border-slate-200 flex flex-col items-center">
+                        <div className="w-full flex items-center bg-slate-100 border border-slate-300 rounded-full px-3 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                            <input
+                                type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                                placeholder="Type your message"
+                                className="flex-1 bg-transparent text-sm text-slate-900 border-none outline-none px-2 py-1.5"
+                            />
+                            <button
+                                onClick={() => handleSendMessage()}
+                                disabled={!inputText.trim()}
+                                className="h-8 w-8 rounded-full bg-slate-400 disabled:opacity-40 hover:bg-blue-600 text-white flex items-center justify-center transition-colors"
+                            >
+                                <Send className="h-3.5 w-3.5 ml-0.5" />
+                            </button>
+                        </div>
+                        <span className="text-[10px] text-slate-400 mt-1 font-medium">asksuite · TOLATOLA AI Agent</span>
+                    </div>
+                </div>
+            )}
+
+            {/* Active Ticket Live Chat Dialog */}
             {activeTicket && (
                 <ChatDialog
                     open={chatOpen}
                     onOpenChange={setChatOpen}
                     conversationId={activeTicket.conversation_id}
                     shopName="Customer Support"
-                    productName={`Ticket #${activeTicket.id.substring(0, 8)}: ${activeTicket.subject}`}
+                    productName={`Ticket #${activeTicket.id.substring(0, 8)}`}
                 />
             )}
         </>
