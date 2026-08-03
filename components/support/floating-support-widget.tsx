@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Send, Minus, X, Headphones, RefreshCw, LogOut, MessageCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { createSupportTicket } from "@/app/actions/support"
 import { sendMessage as sendLiveMessage } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 
@@ -296,43 +295,91 @@ export function FloatingSupportWidget() {
     const handleEscalateToHuman = async () => {
         resetActivityTimer()
 
-        if (!isAuthenticated) {
+        if (!isAuthenticated || !userToken) {
             toast({ title: "Sign In Required", description: "Please sign in to connect with our human support team.", variant: "destructive" })
             return
         }
 
         setIsEscalating(true)
+
+        // Step 1: Show "Connecting..." message immediately
+        const connectingMsg: ChatMessage = {
+            id: `connecting-${Date.now()}`,
+            sender: "bot",
+            text: "🔄 Connecting you to an available support agent... Please wait.",
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        }
+        setMessages((prev) => [...prev, connectingMsg])
+
         try {
             const lastMsg = [...messages].reverse().find((m) => m.sender === "user")
             const subject = lastMsg ? lastMsg.text.slice(0, 45) : "General Inquiry"
             const body = messages.map((m) => `${m.sender.toUpperCase()}: ${m.text}`).join("\n")
 
-            const result = await createSupportTicket(subject, body, "medium")
+            // Step 2: Call backend API directly (not server action)
+            const base = (process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co").replace(/\/$/, "")
+            const endpoints = [
+                `${base}/api/support/tickets`,
+                `${base}/support/tickets`,
+            ]
 
-            if (result?.error) {
-                toast({ title: "Connection Failed", description: result.error, variant: "destructive" })
-                return
+            let result: any = null
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${userToken}`,
+                        },
+                        body: JSON.stringify({ subject, message: body, priority: "medium" }),
+                    })
+                    if (res.ok) {
+                        result = await res.json()
+                        break
+                    }
+                } catch {
+                    // Try next endpoint
+                }
             }
 
-            if (result?.ticket) {
-                // Store the conversation_id from the result (not from ticket, which may be stale)
-                const convId = result.conversation?.id || result.ticket.conversation_id
-                setActiveTicket({ ...result.ticket, conversation_id: convId })
+            if (!result || (!result.ticket && !result.id)) {
+                throw new Error("Could not create support ticket. Please try again.")
+            }
 
-                if (convId) {
-                    setLiveConversationId(convId)
-                }
+            // Normalize: the API may return { ticket, conversation } or the ticket directly
+            const ticket = result.ticket || result
+            const convId = result.conversation?.id || ticket.conversation_id
 
-                const botMsg: ChatMessage = {
-                    id: Date.now().toString(),
+            setActiveTicket({ ...ticket, conversation_id: convId })
+            if (convId) {
+                setLiveConversationId(convId)
+            }
+
+            // Step 3: Replace connecting message with connected message
+            setMessages((prev) => {
+                const filtered = prev.filter((m) => m.id !== connectingMsg.id)
+                const connectedMsg: ChatMessage = {
+                    id: `connected-${Date.now()}`,
                     sender: "bot",
-                    text: `✅ You are now connected to Tola Human Support!\n\nTicket #${result.ticket.id.substring(0, 8)} has been created. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
+                    text: `✅ Connected to Tola Human Support!\n\nTicket #${ticket.id.substring(0, 8)} has been created and assigned to our support team. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
                     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                 }
-                setMessages((prev) => [...prev, botMsg])
-            }
+                return [...filtered, connectedMsg]
+            })
         } catch (e: any) {
-            toast({ title: "Connection Failed", description: e.message || "Failed to connect to human support", variant: "destructive" })
+            // Replace connecting message with error
+            setMessages((prev) => {
+                const filtered = prev.filter((m) => m.id !== connectingMsg.id)
+                const errorMsg: ChatMessage = {
+                    id: `error-${Date.now()}`,
+                    sender: "bot",
+                    text: `❌ Failed to connect to human support: ${e.message || "Unknown error"}. Please try again.`,
+                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                    showEscalationOption: true,
+                }
+                return [...filtered, errorMsg]
+            })
         } finally {
             setIsEscalating(false)
             resetActivityTimer()
