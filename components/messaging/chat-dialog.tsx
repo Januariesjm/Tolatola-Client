@@ -285,8 +285,22 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
                 disabled={sending || uploading}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSendMessage(e)
+                  }
+                }}
               />
-              <Button type="submit" size="icon" disabled={sending || uploading || !newMessage.trim()}>
+              <Button
+                type="button"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleSendMessage(e)
+                }}
+                disabled={sending || uploading || !newMessage.trim()}
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>

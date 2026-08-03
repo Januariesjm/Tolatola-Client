@@ -205,9 +205,17 @@ export async function sendMessage(
   attachmentType?: string,
   senderType: string = "user"
 ) {
-  let supabase: any = await createClient()
+  // Always get user from standard client
+  const standardClient = await createClient()
+  const {
+    data: { user },
+  } = await standardClient.auth.getUser()
 
-  // 1. Determine conversation type to see if we should use admin client
+  if (senderType === "user" && !user) {
+    return { error: "Not authenticated" }
+  }
+
+  // 1. Determine conversation type to see if we should use admin client for RLS bypass
   let isSupportConv = false
   let customerId: string | null = null
   try {
@@ -225,16 +233,9 @@ export async function sendMessage(
     console.error("[Messaging] Error checking conversation type:", e)
   }
 
+  let dbClient: any = standardClient
   if (senderType === "guest" || isSupportConv) {
-    supabase = await createAdminClient()
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (senderType === "user" && !user) {
-    return { error: "Not authenticated" }
+    dbClient = await createAdminClient()
   }
 
   // Determine computed sender type
@@ -261,7 +262,7 @@ export async function sendMessage(
   }
 
   // @ts-ignore
-  const { data, error } = await (supabase as any)
+  const { data, error } = await (dbClient as any)
     .from("messages")
     .insert(payload)
     .select()

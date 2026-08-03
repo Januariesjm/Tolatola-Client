@@ -110,11 +110,11 @@ export function FloatingSupportWidget() {
                 },
                 (payload: any) => {
                     const newMsg = payload.new
-                    // Only show messages from the admin/support agent (not from the current user)
-                    if (newMsg && newMsg.sender_id !== currentUserId) {
+                    // Only show messages from the admin/support agent or chatbot (not from the current user)
+                    if (newMsg && (newMsg.sender_type === "agent" || newMsg.sender_type === "bot")) {
                         const agentMsg: ChatMessage = {
                             id: `live-${newMsg.id}`,
-                            sender: "agent",
+                            sender: newMsg.sender_type === "bot" ? "bot" : "agent",
                             text: newMsg.message || "[Attachment]",
                             timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                         }
