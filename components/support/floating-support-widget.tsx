@@ -234,16 +234,34 @@ export function FloatingSupportWidget() {
 
         try {
             const chatHistory = messages.map((m) => ({ sender: m.sender, text: m.text }))
-            const res = await fetch(`${API_BASE_URL}/support/ai-chat`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
-                },
-                body: JSON.stringify({ message: text, history: chatHistory }),
-            })
+            const base = (process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co").replace(/\/$/, "")
+            const endpoints = [
+                `${base}/api/support/ai-chat`,
+                `${base}/support/ai-chat`,
+                "https://api.tolatola.co/api/support/ai-chat",
+                "https://api.tolatola.co/support/ai-chat",
+            ]
 
-            const data = await res.json()
+            let data: any = null
+            for (const url of endpoints) {
+                try {
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
+                        },
+                        body: JSON.stringify({ message: text, history: chatHistory }),
+                    })
+                    if (res.ok) {
+                        data = await res.json()
+                        break
+                    }
+                } catch (err) {
+                    // Try next endpoint
+                }
+            }
+
             if (data?.response) {
                 const botMsg: ChatMessage = {
                     id: (Date.now() + 1).toString(),
