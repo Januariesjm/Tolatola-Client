@@ -152,8 +152,8 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
         variant: "destructive",
       })
     } else if (result.url) {
-      // Send message with attachment
-      const sendResult = await sendMessage(conversationId, "", result.url, result.type)
+      // Send message with attachment as agent
+      const sendResult = await sendMessage(conversationId, "", result.url, result.type, "agent")
       if (sendResult.error) {
         toast({
           title: "Error",
@@ -185,7 +185,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
     if (!newMessage.trim()) return
 
     setSending(true)
-    const result = await sendMessage(conversationId, newMessage.trim())
+    const result = await sendMessage(conversationId, newMessage.trim(), undefined, undefined, "agent")
 
     if (result.error) {
       toast({

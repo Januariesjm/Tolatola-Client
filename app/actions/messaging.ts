@@ -205,12 +205,17 @@ export async function sendMessage(
   attachmentType?: string,
   senderType: string = "user"
 ) {
-  // Always get user from standard client
-  const standardClient = await createClient()
-  const {
-    data: { user },
-  } = await standardClient.auth.getUser()
+  // Always get user from standard client if available
+  let user: any = null
+  try {
+    const standardClient = await createClient()
+    const { data } = await standardClient.auth.getUser()
+    user = data?.user || null
+  } catch (e) {
+    console.log("[Messaging] Standard client auth user fetch failed/skipped:", e)
+  }
 
+  // If explicit user sender and no user found
   if (senderType === "user" && !user) {
     return { error: "Not authenticated" }
   }
@@ -233,17 +238,22 @@ export async function sendMessage(
     console.error("[Messaging] Error checking conversation type:", e)
   }
 
-  let dbClient: any = standardClient
-  if (senderType === "guest" || isSupportConv) {
+  let dbClient: any
+  if (senderType === "guest" || senderType === "agent" || isSupportConv) {
     dbClient = await createAdminClient()
+  } else {
+    dbClient = await createClient()
   }
 
   // Determine computed sender type
   let computedSenderType = senderType
-  if (isSupportConv && user) {
-    // If the logged in user is NOT the customer of this support conversation, they are an agent
-    if (customerId && user.id !== customerId) {
+  if (isSupportConv) {
+    if (senderType === "agent") {
       computedSenderType = "agent"
+    } else if (user && customerId && user.id !== customerId) {
+      computedSenderType = "agent"
+    } else if (senderType === "guest") {
+      computedSenderType = "guest"
     } else {
       computedSenderType = "user"
     }
@@ -254,7 +264,7 @@ export async function sendMessage(
     message,
     attachment_url: attachmentUrl,
     attachment_type: attachmentType,
-    sender_type: computedSenderType
+    sender_type: computedSenderType,
   }
 
   if (user) {
