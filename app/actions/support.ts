@@ -98,3 +98,82 @@ export async function getSupportTicketDetails(ticketId: string) {
 
     return { ticket }
 }
+
+export async function deleteAllResolvedTickets() {
+    try {
+        const { createAdminClient } = await import("@/lib/supabase/server")
+        const adminSupabase = await createAdminClient()
+
+        // Fetch all resolved, completed, or closed support tickets
+        const { data: resolvedTickets, error: fetchError } = await (adminSupabase as any)
+            .from("support_tickets")
+            .select("id, conversation_id")
+            .in("status", ["resolved", "completed", "closed"])
+
+        if (fetchError) {
+            console.error("[deleteAllResolvedTickets] Fetch error:", fetchError)
+            return { error: fetchError.message }
+        }
+
+        if (!resolvedTickets || resolvedTickets.length === 0) {
+            return { success: true, count: 0, message: "No resolved or completed tickets to delete." }
+        }
+
+        const ticketIds = resolvedTickets.map((t: any) => t.id)
+        const convIds = resolvedTickets.map((t: any) => t.conversation_id).filter(Boolean)
+
+        // 1. Delete messages linked to these conversations
+        if (convIds.length > 0) {
+            await (adminSupabase as any)
+                .from("messages")
+                .delete()
+                .in("conversation_id", convIds)
+
+            // 2. Delete conversations
+            await (adminSupabase as any)
+                .from("conversations")
+                .delete()
+                .in("id", convIds)
+        }
+
+        // 3. Delete tickets
+        const { error: deleteError } = await (adminSupabase as any)
+            .from("support_tickets")
+            .delete()
+            .in("id", ticketIds)
+
+        if (deleteError) {
+            console.error("[deleteAllResolvedTickets] Delete error:", deleteError)
+            return { error: deleteError.message }
+        }
+
+        return { success: true, count: ticketIds.length }
+    } catch (err: any) {
+        console.error("[deleteAllResolvedTickets] Exception:", err)
+        return { error: err.message }
+    }
+}
+
+export async function deleteTicketPermanently(ticketId: string) {
+    try {
+        const { createAdminClient } = await import("@/lib/supabase/server")
+        const adminSupabase = await createAdminClient()
+
+        const { data: ticket } = await (adminSupabase as any)
+            .from("support_tickets")
+            .select("id, conversation_id")
+            .eq("id", ticketId)
+            .single()
+
+        if (ticket?.conversation_id) {
+            await (adminSupabase as any).from("messages").delete().eq("conversation_id", ticket.conversation_id)
+            await (adminSupabase as any).from("conversations").delete().eq("id", ticket.conversation_id)
+        }
+
+        const { error } = await (adminSupabase as any).from("support_tickets").delete().eq("id", ticketId)
+        if (error) return { error: error.message }
+        return { success: true }
+    } catch (err: any) {
+        return { error: err.message }
+    }
+}

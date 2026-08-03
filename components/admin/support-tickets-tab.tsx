@@ -5,10 +5,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { CheckCircle, MessageSquare, Search, Sparkles, Clock, AlertCircle, User, MessageCircle } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { CheckCircle, MessageSquare, Search, Sparkles, Clock, AlertCircle, User, MessageCircle, Trash2, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { ChatDialog } from "@/components/messaging/chat-dialog"
+import { deleteAllResolvedTickets, deleteTicketPermanently } from "@/app/actions/support"
+import { toast } from "@/hooks/use-toast"
 
 interface SupportTicketsTabProps {
   tickets: any[]
@@ -22,6 +35,9 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [ticketMessageCounts, setTicketMessageCounts] = useState<Record<string, number>>({})
   const [unreadCount, setUnreadCount] = useState<Record<string, boolean>>({})
+  const [deletingAllResolved, setDeletingAllResolved] = useState(false)
+  const [deletingTicketId, setDeletingTicketId] = useState<string | null>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const supabase = createClient()
 
@@ -96,7 +112,68 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
 
   const handleResolve = async (ticketId: string) => {
     await supabase.from("support_tickets").update({ status: "resolved" }).eq("id", ticketId)
+    toast({
+      title: "Ticket Resolved",
+      description: "Support ticket marked as resolved successfully.",
+    })
     router.refresh()
+  }
+
+  const handleDeleteAllResolved = async () => {
+    setDeletingAllResolved(true)
+    try {
+      const res = await deleteAllResolvedTickets()
+      if (res.error) {
+        toast({
+          title: "Delete Failed",
+          description: res.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Resolved Tickets Deleted",
+          description: `Successfully deleted ${res.count || 0} resolved tickets permanently.`,
+        })
+        router.refresh()
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to delete resolved tickets",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingAllResolved(false)
+      setDeleteConfirmOpen(false)
+    }
+  }
+
+  const handleDeleteSingleTicket = async (ticketId: string) => {
+    setDeletingTicketId(ticketId)
+    try {
+      const res = await deleteTicketPermanently(ticketId)
+      if (res.error) {
+        toast({
+          title: "Delete Failed",
+          description: res.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Ticket Deleted",
+          description: "Ticket permanently removed.",
+        })
+        router.refresh()
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingTicketId(null)
+    }
   }
 
   const openChat = (ticket: any) => {
@@ -132,7 +209,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
 
   const openCount = tickets.filter((t) => t.status === "open").length
   const inProgressCount = tickets.filter((t) => t.status === "in_progress").length
-  const resolvedCount = tickets.filter((t) => t.status === "resolved").length
+  const resolvedCount = tickets.filter((t) => t.status === "resolved" || t.status === "completed" || t.status === "closed").length
 
   return (
     <div className="space-y-6">
@@ -142,11 +219,11 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold tracking-tight">Customer Support Dashboard</h2>
             <Badge className="bg-emerald-500 text-slate-950 font-semibold px-2 py-0.5">
-              Live Realtime
+              Super Admin
             </Badge>
           </div>
           <p className="text-sm text-slate-400 mt-1">
-            Manage customer inquiries, view message history, and reply in real time.
+            Manage customer inquiries, view message history, and permanently delete resolved tickets.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -154,6 +231,46 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
             <MessageCircle className="h-4 w-4 text-emerald-400" />
             <span>Total Tickets: <strong className="text-white">{tickets.length}</strong></span>
           </div>
+
+          {/* Delete All Resolved Button */}
+          {resolvedCount > 0 && (
+            <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold h-9 px-3.5 gap-1.5 shadow-sm">
+                  <Trash2 className="h-4 w-4" />
+                  Delete All Resolved ({resolvedCount})
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2 text-rose-600">
+                    <Trash2 className="h-5 w-5" /> Delete All Resolved Tickets?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action will <strong>permanently delete all {resolvedCount} resolved and completed tickets</strong> along with all associated chat messages and conversation records.
+                    <br /><br />
+                    <span className="text-rose-500 font-semibold">This action cannot be undone.</span>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deletingAllResolved}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAllResolved}
+                    disabled={deletingAllResolved}
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+                  >
+                    {deletingAllResolved ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Deleting...
+                      </>
+                    ) : (
+                      "Yes, Delete Permanently"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
 
@@ -213,6 +330,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
             const convId = ticket.conversation_id
             const msgCount = convId ? ticketMessageCounts[convId] || 0 : 0
             const hasNewUserMsg = convId ? unreadCount[convId] : false
+            const isResolved = ticket.status === "resolved" || ticket.status === "completed" || ticket.status === "closed"
 
             return (
               <Card
@@ -241,7 +359,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                       </div>
                       <CardDescription className="text-xs flex items-center gap-1.5 text-slate-500">
                         <User className="h-3.5 w-3.5 text-slate-400" />
-                        <span>From: <strong>{ticket.users?.full_name || ticket.users?.email || "Customer User"}</strong></span>
+                        <span>From: <strong>{ticket.users?.full_name || ticket.users?.email || ticket.guest_name || "Customer User"}</strong></span>
                       </CardDescription>
                     </div>
 
@@ -289,7 +407,8 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                         <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
                         Open Live Chat {msgCount > 0 && `(${msgCount})`}
                       </Button>
-                      {ticket.status !== "resolved" && (
+
+                      {!isResolved && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -300,6 +419,22 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                           Resolve
                         </Button>
                       )}
+
+                      {/* Individual Delete Button for Super Admin */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteSingleTicket(ticket.id)}
+                        disabled={deletingTicketId === ticket.id}
+                        className="text-xs h-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                        title="Delete ticket permanently"
+                      >
+                        {deletingTicketId === ticket.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -314,7 +449,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
           open={chatOpen}
           onOpenChange={setChatOpen}
           conversationId={selectedTicket.conversation_id}
-          shopName={selectedTicket.users?.full_name || "Customer User"}
+          shopName={selectedTicket.users?.full_name || selectedTicket.guest_name || "Customer User"}
           productName={`Ticket #${selectedTicket.id.substring(0, 8)}: ${selectedTicket.subject}`}
         />
       )}
