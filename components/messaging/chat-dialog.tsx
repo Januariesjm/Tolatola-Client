@@ -220,8 +220,8 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] w-[calc(100vw-32px)] h-[min(600px,calc(100vh-100px))] flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="px-6 py-4 border-b">
+        <DialogContent className="sm:max-w-[500px] w-[calc(100vw-32px)] h-[min(600px,calc(100vh-100px))] !flex !flex-col p-0 overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b shrink-0">
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle>{shopName}</DialogTitle>
@@ -240,7 +240,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 px-6" ref={scrollRef}>
+          <ScrollArea className="flex-1 min-h-0 px-6" ref={scrollRef}>
             <div className="space-y-4 py-4">
               {messages.map((msg) => {
                 if (!msg) return null
@@ -306,7 +306,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             </div>
           </ScrollArea>
 
-          <form onSubmit={handleSendMessage} className="border-t px-6 py-4">
+          <form onSubmit={handleSendMessage} className="border-t px-6 py-4 shrink-0">
             <div className="flex gap-2">
               <input
                 type="file"
