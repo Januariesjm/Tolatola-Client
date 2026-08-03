@@ -3,12 +3,13 @@
 import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
-import { Phone, Video, Send, Paperclip, ImageIcon, FileIcon, Loader2 } from "lucide-react"
+import { Phone, Video, Send, Paperclip, ImageIcon, FileIcon, Loader2, ArrowDown, Bot, User, Headset, CheckCheck } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { getConversationMessages, sendMessage, markMessagesAsRead, uploadChatFile } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
@@ -45,10 +46,27 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [callDialogOpen, setCallDialogOpen] = useState(false)
   const [callType, setCallType] = useState<"voice" | "video">("voice")
+  const [showScrollBottom, setShowScrollBottom] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const channelRef = useRef<any>(null)
   const supabase = createClient()
+
+  // Auto-scroll to the bottom of the message list
+  const scrollToBottom = (smooth = true) => {
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: smooth ? "smooth" : "auto" })
+      }
+      if (scrollRef.current) {
+        const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
+        if (scrollElement) {
+          scrollElement.scrollTop = scrollElement.scrollHeight
+        }
+      }
+    }, 60)
+  }
 
   const loadMessages = async () => {
     if (!conversationId) return
@@ -60,13 +78,13 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
     if (result.messages) {
       console.log(`[ChatDialog] Loaded ${result.messages.length} messages`)
       setMessages(result.messages)
+      scrollToBottom(false)
     }
   }
 
-  // Load messages
+  // Load messages & setup realtime listener
   useEffect(() => {
     if (open && conversationId) {
-      // Load messages initially
       console.log("[ChatDialog] Initializing for conversation:", conversationId)
       loadMessages()
       markMessagesAsRead(conversationId)
@@ -79,7 +97,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
         }
       })
 
-      // Subscribe to new messages
+      // Subscribe to new messages on conversation channel
       const channel = supabase
         .channel(`conversation:${conversationId}`)
         .on(
@@ -106,6 +124,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 if (prev.some((m) => m.id === newMsg.id)) return prev
                 return [...prev, newMsg]
               })
+              scrollToBottom()
             }
           }
         )
@@ -123,17 +142,10 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
     }
   }, [open, conversationId])
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages list updates
   useEffect(() => {
-    if (scrollRef.current) {
-      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight
-      } else {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-      }
-    }
-  }, [messages])
+    scrollToBottom()
+  }, [messages.length])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -174,6 +186,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
           if (prev.some((m) => m.id === sendResult.message.id)) return prev
           return [...prev, sendResult.message]
         })
+        scrollToBottom()
       }
     }
     setUploading(false)
@@ -208,6 +221,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
         if (prev.some((m) => m.id === result.message.id)) return prev
         return [...prev, result.message]
       })
+      scrollToBottom()
     }
     setSending(false)
   }
@@ -220,94 +234,152 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] w-[calc(100vw-32px)] h-[min(600px,calc(100vh-100px))] !flex !flex-col p-0 overflow-hidden">
-          <DialogHeader className="px-6 py-4 border-b shrink-0">
+        <DialogContent className="sm:max-w-[540px] w-[calc(100vw-32px)] h-[min(650px,calc(100vh-80px))] !flex !flex-col p-0 overflow-hidden shadow-2xl border-slate-800 rounded-xl">
+          {/* Header */}
+          <DialogHeader className="px-6 py-3.5 bg-slate-900 text-white dark:bg-slate-950 border-b border-slate-800 shrink-0">
             <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle>{shopName}</DialogTitle>
-                <DialogDescription className={productName ? "" : "sr-only"}>
-                  {productName || `Chatting with ${shopName}`}
-                </DialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="h-10 w-10 border border-emerald-500/40 shadow-sm">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback className="bg-emerald-600 text-white font-bold">
+                      {shopName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-900 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <DialogTitle className="text-base font-semibold text-white">{shopName}</DialogTitle>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] px-1.5 py-0.5">
+                      Live Support
+                    </Badge>
+                  </div>
+                  <DialogDescription className="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                    {productName || `Customer Support Live Chat`}
+                  </DialogDescription>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={() => handleCall("voice")}>
-                  <Phone className="h-5 w-5" />
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className="hidden sm:inline-flex text-[11px] text-slate-300 border-slate-700 bg-slate-800/80 mr-1">
+                  {messages.length} {messages.length === 1 ? "msg" : "msgs"}
+                </Badge>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => handleCall("voice")}>
+                  <Phone className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleCall("video")}>
-                  <Video className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => handleCall("video")}>
+                  <Video className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 min-h-0 px-6" ref={scrollRef}>
-            <div className="space-y-4 py-4">
-              {messages.map((msg) => {
-                if (!msg) return null
-                const isOwnMessage = msg.sender_id === currentUserId
-                const isBot = msg.sender_type === "bot"
-                const senderName = isBot 
-                  ? "Aisha (AI Agent)" 
-                  : isOwnMessage 
-                  ? "You (Agent)" 
-                  : msg.sender?.full_name || "User"
+          {/* Messages Area */}
+          <div className="relative flex-1 min-h-0 bg-slate-50/70 dark:bg-slate-900/60">
+            <ScrollArea className="h-full px-6" ref={scrollRef}>
+              <div className="space-y-4 py-4">
+                {messages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+                    <Headset className="h-10 w-10 mb-2 opacity-50 text-emerald-500" />
+                    <p className="text-sm font-medium">No messages yet</p>
+                    <p className="text-xs text-slate-400">Start typing below to reply to the user.</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    if (!msg) return null
+                    const isOwnMessage = msg.sender_id === currentUserId || msg.sender_type === "agent"
+                    const isBot = msg.sender_type === "bot"
+                    
+                    let senderName = "User"
+                    if (isBot) {
+                      senderName = "Aisha (AI Agent)"
+                    } else if (isOwnMessage) {
+                      senderName = "You (Support Agent)"
+                    } else if (msg.sender?.full_name) {
+                      senderName = msg.sender.full_name
+                    }
 
-                return (
-                  <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : ""}`}>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={isBot ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" : msg.sender?.profile_image_url || "/placeholder.svg"} />
-                      <AvatarFallback>{isBot ? "AI" : senderName.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className={`flex flex-col ${isOwnMessage ? "items-end" : ""}`}>
-                      <span className="text-[10px] font-bold text-muted-foreground mb-0.5 px-1">
-                        {senderName}
-                      </span>
-                      <div className={`rounded-lg px-4 py-2 max-w-[300px] ${
-                        isOwnMessage 
-                          ? "bg-primary text-primary-foreground" 
-                          : isBot 
-                          ? "bg-amber-50 text-amber-950 border border-amber-200/60" 
-                          : "bg-muted text-foreground"
-                        }`}>
-                        {msg.attachment_url && (
-                          <div className="mb-2">
-                            {msg.attachment_type?.startsWith("image/") ? (
-                              <img
-                                src={msg.attachment_url}
-                                alt="Attachment"
-                                className="rounded-md max-w-full h-auto cursor-pointer hover:opacity-90"
-                                onClick={() => window.open(msg.attachment_url, "_blank")}
-                              />
-                            ) : (
-                              <a
-                                href={msg.attachment_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 underline text-xs"
-                              >
-                                <FileIcon className="h-4 w-4" />
-                                View Attachment
-                              </a>
+                    return (
+                      <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}>
+                        <Avatar className="h-8 w-8 mt-1 shrink-0 border shadow-xs">
+                          <AvatarImage src={isBot ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" : msg.sender?.profile_image_url || "/placeholder.svg"} />
+                          <AvatarFallback className={isBot ? "bg-amber-500 text-white" : isOwnMessage ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-700 font-bold"}>
+                            {isBot ? <Bot className="h-4 w-4" /> : isOwnMessage ? <Headset className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className={`flex flex-col max-w-[78%] ${isOwnMessage ? "items-end" : "items-start"}`}>
+                          <div className="flex items-center gap-1.5 mb-1 px-0.5">
+                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                              {senderName}
+                            </span>
+                            {isBot && (
+                              <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[9px] px-1 py-0 h-4 border-amber-300/40">
+                                AI Assistant
+                              </Badge>
+                            )}
+                            {isOwnMessage && (
+                              <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] px-1 py-0 h-4 border-emerald-300/40">
+                                Support Agent
+                              </Badge>
                             )}
                           </div>
-                        )}
-                        {msg.message && <p className="text-sm">{msg.message}</p>}
-                      </div>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        {new Date(msg.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </ScrollArea>
 
-          <form onSubmit={handleSendMessage} className="border-t px-6 py-4 shrink-0">
-            <div className="flex gap-2">
+                          {/* Speech Bubble */}
+                          <div className={`rounded-2xl px-4 py-2.5 shadow-sm text-sm ${
+                            isOwnMessage 
+                              ? "bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-tr-xs" 
+                              : isBot 
+                              ? "bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-950 dark:text-amber-100 border border-amber-300/60 dark:border-amber-700/50 rounded-tl-xs" 
+                              : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/70 rounded-tl-xs"
+                            }`}>
+                            {msg.attachment_url && (
+                              <div className="mb-2">
+                                {msg.attachment_type?.startsWith("image/") ? (
+                                  <img
+                                    src={msg.attachment_url}
+                                    alt="Attachment"
+                                    className="rounded-lg max-w-full max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity border"
+                                    onClick={() => window.open(msg.attachment_url, "_blank")}
+                                  />
+                                ) : (
+                                  <a
+                                    href={msg.attachment_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 underline text-xs font-medium bg-slate-900/10 dark:bg-slate-100/10 p-2 rounded-md"
+                                  >
+                                    <FileIcon className="h-4 w-4 shrink-0" />
+                                    View File Attachment
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                            {msg.message && <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>}
+                          </div>
+
+                          <div className="flex items-center gap-1 mt-1 px-1 text-[10px] text-slate-400">
+                            <span>
+                              {new Date(msg.created_at).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                            {isOwnMessage && <CheckCheck className="h-3 w-3 text-emerald-500" />}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+                {/* Scroll Target */}
+                <div ref={messagesEndRef} className="h-1" />
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Form Input Footer */}
+          <form onSubmit={handleSendMessage} className="border-t border-slate-200 dark:border-slate-800 px-4 py-3 bg-white dark:bg-slate-950 shrink-0">
+            <div className="flex items-center gap-2">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -319,15 +391,18 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 type="button"
                 variant="ghost"
                 size="icon"
+                className="h-9 w-9 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white shrink-0"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={sending || uploading}
+                title="Attach file"
               >
                 {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
               </Button>
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message..."
+                placeholder="Type your message to reply..."
+                className="flex-1 bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus-visible:ring-emerald-500 text-sm h-10"
                 disabled={sending || uploading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -344,8 +419,9 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                   handleSendMessage(e)
                 }}
                 disabled={sending || uploading || !newMessage.trim()}
+                className="h-10 w-10 bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 shadow-sm"
               >
-                <Send className="h-4 w-4" />
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
           </form>
