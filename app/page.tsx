@@ -262,7 +262,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Strategic Ecosystem Partners */}
+        {/* Ecosystem Partners */}
         <PartnersSection />
 
         {/* Seller CTA - Compact */}

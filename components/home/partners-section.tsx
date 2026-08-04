@@ -43,7 +43,7 @@ export function PartnersSection() {
               <span>Ecosystem Partners</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-black tracking-tight text-stone-900">
-              Our Strategic <span className="text-primary italic">Partners</span>
+              Our <span className="text-primary italic">Partners</span>
             </h2>
           </div>
 
