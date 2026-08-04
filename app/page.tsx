@@ -233,26 +233,26 @@ export default async function HomePage() {
 
             <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {features.map((f, i) => (
-                <Card key={i} className="border border-stone-200/80 shadow-md hover:shadow-xl rounded-2xl p-5 bg-white group hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
-                  <div className="space-y-4">
-                    {/* Avatar Image Box */}
-                    <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-stone-900 border border-stone-200/60 shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
+                <Card key={i} className="border border-stone-200/80 shadow-md hover:shadow-xl rounded-2xl p-4 md:p-5 bg-white group hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                  <div className="space-y-3.5">
+                    {/* Compact Image Box */}
+                    <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-stone-900 border border-stone-200/60 shadow-inner group-hover:scale-[1.01] transition-transform duration-500">
                       <Image
                         src={f.image}
                         alt={f.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent" />
-                      <div className="absolute bottom-3 left-3">
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent" />
+                      <div className="absolute bottom-2.5 left-2.5">
                         <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full border backdrop-blur-md shadow-xs ${f.badgeColor}`}>
                           {f.badge}
                         </span>
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 pt-1">
-                      <h3 className="text-lg font-black text-stone-900 tracking-tight">{f.title}</h3>
+                    <div className="space-y-1 pt-0.5">
+                      <h3 className="text-base md:text-lg font-black text-stone-900 tracking-tight">{f.title}</h3>
                       <p className="text-stone-600 text-xs leading-relaxed font-medium">{f.desc}</p>
                     </div>
                   </div>
