@@ -7,13 +7,13 @@ import { createClient } from "@/lib/supabase/client"
 import { sendMessage as sendLiveMessage } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 
-const AISHA_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+const MOUREEN_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co"
 
 const INITIAL_WELCOME_MSG: ChatMessage = {
     id: "welcome-1",
     sender: "bot",
-    text: "Welcome to Tola! I'm Aisha, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
+    text: "Welcome to Tola! I'm Moureen Tyler, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
 }
 
@@ -210,7 +210,7 @@ export function FloatingSupportWidget() {
         const resMsg: ChatMessage = {
             id: `resumed-${Date.now()}`,
             sender: "bot",
-            text: "Great! Your chat session has been resumed. How else can Aisha help you today?",
+            text: "Great! Your chat session has been resumed. How else can Moureen Tyler help you today?",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
         }
         setMessages((prev) => [...prev, resMsg])
@@ -477,7 +477,7 @@ export function FloatingSupportWidget() {
                 >
                     <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full border-2 border-white bg-white shadow-2xl relative overflow-hidden flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={AISHA_AVATAR} alt="Aisha AI Agent" className="h-full w-full object-cover rounded-full" />
+                        <img src={MOUREEN_AVATAR} alt="Moureen Tyler AI Agent" className="h-full w-full object-cover rounded-full" />
                         <span className="absolute -top-1 -left-1 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-red-600 border-2 border-white text-[10px] sm:text-[11px] font-black text-white shadow">
                             1
                         </span>
@@ -531,12 +531,12 @@ export function FloatingSupportWidget() {
                         <div className="relative mt-1">
                             <div className="h-16 w-16 rounded-full border-3 border-white bg-white shadow-md overflow-hidden">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={AISHA_AVATAR} alt="Aisha Avatar" className="h-full w-full object-cover" />
+                                <img src={MOUREEN_AVATAR} alt="Moureen Tyler Avatar" className="h-full w-full object-cover" />
                             </div>
                             <span className="absolute bottom-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
                         </div>
 
-                        <h3 className="font-bold text-base mt-1.5 text-stone-900">Hello, I'm Aisha</h3>
+                        <h3 className="font-bold text-base mt-1.5 text-stone-900">Hello, I'm Moureen Tyler</h3>
                         <p className="text-[11px] font-semibold text-stone-700">TOLA Digital Agent</p>
                     </div>
 
@@ -568,8 +568,8 @@ export function FloatingSupportWidget() {
                                 {msg.sender !== "user" && (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
-                                        src={AISHA_AVATAR}
-                                        alt={msg.sender === "agent" ? "Support Agent" : "Aisha"}
+                                        src={MOUREEN_AVATAR}
+                                        alt={msg.sender === "agent" ? "Support Agent" : "Moureen Tyler"}
                                         className="h-7 w-7 rounded-full object-cover border border-slate-200 mt-1"
                                     />
                                 )}
@@ -646,8 +646,8 @@ export function FloatingSupportWidget() {
                         {isTyping && (
                             <div className="flex gap-2 items-center text-slate-400 text-xs italic">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={AISHA_AVATAR} alt="Aisha" className="h-6 w-6 rounded-full object-cover" />
-                                Aisha is typing...
+                                <img src={MOUREEN_AVATAR} alt="Moureen Tyler" className="h-6 w-6 rounded-full object-cover" />
+                                Moureen Tyler is typing...
                             </div>
                         )}
                         <div ref={messagesEndRef} />

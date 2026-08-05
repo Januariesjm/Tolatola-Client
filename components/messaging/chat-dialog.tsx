@@ -292,7 +292,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                     
                     let senderName = "User"
                     if (isBot) {
-                      senderName = "Aisha (AI Agent)"
+                      senderName = "Moureen Tyler (AI Agent)"
                     } else if (isOwnMessage) {
                       senderName = "You (Support Agent)"
                     } else if (msg.sender?.full_name) {
