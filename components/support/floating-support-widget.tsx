@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Send, Minus, X, Headphones, RefreshCw, LogOut, MessageCircle } from "lucide-react"
+import { Send, Minus, X, Headphones, RefreshCw, LogOut, MessageCircle, Paperclip, FileText, ExternalLink, Loader2, ImageIcon } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { sendMessage as sendLiveMessage } from "@/app/actions/messaging"
+import { sendMessage as sendLiveMessage, uploadChatFile } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
 
 const MOUREEN_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
@@ -13,7 +13,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co
 const INITIAL_WELCOME_MSG: ChatMessage = {
     id: "welcome-1",
     sender: "bot",
-    text: "Welcome to Tola! I'm Moureen Tyler, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics or type your question.",
+    text: "Welcome to Tola! I'm Moureen Tyler, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics, ask a question, or upload an image/PDF document.",
     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
 }
 
@@ -27,6 +27,19 @@ interface ChatMessage {
     timestamp: string
     showEscalationOption?: boolean
     showInactivityPrompt?: boolean
+    attachmentUrl?: string
+    attachmentType?: string
+    attachmentName?: string
+}
+
+interface SelectedAttachment {
+    file: File
+    previewUrl: string
+    base64Data: string
+    mimeType: string
+    name: string
+    size: number
+    isPdf: boolean
 }
 
 export function FloatingSupportWidget() {
@@ -39,6 +52,11 @@ export function FloatingSupportWidget() {
     const [inputText, setInputText] = useState("")
     const [isTyping, setIsTyping] = useState(false)
     const [isEscalating, setIsEscalating] = useState(false)
+
+    // Attachment State
+    const [selectedAttachment, setSelectedAttachment] = useState<SelectedAttachment | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Inactivity Lifecycle State
     const lastActivityRef = useRef<number>(Date.now())
@@ -111,13 +129,14 @@ export function FloatingSupportWidget() {
                 },
                 (payload: any) => {
                     const newMsg = payload.new
-                    // Only show messages from the admin/support agent or chatbot (not from the current user)
                     if (newMsg && (newMsg.sender_type === "agent" || newMsg.sender_type === "bot")) {
                         const agentMsg: ChatMessage = {
                             id: `live-${newMsg.id}`,
                             sender: newMsg.sender_type === "bot" ? "bot" : "agent",
-                            text: newMsg.message || "[Attachment]",
+                            text: newMsg.message || (newMsg.attachment_url ? "[Attachment]" : ""),
                             timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                            attachmentUrl: newMsg.attachment_url,
+                            attachmentType: newMsg.attachment_type,
                         }
                         setMessages((prev) => {
                             if (prev.some(m => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
@@ -137,8 +156,10 @@ export function FloatingSupportWidget() {
                         const agentMsg: ChatMessage = {
                             id: `live-${newMsg.id}`,
                             sender: newMsg.sender_type === "bot" ? "bot" : "agent",
-                            text: newMsg.message || "[Attachment]",
+                            text: newMsg.message || (newMsg.attachment_url ? "[Attachment]" : ""),
                             timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+                            attachmentUrl: newMsg.attachment_url,
+                            attachmentType: newMsg.attachment_type,
                         }
                         setMessages((prev) => {
                             if (prev.some(m => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
@@ -203,7 +224,7 @@ export function FloatingSupportWidget() {
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }, [messages, isTyping, inactivityPromptActive])
+    }, [messages, isTyping, inactivityPromptActive, selectedAttachment])
 
     const handleContinueChatSession = () => {
         resetActivityTimer()
@@ -222,6 +243,7 @@ export function FloatingSupportWidget() {
         setLiveConversationId(null)
         setMessages([INITIAL_WELCOME_MSG])
         setInputText("")
+        setSelectedAttachment(null)
         setIsOpen(false)
 
         toast({
@@ -230,30 +252,102 @@ export function FloatingSupportWidget() {
         })
     }
 
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (file.size > 12 * 1024 * 1024) {
+            toast({
+                title: "File Too Large",
+                description: "Please select an image or PDF under 12MB.",
+                variant: "destructive",
+            })
+            return
+        }
+
+        const isPdf = file.type === "application/pdf" || file.name.endsWith(".pdf")
+        const isImage = file.type.startsWith("image/")
+
+        if (!isPdf && !isImage) {
+            toast({
+                title: "Unsupported File Format",
+                description: "Please upload a picture (JPG, PNG, WEBP, GIF) or a PDF document.",
+                variant: "destructive",
+            })
+            return
+        }
+
+        // Read file as Base64 data URL
+        const reader = new FileReader()
+        reader.onload = () => {
+            const dataUrl = reader.result as string
+            const base64Data = dataUrl.includes(";base64,") ? dataUrl.split(";base64,")[1] : dataUrl
+            setSelectedAttachment({
+                file,
+                previewUrl: dataUrl,
+                base64Data,
+                mimeType: file.type || (isPdf ? "application/pdf" : "image/jpeg"),
+                name: file.name,
+                size: file.size,
+                isPdf,
+            })
+        }
+        reader.readAsDataURL(file)
+
+        if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+
     const handleSendMessage = async (customText?: string) => {
         const text = (customText || inputText).trim()
-        if (!text) return
+        if (!text && !selectedAttachment) return
 
         resetActivityTimer()
 
+        let publicAttachmentUrl: string | undefined = selectedAttachment?.previewUrl
+        let attachmentType: string | undefined = selectedAttachment?.mimeType
+
+        // Try uploading to Supabase Storage if file is present
+        if (selectedAttachment?.file) {
+            setIsUploading(true)
+            try {
+                const formData = new FormData()
+                formData.append("file", selectedAttachment.file)
+                const uploadRes = await uploadChatFile(formData)
+                if (uploadRes.url) {
+                    publicAttachmentUrl = uploadRes.url
+                    attachmentType = uploadRes.type || selectedAttachment.mimeType
+                }
+            } catch (err) {
+                console.log("[Support Widget] File upload warning (using preview URL):", err)
+            } finally {
+                setIsUploading(false)
+            }
+        }
+
+        const userMsgText = text || (selectedAttachment ? `Attached document: ${selectedAttachment.name}` : "")
         const userMsg: ChatMessage = {
             id: Date.now().toString(),
             sender: "user",
-            text,
+            text: userMsgText,
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+            attachmentUrl: publicAttachmentUrl,
+            attachmentType: attachmentType,
+            attachmentName: selectedAttachment?.name,
         }
 
+        const currentAttachment = selectedAttachment
         setMessages((prev) => [...prev, userMsg])
         if (!customText) setInputText("")
+        setSelectedAttachment(null)
 
-        // If connected to live human support, also send the message to the conversation
+        // If connected to live human support, send message & attachment to live conversation
         if (liveConversationId) {
             try {
                 const result = await sendLiveMessage(
                     liveConversationId,
-                    text,
-                    undefined,
-                    undefined,
+                    userMsgText,
+                    publicAttachmentUrl,
+                    attachmentType,
                     userToken ? "user" : "guest"
                 )
                 if (result.message && channelRef.current) {
@@ -266,14 +360,18 @@ export function FloatingSupportWidget() {
             } catch (e) {
                 console.error("Error sending live message:", e)
             }
-            // Don't call AI — user is chatting with a human agent now
             return
         }
 
         setIsTyping(true)
 
         try {
-            const chatHistory = messages.map((m) => ({ sender: m.sender, text: m.text }))
+            const chatHistory = messages.map((m) => ({
+                sender: m.sender,
+                text: m.text,
+                attachmentUrl: m.attachmentUrl,
+                attachmentType: m.attachmentType,
+            }))
             const base = (process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co").replace(/\/$/, "")
             const endpoints = [
                 `${base}/api/support/ai-chat`,
@@ -281,6 +379,22 @@ export function FloatingSupportWidget() {
                 "https://api.tolatola.co/api/support/ai-chat",
                 "https://api.tolatola.co/support/ai-chat",
             ]
+
+            const requestBody: any = {
+                message: userMsgText,
+                history: chatHistory,
+                attachmentUrl: publicAttachmentUrl,
+                attachmentType: attachmentType,
+            }
+
+            if (currentAttachment) {
+                requestBody.attachment = {
+                    data: currentAttachment.base64Data,
+                    mimeType: currentAttachment.mimeType,
+                    filename: currentAttachment.name,
+                    url: publicAttachmentUrl,
+                }
+            }
 
             let data: any = null
             for (const url of endpoints) {
@@ -291,7 +405,7 @@ export function FloatingSupportWidget() {
                             "Content-Type": "application/json",
                             ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}),
                         },
-                        body: JSON.stringify({ message: text, history: chatHistory }),
+                        body: JSON.stringify(requestBody),
                     })
                     if (res.ok) {
                         data = await res.json()
@@ -328,7 +442,7 @@ export function FloatingSupportWidget() {
             const botMsg: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 sender: "bot",
-                text: "I couldn't quite process that. Would you like me to connect you directly with human support?",
+                text: "I couldn't quite process that attachment or message. Would you like me to connect you directly with human support?",
                 timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
                 showEscalationOption: true,
             }
@@ -404,7 +518,12 @@ export function FloatingSupportWidget() {
                             priority: "medium",
                             guestName: "Guest User",
                             guestEmail: "guest@tola.co",
-                            history: messages.map((m) => ({ sender: m.sender, text: m.text })),
+                            history: messages.map((m) => ({
+                                sender: m.sender,
+                                text: m.text,
+                                attachmentUrl: m.attachmentUrl,
+                                attachmentType: m.attachmentType,
+                            })),
                         }),
                     })
                     if (res.ok) {
@@ -495,7 +614,7 @@ export function FloatingSupportWidget() {
 
             {/* Support Chat Window Pane */}
             {isOpen && (
-                <div className="fixed bottom-4 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[460px] max-h-[calc(100vh-120px)] sm:h-[480px] sm:max-h-[calc(100vh-140px)] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="fixed bottom-4 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[380px] h-[480px] max-h-[calc(100vh-120px)] sm:h-[500px] sm:max-h-[calc(100vh-140px)] rounded-3xl bg-slate-50 shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
 
                     {/* Header Banner */}
                     <div className="bg-[#e6d7b8] px-4 pt-3 pb-4 flex flex-col items-center relative text-stone-900 border-b border-amber-200/60 shadow-sm">
@@ -588,6 +707,48 @@ export function FloatingSupportWidget() {
                                             Support Agent
                                         </span>
                                     )}
+
+                                    {/* Message Attachment Rendering */}
+                                    {msg.attachmentUrl && (
+                                        <div className="my-1">
+                                            {msg.attachmentType?.startsWith("image/") || (msg.attachmentUrl.startsWith("data:image/")) ? (
+                                                <div className="relative overflow-hidden rounded-xl border border-white/20 shadow-sm">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={msg.attachmentUrl}
+                                                        alt="User Attachment"
+                                                        className="max-h-48 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                                                        onClick={() => window.open(msg.attachmentUrl, "_blank")}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <a
+                                                    href={msg.attachmentUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`flex items-center gap-2.5 p-2.5 rounded-xl border transition-colors ${
+                                                        msg.sender === "user"
+                                                            ? "bg-blue-700/60 border-blue-500 text-white hover:bg-blue-700"
+                                                            : "bg-slate-100 dark:bg-slate-800 border-slate-200 text-slate-900 hover:bg-slate-200"
+                                                    }`}
+                                                >
+                                                    <div className="h-8 w-8 rounded-lg bg-red-500/20 text-red-600 flex items-center justify-center shrink-0">
+                                                        <FileText className="h-4 w-4" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="truncate text-xs font-bold">
+                                                            {msg.attachmentName || "PDF Document"}
+                                                        </p>
+                                                        <p className={`text-[10px] ${msg.sender === "user" ? "text-blue-200" : "text-slate-500"}`}>
+                                                            Click to view / download PDF
+                                                        </p>
+                                                    </div>
+                                                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                                                </a>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                                     <span className={`text-[10px] block ${
                                         msg.sender === "user" ? "text-blue-100 text-right"
@@ -654,25 +815,87 @@ export function FloatingSupportWidget() {
                     </div>
 
                     {/* Footer Input Bar */}
-                    <div className="p-3 bg-white border-t border-slate-200 flex flex-col items-center">
-                        <div className="w-full flex items-center bg-slate-100 border border-slate-300 rounded-full px-3 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                    <div className="p-2.5 bg-white border-t border-slate-200 flex flex-col items-center">
+                        
+                        {/* Selected Attachment Preview Bar */}
+                        {selectedAttachment && (
+                            <div className="w-full mb-2 p-2 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between gap-2 text-xs">
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    {selectedAttachment.isPdf ? (
+                                        <div className="h-8 w-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 font-bold text-[10px]">
+                                            PDF
+                                        </div>
+                                    ) : (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={selectedAttachment.previewUrl}
+                                            alt="Preview"
+                                            className="h-8 w-8 rounded-lg object-cover border border-slate-300 shrink-0"
+                                        />
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-bold text-slate-800 truncate text-xs">{selectedAttachment.name}</p>
+                                        <p className="text-[10px] text-slate-500">
+                                            {(selectedAttachment.size / (1024 * 1024)).toFixed(2)} MB · {selectedAttachment.isPdf ? "PDF Document" : "Picture"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedAttachment(null)}
+                                    className="h-6 w-6 rounded-full bg-slate-200 hover:bg-red-500 hover:text-white flex items-center justify-center text-slate-600 transition-colors"
+                                >
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="w-full flex items-center bg-slate-100 border border-slate-300 rounded-full px-2 py-1 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                            
+                            {/* Hidden file input */}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                accept="image/*,application/pdf"
+                                className="hidden"
+                            />
+
+                            {/* Paperclip Button */}
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading || isTyping}
+                                className="h-8 w-8 rounded-full text-slate-500 hover:text-blue-600 hover:bg-slate-200 flex items-center justify-center transition-colors shrink-0 disabled:opacity-50"
+                                title="Upload Picture or PDF"
+                            >
+                                <Paperclip className="h-4 w-4" />
+                            </button>
+
                             <input
                                 type="text"
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                                placeholder={liveConversationId ? "Type message to support agent..." : "Type your message"}
+                                placeholder={liveConversationId ? "Type message to support agent..." : selectedAttachment ? "Add a comment (optional)..." : "Type message or upload PDF/Picture"}
                                 className="flex-1 bg-transparent text-sm text-slate-900 border-none outline-none px-2 py-1.5"
                             />
+
+                            {/* Send Button */}
                             <button
                                 type="button"
                                 onClick={() => handleSendMessage()}
-                                disabled={!inputText.trim()}
-                                className="h-8 w-8 rounded-full bg-slate-400 disabled:opacity-40 hover:bg-blue-600 text-white flex items-center justify-center transition-colors"
+                                disabled={(!inputText.trim() && !selectedAttachment) || isUploading}
+                                className="h-8 w-8 rounded-full bg-blue-600 disabled:bg-slate-400 disabled:opacity-40 hover:bg-blue-700 text-white flex items-center justify-center transition-colors shrink-0"
                             >
-                                <Send className="h-3.5 w-3.5 ml-0.5" />
+                                {isUploading ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                    <Send className="h-3.5 w-3.5 ml-0.5" />
+                                )}
                             </button>
                         </div>
+
                         <span className="text-[10px] text-slate-400 mt-1 font-medium">
                             {liveConversationId ? "Live Support · TOLA" : "asksuite · TOLA AI Agent"}
                         </span>
