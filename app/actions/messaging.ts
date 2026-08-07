@@ -320,34 +320,43 @@ export async function uploadChatFile(formData: FormData) {
 }
 
 export async function getConversationMessages(conversationId: string) {
-  let supabase: any = await createClient()
+  try {
+    const adminClient = await createAdminClient()
 
-  // Find if this is a support conversation to determine if we need admin client
-  const { data: conv } = await (supabase as any)
-    .from("conversations")
-    .select("type")
-    .eq("id", conversationId)
-    .single()
+    // Find if this is a support conversation to determine if we need admin client
+    const { data: conv } = await (adminClient as any)
+      .from("conversations")
+      .select("type")
+      .eq("id", conversationId)
+      .single()
 
-  if (conv?.type === 'support') {
-    supabase = await createAdminClient()
+    let supabase: any
+    if (conv?.type === 'support') {
+      supabase = adminClient
+    } else {
+      supabase = await createClient()
+    }
+
+    // @ts-ignore
+    const { data, error } = await (supabase as any)
+      .from("messages")
+      .select(`
+        *,
+        sender:users!messages_sender_id_fkey(id, full_name, profile_image_url)
+      `)
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true })
+
+    if (error) {
+      console.error("[getConversationMessages] Error fetching messages:", error)
+      return { error: error.message }
+    }
+
+    return { messages: data }
+  } catch (err: any) {
+    console.error("[getConversationMessages] Exception:", err)
+    return { error: err.message || "Failed to fetch messages" }
   }
-
-  // @ts-ignore
-  const { data, error } = await (supabase as any)
-    .from("messages")
-    .select(`
-      *,
-      sender:users!messages_sender_id_fkey(id, full_name, profile_image_url)
-    `)
-    .eq("conversation_id", conversationId)
-    .order("created_at", { ascending: true })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { messages: data }
 }
 
 export async function getUserConversations() {
