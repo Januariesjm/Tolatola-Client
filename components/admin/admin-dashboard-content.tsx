@@ -139,11 +139,32 @@ export function AdminDashboardContent({
     router.push("/auth/login")
   }
 
-  const pendingTickets = tickets.filter((t) => t.status === "open")
   const roleName = (adminRole?.role?.role_name || "").toLowerCase()
   const isSuperAdmin = roleName.includes("super") || roleName.includes("owner") || roleName.includes("master")
   const showAdminManagement = isSuperAdmin || adminRole?.permissions?.includes("manage_admins")
   const canManageAgents = isSuperAdmin || adminRole?.permissions?.includes("manage_agents")
+
+  const getDepartmentForRole = (role: string): string => {
+    const r = role.toLowerCase()
+    if (r.includes("it ") || r === "it admin" || r.includes("technical")) return "it"
+    if (r.includes("finance")) return "finance"
+    if (r.includes("hr") || r.includes("human resource")) return "hr"
+    if (r.includes("vendor") || r.includes("manager")) return "vendor,logistics"
+    if (r.includes("marketing") || r.includes("support")) return "general"
+    return "general"
+  }
+
+  const userDepartment = isSuperAdmin ? undefined : getDepartmentForRole(roleName)
+
+  const pendingTickets = tickets.filter((t) => {
+    if (t.status !== "open") return false
+    if (isSuperAdmin) return true
+    if (userDepartment) {
+      const allowed = userDepartment.split(",").map((d) => d.trim())
+      return allowed.includes(t.department || "general")
+    }
+    return true
+  })
 
   // Filter out the meta-info added to promotions array if present
   const actualPromotions = promotions.filter(p => !p._adminUsers && !p.id?.includes('_'))
@@ -557,7 +578,7 @@ export function AdminDashboardContent({
                   </Button>
                 )}
 
-                {adminRole?.permissions.includes("manage_support") && (
+                {(adminRole?.permissions.includes("manage_support") || isSuperAdmin || Boolean(adminRole?.role)) && (
                   <Button
                     variant={activeTab === "support" ? "default" : "ghost"}
                     size="sm"
@@ -930,7 +951,7 @@ export function AdminDashboardContent({
                       Payouts ({payouts.filter(p => p.status === "pending").length})
                     </TabsTrigger>
                   )}
-                  {adminRole?.permissions.includes("manage_support") && (
+                  {(adminRole?.permissions.includes("manage_support") || isSuperAdmin || Boolean(adminRole?.role)) && (
                     <TabsTrigger value="support" className="px-5 rounded-full text-xs font-semibold">
                       Support ({pendingTickets.length})
                     </TabsTrigger>
@@ -1057,7 +1078,12 @@ export function AdminDashboardContent({
               </TabsContent>
 
               <TabsContent value="support" className="border-none p-0 outline-none">
-                <SupportTicketsTab tickets={tickets} />
+                <SupportTicketsTab
+                  tickets={tickets}
+                  department={userDepartment}
+                  roleName={adminRole?.role?.role_name || "Administrator"}
+                  isSuperAdmin={isSuperAdmin}
+                />
               </TabsContent>
 
               <TabsContent value="recovery" className="border-none p-0 outline-none">

@@ -25,13 +25,17 @@ import { toast } from "@/hooks/use-toast"
 
 interface SupportTicketsTabProps {
   tickets: any[]
+  department?: string
+  roleName?: string
+  isSuperAdmin?: boolean
 }
 
-export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
+export function SupportTicketsTab({ tickets, department, roleName = "Administrator", isSuperAdmin = false }: SupportTicketsTabProps) {
   const router = useRouter()
   const [chatOpen, setChatOpen] = useState(false)
   const [selectedTicket, setSelectedTicket] = useState<any>(null)
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [ticketMessageCounts, setTicketMessageCounts] = useState<Record<string, number>>({})
   const [unreadCount, setUnreadCount] = useState<Record<string, boolean>>({})
@@ -197,9 +201,37 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
     urgent: "bg-red-600 text-white shadow-sm",
   }
 
-  const filteredTickets = tickets.filter((ticket) => {
+  const departmentBadgeStyles: Record<string, { label: string; className: string }> = {
+    general: { label: "General Support", className: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
+    it: { label: "IT Support", className: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800" },
+    finance: { label: "Finance & Payouts", className: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800" },
+    hr: { label: "Human Resources", className: "bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800" },
+    vendor: { label: "Vendor Management", className: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800" },
+    logistics: { label: "Logistics & Delivery", className: "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800" },
+  }
+
+  // Filter tickets by department (if scoped to department or filtered by Super Admin)
+  const scopedTickets = tickets.filter((ticket) => {
+    const dept = ticket.department || "general"
+    if (isSuperAdmin) {
+      if (departmentFilter !== "all") {
+        if (departmentFilter === "vendor") {
+          return dept === "vendor" || dept === "logistics"
+        }
+        return dept === departmentFilter
+      }
+      return true
+    }
+    if (department) {
+      const allowedDepts = department.split(",").map((d) => d.trim())
+      return allowedDepts.includes(dept)
+    }
+    return true
+  })
+
+  const filteredTickets = scopedTickets.filter((ticket) => {
     const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
-    const name = ticket.users?.full_name || ticket.users?.email || ""
+    const name = ticket.users?.full_name || ticket.users?.email || ticket.guest_name || ""
     const matchesQuery =
       ticket.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -207,29 +239,33 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
     return matchesStatus && matchesQuery
   })
 
-  const openCount = tickets.filter((t) => t.status === "open").length
-  const inProgressCount = tickets.filter((t) => t.status === "in_progress").length
-  const resolvedCount = tickets.filter((t) => t.status === "resolved" || t.status === "completed" || t.status === "closed").length
+  const openCount = scopedTickets.filter((t) => t.status === "open").length
+  const inProgressCount = scopedTickets.filter((t) => t.status === "in_progress").length
+  const resolvedCount = scopedTickets.filter((t) => t.status === "resolved" || t.status === "completed" || t.status === "closed").length
 
   return (
     <div className="space-y-6">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold tracking-tight">Customer Support Dashboard</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-2xl font-bold tracking-tight">
+              {isSuperAdmin ? "Organization Support Dashboard" : `${roleName} Support Dashboard`}
+            </h2>
             <Badge className="bg-emerald-500 text-slate-950 font-semibold px-2 py-0.5">
-              Super Admin
+              {isSuperAdmin ? "Super Admin (All Departments)" : roleName}
             </Badge>
           </div>
           <p className="text-sm text-slate-400 mt-1">
-            Manage customer inquiries, view message history, and permanently delete resolved tickets.
+            {isSuperAdmin
+              ? "Comprehensive oversight of support queries across Marketing, IT, HR, Vendor, and Finance departments."
+              : `Manage support queries automatically routed to ${roleName}.`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-slate-800 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs flex items-center gap-2">
             <MessageCircle className="h-4 w-4 text-emerald-400" />
-            <span>Total Tickets: <strong className="text-white">{tickets.length}</strong></span>
+            <span>Total Tickets: <strong className="text-white">{scopedTickets.length}</strong></span>
           </div>
 
           {/* Delete All Resolved Button */}
@@ -274,12 +310,38 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
         </div>
       </div>
 
+      {/* Super Admin Department Filter Tabs */}
+      {isSuperAdmin && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
+          {[
+            { id: "all", label: "All Departments" },
+            { id: "general", label: "Marketing & General" },
+            { id: "it", label: "IT Admin" },
+            { id: "finance", label: "Finance Admin" },
+            { id: "hr", label: "HR Admin" },
+            { id: "vendor", label: "Vendor & Logistics" },
+          ].map((dept) => (
+            <button
+              key={dept.id}
+              onClick={() => setDepartmentFilter(dept.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                departmentFilter === dept.id
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+            >
+              {dept.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Search & Filter Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Status Filter Chips */}
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl w-full sm:w-auto">
           {[
-            { id: "all", label: "All Tickets", count: tickets.length },
+            { id: "all", label: "All Status", count: scopedTickets.length },
             { id: "open", label: "Open", count: openCount },
             { id: "in_progress", label: "In Progress", count: inProgressCount },
             { id: "resolved", label: "Resolved", count: resolvedCount },
@@ -331,6 +393,7 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
             const msgCount = convId ? ticketMessageCounts[convId] || 0 : 0
             const hasNewUserMsg = convId ? unreadCount[convId] : false
             const isResolved = ticket.status === "resolved" || ticket.status === "completed" || ticket.status === "closed"
+            const deptInfo = departmentBadgeStyles[ticket.department || "general"] || departmentBadgeStyles.general
 
             return (
               <Card
@@ -351,6 +414,9 @@ export function SupportTicketsTab({ tickets }: SupportTicketsTabProps) {
                         <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
                           {ticket.subject}
                         </CardTitle>
+                        <Badge variant="outline" className={`text-[11px] font-semibold ${deptInfo.className}`}>
+                          {deptInfo.label}
+                        </Badge>
                         {hasNewUserMsg && (
                           <Badge className="bg-emerald-500 text-white text-[10px] animate-pulse px-2 py-0.5">
                             New Reply Received
