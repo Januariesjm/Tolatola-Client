@@ -8,6 +8,11 @@ on:
     paths:
       - '**'
       - '.github/workflows/deploy-client.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
 
 env:
   PROJECT_ID: tolatola-prod
@@ -19,6 +24,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
