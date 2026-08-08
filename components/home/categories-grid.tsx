@@ -61,7 +61,7 @@ export function CategoriesGrid({ categories, categoryImages }: CategoriesGridPro
           href={`/shop?category=${cat.slug || cat.id}`}
           className="group flex flex-col items-center gap-2.5"
         >
-          <div className="relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl md:rounded-[22px] overflow-hidden bg-stone-50 border border-stone-200/80 group-hover:border-primary/50 group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-300 group-hover:scale-105">
+          <div className="relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-2xl md:rounded-[22px] overflow-hidden bg-stone-50 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 group-hover:border-primary/50 dark:group-hover:border-blue-400/50 group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-300 group-hover:scale-105">
             <Image
               src={getCategoryImage(cat)}
               alt={cat.name}
@@ -69,7 +69,7 @@ export function CategoriesGrid({ categories, categoryImages }: CategoriesGridPro
               className="object-cover"
             />
           </div>
-          <h3 className="text-xs md:text-sm font-bold text-stone-800 text-center leading-tight line-clamp-2 max-w-[96px] md:max-w-[112px]">
+          <h3 className="text-xs md:text-sm font-bold text-stone-800 dark:text-stone-200 group-hover:text-primary dark:group-hover:text-blue-400 text-center leading-tight line-clamp-2 max-w-[96px] md:max-w-[112px] transition-colors">
             {getCategoryTranslation(cat.slug, cat.name, t)}
           </h3>
         </Link>

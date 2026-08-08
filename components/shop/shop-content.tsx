@@ -145,13 +145,13 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
   const displayProducts = isImageSearchMode ? (imageSearchResults || []) : products
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-stone-950 transition-colors duration-300">
       <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
 
         {/* Image Search Loading State */}
         {isImageSearching && (
           <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 p-6 md:p-10">
+            <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-yellow-950/40 border border-amber-200/50 dark:border-amber-800/50 p-6 md:p-10">
               <div className="flex flex-col items-center justify-center space-y-5">
                 {/* Animated icon */}
                 <div className="relative">
@@ -165,17 +165,17 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
                 </div>
 
                 <div className="text-center space-y-2 max-w-md">
-                  <h2 className="text-lg md:text-xl font-black text-stone-900 tracking-tight flex items-center justify-center gap-2">
+                  <h2 className="text-lg md:text-xl font-black text-stone-900 dark:text-stone-100 tracking-tight flex items-center justify-center gap-2">
                     <Loader2 className="h-5 w-5 text-amber-500 animate-spin" />
                     AI is Analyzing Your Image...
                   </h2>
-                  <p className="text-sm font-medium text-stone-500 leading-relaxed">
+                  <p className="text-sm font-medium text-stone-500 dark:text-stone-400 leading-relaxed">
                     TOLATOLA AI is identifying product features, category, and visual details to find matching products for you.
                   </p>
                 </div>
 
                 {/* Animated progress bar */}
-                <div className="w-64 h-2 bg-stone-200/50 rounded-full overflow-hidden relative">
+                <div className="w-64 h-2 bg-stone-200/50 dark:bg-stone-800/50 rounded-full overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 rounded-full animate-[shimmer_2s_ease-in-out_infinite]"
                     style={{ backgroundSize: "200% 100%", animation: "shimmer 2s ease-in-out infinite" }}
                   />
@@ -185,12 +185,12 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
               {/* Loading skeleton grid */}
               <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-white/60 border border-stone-100 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
-                    <div className="aspect-square bg-stone-100" />
+                  <div key={i} className="rounded-2xl bg-white/60 dark:bg-stone-900/60 border border-stone-100 dark:border-stone-800 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
+                    <div className="aspect-square bg-stone-100 dark:bg-stone-800" />
                     <div className="p-3 space-y-2">
-                      <div className="h-3 bg-stone-100 rounded-full w-3/4" />
-                      <div className="h-3 bg-stone-100 rounded-full w-1/2" />
-                      <div className="h-4 bg-amber-100 rounded-full w-2/3" />
+                      <div className="h-3 bg-stone-100 dark:bg-stone-800 rounded-full w-3/4" />
+                      <div className="h-3 bg-stone-100 dark:bg-stone-800 rounded-full w-1/2" />
+                      <div className="h-4 bg-amber-100 dark:bg-amber-900/40 rounded-full w-2/3" />
                     </div>
                   </div>
                 ))}
@@ -202,7 +202,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         {/* Image Search Results Header */}
         {!isImageSearching && isImageSearchMode && (
           <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-400">
-            <div className="rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 p-4 md:p-6">
+            <div className="rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 p-4 md:p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/20">
@@ -211,35 +211,35 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <Sparkles className="h-4 w-4 text-amber-500" />
-                      <h2 className="text-base md:text-lg font-black text-stone-900 tracking-tight">
+                      <h2 className="text-base md:text-lg font-black text-stone-900 dark:text-stone-100 tracking-tight">
                         Image Search Results
                       </h2>
                     </div>
                     {imageAnalysis && (
-                      <p className="text-sm font-medium text-stone-600 leading-relaxed">
-                        AI identified: <span className="font-bold text-stone-800">{imageAnalysis}</span>
+                      <p className="text-sm font-medium text-stone-600 dark:text-stone-300 leading-relaxed">
+                        AI identified: <span className="font-bold text-stone-800 dark:text-stone-100">{imageAnalysis}</span>
                       </p>
                     )}
                     {imageSearchKeywords.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {imageSearchKeywords.slice(0, 6).map((keyword, i) => (
-                          <span key={i} className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                          <span key={i} className="text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-full">
                             {keyword}
                           </span>
                         ))}
                       </div>
                     )}
-                    <p className="text-xs text-stone-400 mt-2 font-semibold">
+                    <p className="text-xs text-stone-400 dark:text-stone-400 mt-2 font-semibold">
                       {displayProducts.length} {displayProducts.length === 1 ? "product" : "products"} found
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleClearImageSearch}
-                  className="flex-shrink-0 h-8 w-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors"
+                  className="flex-shrink-0 h-8 w-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center transition-colors"
                   title="Clear image search"
                 >
-                  <X className="h-4 w-4 text-stone-500" />
+                  <X className="h-4 w-4 text-stone-500 dark:text-stone-400" />
                 </button>
               </div>
             </div>
@@ -249,7 +249,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         {/* Search Results Header */}
         {!isImageSearchMode && searchQuery && (
           <div className="mb-4 md:mb-6">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
               {products.length} {products.length === 1 ? t("products.found") : t("products.found_plural")} "{searchQuery}"
             </h1>
           </div>
@@ -257,7 +257,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
 
         {/* Subcategories Filter Bar */}
         {!isImageSearchMode && subCategories.length > 0 && parentCategory && activeCategory && (
-          <div className="flex items-center gap-2 overflow-x-auto py-2 mb-6 border-b border-stone-100 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto py-2 mb-6 border-b border-stone-100 dark:border-stone-800 scrollbar-hide">
             <button
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString())
@@ -267,7 +267,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
               className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                 activeCategory.id === parentCategory.id
                   ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+                  : "bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-100 dark:border-stone-800"
               }`}
             >
               All {parentCategory.name}
@@ -283,7 +283,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   activeCategory.id === sub.id
                     ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-100"
+                    : "bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-100 dark:border-stone-800"
                 }`}
               >
                 {sub.name}

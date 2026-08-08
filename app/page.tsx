@@ -201,13 +201,13 @@ export default async function HomePage() {
         <section className="py-4 md:py-6 container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 md:mb-6 gap-2">
             <div className="space-y-0.5 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-1 text-primary font-bold uppercase tracking-wider text-[8px]">
+              <div className="flex items-center justify-center md:justify-start gap-1 text-primary dark:text-blue-400 font-bold uppercase tracking-wider text-[8px]">
                 <Sparkles className="h-2.5 w-2.5" />
                 <span>Selections for you</span>
               </div>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight">Shop by <span className="text-primary italic">Category</span></h2>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-stone-900 dark:text-white">Shop by <span className="text-primary dark:text-blue-400 italic">Category</span></h2>
             </div>
-            <Link href="/shop" className="group flex items-center justify-center gap-1 text-xs font-semibold hover:text-primary transition-colors">
+            <Link href="/shop" className="group flex items-center justify-center gap-1 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-blue-400 transition-colors">
               View Entire Catalog <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
