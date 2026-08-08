@@ -13,7 +13,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co
 const INITIAL_WELCOME_MSG: ChatMessage = {
     id: "welcome-1",
     sender: "bot",
-    text: "Welcome to Tola! I'm Moureen Tyler, your 24/7 digital agent to help you with whatever you may need! 😊 Choose one of the following topics, ask a question, or upload an image/PDF document.",
+    text: "Welcome to Tola! I'm Moureen Tyler, your 24/7 digital agent to help you with whatever you may need! 😊 Ask a question or upload an image/PDF document.",
     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
 }
 
