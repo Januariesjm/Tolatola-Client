@@ -290,7 +290,15 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
   }
 
   const parsedHistory = parseHistoryText(ticketDescription)
-  const displayMessages = messages.length > 0 ? messages : parsedHistory
+  const displayMessages = (() => {
+    if (parsedHistory.length === 0) return messages
+    if (messages.length === 0) return parsedHistory
+
+    const missingHistory = parsedHistory.filter(
+      (h) => !messages.some((m) => m.message.trim() === h.message.trim() || m.id === h.id)
+    )
+    return [...missingHistory, ...messages]
+  })()
 
   return (
     <>
