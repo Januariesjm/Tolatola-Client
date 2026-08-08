@@ -338,7 +338,7 @@ export async function getConversationMessages(conversationId: string) {
     }
 
     // @ts-ignore
-    const { data, error } = await (supabase as any)
+    let { data, error } = await (supabase as any)
       .from("messages")
       .select(`
         *,
@@ -346,6 +346,19 @@ export async function getConversationMessages(conversationId: string) {
       `)
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true })
+
+    if (error) {
+      console.warn("[getConversationMessages] Select with sender FK failed, falling back to simple select:", error)
+      const fallback = await (supabase as any)
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true })
+      if (!fallback.error) {
+        data = fallback.data
+        error = null
+      }
+    }
 
     if (error) {
       console.error("[getConversationMessages] Error fetching messages:", error)

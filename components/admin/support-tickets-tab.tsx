@@ -20,6 +20,7 @@ import { CheckCircle, MessageSquare, Search, Sparkles, Clock, AlertCircle, User,
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { ChatDialog } from "@/components/messaging/chat-dialog"
+import { getOrCreateConversation } from "@/app/actions/messaging"
 import { deleteAllResolvedTickets, deleteTicketPermanently } from "@/app/actions/support"
 import { toast } from "@/hooks/use-toast"
 
@@ -180,11 +181,23 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
     }
   }
 
-  const openChat = (ticket: any) => {
-    setSelectedTicket(ticket)
+  const openChat = async (ticket: any) => {
+    let activeConvId = ticket.conversation_id
+    if (!activeConvId) {
+      try {
+        const res = await getOrCreateConversation(undefined, undefined, undefined, undefined, ticket.id)
+        if (res.conversation) {
+          activeConvId = res.conversation.id
+          ticket.conversation_id = activeConvId
+        }
+      } catch (e) {
+        console.error("Failed to auto-link conversation for ticket:", e)
+      }
+    }
+    setSelectedTicket({ ...ticket, conversation_id: activeConvId })
     setChatOpen(true)
-    if (ticket.conversation_id) {
-      setUnreadCount((prev) => ({ ...prev, [ticket.conversation_id]: false }))
+    if (activeConvId) {
+      setUnreadCount((prev) => ({ ...prev, [activeConvId]: false }))
     }
   }
 
