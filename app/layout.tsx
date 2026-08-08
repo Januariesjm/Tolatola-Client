@@ -84,6 +84,7 @@ export const metadata: Metadata = {
 }
 
 import { AppShell } from "@/components/layout/app-shell"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export default function RootLayout({
   children,
@@ -100,10 +101,12 @@ export default function RootLayout({
 
       <body className="font-sans flex flex-col min-h-screen">
         <JsonLd />
-        <LanguageProvider>
-          <GlobalErrorLogger />
-          <AppShell>{children}</AppShell>
-        </LanguageProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <LanguageProvider>
+            <GlobalErrorLogger />
+            <AppShell>{children}</AppShell>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Facebook, Twitter, Instagram, Linkedin, ShieldCheck, CreditCard, Lock, Globe, ArrowRight, Mail, Phone, MapPin } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function SiteFooter() {
   const currentYear = new Date().getFullYear()
@@ -215,9 +216,12 @@ export function SiteFooter() {
               <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-cyan-300/60 text-center sm:text-left">
                 © {currentYear} TOLA Digital Trade and Supply Chain Ecosystem. Precision Engineered in Tanzania.
               </p>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-cyan-300/60">System Status: Operational</span>
+              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-cyan-300/60">System Status: Operational</span>
+                </div>
+                <ThemeToggle />
               </div>
             </div>
           </div>
