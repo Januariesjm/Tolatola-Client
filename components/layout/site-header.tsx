@@ -145,9 +145,9 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
   return (
     <header className={cn(
-      "sticky top-0 z-[100] will-change-transform transform-gpu w-full h-[116px] bg-white border-b border-stone-200/50 lg:border-none lg:bg-transparent",
+      "sticky top-0 z-[100] will-change-transform transform-gpu w-full h-[116px] bg-white dark:bg-stone-950 border-b border-stone-200/50 dark:border-stone-800/80 lg:border-none lg:bg-transparent transition-colors duration-300",
       scrolled
-        ? "lg:bg-white/80 lg:backdrop-blur-2xl lg:border-b lg:border-stone-200/50 lg:shadow-xl lg:shadow-stone-200/20 lg:h-[72px]"
+        ? "lg:bg-white/80 dark:lg:bg-stone-950/80 lg:backdrop-blur-2xl lg:border-b lg:border-stone-200/50 dark:lg:border-stone-800 lg:shadow-xl lg:shadow-stone-200/20 dark:lg:shadow-none lg:h-[72px]"
         : "lg:bg-transparent lg:border-b lg:border-transparent lg:h-[96px]"
     )}>
       <div className={cn(
@@ -162,13 +162,13 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
           <div className="flex-shrink-0">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8.5 w-8.5 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-900 p-0">
+                <Button variant="ghost" size="icon" className="h-8.5 w-8.5 rounded-xl bg-stone-50 dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-900 dark:text-stone-100 p-0">
                   <Menu className="h-4.5 w-4.5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white z-[200]">
+              <SheetContent side="left" hideCloseButton className="w-full sm:w-[400px] border-none p-0 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 z-[200]">
                 <div className="flex flex-col h-full">
-                  <SheetHeader className="p-6 text-left bg-stone-950 text-white relative">
+                  <SheetHeader className="p-6 text-left bg-stone-950 dark:bg-stone-900 text-white relative">
                     <SheetClose asChild>
                       <button className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-50">
                         <X className="h-5 w-5" />
@@ -181,15 +181,15 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                       </div>
                       <div>
                         <SheetTitle className="text-2xl font-black tracking-tighter text-white">{t("nav.menu")}</SheetTitle>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{t("nav.navigation")}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary dark:text-blue-400">{t("nav.navigation")}</p>
                       </div>
                     </div>
                   </SheetHeader>
 
                   <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Mobile Language Switcher Row */}
-                    <div className="p-4 rounded-2xl bg-stone-50 border border-stone-150 flex items-center justify-between">
-                      <span className="text-sm font-bold text-stone-700">Language / Lugha</span>
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-150 dark:border-stone-800 flex items-center justify-between">
+                      <span className="text-sm font-bold text-stone-700 dark:text-stone-300">Language / Lugha</span>
                       <LanguageSwitcher />
                     </div>
 
@@ -204,23 +204,23 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         { href: "/favorites", label: t("nav.favorites"), icon: Sparkles }
                       ].map((item) => (
                         <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
-                          <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 hover:bg-stone-900 hover:text-white transition-all group">
+                          <div className="flex items-center justify-between p-5 rounded-2xl bg-stone-50 dark:bg-stone-900 hover:bg-stone-900 dark:hover:bg-stone-800 hover:text-white transition-all group">
                             <div className="flex items-center gap-4">
-                              <item.icon className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
-                              <span className="text-lg font-bold tracking-tight">{item.label}</span>
+                              <item.icon className="h-5 w-5 text-primary dark:text-blue-400 group-hover:text-primary transition-colors" />
+                              <span className="text-lg font-bold tracking-tight text-stone-900 dark:text-stone-100 group-hover:text-white">{item.label}</span>
                             </div>
-                            <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all" />
+                            <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all text-white" />
                           </div>
                         </Link>
                       ))}
                     </nav>
 
                     {authUser ? (
-                      <div className="pt-6 border-t border-stone-100 flex flex-col gap-3">
-                        <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200">
+                      <div className="pt-6 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-3">
+                        <div className="flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-800">
                           <ShieldCheck className="h-5 w-5 text-green-600" />
                           <div>
-                            <p className="text-sm font-bold text-stone-900">{t("nav.verified_account")}</p>
+                            <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{t("nav.verified_account")}</p>
                             <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">{t("nav.secure")}</p>
                           </div>
                         </div>
@@ -237,7 +237,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                         </Button>
                       </div>
                     ) : (
-                      <div className="pt-6 border-t border-stone-100">
+                      <div className="pt-6 border-t border-stone-100 dark:border-stone-800">
                         <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
                           <Button className="w-full h-14 rounded-2xl font-extrabold uppercase tracking-wider text-xs shadow-lg shadow-primary/20">
                             {t("auth.login_signup")}
@@ -253,7 +253,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
           {/* 2. TOLA Logo Image */}
           <Link href="/" className="flex-shrink-0 transition-transform active:scale-95">
-            <div className="relative h-8.5 w-8.5 rounded-xl overflow-hidden shadow-xs border border-stone-200/80 bg-white p-0.5 flex-shrink-0">
+            <div className="relative h-8.5 w-8.5 rounded-xl overflow-hidden shadow-xs border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-0.5 flex-shrink-0">
               <div className="relative h-full w-full rounded-[0.4rem] overflow-hidden">
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
               </div>
@@ -262,23 +262,23 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
           {/* 3. Word TOLA. */}
           <Link href="/" className="flex-shrink-0 transition-transform active:scale-95">
-            <span className="text-base font-black tracking-tighter text-stone-900 leading-none">TOLA.</span>
+            <span className="text-base font-black tracking-tighter text-stone-900 dark:text-white leading-none">TOLA.</span>
           </Link>
 
           {/* 4. Shop Button */}
           <Link href="/shop" className="flex-shrink-0">
-            <div className="h-8.5 px-2.5 sm:px-3 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-1 shadow-xs">
-              <ShoppingBag className="h-3.5 w-3.5 text-[#1D61E7]" />
-              <span className="text-[11px] sm:text-xs font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+            <div className="h-8.5 px-2.5 sm:px-3 rounded-full bg-[#EEF4FF] dark:bg-blue-950/60 border border-[#D0E1FD] dark:border-blue-800/80 hover:bg-[#E2ECFF] dark:hover:bg-blue-900/80 active:scale-95 transition-all flex items-center gap-1 shadow-xs">
+              <ShoppingBag className="h-3.5 w-3.5 text-[#1D61E7] dark:text-blue-400" />
+              <span className="text-[11px] sm:text-xs font-bold text-[#1D61E7] dark:text-blue-400 tracking-tight">{t("nav.shop")}</span>
             </div>
           </Link>
 
           {/* 5. Love (Favorites) Icon */}
           <Link href="/favorites" className="relative flex-shrink-0">
-            <div className="h-8.5 w-8.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-              <Heart className="h-4 w-4 text-[#1D61E7] stroke-[2.2]" />
+            <div className="h-8.5 w-8.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:bg-stone-50 dark:hover:bg-stone-800 active:scale-95 transition-all flex items-center justify-center">
+              <Heart className="h-4 w-4 text-[#1D61E7] dark:text-blue-400 stroke-[2.2]" />
               {favorites.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-xs">
+                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white dark:ring-stone-900 shadow-xs">
                   {favorites.length > 9 ? "9+" : favorites.length}
                 </span>
               )}
@@ -287,10 +287,10 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
 
           {/* 6. Cart Icon */}
           <Link href="/cart" className="relative flex-shrink-0">
-            <div className="h-8.5 w-8.5 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-              <ShoppingCart className="h-4 w-4 fill-[#1D61E7] text-[#1D61E7]" />
+            <div className="h-8.5 w-8.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:bg-stone-50 dark:hover:bg-stone-800 active:scale-95 transition-all flex items-center justify-center">
+              <ShoppingCart className="h-4 w-4 fill-[#1D61E7] dark:fill-blue-400 text-[#1D61E7] dark:text-blue-400" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white shadow-xs">
+                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[8px] font-extrabold h-3.5 min-w-[14px] px-0.5 rounded-full flex items-center justify-center ring-1.5 ring-white dark:ring-stone-900 shadow-xs">
                   {cartCount > 99 ? "99+" : cartCount}
                 </span>
               )}
@@ -305,44 +305,44 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                   <div className="relative h-8.5 w-8.5 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
                     <Avatar className="h-full w-full rounded-full">
                       <AvatarImage src={authProfile?.profile_image_url || ""} />
-                      <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-[10px]">
+                      <AvatarFallback className="bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-black text-[10px]">
                         {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150]" align="end">
+              <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] bg-white dark:bg-stone-900 border-stone-100 dark:border-stone-800 shadow-2xl z-[150]" align="end">
                 <DropdownMenuLabel className="p-4">
                   <div className="flex flex-col gap-1">
-                    <p className="text-base font-black text-stone-900 leading-none truncate">
+                    <p className="text-base font-black text-stone-900 dark:text-white leading-none truncate">
                       {authProfile?.full_name || t("nav.profile")}
                     </p>
                     <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                <DropdownMenuSeparator className="mx-2 bg-stone-50 dark:bg-stone-800" />
                 <div className="p-1 space-y-1">
-                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                     <Link href="/profile" className="flex items-center gap-3">
-                      <User className="h-4 w-4 text-primary" />
-                      <span className="font-bold">{t("nav.your_profile")}</span>
+                      <User className="h-4 w-4 text-primary dark:text-blue-400" />
+                      <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.your_profile")}</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                     <Link href="/orders" className="flex items-center gap-3">
-                      <Package className="h-4 w-4 text-primary" />
-                      <span className="font-bold">{t("nav.order_history")}</span>
+                      <Package className="h-4 w-4 text-primary dark:text-blue-400" />
+                      <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.order_history")}</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                  <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                     <Link href="/favorites" className="flex items-center gap-3">
                       <Sparkles className="h-4 w-4 text-amber-500" />
-                      <span className="font-bold">{t("nav.wishlist")}</span>
+                      <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.wishlist")}</span>
                     </Link>
                   </DropdownMenuItem>
                 </div>
-                <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                <DropdownMenuSeparator className="mx-2 bg-stone-50 dark:bg-stone-800" />
                 <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
                   <LogOut className="h-4 w-4 mr-3" />
                   {t("nav.logout")}
@@ -362,14 +362,14 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
         <div className="hidden lg:flex items-center justify-between w-full gap-4 h-full">
           {/* Logo & Brand Identity */}
           <Link href="/" className="group flex items-center gap-3 flex-shrink-0 transition-transform active:scale-95">
-            <div className="relative h-12 w-12 rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 bg-white p-0.5 group-hover:rotate-3 transition-transform duration-500 flex-shrink-0">
+            <div className="relative h-12 w-12 rounded-2xl overflow-hidden shadow-sm border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-0.5 group-hover:rotate-3 transition-transform duration-500 flex-shrink-0">
               <div className="relative h-full w-full rounded-[0.5rem] overflow-hidden">
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" priority />
               </div>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-2xl font-black tracking-tighter text-stone-900 leading-none">TOLA.</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mt-1">Your Trade Partner</p>
+              <h1 className="text-2xl font-black tracking-tighter text-stone-900 dark:text-white leading-none">TOLA.</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary dark:text-blue-400 mt-1">Your Trade Partner</p>
             </div>
           </Link>
 
@@ -383,9 +383,9 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
             {/* Shop & Track Order Pill Buttons */}
             <div className="flex items-center gap-2.5">
               <Link href="/shop" className="flex-shrink-0">
-                <div className="h-10 px-4 rounded-full bg-[#EEF4FF] border border-[#D0E1FD] hover:bg-[#E2ECFF] active:scale-95 transition-all flex items-center gap-2 shadow-xs">
-                  <ShoppingBag className="h-4 w-4 text-[#1D61E7]" />
-                  <span className="text-sm font-bold text-[#1D61E7] tracking-tight">{t("nav.shop")}</span>
+                <div className="h-10 px-4 rounded-full bg-[#EEF4FF] dark:bg-blue-950/60 border border-[#D0E1FD] dark:border-blue-800/80 hover:bg-[#E2ECFF] dark:hover:bg-blue-900/80 active:scale-95 transition-all flex items-center gap-2 shadow-xs">
+                  <ShoppingBag className="h-4 w-4 text-[#1D61E7] dark:text-blue-400" />
+                  <span className="text-sm font-bold text-[#1D61E7] dark:text-blue-400 tracking-tight">{t("nav.shop")}</span>
                 </div>
               </Link>
               <Link href="/track" className="flex-shrink-0">
@@ -400,12 +400,12 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               <LanguageSwitcher />
 
               {/* Favorites Love Icon Circle & Cart Popover */}
-              <div className="flex items-center gap-2.5 border-r border-stone-200 pr-3 mr-1">
+              <div className="flex items-center gap-2.5 border-r border-stone-200 dark:border-stone-800 pr-3 mr-1">
                 <Link href="/favorites" className="relative flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-white border border-stone-200/90 shadow-xs hover:bg-stone-50 active:scale-95 transition-all flex items-center justify-center">
-                    <Heart className="h-5 w-5 text-[#1D61E7] stroke-[2.2]" />
+                  <div className="h-10 w-10 rounded-full bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:bg-stone-50 dark:hover:bg-stone-800 active:scale-95 transition-all flex items-center justify-center">
+                    <Heart className="h-5 w-5 text-[#1D61E7] dark:text-blue-400 stroke-[2.2]" />
                     {favorites.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-xs">
+                      <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-extrabold h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-stone-900 shadow-xs">
                         {favorites.length > 9 ? "9+" : favorites.length}
                       </span>
                     )}
@@ -422,53 +422,53 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
                     <DropdownMenuTrigger asChild>
                       <button className="relative group p-1 transition-transform active:scale-95 outline-none">
                         <div className="relative h-11 w-11 rounded-[1.25rem] overflow-hidden p-0.5 bg-gradient-to-tr from-primary to-stone-900">
-                          <div className="h-full w-full rounded-[1.1rem] overflow-hidden bg-white">
+                          <div className="h-full w-full rounded-[1.1rem] overflow-hidden bg-white dark:bg-stone-900">
                             <Avatar className="h-full w-full rounded-none">
                               <AvatarImage src={authProfile?.profile_image_url || ""} />
-                              <AvatarFallback className="bg-stone-50 text-stone-900 font-black text-xs">
+                              <AvatarFallback className="bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-black text-xs">
                                 {getInitials(authProfile?.full_name || authProfile?.email || t("nav.profile"))}
                               </AvatarFallback>
                             </Avatar>
                           </div>
                         </div>
                         {isVerified && (
-                          <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary text-white rounded-lg flex items-center justify-center border-2 border-white shadow-lg shadow-primary/40">
+                          <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-primary text-white rounded-lg flex items-center justify-center border-2 border-white dark:border-stone-900 shadow-lg shadow-primary/40">
                             <CheckCircle2 className="h-3 w-3" />
                           </div>
                         )}
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] border-stone-100 shadow-2xl z-[150]" align="end">
+                    <DropdownMenuContent className="w-64 mt-4 p-2 rounded-[2rem] bg-white dark:bg-stone-900 border-stone-100 dark:border-stone-800 shadow-2xl z-[150]" align="end">
                       <DropdownMenuLabel className="p-4">
                         <div className="flex flex-col gap-1">
-                          <p className="text-base font-black text-stone-900 leading-none truncate">
+                          <p className="text-base font-black text-stone-900 dark:text-white leading-none truncate">
                             {authProfile?.full_name || t("nav.profile")}
                           </p>
                           <p className="text-xs font-bold text-stone-400 italic truncate">{authProfile?.email}</p>
                         </div>
                       </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                      <DropdownMenuSeparator className="mx-2 bg-stone-50 dark:bg-stone-800" />
                       <div className="p-1 space-y-1">
-                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                           <Link href="/profile" className="flex items-center gap-3">
-                            <User className="h-4 w-4 text-primary" />
-                            <span className="font-bold">{t("nav.your_profile")}</span>
+                            <User className="h-4 w-4 text-primary dark:text-blue-400" />
+                            <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.your_profile")}</span>
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                           <Link href="/orders" className="flex items-center gap-3">
-                            <Package className="h-4 w-4 text-primary" />
-                            <span className="font-bold">{t("nav.order_history")}</span>
+                            <Package className="h-4 w-4 text-primary dark:text-blue-400" />
+                            <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.order_history")}</span>
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50">
+                        <DropdownMenuItem asChild className="rounded-xl h-12 cursor-pointer focus:bg-stone-50 dark:focus:bg-stone-800">
                           <Link href="/favorites" className="flex items-center gap-3">
                             <Sparkles className="h-4 w-4 text-amber-500" />
-                            <span className="font-bold">{t("nav.wishlist")}</span>
+                            <span className="font-bold text-stone-800 dark:text-stone-200">{t("nav.wishlist")}</span>
                           </Link>
                         </DropdownMenuItem>
                       </div>
-                      <DropdownMenuSeparator className="mx-2 bg-stone-50" />
+                      <DropdownMenuSeparator className="mx-2 bg-stone-50 dark:bg-stone-800" />
                       <DropdownMenuItem onClick={handleLogout} className="rounded-xl h-12 cursor-pointer text-destructive focus:bg-destructive/5 font-black text-xs uppercase tracking-widest px-4">
                         <LogOut className="h-4 w-4 mr-3" />
                         {t("nav.logout")}
@@ -479,7 +479,7 @@ export default function SiteHeader({ user, profile, kycStatus }: SiteHeaderProps
               ) : (
                 <div className="flex items-center gap-3">
                   <Link href="/auth/login">
-                    <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-primary bg-transparent">
+                    <Button variant="ghost" className="font-black text-xs uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 hover:text-primary dark:hover:text-blue-400 bg-transparent">
                       {t("nav.login")}
                     </Button>
                   </Link>

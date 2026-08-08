@@ -218,7 +218,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               handleFullSearch()
             }
           }}
-          className="pl-9 lg:pl-12 pr-24 lg:pr-32 h-11 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 border-stone-500/50 focus-visible:ring-primary/20 focus-visible:bg-white focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium placeholder:text-xs lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
+          className="pl-9 lg:pl-12 pr-24 lg:pr-32 h-11 lg:h-16 rounded-full lg:rounded-[2rem] bg-stone-50/50 dark:bg-stone-900/50 border-stone-300 dark:border-stone-800 focus-visible:ring-primary/20 focus-visible:bg-white dark:focus-visible:bg-stone-900 focus-visible:shadow-2xl focus-visible:shadow-primary/5 transition-all text-xs lg:text-lg font-medium text-stone-900 dark:text-stone-100 placeholder:text-xs lg:placeholder:text-lg placeholder:text-stone-400/80 placeholder:tracking-wide border-2"
         />
 
         {/* Action buttons */}
@@ -227,7 +227,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 rounded-full transition-colors"
+              className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-colors"
               onClick={handleClear}
             >
               <X className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-stone-400" />
@@ -247,7 +247,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-amber-50 rounded-full transition-colors relative"
+            className="h-6 w-6 lg:h-10 lg:w-10 hover:bg-amber-50 dark:hover:bg-amber-950/30 rounded-full transition-colors relative"
             onClick={(e) => {
               e.stopPropagation()
               document.getElementById("image-search-input")?.click()
@@ -267,7 +267,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               "h-7 w-7 lg:h-10 lg:w-10 rounded-full transition-all duration-200 relative flex items-center justify-center",
               showFilters
                 ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
-                : "hover:bg-stone-100 text-stone-600 hover:text-stone-900"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white"
             )}
             onClick={(e) => {
               e.stopPropagation()
@@ -278,7 +278,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           >
             <SlidersHorizontal className="h-4 w-4 lg:h-5 lg:w-5 transition-transform duration-200" />
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[8px] font-black h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[8px] font-black h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-stone-900 shadow-sm">
                 {activeFilterCount}
               </span>
             )}
@@ -289,7 +289,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
       {/* Combined Dropdown: Inline Filters + Search Results */}
       {(isOpen || showFilters) && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white border border-stone-200 rounded-3xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden"
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[94vw] sm:w-[600px] md:w-[700px] lg:w-[800px] xl:w-[850px] bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-2xl z-[100] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
@@ -297,12 +297,12 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
             {/* Inline Filter Controls */}
             {showFilters && !isImageSearching && (
-              <div className="p-4 lg:p-5 border-b border-stone-100 bg-stone-50/50 space-y-3">
+              <div className="p-4 lg:p-5 border-b border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {/* Location Filter */}
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
-                      <MapPin className="h-3 w-3 text-primary" /> Location
+                    <label className="text-[11px] font-bold text-stone-600 dark:text-stone-400 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-primary dark:text-blue-400" /> Location
                     </label>
                     <Input
                       type="text"
@@ -312,13 +312,13 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleFullSearch()
                       }}
-                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
+                      className="h-9 text-xs rounded-xl border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                     />
                   </div>
 
                   {/* Min Price */}
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
+                    <label className="text-[11px] font-bold text-stone-600 dark:text-stone-400 flex items-center gap-1">
                       <DollarSign className="h-3 w-3 text-emerald-600" /> Min Price (TZS)
                     </label>
                     <Input
@@ -330,13 +330,13 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleFullSearch()
                       }}
-                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
+                      className="h-9 text-xs rounded-xl border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                     />
                   </div>
 
                   {/* Max Price */}
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1">
+                    <label className="text-[11px] font-bold text-stone-600 dark:text-stone-400 flex items-center gap-1">
                       <DollarSign className="h-3 w-3 text-emerald-600" /> Max Price (TZS)
                     </label>
                     <Input
@@ -348,7 +348,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleFullSearch()
                       }}
-                      className="h-9 text-xs rounded-xl border-stone-200 bg-white"
+                      className="h-9 text-xs rounded-xl border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100"
                     />
                   </div>
                 </div>
@@ -372,11 +372,11 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500">
                       {productResults.length} Results Found
                     </span>
                   </div>
-                  <div className="h-px flex-1 bg-stone-100 mx-4" />
+                  <div className="h-px flex-1 bg-stone-100 dark:bg-stone-800 mx-4" />
                 </div>
 
                 <div className="grid gap-1.5">
@@ -389,35 +389,35 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                         setShowFilters(false)
                         setQuery("")
                       }}
-                      className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 transition-all group/item"
+                      className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-900 transition-all group/item"
                     >
-                      <div className="relative w-12 h-12 md:w-14 md:h-14 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-stone-100 bg-white">
+                      <div className="relative w-12 h-12 md:w-14 md:h-14 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900">
                         {product.images?.[0] ? (
                           <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-500 group-hover/item:scale-110" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-stone-50">
-                            <ShoppingBag className="h-5 w-5 text-stone-200" />
+                          <div className="w-full h-full flex items-center justify-center bg-stone-50 dark:bg-stone-900">
+                            <ShoppingBag className="h-5 w-5 text-stone-200 dark:text-stone-700" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0 space-y-0.5">
-                        <p className="text-xs md:text-sm font-black text-stone-900 truncate tracking-tight">
+                        <p className="text-xs md:text-sm font-black text-stone-900 dark:text-stone-100 truncate tracking-tight">
                           {product.name}
                         </p>
                         <div className="flex items-center gap-2">
                           {(product.shops?.region || product.shops?.district || product.location) && (
-                            <span className="text-[9px] font-bold text-stone-400 flex items-center gap-0.5 truncate max-w-[150px]">
-                              <MapPin className="h-2.5 w-2.5 text-stone-300 flex-shrink-0" />
+                            <span className="text-[9px] font-bold text-stone-400 dark:text-stone-500 flex items-center gap-0.5 truncate max-w-[150px]">
+                              <MapPin className="h-2.5 w-2.5 text-stone-300 dark:text-stone-600 flex-shrink-0" />
                               {product.shops?.district || product.shops?.region || product.location}
                             </span>
                           )}
-                          <span className="text-[8px] font-black uppercase tracking-widest text-primary px-1.5 py-0.5 bg-primary/10 rounded-full">
+                          <span className="text-[8px] font-black uppercase tracking-widest text-primary dark:text-blue-400 px-1.5 py-0.5 bg-primary/10 dark:bg-blue-400/10 rounded-full">
                             Verified
                           </span>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-sm md:text-base font-black text-stone-950 tracking-tighter">
+                        <p className="text-sm md:text-base font-black text-stone-950 dark:text-white tracking-tighter">
                           {product.price?.toLocaleString()} <span className="text-[8px] uppercase">TZS</span>
                         </p>
                       </div>
@@ -430,13 +430,13 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {/* No results message */}
             {hasSearched && productResults.length === 0 && !isLoading && (
               <div className="p-8 text-center">
-                <div className="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
-                  <Search className="h-5 w-5 text-stone-300" />
+                <div className="h-12 w-12 rounded-full bg-stone-100 dark:bg-stone-900 flex items-center justify-center mx-auto mb-3">
+                  <Search className="h-5 w-5 text-stone-300 dark:text-stone-600" />
                 </div>
-                <p className="text-sm font-bold text-stone-400">
+                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">
                   {`No products found for "${query}"`}
                 </p>
-                <p className="text-xs text-stone-300 mt-1">
+                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">
                   Try a different search term or adjust your filters
                 </p>
               </div>
@@ -445,10 +445,10 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             {/* Quick start hint when no query yet */}
             {!hasSearched && showFilters && (
               <div className="p-5 text-center">
-                <p className="text-sm font-bold text-stone-400">
+                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">
                   Type a product name above to search
                 </p>
-                <p className="text-xs text-stone-300 mt-1">
+                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">
                   Use the location and price filters to narrow results
                 </p>
               </div>
@@ -456,14 +456,14 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
             {/* View All Results CTA */}
             {hasSearched && productResults.length > 0 && query.trim().length >= 2 && (
-              <div className="p-4 lg:p-5 border-t border-stone-100">
+              <div className="p-4 lg:p-5 border-t border-stone-100 dark:border-stone-800">
                 <Link
                   href={buildSearchUrl()}
                   onClick={() => {
                     setIsOpen(false)
                     setShowFilters(false)
                   }}
-                  className="flex items-center justify-center gap-3 w-full p-4 text-xs font-black uppercase tracking-[0.2em] text-stone-400 border-2 border-dashed border-stone-100 rounded-2xl hover:bg-stone-950 hover:text-white hover:border-stone-950 transition-all group/all"
+                  className="flex items-center justify-center gap-3 w-full p-4 text-xs font-black uppercase tracking-[0.2em] text-stone-400 dark:text-stone-400 border-2 border-dashed border-stone-100 dark:border-stone-800 rounded-2xl hover:bg-stone-950 dark:hover:bg-white hover:text-white dark:hover:text-stone-950 hover:border-stone-950 dark:hover:border-white transition-all group/all"
                 >
                   <span>View All Results</span>
                   <ArrowRight className="h-4 w-4 group-hover/all:translate-x-2 transition-transform" />
