@@ -21,6 +21,7 @@ interface ChatDialogProps {
   conversationId: string
   shopName: string
   productName?: string
+  ticketDescription?: string
 }
 
 interface Message {
@@ -38,7 +39,64 @@ interface Message {
   }
 }
 
-export function ChatDialog({ open, onOpenChange, conversationId, shopName, productName }: ChatDialogProps) {
+function parseHistoryText(text?: string): Message[] {
+  if (!text || !text.trim()) return []
+
+  const cleanText = text.replace(/^Escalated from Moureen Tyler AI Chat:\s*/i, "").trim()
+
+  // Match prefixes like BOT:, USER:, GUEST:, AGENT:
+  const prefixRegex = /(?:^|\n|\s)(BOT|USER|GUEST|AGENT):\s*/gi
+  const matches: Array<{ tag: string; index: number; contentStart: number }> = []
+
+  let match: RegExpExecArray | null
+  while ((match = prefixRegex.exec(cleanText)) !== null) {
+    matches.push({
+      tag: match[1].toUpperCase(),
+      index: match.index,
+      contentStart: match.index + match[0].length,
+    })
+  }
+
+  if (matches.length === 0) {
+    return [{
+      id: "hist-0",
+      message: cleanText,
+      created_at: new Date().toISOString(),
+      sender_id: "",
+      sender_type: "user",
+      sender: { id: "", full_name: "Customer User" }
+    }]
+  }
+
+  const result: Message[] = []
+  for (let i = 0; i < matches.length; i++) {
+    const current = matches[i]
+    const nextIndex = i < matches.length - 1 ? matches[i + 1].index : cleanText.length
+    const content = cleanText.slice(current.contentStart, nextIndex).trim()
+
+    if (!content) continue
+
+    const isBot = current.tag === "BOT"
+    const isAgent = current.tag === "AGENT"
+    const senderType = isBot ? "bot" : isAgent ? "agent" : "user"
+
+    result.push({
+      id: `parsed-${i}-${Date.now()}`,
+      message: content,
+      created_at: new Date(Date.now() - (matches.length - i) * 60000).toISOString(),
+      sender_id: isBot ? "" : isAgent ? "agent" : "user",
+      sender_type: senderType,
+      sender: {
+        id: isBot ? "" : isAgent ? "agent" : "user",
+        full_name: isBot ? "Moureen Tyler (AI Agent)" : isAgent ? "Support Agent" : "Customer User",
+      }
+    })
+  }
+
+  return result
+}
+
+export function ChatDialog({ open, onOpenChange, conversationId, shopName, productName, ticketDescription }: ChatDialogProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
@@ -231,6 +289,9 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
     setCallDialogOpen(true)
   }
 
+  const parsedHistory = parseHistoryText(ticketDescription)
+  const displayMessages = messages.length > 0 ? messages : parsedHistory
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -262,7 +323,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
               </div>
               <div className="flex items-center gap-1.5">
                 <Badge variant="outline" className="hidden sm:inline-flex text-[11px] text-slate-300 border-slate-700 bg-slate-800/80 mr-1">
-                  {messages.length} {messages.length === 1 ? "msg" : "msgs"}
+                  {displayMessages.length} {displayMessages.length === 1 ? "msg" : "msgs"}
                 </Badge>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => handleCall("voice")}>
                   <Phone className="h-4 w-4" />
@@ -278,14 +339,14 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
           <div className="relative flex-1 min-h-0 bg-slate-50/70 dark:bg-slate-900/60">
             <ScrollArea className="h-full px-6" ref={scrollRef}>
               <div className="space-y-4 py-4">
-                {messages.length === 0 ? (
+                {displayMessages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
                     <Headset className="h-10 w-10 mb-2 opacity-50 text-emerald-500" />
                     <p className="text-sm font-medium">No messages yet</p>
                     <p className="text-xs text-slate-400">Start typing below to reply to the user.</p>
                   </div>
                 ) : (
-                  messages.map((msg) => {
+                  displayMessages.map((msg) => {
                     if (!msg) return null
                     const isOwnMessage = msg.sender_id === currentUserId || msg.sender_type === "agent"
                     const isBot = msg.sender_type === "bot"
