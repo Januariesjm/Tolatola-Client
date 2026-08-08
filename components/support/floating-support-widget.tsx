@@ -897,7 +897,7 @@ export function FloatingSupportWidget() {
                         </div>
 
                         <span className="text-[10px] text-slate-400 mt-1 font-medium">
-                            {liveConversationId ? "Live Support · TOLA" : "asksuite · TOLA AI Agent"}
+                            {liveConversationId ? "Live Support · TOLA" : "TOLA AI Agent"}
                         </span>
                     </div>
                 </div>
