@@ -21,6 +21,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
   const router = useRouter()
   const { toast } = useToast()
   const featuredScrollRef = useRef<HTMLDivElement>(null)
+  const bestSellingScrollRef = useRef<HTMLDivElement>(null)
   const dealsScrollRef = useRef<HTMLDivElement>(null)
   const { isFavorite, toggleFavorite } = useFavorites()
   const [cartItems, setCartItems] = useState<{ product_id: string; quantity: number }[]>([])
@@ -73,12 +74,10 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
   }
 
   return (
-    <div className="space-y-8 md:space-y-12 py-4 md:py-8">
+    <div className="space-y-4 md:space-y-6 py-2 md:py-4">
       {/* Featured Section */}
       {featuredProducts && featuredProducts.length > 0 && (
         <section className="container mx-auto px-4 relative">
-
-
           <div className="relative group/scroll">
             <Button
               variant="outline"
@@ -91,7 +90,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
 
             <div
               ref={featuredScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4 px-2"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {featuredProducts.map((product) => (
@@ -123,7 +122,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
       {/* Most Selling Section */}
       {bestSelling && bestSelling.length > 0 && (
         <section className="container mx-auto px-4 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-3 md:mb-4 gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-amber-500 font-bold uppercase tracking-wider text-[10px]">
                 <Flame className="h-3.5 w-3.5" />
@@ -138,13 +137,14 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
               variant="outline"
               size="icon"
               className="absolute -left-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-amber-500 hover:text-white"
-              onClick={() => scroll(featuredScrollRef, "left")}
+              onClick={() => scroll(bestSellingScrollRef, "left")}
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
 
             <div
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              ref={bestSellingScrollRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4 px-2"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {bestSelling.map((product) => (
@@ -165,7 +165,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
               variant="outline"
               size="icon"
               className="absolute -right-6 top-1/2 -translate-y-1/2 z-30 h-14 w-14 rounded-2xl shadow-2xl bg-white border-stone-100 opacity-0 group-hover/scroll:opacity-100 transition-all hidden md:flex hover:bg-amber-500 hover:text-white"
-              onClick={() => scroll(featuredScrollRef, "right")}
+              onClick={() => scroll(bestSellingScrollRef, "right")}
             >
               <ChevronRight className="h-6 w-6" />
             </Button>
@@ -174,8 +174,8 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
       )}
 
       {/* Hero Interstice */}
-      <section className="container mx-auto px-4">
-        <div className="bg-stone-950 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-20 relative overflow-hidden text-center md:text-left">
+      <section className="container mx-auto px-4 my-2 md:my-4">
+        <div className="bg-stone-950 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-14 relative overflow-hidden text-center md:text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
           <div className="relative z-10 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-3 md:space-y-4">
@@ -186,7 +186,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
               </Link>
             </div>
             <div className="hidden md:flex justify-end">
-              <div className="w-40 h-40 rounded-3xl border-2 border-primary/30 rotate-12 flex items-center justify-center p-6 bg-stone-900 shadow-xl">
+              <div className="w-36 h-36 rounded-3xl border-2 border-primary/30 rotate-12 flex items-center justify-center p-6 bg-stone-900 shadow-xl">
                 <TrendingUp className="h-full w-full text-primary opacity-50" />
               </div>
             </div>
@@ -197,7 +197,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
       {/* Best Deals Section */}
       {bestDeals && bestDeals.length > 0 && (
         <section className="container mx-auto px-4 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-3 md:mb-4 gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-destructive font-bold uppercase tracking-wider text-[10px]">
                 <TrendingUp className="h-3.5 w-3.5" />
@@ -219,7 +219,7 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
 
             <div
               ref={dealsScrollRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-12 px-2"
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4 px-2"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {bestDeals.map((product) => (
