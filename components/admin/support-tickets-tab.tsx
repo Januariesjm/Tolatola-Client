@@ -531,6 +531,7 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
           shopName={selectedTicket.users?.full_name || selectedTicket.guest_name || "Customer User"}
           productName={`Ticket #${selectedTicket.id.substring(0, 8)}: ${selectedTicket.subject}`}
           ticketDescription={selectedTicket.description}
+          isAdminView={true}
         />
       )}
     </div>

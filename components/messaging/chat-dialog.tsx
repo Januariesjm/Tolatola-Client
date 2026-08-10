@@ -22,6 +22,7 @@ interface ChatDialogProps {
   shopName: string
   productName?: string
   ticketDescription?: string
+  isAdminView?: boolean
 }
 
 interface Message {
@@ -96,7 +97,7 @@ function parseHistoryText(text?: string): Message[] {
   return result
 }
 
-export function ChatDialog({ open, onOpenChange, conversationId, shopName, productName, ticketDescription }: ChatDialogProps) {
+export function ChatDialog({ open, onOpenChange, conversationId, shopName, productName, ticketDescription, isAdminView = false }: ChatDialogProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
@@ -356,51 +357,71 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 ) : (
                   displayMessages.map((msg) => {
                     if (!msg) return null
-                    const isOwnMessage = msg.sender_id === currentUserId || msg.sender_type === "agent"
                     const isBot = msg.sender_type === "bot"
-                    
+                    const isAgent = msg.sender_type === "agent" || (!isBot && msg.sender_id === currentUserId && isAdminView)
+                    const isSelf = msg.sender_id === currentUserId
+
+                    let alignRight = false
                     let senderName = "User"
+                    let avatarIcon = <User className="h-4 w-4" />
+                    let avatarBg = "bg-slate-200 text-slate-700 font-bold"
+                    let badgeComponent = null
+                    let bubbleStyle = ""
+
                     if (isBot) {
+                      alignRight = false
                       senderName = "Moureen Tyler (AI Agent)"
-                    } else if (isOwnMessage) {
-                      senderName = "You (Support Agent)"
-                    } else if (msg.sender?.full_name) {
-                      senderName = msg.sender.full_name
+                      avatarIcon = <Bot className="h-4 w-4" />
+                      avatarBg = "bg-amber-500 text-white"
+                      badgeComponent = (
+                        <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[9px] px-1 py-0 h-4 border-amber-300/40">
+                          AI Assistant
+                        </Badge>
+                      )
+                      bubbleStyle = "bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-950 dark:text-amber-100 border border-amber-300/60 dark:border-amber-700/50 rounded-tl-xs"
+                    } else if (isAgent) {
+                      alignRight = false
+                      senderName = isSelf ? "You (Support Agent)" : (msg.sender?.full_name || "Support Agent")
+                      avatarIcon = <Headset className="h-4 w-4" />
+                      avatarBg = "bg-blue-600 text-white"
+                      badgeComponent = (
+                        <Badge className="bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[9px] px-1 py-0 h-4 border-blue-300/40">
+                          Support Agent
+                        </Badge>
+                      )
+                      bubbleStyle = "bg-blue-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-blue-200/80 dark:border-slate-700/70 rounded-tl-xs"
+                    } else {
+                      // Customer / User message
+                      alignRight = true
+                      senderName = isSelf && !isAdminView ? "You" : (msg.sender?.full_name || shopName || "Customer User")
+                      avatarIcon = <User className="h-4 w-4" />
+                      avatarBg = "bg-emerald-600 text-white"
+                      badgeComponent = isAdminView ? (
+                        <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] px-1 py-0 h-4 border-emerald-300/40">
+                          Customer
+                        </Badge>
+                      ) : null
+                      bubbleStyle = "bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-tr-xs"
                     }
 
                     return (
-                      <div key={msg.id} className={`flex gap-3 ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}>
+                      <div key={msg.id} className={`flex gap-3 ${alignRight ? "flex-row-reverse" : "flex-row"}`}>
                         <Avatar className="h-8 w-8 mt-1 shrink-0 border shadow-xs">
                           <AvatarImage src={isBot ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" : msg.sender?.profile_image_url || "/placeholder.svg"} />
-                          <AvatarFallback className={isBot ? "bg-amber-500 text-white" : isOwnMessage ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-700 font-bold"}>
-                            {isBot ? <Bot className="h-4 w-4" /> : isOwnMessage ? <Headset className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                          <AvatarFallback className={avatarBg}>
+                            {avatarIcon}
                           </AvatarFallback>
                         </Avatar>
-                        <div className={`flex flex-col max-w-[78%] ${isOwnMessage ? "items-end" : "items-start"}`}>
+                        <div className={`flex flex-col max-w-[78%] ${alignRight ? "items-end" : "items-start"}`}>
                           <div className="flex items-center gap-1.5 mb-1 px-0.5">
                             <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                               {senderName}
                             </span>
-                            {isBot && (
-                              <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[9px] px-1 py-0 h-4 border-amber-300/40">
-                                AI Assistant
-                              </Badge>
-                            )}
-                            {isOwnMessage && (
-                              <Badge className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] px-1 py-0 h-4 border-emerald-300/40">
-                                Support Agent
-                              </Badge>
-                            )}
+                            {badgeComponent}
                           </div>
 
                           {/* Speech Bubble */}
-                          <div className={`rounded-2xl px-4 py-2.5 shadow-sm text-sm ${
-                            isOwnMessage 
-                              ? "bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-tr-xs" 
-                              : isBot 
-                              ? "bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-950 dark:text-amber-100 border border-amber-300/60 dark:border-amber-700/50 rounded-tl-xs" 
-                              : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/70 rounded-tl-xs"
-                            }`}>
+                          <div className={`rounded-2xl px-4 py-2.5 shadow-sm text-sm ${bubbleStyle}`}>
                             {msg.attachment_url && (
                               <div className="mb-2">
                                 {msg.attachment_type?.startsWith("image/") ? (
@@ -433,7 +454,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                                 minute: "2-digit",
                               })}
                             </span>
-                            {isOwnMessage && <CheckCheck className="h-3 w-3 text-emerald-500" />}
+                            {alignRight && <CheckCheck className="h-3 w-3 text-emerald-500" />}
                           </div>
                         </div>
                       </div>
