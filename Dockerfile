@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN \
 
 
 # Rebuild the source code only when needed
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -43,10 +43,10 @@ RUN \
     fi
 
 # Production image, copy all the files and run next
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -68,7 +68,7 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
