@@ -39,6 +39,20 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
   const [maxPriceInput, setMaxPriceInput] = useState<string>(
     searchParams.get("maxPrice") || ""
   )
+  const [locationQuery, setLocationQuery] = useState<string>(
+    searchParams.get("location") || ""
+  )
+  const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">(
+    (searchParams.get("sort") as any) || "name"
+  )
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const updated = selectedCategories.includes(categoryId)
+      ? selectedCategories.filter((id) => id !== categoryId)
+      : [...selectedCategories, categoryId]
+    setSelectedCategories(updated)
+    updateFilters({ categories: updated })
+  }
 
   const handlePriceApply = () => {
     const min = minPriceInput ? parseInt(minPriceInput) : 0

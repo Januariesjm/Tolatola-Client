@@ -11,7 +11,12 @@ out/
 # Environment variables
 .env
 .env.*
+!.env.example
 .env.local
+
+# Testing & build cache
+coverage/
+*.tsbuildinfo
 
 # OS
 .DS_Store

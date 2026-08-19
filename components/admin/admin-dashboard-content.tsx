@@ -65,30 +65,13 @@ import { AgentManagementTab } from "./agent-management-tab"
 import { ValidationSurveysTab } from "./validation-surveys-tab"
 import { BlogManagementTab } from "./blog-management-tab"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
-
-interface AdminDashboardContentProps {
-  adminRole: any
-  pendingVendors: any[]
-  pendingTransporters: any[]
-  pendingCustomerKyc: any[]
-  pendingProducts: any[]
-  allProducts?: any[]
-  initialAgents?: any[]
-  orders: any[]
-  transactions: any[]
-  tickets: any[]
-  payouts: any[]
-  stats: any
-  promotions: any[]
-  subscriptions: any[]
-  vendorTypesAnalytics?: any
-  careerApplications?: any[]
-  hrInterviews?: any[]
-  hrStaffRecords?: any[]
-  hrContracts?: any[]
-  hrAttendance?: any[]
-  incompleteRegistrations?: any[]
-}
+import type { AdminDashboardContentProps } from "@/lib/types/admin"
+import {
+  getInitialTab,
+  isSuperAdminRole,
+  getDepartmentForRole,
+  filterTicketsByDepartment,
+} from "@/lib/admin/dashboard-utils"
 
 export function AdminDashboardContent({
   adminRole,
@@ -115,16 +98,7 @@ export function AdminDashboardContent({
 }: AdminDashboardContentProps) {
   const router = useRouter()
   
-  const getInitialTab = () => {
-    if (!adminRole?.permissions) return "analytics"
-    const p = adminRole.permissions
-    if (p.includes("view_analytics")) return "analytics"
-    if (p.includes("manage_support")) return "support"
-    if (p.includes("manage_hr")) return "hr"
-    if (p.includes("manage_system")) return "system-health"
-    return "analytics"
-  }
-  const initialTab = getInitialTab()
+  const initialTab = getInitialTab(adminRole?.permissions)
 
   const [activeTab, setActiveTab] = useState(initialTab)
   const [overviewPeriod, setOverviewPeriod] = useState<DatePeriod>("all")
@@ -139,32 +113,12 @@ export function AdminDashboardContent({
     router.push("/auth/login")
   }
 
-  const roleName = (adminRole?.role?.role_name || "").toLowerCase()
-  const isSuperAdmin = roleName.includes("super") || roleName.includes("owner") || roleName.includes("master")
+  const roleName = adminRole?.role?.role_name || ""
+  const isSuperAdmin = isSuperAdminRole(roleName)
   const showAdminManagement = isSuperAdmin || adminRole?.permissions?.includes("manage_admins")
   const canManageAgents = isSuperAdmin || adminRole?.permissions?.includes("manage_agents")
-
-  const getDepartmentForRole = (role: string): string => {
-    const r = role.toLowerCase()
-    if (r.includes("it ") || r === "it admin" || r.includes("technical")) return "it"
-    if (r.includes("finance")) return "finance"
-    if (r.includes("hr") || r.includes("human resource")) return "hr"
-    if (r.includes("vendor") || r.includes("manager")) return "vendor,logistics"
-    if (r.includes("marketing") || r.includes("support")) return "general"
-    return "general"
-  }
-
   const userDepartment = isSuperAdmin ? undefined : getDepartmentForRole(roleName)
-
-  const pendingTickets = tickets.filter((t) => {
-    if (t.status !== "open") return false
-    if (isSuperAdmin) return true
-    if (userDepartment) {
-      const allowed = userDepartment.split(",").map((d) => d.trim())
-      return allowed.includes(t.department || "general")
-    }
-    return true
-  })
+  const pendingTickets = filterTicketsByDepartment(tickets, isSuperAdmin, userDepartment)
 
   // Filter out the meta-info added to promotions array if present
   const actualPromotions = promotions.filter(p => !p._adminUsers && !p.id?.includes('_'))

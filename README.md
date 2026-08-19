@@ -81,14 +81,15 @@ Create a `.env.local` file in the project root. These are the main variables use
 
 ---
 
-## Scripts
-
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start Next.js dev server (with DNS order for IPv4) |
 | `npm run build` | Production build (output: standalone by default) |
 | `npm start` | Run production server (after `build`) |
 | `npm run lint` | Run Next.js ESLint |
+| `npm test` | Run full test suite with coverage report (Jest + RTL) |
+| `npm run test:watch` | Run Jest tests in interactive watch mode |
+| `npm run typecheck` | Run strict TypeScript check without emitting files (`tsc --noEmit`) |
 
 ---
 

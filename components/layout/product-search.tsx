@@ -107,7 +107,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
 
         const { data: products, error } = await dbQuery
         if (!error && products) {
-          setProductResults(products as Product[])
+          setProductResults(products as unknown as Product[])
         }
         setIsOpen(true)
         setShowFilters(true) // Show filters alongside results

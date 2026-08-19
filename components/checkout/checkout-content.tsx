@@ -33,14 +33,12 @@ import { clientApiGet, clientApiPost } from "@/lib/api-client"
 
 
 import { useLanguage } from "@/lib/i18n/language-context"
-
-interface CheckoutContentProps {
-  user: any
-}
+import type { CheckoutContentProps, CartItem } from "@/lib/types/checkout"
+import { calculateFee } from "@/lib/checkout/delivery"
 
 export function CheckoutContent({ user }: CheckoutContentProps) {
   const { t } = useLanguage()
-  const [cartItems, setCartItems] = useState<any[]>([])
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [fullName, setFullName] = useState(user?.full_name || "")
   const [phone, setPhone] = useState(user?.phone || "")
   const [latitude, setLatitude] = useState<number | null>(null)
@@ -121,7 +119,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       const shopsData: Record<string, { weight: number; lat: number; lng: number; name: string; deliveryAvailable?: boolean }> = {}
 
       cartItems.forEach((item) => {
-        const sId = item.product.shop_id
+        const sId = item.product.shop_id || "default_shop"
         if (!shopsData[sId]) {
           const shop = item.product.shops
           shopsData[sId] = {
@@ -139,28 +137,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
           shopsData[sId].deliveryAvailable = false
         }
       })
-
-      const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
-        if (!isAvailable) return 0
-        if (distanceKm < 0.1) return 0
-
-        const rateKm = Number(method?.rate_per_km) || 0
-        const rateKg = Number(method?.rate_per_kg) || 0
-
-        let fee = 0
-        if (rateKg > 0) {
-          fee = weightKg * rateKg
-        } else if (rateKm > 0) {
-          fee = distanceKm * rateKm
-        } else {
-          // Fallback to a distance-based baseline only if no method rates are defined
-          if (distanceKm <= 5) fee = 3000
-          else if (distanceKm <= 15) fee = 5000
-          else fee = distanceKm * 500
-        }
-
-        return Math.round(fee)
-      }
 
       const method =
         transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
@@ -212,32 +188,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
         transportMethods[0]
 
-      const calculateFee = (method: TransportMethod | undefined, distanceKm: number, weightKg: number, isAvailable: boolean) => {
-        if (!isAvailable) return 0
-        if (distanceKm < 0.1) return 0
-
-        const rateKm = Number(method?.rate_per_km) || 0
-        const rateKg = Number(method?.rate_per_kg) || 0
-
-        let fee = 0
-        if (rateKg > 0) {
-          fee = weightKg * rateKg
-        } else if (rateKm > 0) {
-          fee = distanceKm * rateKm
-        } else {
-          if (distanceKm <= 5) fee = 3000
-          else if (distanceKm <= 15) fee = 5000
-          else fee = distanceKm * 500
-        }
-
-        return Math.round(fee)
-      }
-
       const updatedDeliveries = { ...shopDeliveries }
       const shopsWeight: Record<string, number> = {}
 
       cartItems.forEach((item) => {
-        const sId = item.product.shop_id
+        const sId = item.product.shop_id || "default_shop"
         shopsWeight[sId] = (shopsWeight[sId] || 0) + (item.product.weight || 1) * item.quantity
       })
 
@@ -359,7 +314,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
       const shopAssignedFee: Record<string, boolean> = {}
 
       const items = cartItems.map((item) => {
-        const sId = item.product.shop_id
+        const sId = item.product.shop_id || "default_shop"
         const dInfo = shopDeliveries[sId]
 
         // Only assign the fee to the first item from this shop to avoid double counting in totals
@@ -894,7 +849,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                         <div key={itemId} className="flex gap-3 sm:gap-4">
                           <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
                             {item.selected_color?.image || item.product.images?.[0] ? (
-                              <img src={item.selected_color?.image || item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                              <img src={item.selected_color?.image || item.product.images?.[0]} alt={item.product.name} className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-5 w-5 text-stone-200" /></div>
                             )}
