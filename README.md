@@ -231,6 +231,11 @@ Tolatola-Client/
 
 ## Contributing
 
+See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for the full guide: the four checks
+that gate every PR, commit conventions, the ship-features-with-their-tests rule,
+the `max-lines` ratchet, and the logging conventions. The summary below covers
+the basic flow.
+
 We use a **branch-from-main → PR → review → merge** flow to keep **main** stable and reduce bugs. Always work from the latest **main** and get **at least one review** before merging.
 
 ### 1. Get the code and pull latest from main
@@ -256,11 +261,20 @@ We use a **branch-from-main → PR → review → merge** flow to keep **main** 
 - Prefer **Server Components** unless you need interactivity; use **client** only where necessary (`"use client"`).
 - For **backend calls**, use `serverApiGet` / `serverApiPost` etc. in server code and `clientApiGet` / `clientApiPatch` etc. in client code (see `lib/api-server.ts` and `lib/api-client.ts`).
 
-### 3. Test and lint
+### 3. Run the checks
 
-- Run the app locally: `npm run dev`.
-- Build: `npm run build`.
-- Lint: `npm run lint`.
+All four run in CI on every PR, and again as a gate before deploy:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+Add or update the matching `__tests__` file **in the same commit** as any change
+to `components/` or `lib/`. `npm test` enforces a coverage floor, so a change
+that lowers coverage fails the build.
 
 ### 4. Open a pull request and get a review
 
@@ -281,6 +295,8 @@ We use a **branch-from-main → PR → review → merge** flow to keep **main** 
 
 | Document | Purpose |
 |----------|---------|
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Workflow, required checks, commit and test conventions |
+| [CHANGELOG.md](./CHANGELOG.md) | Notable changes, plus current known issues |
 | [SEO_NEXT_STEPS.md](./SEO_NEXT_STEPS.md) | SEO checklist, Search Console, NAP, sitemap, performance tips |
 | [PERFORMANCE_CHECKLIST.md](./PERFORMANCE_CHECKLIST.md) | Next.js performance targets and what’s implemented |
 | `public/QUICK_START_GUIDE.md` | Quick start for running and using the app |
