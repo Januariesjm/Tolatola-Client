@@ -27,52 +27,20 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ChatButton } from "@/components/messaging/chat-button"
 import { OrderTrackingMap } from "@/components/orders/order-tracking-map"
+import { getPaymentStatusColor, getStatusColor } from "@/lib/orders/status-colors"
+import { logger } from "@/lib/logger"
+import type { Order, OrderItem } from "@/lib/schemas/order"
+
+const log = logger.child("orders.detail")
 
 interface OrderDetailContentProps {
-  order: any
+  order: Order
 }
 
 export function OrderDetailContent({ order }: OrderDetailContentProps) {
   const [isConfirming, setIsConfirming] = useState(false)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
   const router = useRouter()
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return "bg-yellow-500/15 text-yellow-600 border-yellow-200"
-      case "confirmed":
-        return "bg-blue-500/15 text-blue-600 border-blue-200"
-      case "processing":
-        return "bg-purple-500/15 text-purple-600 border-purple-200"
-      case "shipped":
-      case "dispatched":
-      case "in_transit":
-        return "bg-indigo-500/15 text-indigo-600 border-indigo-200"
-      case "delivered":
-        return "bg-green-500/15 text-green-600 border-green-200"
-      case "completed":
-        return "bg-green-600/15 text-green-700 border-green-300"
-      case "cancelled":
-        return "bg-red-500/15 text-red-600 border-red-200"
-      case "refunded":
-        return "bg-gray-500/15 text-gray-600 border-gray-200"
-      default:
-        return "bg-gray-100 text-gray-600 border-gray-200"
-    }
-  }
-
-  const getPaymentStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "paid":
-        return "bg-green-500/15 text-green-600 border-green-200"
-      case "pending":
-        return "bg-yellow-500/15 text-yellow-600 border-yellow-200"
-      case "failed":
-        return "bg-red-500/15 text-red-600 border-red-200"
-      default:
-        return "bg-gray-100 text-gray-600 border-gray-200"
-    }
-  }
 
   const handleConfirmDelivery = async () => {
     setIsConfirming(true)
@@ -83,11 +51,16 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
         body: JSON.stringify({ orderId: order.id }),
       })
 
-      if (response.ok) {
-        router.refresh()
+      if (!response.ok) {
+        // Previously a non-OK response was ignored entirely: no refresh, no
+        // error, no feedback -- indistinguishable from success.
+        throw new Error(`confirm-delivery failed with ${response.status}`)
       }
+      setConfirmError(null)
+      router.refresh()
     } catch (error) {
-      console.error("[v0] Error confirming delivery:", error)
+      log.error("failed to confirm delivery", error, { orderId: order.id })
+      setConfirmError("We couldn't confirm delivery. Please try again.")
     } finally {
       setIsConfirming(false)
     }
@@ -136,6 +109,11 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                   Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received
                   your items. This will finalize payments and close escrows.
                 </p>
+                {confirmError && (
+                  <p role="alert" className="mt-2 text-sm font-medium text-destructive">
+                    {confirmError}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto flex-shrink-0">
@@ -191,7 +169,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               </CardHeader>
               <CardContent className="p-0">
                 {/* Delivery PIN Alert */}
-                {["dispatched", "shipped", "in_transit"].includes(order.status?.toLowerCase()) && order.delivery_pin && (
+                {["dispatched", "shipped", "in_transit"].includes(order.status?.toLowerCase() ?? "") && order.delivery_pin && (
                   <div className="bg-primary/10 border-y border-primary/20 p-4">
                     <div className="flex items-center justify-between gap-4 max-w-2xl mx-auto">
                       <div className="flex items-center gap-3">
@@ -248,7 +226,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                                 "in_transit",
                                 "delivered",
                                 "completed",
-                              ].includes(order.status)
+                              ].includes(order.status ?? "")
                                 ? "bg-green-500 text-white"
                                 : "bg-gray-100 text-gray-400",
                             )}
@@ -269,7 +247,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                                 "in_transit",
                                 "delivered",
                                 "completed",
-                              ].includes(order.status)
+                              ].includes(order.status ?? "")
                                 ? "text-gray-900"
                                 : "text-gray-500",
                             )}
@@ -286,7 +264,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                               "in_transit",
                               "delivered",
                               "completed",
-                            ].includes(order.status)
+                            ].includes(order.status ?? "")
                               ? "Your order is being prepared."
                               : "We are waiting for vendor confirmation."}
                           </p>
@@ -299,7 +277,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           <div
                             className={cn(
                               "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status ?? "")
                                 ? "bg-green-500 text-white"
                                 : "bg-gray-100 text-gray-400",
                             )}
@@ -311,7 +289,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           <h3
                             className={cn(
                               "font-semibold",
-                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status ?? "")
                                 ? "text-gray-900"
                                 : "text-gray-500",
                             )}
@@ -319,7 +297,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                             Out for Delivery
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                            {["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status ?? "")
                               ? "Your order is on the way to you."
                               : "Order is not yet shipped."}
                           </p>
@@ -332,7 +310,9 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           <div
                             className={cn(
                               "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                              ["delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400",
+                              ["delivered", "completed"].includes(order.status ?? "")
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-100 text-gray-400",
                             )}
                           >
                             <Home className="h-5 w-5" />
@@ -342,13 +322,13 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           <h3
                             className={cn(
                               "font-semibold",
-                              ["delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500",
+                              ["delivered", "completed"].includes(order.status ?? "") ? "text-gray-900" : "text-gray-500",
                             )}
                           >
                             Delivered
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {["delivered", "completed"].includes(order.status) ? "Package has been delivered." : "Estimated soon."}
+                            {["delivered", "completed"].includes(order.status ?? "") ? "Package has been delivered." : "Estimated soon."}
                           </p>
                         </div>
                       </div>
@@ -364,7 +344,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                 <CardTitle className="text-lg">Order Items</CardTitle>
               </CardHeader>
               <CardContent className="divide-y p-0">
-                {order.order_items.map((item: any) => {
+                {order.order_items?.map((item: OrderItem) => {
                   const imageUrl = item.products?.images?.[0] || item.products?.primary_image_url || "/placeholder-product.png"
                   return (
                     <div key={item.id} className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-6">
@@ -372,7 +352,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={imageUrl}
-                          alt={item.products.name}
+                          alt={item.products?.name ?? undefined}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             ;(e.target as HTMLImageElement).src =
@@ -383,10 +363,12 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                           <div>
-                            <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">{item.products.name}</h3>
+                            <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">{item.products?.name}</h3>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                               <Store className="h-3.5 w-3.5" />
-                              <span>{item.products.shops?.vendors?.business_name || item.products.shops?.name || "Verified Merchant"}</span>
+                              <span>
+                                {item.products?.shops?.vendors?.business_name || item.products?.shops?.name || "Verified Merchant"}
+                              </span>
                             </div>
                           </div>
                           <p className="font-bold text-lg whitespace-nowrap">TZS {item.total_price.toLocaleString()}</p>
@@ -399,7 +381,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           </div>
                           <div className="text-sm">
                             <span className="text-muted-foreground mr-2">Unit Price:</span>
-                            <span>TZS {item.products.price?.toLocaleString() || "N/A"}</span>
+                            <span>TZS {item.products?.price?.toLocaleString() || "N/A"}</span>
                           </div>
                         </div>
                       </div>
@@ -412,12 +394,12 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
             {/* Merchant / Service Provider Details */}
             {(() => {
               const isServiceOrder = order.order_items?.some(
-                (item: any) =>
+                (item: OrderItem) =>
                   item.products?.categories?.slug === "services" ||
                   item.products?.categories?.name?.toLowerCase() === "services" ||
                   item.products?.category_name?.toLowerCase() === "services",
               )
-              const shop = order.order_items[0]?.products?.shops
+              const shop = order.order_items?.[0]?.products?.shops
               const vendorPhone = shop?.vendors?.users?.phone || shop?.phone
 
               return (
@@ -492,11 +474,11 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                               </a>
                             )}
                             <ChatButton
-                              shopId={shop.id}
-                              shopName={shop.vendors?.business_name || shop.name}
-                              productId={order.order_items[0]?.product_id}
-                              productName={order.order_items[0]?.products?.name}
-                              receiverId={shop.vendors?.user_id}
+                              shopId={shop.id ?? undefined}
+                              shopName={shop.vendors?.business_name || shop.name || undefined}
+                              productId={order.order_items?.[0]?.product_id ?? undefined}
+                              productName={order.order_items?.[0]?.products?.name ?? undefined}
+                              receiverId={shop.vendors?.user_id ?? undefined}
                               orderId={order.id}
                             />
                           </div>
@@ -580,14 +562,14 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                     <MapPin className="h-4 w-4 text-gray-500" />
                   </div>
                   <div className="text-sm space-y-1">
-                    <p className="font-bold text-gray-900">{order.shipping_address.full_name}</p>
-                    <p className="text-muted-foreground">{order.shipping_address.address}</p>
+                    <p className="font-bold text-gray-900">{order.shipping_address?.full_name}</p>
+                    <p className="text-muted-foreground">{order.shipping_address?.address}</p>
                     <p className="text-muted-foreground">
-                      {order.shipping_address.city}, {order.shipping_address.region}
+                      {order.shipping_address?.city}, {order.shipping_address?.region}
                     </p>
                     <p className="text-muted-foreground mt-2 flex items-center gap-1.5">
                       <Phone className="h-3 w-3" />
-                      {order.shipping_address.phone}
+                      {order.shipping_address?.phone}
                     </p>
                   </div>
                 </div>
@@ -623,7 +605,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                 )}
 
                 {/* Tracking Map */}
-                {["shipped", "delivered"].includes(order.status) && order.transporter_assignments?.[0] && (
+                {["shipped", "delivered"].includes(order.status ?? "") && order.transporter_assignments?.[0] && (
                   <div className="mt-6">
                     <h4 className="font-medium mb-3 flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
@@ -631,19 +613,19 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                     </h4>
                     <OrderTrackingMap
                       origin={{
-                        lat: order.order_items[0].products.shops.latitude || -6.7924,
-                        lng: order.order_items[0].products.shops.longitude || 39.2083,
-                        address: order.order_items[0].products.shops.address,
+                        lat: order.order_items?.[0]?.products?.shops?.latitude || -6.7924,
+                        lng: order.order_items?.[0]?.products?.shops?.longitude || 39.2083,
+                        address: order.order_items?.[0]?.products?.shops?.address ?? undefined,
                       }}
                       destination={{
                         lat: order.shipping_address?.latitude || -6.7924, // Fallback if not available
                         lng: order.shipping_address?.longitude || 39.2083,
-                        address: order.shipping_address?.address,
+                        address: order.shipping_address?.address ?? undefined,
                       }}
-                      transporterLocation={order.transporter_assignments[0].transporters?.current_location}
+                      transporterLocation={order.transporter_assignments?.[0]?.transporters?.current_location ?? undefined}
                       className="w-full"
                     />
-                    {order.transporter_assignments[0].transporters?.users && (
+                    {order.transporter_assignments?.[0]?.transporters?.users && (
                       <div className="mt-3 flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-100">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border">

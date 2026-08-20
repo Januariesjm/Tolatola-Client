@@ -2,6 +2,10 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 import { api } from "@/lib/api"
+import { logger } from "@/lib/logger"
+import { confirmDeliveryRequestSchema } from "@/lib/schemas/order"
+
+const log = logger.child("api.orders.confirm-delivery")
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -14,7 +18,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { orderId } = await request.json()
+  // Validate the body before it reaches a query. Previously `orderId` was
+  // destructured straight out of request.json(), so a missing or non-string
+  // value went to Supabase as-is and surfaced as a 404 or a driver error.
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 })
+  }
+
+  const parsed = confirmDeliveryRequestSchema.safeParse(body)
+  if (!parsed.success) {
+    log.warn("rejected malformed confirm-delivery request", undefined, {
+      issues: parsed.error.issues.map((i) => i.message),
+    })
+    return NextResponse.json({ error: "Invalid request", issues: parsed.error.issues.map((i) => i.message) }, { status: 400 })
+  }
+
+  const { orderId } = parsed.data
 
   // Verify order belongs to user and fetch assignments
   const { data: order } = await supabase
