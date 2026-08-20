@@ -69,14 +69,16 @@ jest.mock("next/image", () => ({
   },
 }))
 
-// Mock Supabase client & server to prevent ESM node_modules import issues in Jest environment
+// Mock Supabase client & server to prevent ESM node_modules import issues in the
+// Jest environment, and to guarantee no test can reach a live project.
+// Built from the shared fixture in __tests__/setup/mocks.ts -- import
+// createSupabaseClientMock there directly when a suite needs different
+// behavior. `require` is used inside the factory because jest.mock is hoisted
+// above imports.
 jest.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    auth: {
-      getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
-      signOut: jest.fn().mockResolvedValue({}),
-    },
-  }),
+  createClient: () =>
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require("./__tests__/setup/mocks").createSupabaseClientMock(),
 }))
 
 jest.mock("@/lib/supabase/server", () => ({
