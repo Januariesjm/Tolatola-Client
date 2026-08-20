@@ -4,8 +4,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Account Deletion Request | TOLA Tanzania",
-  description:
-    "Request deletion of your TOLA account and associated personal data. Use in-app self-service or contact the privacy team.",
+  description: "Request deletion of your TOLA account and associated personal data. Use in-app self-service or contact the privacy team.",
   alternates: {
     canonical: "https://tolatola.co/account-deletion-request",
   },
@@ -31,9 +30,7 @@ export default async function AccountDeletionRequestPage() {
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
       <main className="flex-1">
         <section className="container mx-auto px-4 py-12 md:py-20 max-w-3xl">
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-stone-900">
-            Account Deletion Request
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-stone-900">Account Deletion Request</h1>
           <p className="mt-4 text-muted-foreground text-base md:text-lg">
             You can request permanent deletion of your account and associated personal data using the options below.
           </p>
@@ -65,9 +62,7 @@ export default async function AccountDeletionRequestPage() {
               </a>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Note: account deletion is permanent and cannot be undone once processed.
-            </p>
+            <p className="text-xs text-muted-foreground">Note: account deletion is permanent and cannot be undone once processed.</p>
           </div>
         </section>
       </main>

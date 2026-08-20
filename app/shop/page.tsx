@@ -11,14 +11,11 @@ import type { Metadata } from "next"
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { category?: string }
-}): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: { searchParams: { category?: string } }): Promise<Metadata> {
   const baseUrl = "https://tolatola.co"
   let title = "Shop | TOLA Digital Trade & Supply Chain Ecosystem"
-  let description = "Shop from verified vendors within TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure checkout with M-Pesa & Tigo Pesa, integrated logistics and verified businesses."
+  let description =
+    "Shop from verified vendors within TOLA, Tanzania's registered Digital Trade and Supply Chain Ecosystem. Secure checkout with M-Pesa & Tigo Pesa, integrated logistics and verified businesses."
   let canonical = `${baseUrl}/shop`
 
   const currentCategory = searchParams.category
@@ -29,21 +26,21 @@ export async function generateMetadata({
     // Static fallback lookup for robustness
     const categoryStaticMap: Record<string, string> = {
       "fast-moving-consumer-goods": "Fast Moving Consumer Goods",
-      "agriculture": "Agriculture",
+      agriculture: "Agriculture",
       "construction-hardware": "Construction & Hardware",
-      "handicrafts": "Handicrafts",
+      handicrafts: "Handicrafts",
       "food-beverages": "Food & Beverages",
-      "textiles": "Textiles",
-      "electronics": "Electronics",
+      textiles: "Textiles",
+      electronics: "Electronics",
       "home-garden": "Home & Garden",
       "health-beauty": "Health & Beauty",
-      "services": "Services",
-      "vehicles": "Vehicles",
-      "motorcycles": "Motorcycles",
-      "bajaj": "Bajaj",
-      "bodaboda": "Bodaboda",
-      "guta": "Guta",
-      "others": "others",
+      services: "Services",
+      vehicles: "Vehicles",
+      motorcycles: "Motorcycles",
+      bajaj: "Bajaj",
+      bodaboda: "Bodaboda",
+      guta: "Guta",
+      others: "others",
     }
 
     if (categoryStaticMap[currentCategory]) {
@@ -178,15 +175,8 @@ export default async function ShopPage({
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
-
       <CategoriesNav categories={categories || []} currentCategory={currentCategory} />
-      <ShopContent
-        products={products || []}
-        categories={categories || []}
-        trendingProducts={trending}
-        searchQuery={searchQuery}
-      />
+      <ShopContent products={products || []} categories={categories || []} trendingProducts={trending} searchQuery={searchQuery} />
     </div>
   )
 }
-

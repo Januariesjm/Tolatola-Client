@@ -9,12 +9,7 @@
  * - the error reporter hook, and that a throwing reporter cannot break callers
  */
 
-import {
-  logger,
-  normalizeError,
-  setErrorReporter,
-  type LogRecord,
-} from "@/lib/logger"
+import { logger, normalizeError, setErrorReporter, type LogRecord } from "@/lib/logger"
 
 const ORIGINAL_LOG_LEVEL = process.env.NEXT_PUBLIC_LOG_LEVEL
 const ORIGINAL_NODE_ENV = process.env.NODE_ENV
@@ -156,12 +151,9 @@ describe("logger", () => {
     it("includes the normalized error before the context", () => {
       logger.error("failed", new Error("nope"), { agentId: "a-1" })
 
-      expect(errorSpy).toHaveBeenCalledWith(
-        "[error]",
-        "failed",
-        expect.objectContaining({ name: "Error", message: "nope" }),
-        { agentId: "a-1" },
-      )
+      expect(errorSpy).toHaveBeenCalledWith("[error]", "failed", expect.objectContaining({ name: "Error", message: "nope" }), {
+        agentId: "a-1",
+      })
     })
 
     it("omits the error slot when no error is passed", () => {

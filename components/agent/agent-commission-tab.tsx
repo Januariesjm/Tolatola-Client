@@ -20,7 +20,7 @@ import {
   Landmark,
   X,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 
@@ -38,7 +38,7 @@ export function AgentCommissionTab({
   myRank,
 }: AgentCommissionTabProps) {
   const { toast } = useToast()
-  
+
   // Wallet State
   const [walletStats, setWalletStats] = useState<any>({
     lifetimeEarnings: initialSummary?.totalEarnings || 0,
@@ -48,24 +48,26 @@ export function AgentCommissionTab({
     commissions: initialCommissions || [],
     withdrawals: [],
   })
-  
+
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitLoading, setIsSubmitLoading] = useState(false)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [activeHistoryTab, setActiveHistoryTab] = useState<"earnings" | "payouts">("earnings")
-  
+
   // Form State
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("m-pesa")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [period, setPeriod] = useState<DatePeriod>("all")
-  
+
   // Fetch real-time wallet details from backend
   const fetchWalletDetails = async () => {
     try {
       const { createClient } = await import("@/lib/supabase/client")
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
 
       const response = await fetch(`${apiBase}/agents/wallet`, {
@@ -102,15 +104,11 @@ export function AgentCommissionTab({
   }, [dateFilteredCommissions])
 
   const computedPendingBalance = useMemo(() => {
-    return dateFilteredCommissions
-      .filter((c: any) => c.status === "pending")
-      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+    return dateFilteredCommissions.filter((c: any) => c.status === "pending").reduce((sum: number, c: any) => sum + Number(c.amount), 0)
   }, [dateFilteredCommissions])
 
   const computedPaidBalance = useMemo(() => {
-    return dateFilteredCommissions
-      .filter((c: any) => c.status === "paid")
-      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+    return dateFilteredCommissions.filter((c: any) => c.status === "paid").reduce((sum: number, c: any) => sum + Number(c.amount), 0)
   }, [dateFilteredCommissions])
 
   // Currency Formatter
@@ -129,7 +127,7 @@ export function AgentCommissionTab({
   // Handle Payout Submission
   const handleWithdrawSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const amount = Number(withdrawAmount)
     const balance = walletStats.withdrawableBalance || 0
 
@@ -165,7 +163,9 @@ export function AgentCommissionTab({
     try {
       const { createClient } = await import("@/lib/supabase/client")
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
 
       const response = await fetch(`${apiBase}/agents/withdrawals/request`, {
@@ -213,12 +213,11 @@ export function AgentCommissionTab({
   }
 
   // Fees calculation
-  const calculatedFee = withdrawAmount ? Math.round(Number(withdrawAmount) * 0.10) : 0
+  const calculatedFee = withdrawAmount ? Math.round(Number(withdrawAmount) * 0.1) : 0
   const expectedPayout = withdrawAmount ? Math.max(0, Number(withdrawAmount) - calculatedFee) : 0
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <h2 className="text-xl font-black text-slate-900 uppercase tracking-wider">Miamala na Mapato</h2>
         <DateRangeFilter value={period} onChange={setPeriod} />
@@ -226,18 +225,15 @@ export function AgentCommissionTab({
 
       {/* Premium Wallet & KPI Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Glassmorphic Balance Debit Card */}
         <div className="relative h-[220px] rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-700 to-indigo-900 p-6 text-white shadow-xl overflow-hidden flex flex-col justify-between border border-emerald-500/20 lg:col-span-1">
           {/* Background shapes for aesthetics */}
           <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/5 blur-3xl -mr-16 -mt-16" />
           <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-2xl -ml-20 -mb-20" />
-          
+
           <div className="flex justify-between items-start z-10">
             <div>
-              <span className="text-xs font-medium text-emerald-100/80 uppercase tracking-widest block">
-                SALIO LAKO LA WALLET
-              </span>
+              <span className="text-xs font-medium text-emerald-100/80 uppercase tracking-widest block">SALIO LAKO LA WALLET</span>
               <h2 className="text-3xl md:text-4xl font-black mt-1 tracking-tight">
                 {isLoading ? (
                   <span className="inline-block h-8 w-32 bg-white/10 animate-pulse rounded" />
@@ -252,9 +248,7 @@ export function AgentCommissionTab({
           </div>
 
           <div className="z-10">
-            <span className="text-[10px] text-emerald-200/60 font-mono tracking-wider block">
-              TOLA AGENT DEBIT ACCOUNT
-            </span>
+            <span className="text-[10px] text-emerald-200/60 font-mono tracking-wider block">TOLA AGENT DEBIT ACCOUNT</span>
             <div className="flex justify-between items-center mt-3">
               <span className="text-xs text-white/90 font-semibold tracking-widest block font-mono">
                 **** **** **** {walletStats.commissions?.[0]?.agent_id?.substring(0, 4)?.toUpperCase() || "AGENT"}
@@ -274,18 +268,13 @@ export function AgentCommissionTab({
 
         {/* Secondary Info Widgets */}
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:col-span-2 gap-4">
-          
           {/* Lifetime Earnings */}
           <Card className="shadow-sm rounded-xl border border-emerald-100/80 bg-white hover:shadow-md transition-shadow">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                    PATO LA LIFETIME
-                  </span>
-                  <span className="text-xl md:text-2xl font-black text-emerald-600 block">
-                    {formatTzs(computedLifetimeEarnings)}
-                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">PATO LA LIFETIME</span>
+                  <span className="text-xl md:text-2xl font-black text-emerald-600 block">{formatTzs(computedLifetimeEarnings)}</span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
                   <Coins className="h-5 w-5" />
@@ -302,12 +291,8 @@ export function AgentCommissionTab({
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                    INAYOSUBIRI KUKUBALIWA
-                  </span>
-                  <span className="text-xl md:text-2xl font-black text-amber-600 block">
-                    {formatTzs(computedPendingBalance)}
-                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">INAYOSUBIRI KUKUBALIWA</span>
+                  <span className="text-xl md:text-2xl font-black text-amber-600 block">{formatTzs(computedPendingBalance)}</span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
                   <Clock className="h-5 w-5" />
@@ -324,12 +309,8 @@ export function AgentCommissionTab({
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                    ZILIZOTOLEWA TAYARI
-                  </span>
-                  <span className="text-xl md:text-2xl font-black text-teal-600 block">
-                    {formatTzs(computedPaidBalance)}
-                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">ZILIZOTOLEWA TAYARI</span>
+                  <span className="text-xl md:text-2xl font-black text-teal-600 block">{formatTzs(computedPaidBalance)}</span>
                 </div>
                 <div className="h-10 w-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-sm">
                   <CheckCircle2 className="h-5 w-5" />
@@ -340,7 +321,6 @@ export function AgentCommissionTab({
               </span>
             </CardContent>
           </Card>
-
         </div>
       </div>
 
@@ -348,22 +328,16 @@ export function AgentCommissionTab({
       <Card className="shadow-sm rounded-xl border border-slate-200 bg-white overflow-hidden">
         <div className="border-b border-slate-100 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
           <div>
-            <CardTitle className="text-sm font-bold text-slate-800">
-              Historia ya Miamala ya Wallet
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-400">
-              Fuatilia mienendo ya mapato na utoaji wako wa fedha
-            </CardDescription>
+            <CardTitle className="text-sm font-bold text-slate-800">Historia ya Miamala ya Wallet</CardTitle>
+            <CardDescription className="text-xs text-slate-400">Fuatilia mienendo ya mapato na utoaji wako wa fedha</CardDescription>
           </div>
-          
+
           {/* Custom Tabs */}
           <div className="flex rounded-lg bg-slate-200/60 p-1 self-stretch sm:self-auto">
             <button
               onClick={() => setActiveHistoryTab("earnings")}
               className={`flex-1 sm:flex-initial text-xs font-bold px-4 py-1.5 rounded-md transition-all ${
-                activeHistoryTab === "earnings"
-                  ? "bg-white text-emerald-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
+                activeHistoryTab === "earnings" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               Kamisheni Zilizopokelewa
@@ -371,9 +345,7 @@ export function AgentCommissionTab({
             <button
               onClick={() => setActiveHistoryTab("payouts")}
               className={`flex-1 sm:flex-initial text-xs font-bold px-4 py-1.5 rounded-md transition-all ${
-                activeHistoryTab === "payouts"
-                  ? "bg-white text-emerald-700 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
+                activeHistoryTab === "payouts" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               Fedha Zilizotolewa (Payouts)
@@ -408,15 +380,15 @@ export function AgentCommissionTab({
                           {comm.agent_registrations ? (
                             <div className="flex flex-col">
                               <span>Usajili: {comm.agent_registrations.full_name}</span>
-                              <span className="text-[10px] text-slate-400 capitalize">Referred {comm.agent_registrations.registration_type}</span>
+                              <span className="text-[10px] text-slate-400 capitalize">
+                                Referred {comm.agent_registrations.registration_type}
+                              </span>
                             </div>
                           ) : (
                             comm.description || "Commission Reward"
                           )}
                         </td>
-                        <td className="py-4 px-4 text-emerald-600 font-black">
-                          +{formatTzs(comm.amount)}
-                        </td>
+                        <td className="py-4 px-4 text-emerald-600 font-black">+{formatTzs(comm.amount)}</td>
                         <td className="py-4 px-4 capitalize">
                           <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold">
                             {comm.commission_type}
@@ -430,12 +402,17 @@ export function AgentCommissionTab({
                           })}
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
-                            comm.status === "paid" ? "bg-emerald-100 text-emerald-800" :
-                            comm.status === "approved" ? "bg-teal-100 text-teal-800" :
-                            comm.status === "pending" ? "bg-amber-100 text-amber-800" :
-                            "bg-rose-100 text-rose-800"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                              comm.status === "paid"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : comm.status === "approved"
+                                  ? "bg-teal-100 text-teal-800"
+                                  : comm.status === "pending"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
                             {comm.status === "pending" ? "Inasubiri" : comm.status === "approved" ? "Imeidhinishwa" : comm.status}
                           </span>
                         </td>
@@ -445,68 +422,72 @@ export function AgentCommissionTab({
                 </table>
               </div>
             )
+          ) : /* Withdrawals History payouts list */
+          dateFilteredWithdrawals.length === 0 ? (
+            <div className="text-center py-20 bg-white">
+              <Landmark className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+              <p className="text-xs text-slate-400 font-semibold">Hujafanya muamala wowote wa kutoa salio bado.</p>
+            </div>
           ) : (
-            /* Withdrawals History payouts list */
-            dateFilteredWithdrawals.length === 0 ? (
-              <div className="text-center py-20 bg-white">
-                <Landmark className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-                <p className="text-xs text-slate-400 font-semibold">Hujafanya muamala wowote wa kutoa salio bado.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50/20 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                      <th className="py-4 px-6">Njia ya Malipo</th>
-                      <th className="py-4 px-4">Kiasi Kilichotolewa</th>
-                      <th className="py-4 px-4">Makato (Fee)</th>
-                      <th className="py-4 px-4">Kiasi cha Kupokea</th>
-                      <th className="py-4 px-4">Tarehe</th>
-                      <th className="py-4 px-6 text-right">Hali ya Malipo</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/20 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                    <th className="py-4 px-6">Njia ya Malipo</th>
+                    <th className="py-4 px-4">Kiasi Kilichotolewa</th>
+                    <th className="py-4 px-4">Makato (Fee)</th>
+                    <th className="py-4 px-4">Kiasi cha Kupokea</th>
+                    <th className="py-4 px-4">Tarehe</th>
+                    <th className="py-4 px-6 text-right">Hali ya Malipo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {dateFilteredWithdrawals.map((wdraw: any) => (
+                    <tr key={wdraw.id} className="hover:bg-slate-50/40 transition-colors">
+                      <td className="py-4 px-6">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900 uppercase">{wdraw.payment_method}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">{wdraw.payment_details?.phoneNumber || "M-Money"}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-slate-800 font-black">{formatTzs(wdraw.amount)}</td>
+                      <td className="py-4 px-4 text-rose-500 font-medium">-{formatTzs(wdraw.service_fee)}</td>
+                      <td className="py-4 px-4 text-emerald-600 font-black">{formatTzs(wdraw.payout_amount)}</td>
+                      <td className="py-4 px-4 text-slate-500 font-medium">
+                        {new Date(wdraw.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                            wdraw.status === "paid"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : wdraw.status === "approved"
+                                ? "bg-teal-100 text-teal-800"
+                                : wdraw.status === "processing"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : wdraw.status === "pending"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-rose-100 text-rose-800"
+                          }`}
+                        >
+                          {wdraw.status === "pending"
+                            ? "Inasubiri"
+                            : wdraw.status === "processing"
+                              ? "Inatumwa"
+                              : wdraw.status === "paid"
+                                ? "Imelipwa"
+                                : wdraw.status}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {dateFilteredWithdrawals.map((wdraw: any) => (
-                      <tr key={wdraw.id} className="hover:bg-slate-50/40 transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-slate-900 uppercase">{wdraw.payment_method}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">{wdraw.payment_details?.phoneNumber || "M-Money"}</span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-slate-800 font-black">
-                          {formatTzs(wdraw.amount)}
-                        </td>
-                        <td className="py-4 px-4 text-rose-500 font-medium">
-                          -{formatTzs(wdraw.service_fee)}
-                        </td>
-                        <td className="py-4 px-4 text-emerald-600 font-black">
-                          {formatTzs(wdraw.payout_amount)}
-                        </td>
-                        <td className="py-4 px-4 text-slate-500 font-medium">
-                          {new Date(wdraw.created_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
-                            wdraw.status === "paid" ? "bg-emerald-100 text-emerald-800" :
-                            wdraw.status === "approved" ? "bg-teal-100 text-teal-800" :
-                            wdraw.status === "processing" ? "bg-blue-100 text-blue-800" :
-                            wdraw.status === "pending" ? "bg-amber-100 text-amber-800" :
-                            "bg-rose-100 text-rose-800"
-                          }`}>
-                            {wdraw.status === "pending" ? "Inasubiri" : wdraw.status === "processing" ? "Inatumwa" : wdraw.status === "paid" ? "Imelipwa" : wdraw.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -576,7 +557,9 @@ export function AgentCommissionTab({
               {/* Amount Field */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="amount" className="text-xs font-bold text-slate-700">Kiasi cha Kutoa</Label>
+                  <Label htmlFor="amount" className="text-xs font-bold text-slate-700">
+                    Kiasi cha Kutoa
+                  </Label>
                   <span className="text-[10px] font-bold text-slate-400">Tzs pekee</span>
                 </div>
                 <div className="relative">
@@ -634,9 +617,7 @@ export function AgentCommissionTab({
                   <span>{formatTzs(Number(withdrawAmount || 0))}</span>
                 </div>
                 <div className="flex justify-between text-rose-500 font-semibold">
-                  <span className="flex items-center gap-1">
-                    Gharama ya Muamala (10%):
-                  </span>
+                  <span className="flex items-center gap-1">Gharama ya Muamala (10%):</span>
                   <span>-{formatTzs(calculatedFee)}</span>
                 </div>
                 <div className="flex justify-between border-t border-slate-200/60 pt-2.5 text-slate-800 font-black text-sm">
@@ -677,7 +658,6 @@ export function AgentCommissionTab({
           </div>
         </div>
       )}
-      
     </div>
   )
 }

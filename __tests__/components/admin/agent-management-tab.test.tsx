@@ -15,11 +15,7 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { AgentManagementTab } from "@/components/admin/agent-management-tab"
 import { setErrorReporter, type LogRecord } from "@/lib/logger"
-import type {
-  AdminAgent,
-  AgentCommissionRate,
-  AgentStats,
-} from "@/lib/admin/agent-types"
+import type { AdminAgent, AgentCommissionRate, AgentStats } from "@/lib/admin/agent-types"
 
 const mockToast = jest.fn()
 jest.mock("@/components/ui/use-toast", () => ({
@@ -168,9 +164,7 @@ describe("AgentManagementTab", () => {
       render(<AgentManagementTab initialAgents={[]} />)
 
       await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({ title: "Loading Failed", variant: "destructive" }),
-        )
+        expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Loading Failed", variant: "destructive" }))
       })
       expect(reported).toHaveLength(1)
       expect(reported[0]).toMatchObject({
@@ -222,15 +216,11 @@ describe("AgentManagementTab", () => {
           expect.objectContaining({ body: JSON.stringify({ status: "active" }) }),
         )
       })
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ description: "Agent is now active." }),
-      )
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ description: "Agent is now active." }))
     })
 
     it("toasts and logs when the status update fails, without claiming success", async () => {
-      mockFetch([
-        { match: (url, method) => method === "POST" && url.includes("/activate"), ok: false },
-      ])
+      mockFetch([{ match: (url, method) => method === "POST" && url.includes("/activate"), ok: false }])
       render(<AgentManagementTab initialAgents={[]} />)
       await screen.findByText("AG-001")
 
@@ -238,13 +228,9 @@ describe("AgentManagementTab", () => {
       await userEvent.click(buttons[0])
 
       await waitFor(() => {
-        expect(mockToast).toHaveBeenCalledWith(
-          expect.objectContaining({ title: "Failed", variant: "destructive" }),
-        )
+        expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Failed", variant: "destructive" }))
       })
-      expect(mockToast).not.toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Agent Status Updated" }),
-      )
+      expect(mockToast).not.toHaveBeenCalledWith(expect.objectContaining({ title: "Agent Status Updated" }))
       expect(reported.map((r) => r.message)).toContain("failed to update agent status")
       expect(reported[0].context).toMatchObject({
         agentId: "agent-1",
@@ -269,10 +255,7 @@ describe("AgentManagementTab", () => {
 
       await openDeleteDialog("AG-001")
 
-      expect(fetchMock).not.toHaveBeenCalledWith(
-        `${API_BASE}/admin/agents/agent-1`,
-        expect.objectContaining({ method: "DELETE" }),
-      )
+      expect(fetchMock).not.toHaveBeenCalledWith(`${API_BASE}/admin/agents/agent-1`, expect.objectContaining({ method: "DELETE" }))
     })
 
     it("deletes the agent when confirmed", async () => {
@@ -292,14 +275,9 @@ describe("AgentManagementTab", () => {
       await userEvent.click(confirm)
 
       await waitFor(() => {
-        expect(fetchMock).toHaveBeenCalledWith(
-          `${API_BASE}/admin/agents/agent-1`,
-          expect.objectContaining({ method: "DELETE" }),
-        )
+        expect(fetchMock).toHaveBeenCalledWith(`${API_BASE}/admin/agents/agent-1`, expect.objectContaining({ method: "DELETE" }))
       })
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Agent Deleted", description: "Agent removed." }),
-      )
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Agent Deleted", description: "Agent removed." }))
     })
 
     it("surfaces the API error message and logs the agent id on failure", async () => {
@@ -358,9 +336,7 @@ describe("AgentManagementTab", () => {
           expect.objectContaining({ method: "PUT", body: JSON.stringify({ rates }) }),
         )
       })
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Rates Updated Successfully" }),
-      )
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Rates Updated Successfully" }))
     })
 
     it("sends an edited amount as a number, not a string", async () => {
@@ -374,9 +350,7 @@ describe("AgentManagementTab", () => {
       await userEvent.click(screen.getByRole("button", { name: /save commission rates/i }))
 
       await waitFor(() => {
-        const putCall = fetchMock.mock.calls.find(
-          ([, init]) => (init as RequestInit | undefined)?.method === "PUT",
-        )
+        const putCall = fetchMock.mock.calls.find(([, init]) => (init as RequestInit | undefined)?.method === "PUT")
         expect(putCall).toBeDefined()
         const body = JSON.parse(String((putCall?.[1] as RequestInit).body))
         expect(body.rates).toEqual([
@@ -396,9 +370,7 @@ describe("AgentManagementTab", () => {
       await userEvent.click(screen.getByRole("button", { name: /save commission rates/i }))
 
       await waitFor(() => {
-        const putCall = fetchMock.mock.calls.find(
-          ([, init]) => (init as RequestInit | undefined)?.method === "PUT",
-        )
+        const putCall = fetchMock.mock.calls.find(([, init]) => (init as RequestInit | undefined)?.method === "PUT")
         const body = JSON.parse(String((putCall?.[1] as RequestInit).body))
         expect(body.rates[1]).toEqual({ registration_type: "customer", amount: 0 })
       })

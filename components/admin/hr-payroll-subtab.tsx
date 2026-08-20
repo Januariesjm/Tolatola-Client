@@ -6,21 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import {
   Coins,
   FileSpreadsheet,
@@ -84,11 +71,11 @@ interface PayrollRecord {
 
 export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
   const [activeTab, setActiveTab] = useState<"overview" | "profiles" | "records">("records")
-  
+
   // State for payroll data
   const [profiles, setProfiles] = useState<PayrollProfile[]>([])
   const [records, setRecords] = useState<PayrollRecord[]>([])
-  
+
   // Selected month for records & overview (Format: YYYY-MM)
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const d = new Date()
@@ -102,7 +89,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
   const [genMonth, setGenMonth] = useState(selectedMonth)
   const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
   const [selectedStaffForProfile, setSelectedStaffForProfile] = useState<HRStaff | null>(null)
-  
+
   const [profileForm, setProfileForm] = useState({
     basic_salary: "",
     allowances: "",
@@ -151,10 +138,10 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
 
   // Map profile details directly to the staff array
   const staffWithProfiles = useMemo(() => {
-    const profileMap = new Map(profiles.map(p => [p.staff_id, p]))
+    const profileMap = new Map(profiles.map((p) => [p.staff_id, p]))
     return staff
-      .filter(s => s.status === "active")
-      .map(s => {
+      .filter((s) => s.status === "active")
+      .map((s) => {
         const profile = profileMap.get(s.id)
         return {
           staff: s,
@@ -163,21 +150,24 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             allowances: 0,
             deductions: 0,
             paye: 0,
-          }
+          },
         }
       })
   }, [staff, profiles])
 
   // Calculations for Totals in selected Month Records
   const monthlyTotals = useMemo(() => {
-    return records.reduce((acc, rec) => {
-      acc.basic += Number(rec.basic_salary || 0)
-      acc.allowances += Number(rec.allowances || 0)
-      acc.deductions += Number(rec.deductions || 0)
-      acc.paye += Number(rec.paye || 0)
-      acc.net += Number(rec.net_salary || 0)
-      return acc
-    }, { basic: 0, allowances: 0, deductions: 0, paye: 0, net: 0 })
+    return records.reduce(
+      (acc, rec) => {
+        acc.basic += Number(rec.basic_salary || 0)
+        acc.allowances += Number(rec.allowances || 0)
+        acc.deductions += Number(rec.deductions || 0)
+        acc.paye += Number(rec.paye || 0)
+        acc.net += Number(rec.net_salary || 0)
+        return acc
+      },
+      { basic: 0, allowances: 0, deductions: 0, paye: 0, net: 0 },
+    )
   }, [records])
 
   // Handle Edit Profile click
@@ -196,7 +186,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedStaffForProfile) return
-    
+
     setLoading(true)
     setError(null)
     try {
@@ -207,7 +197,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
         deductions: Number(profileForm.deductions || 0),
         paye: Number(profileForm.paye || 0),
       })
-      
+
       await fetchProfiles()
       setIsProfileEditOpen(false)
     } catch (err: any) {
@@ -244,11 +234,9 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
         <div className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/40 border-b border-slate-100">
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-800">Payroll Management</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Review history, update salaries, and generate payslips.
-            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">Review history, update salaries, and generate payslips.</p>
           </div>
-          <Button 
+          <Button
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl flex items-center gap-2 shadow-sm self-start sm:self-center"
             onClick={() => {
               setGenMonth(selectedMonth)
@@ -265,9 +253,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             <button
               onClick={() => setActiveTab("overview")}
               className={`py-4 text-sm font-semibold border-b-2 transition-all ${
-                activeTab === "overview"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                activeTab === "overview" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
             >
               Overview
@@ -275,9 +261,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             <button
               onClick={() => setActiveTab("profiles")}
               className={`py-4 text-sm font-semibold border-b-2 transition-all ${
-                activeTab === "profiles"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                activeTab === "profiles" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
             >
               Employee Profiles
@@ -285,9 +269,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             <button
               onClick={() => setActiveTab("records")}
               className={`py-4 text-sm font-semibold border-b-2 transition-all ${
-                activeTab === "records"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                activeTab === "records" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
             >
               Payroll Records
@@ -312,65 +294,45 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="rounded-xl border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Total Net Payout
-                </CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Net Payout</CardTitle>
                 <Coins className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900">
-                  TZS {formatCurrency(monthlyTotals.net)}
-                </div>
+                <div className="text-2xl font-bold text-slate-900">TZS {formatCurrency(monthlyTotals.net)}</div>
                 <p className="text-xs text-muted-foreground mt-1">For the month of {selectedMonth}</p>
               </CardContent>
             </Card>
 
             <Card className="rounded-xl border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Total Basic Salary
-                </CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Basic Salary</CardTitle>
                 <DollarSign className="h-4 w-4 text-slate-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900">
-                  TZS {formatCurrency(monthlyTotals.basic)}
-                </div>
+                <div className="text-2xl font-bold text-slate-900">TZS {formatCurrency(monthlyTotals.basic)}</div>
                 <p className="text-xs text-muted-foreground mt-1">Before allowances/deductions</p>
               </CardContent>
             </Card>
 
             <Card className="rounded-xl border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Total Allowances
-                </CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Allowances</CardTitle>
                 <TrendingUp className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900">
-                  TZS {formatCurrency(monthlyTotals.allowances)}
-                </div>
+                <div className="text-2xl font-bold text-slate-900">TZS {formatCurrency(monthlyTotals.allowances)}</div>
                 <p className="text-xs text-muted-foreground mt-1">Bonuses, benefits, travel</p>
               </CardContent>
             </Card>
 
             <Card className="rounded-xl border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  PAYE & Deductions
-                </CardTitle>
-                <Badge className="bg-red-50 text-red-700 border-red-200">
-                  Tax Deducted
-                </Badge>
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">PAYE & Deductions</CardTitle>
+                <Badge className="bg-red-50 text-red-700 border-red-200">Tax Deducted</Badge>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900">
-                  TZS {formatCurrency(monthlyTotals.deductions + monthlyTotals.paye)}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  PAYE: TZS {formatCurrency(monthlyTotals.paye)}
-                </p>
+                <div className="text-2xl font-bold text-slate-900">TZS {formatCurrency(monthlyTotals.deductions + monthlyTotals.paye)}</div>
+                <p className="text-xs text-muted-foreground mt-1">PAYE: TZS {formatCurrency(monthlyTotals.paye)}</p>
               </CardContent>
             </Card>
           </div>
@@ -443,18 +405,10 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
                           <p className="text-xs text-muted-foreground">{staff.department}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(profile.basic_salary)}
-                      </TableCell>
-                      <TableCell className="text-right text-emerald-600 font-medium">
-                        {formatCurrency(profile.allowances)}
-                      </TableCell>
-                      <TableCell className="text-right text-red-600 font-medium">
-                        {formatCurrency(profile.deductions)}
-                      </TableCell>
-                      <TableCell className="text-right text-pink-600 font-medium">
-                        {formatCurrency(profile.paye)}
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(profile.basic_salary)}</TableCell>
+                      <TableCell className="text-right text-emerald-600 font-medium">{formatCurrency(profile.allowances)}</TableCell>
+                      <TableCell className="text-right text-red-600 font-medium">{formatCurrency(profile.deductions)}</TableCell>
+                      <TableCell className="text-right text-pink-600 font-medium">{formatCurrency(profile.paye)}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
@@ -497,7 +451,17 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             <CardContent className="p-0">
               {records.length === 0 ? (
                 <div className="p-12 text-center text-slate-500">
-                  No payroll records found for {selectedMonth}. Click <strong className="text-primary cursor-pointer hover:underline" onClick={() => { setGenMonth(selectedMonth); setIsGenerateOpen(true) }}>Generate Payroll</strong> to create them.
+                  No payroll records found for {selectedMonth}. Click{" "}
+                  <strong
+                    className="text-primary cursor-pointer hover:underline"
+                    onClick={() => {
+                      setGenMonth(selectedMonth)
+                      setIsGenerateOpen(true)
+                    }}
+                  >
+                    Generate Payroll
+                  </strong>{" "}
+                  to create them.
                 </div>
               ) : (
                 <Table>
@@ -516,27 +480,13 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
                   <TableBody>
                     {records.map((rec) => (
                       <TableRow key={rec.id} className="hover:bg-slate-50/50">
-                        <TableCell className="font-bold text-slate-800">
-                          {rec.hr_staff_records?.full_name || "Employee"}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {formatCurrency(rec.basic_salary)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-slate-700">
-                          {formatCurrency(rec.allowances)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-slate-700">
-                          {formatCurrency(rec.deductions)}
-                        </TableCell>
-                        <TableCell className="text-right text-pink-600 font-medium">
-                          {formatCurrency(rec.paye)}
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-slate-900">
-                          {formatCurrency(rec.net_salary)}
-                        </TableCell>
-                        <TableCell className="text-sm text-slate-600">
-                          {rec.created_by}
-                        </TableCell>
+                        <TableCell className="font-bold text-slate-800">{rec.hr_staff_records?.full_name || "Employee"}</TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(rec.basic_salary)}</TableCell>
+                        <TableCell className="text-right font-medium text-slate-700">{formatCurrency(rec.allowances)}</TableCell>
+                        <TableCell className="text-right font-medium text-slate-700">{formatCurrency(rec.deductions)}</TableCell>
+                        <TableCell className="text-right text-pink-600 font-medium">{formatCurrency(rec.paye)}</TableCell>
+                        <TableCell className="text-right font-bold text-slate-900">{formatCurrency(rec.net_salary)}</TableCell>
+                        <TableCell className="text-sm text-slate-600">{rec.created_by}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center gap-1 justify-end">
                             <Button
@@ -593,26 +543,23 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <p className="text-sm text-slate-500 leading-relaxed">
-              This will automatically process and create payroll records for all <strong>active</strong> staff directory employees for the chosen month.
+              This will automatically process and create payroll records for all <strong>active</strong> staff directory employees for the
+              chosen month.
             </p>
             <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 p-3 rounded-lg leading-relaxed">
-              <strong>Note:</strong> If payroll was already generated for this month, regenerating will update existing records to reflect their current configurations.
+              <strong>Note:</strong> If payroll was already generated for this month, regenerating will update existing records to reflect
+              their current configurations.
             </p>
             <div className="space-y-2">
               <Label>Target Month</Label>
-              <Input
-                type="month"
-                value={genMonth}
-                onChange={(e) => setGenMonth(e.target.value)}
-                className="rounded-xl"
-              />
+              <Input type="month" value={genMonth} onChange={(e) => setGenMonth(e.target.value)} className="rounded-xl" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsGenerateOpen(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleGeneratePayroll}
               className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
               disabled={loading}
@@ -680,11 +627,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
               />
             </div>
 
-            {error && (
-              <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">
-                {error}
-              </div>
-            )}
+            {error && <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">{error}</div>}
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => setIsProfileEditOpen(false)} className="rounded-xl">
@@ -708,7 +651,9 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
 
           {/* Payslip Content (Uses style tags to enforce clean print-only formats) */}
           <div id="payslip-printable-area" className="p-6 border rounded-xl bg-white text-slate-800 space-y-6">
-            <style dangerouslySetInnerHTML={{__html: `
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
               @media print {
                 body * {
                   visibility: hidden;
@@ -729,7 +674,9 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
                   display: none !important;
                 }
               }
-            `}} />
+            `,
+              }}
+            />
 
             {/* Payslip Header */}
             <div className="flex justify-between items-start border-b pb-4">
@@ -754,7 +701,9 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
               </div>
               <div>
                 <span className="text-xs text-slate-400 block font-medium">Employee ID:</span>
-                <span className="font-bold text-slate-800 font-mono">{selectedRecordForDetail?.hr_staff_records?.employee_id || "N/A"}</span>
+                <span className="font-bold text-slate-800 font-mono">
+                  {selectedRecordForDetail?.hr_staff_records?.employee_id || "N/A"}
+                </span>
               </div>
             </div>
 
@@ -765,15 +714,24 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Basic Salary</span>
-                    <span className="font-semibold">TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.basic_salary) : "0.00"}</span>
+                    <span className="font-semibold">
+                      TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.basic_salary) : "0.00"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Allowances</span>
-                    <span className="font-semibold text-emerald-600">+ TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.allowances) : "0.00"}</span>
+                    <span className="font-semibold text-emerald-600">
+                      + TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.allowances) : "0.00"}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between font-bold text-slate-800">
                     <span>Gross Salary</span>
-                    <span>TZS {selectedRecordForDetail ? formatCurrency(Number(selectedRecordForDetail.basic_salary) + Number(selectedRecordForDetail.allowances)) : "0.00"}</span>
+                    <span>
+                      TZS{" "}
+                      {selectedRecordForDetail
+                        ? formatCurrency(Number(selectedRecordForDetail.basic_salary) + Number(selectedRecordForDetail.allowances))
+                        : "0.00"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -783,15 +741,24 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-500">PAYE Tax</span>
-                    <span className="font-semibold text-red-500">- TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.paye) : "0.00"}</span>
+                    <span className="font-semibold text-red-500">
+                      - TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.paye) : "0.00"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Other Deductions</span>
-                    <span className="font-semibold text-red-500">- TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.deductions) : "0.00"}</span>
+                    <span className="font-semibold text-red-500">
+                      - TZS {selectedRecordForDetail ? formatCurrency(selectedRecordForDetail.deductions) : "0.00"}
+                    </span>
                   </div>
                   <div className="border-t pt-2 flex justify-between font-bold text-slate-800">
                     <span>Total Deductions</span>
-                    <span>TZS {selectedRecordForDetail ? formatCurrency(Number(selectedRecordForDetail.deductions) + Number(selectedRecordForDetail.paye)) : "0.00"}</span>
+                    <span>
+                      TZS{" "}
+                      {selectedRecordForDetail
+                        ? formatCurrency(Number(selectedRecordForDetail.deductions) + Number(selectedRecordForDetail.paye))
+                        : "0.00"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -825,10 +792,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
             <Button variant="outline" onClick={() => setIsPayslipOpen(false)} className="rounded-xl">
               Close
             </Button>
-            <Button 
-              className="bg-primary text-white rounded-xl flex items-center gap-1.5"
-              onClick={() => window.print()}
-            >
+            <Button className="bg-primary text-white rounded-xl flex items-center gap-1.5" onClick={() => window.print()}>
               <Printer className="h-4 w-4" />
               Print Payslip
             </Button>

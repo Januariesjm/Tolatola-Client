@@ -17,13 +17,7 @@ const log = logger.child("app.error-boundary")
  * Errors are reported through lib/logger so a single error-tracking
  * integration picks them up.
  */
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     // `digest` is the only handle on the server-side stack in production
     // builds, so it belongs in the report.
@@ -39,8 +33,7 @@ export default function Error({
           </div>
           <CardTitle>Something went wrong</CardTitle>
           <CardDescription>
-            We hit an unexpected problem loading this page. You can try again, or head back to the
-            homepage.
+            We hit an unexpected problem loading this page. You can try again, or head back to the homepage.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 sm:flex-row">

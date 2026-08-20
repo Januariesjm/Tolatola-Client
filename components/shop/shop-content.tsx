@@ -63,14 +63,11 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
       setImageSearchKeywords([])
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: storedImage }),
-          }
-        )
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"}/products/search-by-image`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: storedImage }),
+        })
         const data = await res.json()
         setImageSearchResults(data.data || [])
         if (data.analysis) setImageAnalysis(data.analysis)
@@ -132,22 +129,20 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
     })
   }
 
-
   const categorySlug = searchParams.get("category")
-  const activeCategory = categorySlug ? categories.find(c => c.slug === categorySlug || c.id === categorySlug) : null
-  const parentCategory = activeCategory?.parent_id ? categories.find(c => c.id === activeCategory.parent_id) : activeCategory
-  const subCategories = parentCategory ? categories.filter(c => c.parent_id === parentCategory.id) : []
+  const activeCategory = categorySlug ? categories.find((c) => c.slug === categorySlug || c.id === categorySlug) : null
+  const parentCategory = activeCategory?.parent_id ? categories.find((c) => c.id === activeCategory.parent_id) : activeCategory
+  const subCategories = parentCategory ? categories.filter((c) => c.parent_id === parentCategory.id) : []
 
   // Determine if we're in image search mode
   const isImageSearchMode = searchParams.get("imageSearch") === "pending" || imageSearchResults !== null
 
   // Determine which products to display
-  const displayProducts = isImageSearchMode ? (imageSearchResults || []) : products
+  const displayProducts = isImageSearchMode ? imageSearchResults || [] : products
 
   return (
     <div className="min-h-screen bg-white dark:bg-stone-950 transition-colors duration-300">
       <div className="container mx-auto px-2 md:px-4 py-4 md:py-6">
-
         {/* Image Search Loading State */}
         {isImageSearching && (
           <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -176,7 +171,8 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
 
                 {/* Animated progress bar */}
                 <div className="w-64 h-2 bg-stone-200/50 dark:bg-stone-800/50 rounded-full overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 rounded-full animate-[shimmer_2s_ease-in-out_infinite]"
+                  <div
+                    className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 rounded-full animate-[shimmer_2s_ease-in-out_infinite]"
                     style={{ backgroundSize: "200% 100%", animation: "shimmer 2s ease-in-out infinite" }}
                   />
                 </div>
@@ -185,7 +181,11 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
               {/* Loading skeleton grid */}
               <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-white/60 dark:bg-stone-900/60 border border-stone-100 dark:border-stone-800 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-white/60 dark:bg-stone-900/60 border border-stone-100 dark:border-stone-800 overflow-hidden animate-pulse"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
                     <div className="aspect-square bg-stone-100 dark:bg-stone-800" />
                     <div className="p-3 space-y-2">
                       <div className="h-3 bg-stone-100 dark:bg-stone-800 rounded-full w-3/4" />
@@ -223,7 +223,10 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
                     {imageSearchKeywords.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {imageSearchKeywords.slice(0, 6).map((keyword, i) => (
-                          <span key={i} className="text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-full">
+                          <span
+                            key={i}
+                            className="text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-full"
+                          >
                             {keyword}
                           </span>
                         ))}
@@ -320,9 +323,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
                   ) : (
                     <>
                       <p className="text-gray-600">{t("products.none")}</p>
-                      {searchQuery && (
-                        <p className="text-sm text-gray-500 mt-2">{t("products.adjust")}</p>
-                      )}
+                      {searchQuery && <p className="text-sm text-gray-500 mt-2">{t("products.adjust")}</p>}
                     </>
                   )}
                 </CardContent>
@@ -348,11 +349,14 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
       {/* Shimmer animation keyframes */}
       <style jsx>{`
         @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
         }
       `}</style>
     </div>
   )
 }
-

@@ -159,9 +159,7 @@ export function AdminUsersManagementTab() {
             <Shield className="h-5 w-5" />
             Grant Admin Access
           </CardTitle>
-          <CardDescription>
-            Assign a specific admin role to an existing user to give them dashboard access
-          </CardDescription>
+          <CardDescription>Assign a specific admin role to an existing user to give them dashboard access</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 flex-wrap items-end">
@@ -277,9 +275,7 @@ export function AdminUsersManagementTab() {
                           <TableCell className="font-medium">{admin.full_name || "N/A"}</TableCell>
                           <TableCell>{admin.email}</TableCell>
                           <TableCell>
-                            <Badge variant={getRoleBadgeVariant(role?.access_level || 100)}>
-                              {role?.role_name || "Super Admin"}
-                            </Badge>
+                            <Badge variant={getRoleBadgeVariant(role?.access_level || 100)}>{role?.role_name || "Super Admin"}</Badge>
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -358,7 +354,9 @@ export function AdminUsersManagementTab() {
                           <div className="max-w-xs">
                             <div className="flex items-start gap-2">
                               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                              <p className="text-sm text-muted-foreground">{history.revoke_reason || history.reason || "Admin access revoked"}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {history.revoke_reason || history.reason || "Admin access revoked"}
+                              </p>
                             </div>
                           </div>
                         </TableCell>

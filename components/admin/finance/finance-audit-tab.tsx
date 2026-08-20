@@ -4,18 +4,7 @@ import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Search,
-  DollarSign,
-  ShieldCheck,
-  PieChart,
-  Wallet,
-  ArrowRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from "lucide-react"
+import { Search, DollarSign, ShieldCheck, PieChart, Wallet, ArrowRight, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
 
 interface FinanceAuditTabProps {
@@ -48,11 +37,12 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
         label: "Collection",
         status: collectionStatus,
         timestamp: order.created_at,
-        detail: collectionStatus === "success"
-          ? `TZS ${(order.total_amount || 0).toLocaleString()} via ${order.payment_method?.replace("-", " ") || "Mobile Money"}`
-          : collectionStatus === "failed"
-          ? "Payment failed"
-          : "Awaiting payment",
+        detail:
+          collectionStatus === "success"
+            ? `TZS ${(order.total_amount || 0).toLocaleString()} via ${order.payment_method?.replace("-", " ") || "Mobile Money"}`
+            : collectionStatus === "failed"
+              ? "Payment failed"
+              : "Awaiting payment",
       })
 
       // Step 2: Settlement
@@ -62,11 +52,12 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
           label: "Settlement",
           status: settlementStatus,
           timestamp: escrow.created_at,
-          detail: settlementStatus === "success"
-            ? `Settled on ${format(new Date(escrow.released_at || escrow.created_at), "MMM d, yyyy")}`
-            : settlementStatus === "failed"
-            ? "Funds refunded"
-            : `TZS ${(escrow.amount || 0).toLocaleString()} held`,
+          detail:
+            settlementStatus === "success"
+              ? `Settled on ${format(new Date(escrow.released_at || escrow.created_at), "MMM d, yyyy")}`
+              : settlementStatus === "failed"
+                ? "Funds refunded"
+                : `TZS ${(escrow.amount || 0).toLocaleString()} held`,
         })
       } else {
         steps.push({
@@ -84,8 +75,8 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
         detail: isDisbursed
           ? "Revenue split calculated"
           : order.payment_status === "paid"
-          ? "Pending delivery confirmation"
-          : "Not applicable",
+            ? "Pending delivery confirmation"
+            : "Not applicable",
       })
 
       // Step 4: Payout
@@ -99,8 +90,8 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
           detail: allCompleted
             ? `${orderPayouts.length} payout(s) sent`
             : anyFailed
-            ? "Payout failed"
-            : `${orderPayouts.length} payout(s) pending`,
+              ? "Payout failed"
+              : `${orderPayouts.length} payout(s) pending`,
         })
       } else {
         steps.push({
@@ -114,7 +105,8 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
         id: order.id,
         orderNumber: order.order_number,
         customerName: order.users?.full_name || order.shipping_address?.full_name || "Guest",
-        vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
+        vendorName:
+          order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
         totalAmount: order.total_amount || 0,
         orderStatus: order.status,
         createdAt: order.created_at,
@@ -126,10 +118,7 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase()
     return auditRecords.filter(
-      (r) =>
-        r.orderNumber.toLowerCase().includes(q) ||
-        r.customerName.toLowerCase().includes(q) ||
-        r.vendorName.toLowerCase().includes(q)
+      (r) => r.orderNumber.toLowerCase().includes(q) || r.customerName.toLowerCase().includes(q) || r.vendorName.toLowerCase().includes(q),
     )
   }, [auditRecords, searchQuery])
 
@@ -219,7 +208,9 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-lg text-slate-900">Order #{record.orderNumber}</span>
-                      <Badge variant="outline" className="text-[11px] rounded-lg">{record.orderStatus}</Badge>
+                      <Badge variant="outline" className="text-[11px] rounded-lg">
+                        {record.orderStatus}
+                      </Badge>
                     </div>
                     <p className="text-sm text-slate-500 mt-0.5">
                       {record.customerName} • {record.vendorName} • {format(new Date(record.createdAt), "MMM d, yyyy")}
@@ -237,11 +228,17 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
                     <div key={step.label} className="flex items-center flex-1">
                       <div className={`flex-1 p-4 rounded-xl border-2 ${statusBg(step.status)} transition-all`}>
                         <div className="flex items-center gap-2 mb-2">
-                          <div className={`h-7 w-7 rounded-full flex items-center justify-center ${
-                            step.status === "success" ? "bg-emerald-100" :
-                            step.status === "pending" ? "bg-amber-100" :
-                            step.status === "failed" ? "bg-rose-100" : "bg-slate-100"
-                          }`}>
+                          <div
+                            className={`h-7 w-7 rounded-full flex items-center justify-center ${
+                              step.status === "success"
+                                ? "bg-emerald-100"
+                                : step.status === "pending"
+                                  ? "bg-amber-100"
+                                  : step.status === "failed"
+                                    ? "bg-rose-100"
+                                    : "bg-slate-100"
+                            }`}
+                          >
                             {stepIcons[step.label]}
                           </div>
                           <span className="font-bold text-sm text-slate-700">{step.label}</span>
@@ -257,10 +254,15 @@ export function FinanceAuditTab({ orders, transactions, payouts }: FinanceAuditT
                       {idx < record.steps.length - 1 && (
                         <div className="hidden md:flex items-center px-1">
                           <div className={`h-0.5 w-4 ${connectorColor(step.status)} rounded-full`} />
-                          <ArrowRight className={`h-3.5 w-3.5 shrink-0 ${
-                            step.status === "success" ? "text-emerald-400" :
-                            step.status === "pending" ? "text-amber-300" : "text-slate-300"
-                          }`} />
+                          <ArrowRight
+                            className={`h-3.5 w-3.5 shrink-0 ${
+                              step.status === "success"
+                                ? "text-emerald-400"
+                                : step.status === "pending"
+                                  ? "text-amber-300"
+                                  : "text-slate-300"
+                            }`}
+                          />
                         </div>
                       )}
                     </div>

@@ -4,14 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -107,7 +100,7 @@ export function CreateShopDialog({ open, onOpenChange, vendorId, onSuccess }: Cr
       <DialogContent
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
         onPointerDownOutside={(e) => {
-          if ((e.target as HTMLElement)?.closest('.pac-container')) {
+          if ((e.target as HTMLElement)?.closest(".pac-container")) {
             e.preventDefault()
           }
         }}
@@ -122,13 +115,7 @@ export function CreateShopDialog({ open, onOpenChange, vendorId, onSuccess }: Cr
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Shop Name *</Label>
-              <Input
-                id="name"
-                placeholder="My Amazing Shop"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <Input id="name" placeholder="My Amazing Shop" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>

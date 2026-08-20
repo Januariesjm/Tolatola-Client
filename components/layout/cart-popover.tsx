@@ -111,12 +111,10 @@ export function CartPopover() {
     }
   }, [isMobile, isOpen])
 
-  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ""}-${item.selected_size || ""}`
 
   const updateQuantity = (itemId: string, newQuantity: number) => {
-    const updatedCart = cartItems.map((item) =>
-      getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
-    )
+    const updatedCart = cartItems.map((item) => (getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item))
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
@@ -190,15 +188,13 @@ export function CartPopover() {
                   {cartItems.map((item) => {
                     const itemId = getItemId(item)
                     return (
-                      <div
-                        key={itemId}
-                        className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                      >
+                      <div key={itemId} className="flex gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
                         {/* Product Image */}
                         <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
                           <img
                             src={
-                              item.selected_color?.image || (item.product.images && item.product.images.length > 0
+                              item.selected_color?.image ||
+                              (item.product.images && item.product.images.length > 0
                                 ? item.product.images[0]
                                 : `/placeholder.svg?height=64&width=64&query=${encodeURIComponent(item.product.name)}`)
                             }
@@ -210,16 +206,14 @@ export function CartPopover() {
                         {/* Product Info */}
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm truncate">{item.product.name}</h4>
-                          <p className="text-xs text-muted-foreground truncate">
-                            TOLA Verified Vendor
-                          </p>
+                          <p className="text-xs text-muted-foreground truncate">TOLA Verified Vendor</p>
 
                           {/* Color & Size Variation Badges */}
                           {(item.selected_color || item.selected_size) && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               {item.selected_color && (
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-                                  <span 
+                                  <span
                                     className="w-2 h-2 rounded-full border border-stone-300"
                                     style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
                                   />
@@ -259,19 +253,12 @@ export function CartPopover() {
                             </div>
 
                             {/* Price */}
-                            <span className="text-sm font-semibold">
-                              TZS {(item.product.price * item.quantity).toLocaleString()}
-                            </span>
+                            <span className="text-sm font-semibold">TZS {(item.product.price * item.quantity).toLocaleString()}</span>
                           </div>
                         </div>
 
                         {/* Remove Button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 flex-shrink-0"
-                          onClick={() => removeItem(itemId)}
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => removeItem(itemId)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>

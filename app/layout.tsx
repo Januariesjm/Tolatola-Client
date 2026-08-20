@@ -86,11 +86,7 @@ export const metadata: Metadata = {
 import { AppShell } from "@/components/layout/app-shell"
 import { ThemeProvider } from "@/components/theme-provider"
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html suppressHydrationWarning className={`${inter.variable} ${playfair.variable} antialiased`} lang="en">
       <head>
@@ -111,4 +107,3 @@ export default function RootLayout({
     </html>
   )
 }
-

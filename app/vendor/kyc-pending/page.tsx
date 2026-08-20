@@ -17,11 +17,7 @@ export default async function KYCPendingPage() {
     redirect("/auth/login")
   }
 
-  const { data: vendor } = await supabase
-    .from("vendors")
-    .select("kyc_status, business_name")
-    .eq("user_id", user.id)
-    .single()
+  const { data: vendor } = await supabase.from("vendors").select("kyc_status, business_name").eq("user_id", user.id).single()
 
   if (vendor) {
     if (vendor.kyc_status === "approved") {
@@ -46,18 +42,15 @@ export default async function KYCPendingPage() {
                 </div>
               </div>
               <CardTitle className="text-2xl text-center">KYC Under Review</CardTitle>
-              <CardDescription className="text-center">
-                Your application for {vendor?.business_name} is being reviewed
-              </CardDescription>
+              <CardDescription className="text-center">Your application for {vendor?.business_name} is being reviewed</CardDescription>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-sm text-muted-foreground">
-                Thank you for submitting your vendor application. Our admin team is currently reviewing your documents
-                and business information.
+                Thank you for submitting your vendor application. Our admin team is currently reviewing your documents and business
+                information.
               </p>
               <p className="text-sm text-muted-foreground">
-                You will receive an email notification once your application is approved or if any additional
-                information is needed.
+                You will receive an email notification once your application is approved or if any additional information is needed.
               </p>
               <div className="pt-4">
                 <p className="text-xs text-muted-foreground mb-2">Typical review time: 24-48 hours</p>

@@ -64,11 +64,7 @@ export default async function BlogPage({
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -96,7 +92,7 @@ export default async function BlogPage({
     postsData = await serverApiGet<PostsResponse>(`blog/posts?${queryString}`)
     const catsRes = await serverApiGet<{ data: Category[] }>("blog/categories")
     categories = catsRes.data || []
-    
+
     const featuredRes = await serverApiGet<{ data: BlogPost[] }>("blog/posts/featured?limit=1")
     featuredPosts = featuredRes.data || []
   } catch (error) {
@@ -106,9 +102,7 @@ export default async function BlogPage({
   // Get the featured post (fallback to first latest post if no explicitly featured post exists)
   const featured = featuredPosts[0] || postsData.data[0]
   // Filter featured post out of the general listing if it exists
-  const listPosts = featured 
-    ? postsData.data.filter(post => post.id !== featured.id) 
-    : postsData.data
+  const listPosts = featured ? postsData.data.filter((post) => post.id !== featured.id) : postsData.data
 
   return (
     <div className="min-h-screen bg-stone-50/50 flex flex-col">
@@ -122,8 +116,12 @@ export default async function BlogPage({
               <BookOpen className="h-4 w-4" />
               <span className="text-xs font-black uppercase tracking-[0.2em]">The TOLA Journal</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter">Insights & <span className="text-primary italic">Growth</span></h1>
-            <p className="text-lg text-muted-foreground font-medium italic">Your daily source of news, announcements, e-commerce strategies, and success stories.</p>
+            <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter">
+              Insights & <span className="text-primary italic">Growth</span>
+            </h1>
+            <p className="text-lg text-muted-foreground font-medium italic">
+              Your daily source of news, announcements, e-commerce strategies, and success stories.
+            </p>
           </div>
         </section>
 
@@ -133,17 +131,25 @@ export default async function BlogPage({
             {/* Category Pills */}
             <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
               <Link href="/blog">
-                <span className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer border transition-all ${
-                  !selectedCategory ? "bg-primary border-primary text-white" : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
-                }`}>
+                <span
+                  className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                    !selectedCategory
+                      ? "bg-primary border-primary text-white"
+                      : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                  }`}
+                >
                   All Articles
                 </span>
               </Link>
               {categories.map((cat) => (
                 <Link key={cat.id} href={`/blog?category=${cat.slug}`}>
-                  <span className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer border transition-all ${
-                    selectedCategory === cat.slug ? "bg-primary border-primary text-white" : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
-                  }`}>
+                  <span
+                    className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                      selectedCategory === cat.slug
+                        ? "bg-primary border-primary text-white"
+                        : "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100"
+                    }`}
+                  >
                     {cat.name} ({cat.post_count || 0})
                   </span>
                 </Link>
@@ -226,7 +232,11 @@ export default async function BlogPage({
                   {searchQuery || selectedCategory || selectedTag ? "Search Results" : "Latest Feed"}
                 </h2>
                 <p className="text-muted-foreground font-medium italic mt-1 text-sm">
-                  {searchQuery ? `Matching "${searchQuery}"` : selectedCategory ? `Category: ${selectedCategory}` : "Announcements, insights and strategies."}
+                  {searchQuery
+                    ? `Matching "${searchQuery}"`
+                    : selectedCategory
+                      ? `Category: ${selectedCategory}`
+                      : "Announcements, insights and strategies."}
                 </p>
               </div>
             </div>
@@ -244,7 +254,10 @@ export default async function BlogPage({
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {listPosts.map((post) => (
-                <Card key={post.id} className="border-none shadow-sm hover:shadow-2xl transition-all duration-500 rounded-[2rem] bg-white overflow-hidden group hover:-translate-y-2 flex flex-col justify-between">
+                <Card
+                  key={post.id}
+                  className="border-none shadow-sm hover:shadow-2xl transition-all duration-500 rounded-[2rem] bg-white overflow-hidden group hover:-translate-y-2 flex flex-col justify-between"
+                >
                   <div>
                     <div className="aspect-[16/10] relative overflow-hidden bg-stone-100">
                       <img
@@ -280,7 +293,10 @@ export default async function BlogPage({
                         {post.view_count || 0} views
                       </span>
                     </div>
-                    <Link href={`/blog/${post.slug}`} className="flex items-center justify-center h-10 w-10 rounded-full bg-stone-50 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="flex items-center justify-center h-10 w-10 rounded-full bg-stone-50 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300"
+                    >
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </CardContent>
@@ -303,9 +319,11 @@ export default async function BlogPage({
 
                   return (
                     <Link key={pageNum} href={`/blog?${urlParams}`}>
-                      <span className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold border transition-all cursor-pointer ${
-                        active ? "bg-primary border-primary text-white" : "bg-white border-stone-200 hover:bg-stone-50"
-                      }`}>
+                      <span
+                        className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-bold border transition-all cursor-pointer ${
+                          active ? "bg-primary border-primary text-white" : "bg-white border-stone-200 hover:bg-stone-50"
+                        }`}
+                      >
                         {pageNum}
                       </span>
                     </Link>
@@ -323,7 +341,9 @@ export default async function BlogPage({
             <div className="relative z-10 max-w-3xl mx-auto">
               <Tag className="h-10 w-10 mx-auto mb-6 opacity-60" />
               <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter">Stay Ahead of the Curve</h2>
-              <p className="text-primary-foreground/80 text-lg mb-10 italic">Subscribe to our monthly briefing for market insights, trade innovations, and growth tips.</p>
+              <p className="text-primary-foreground/80 text-lg mb-10 italic">
+                Subscribe to our monthly briefing for market insights, trade innovations, and growth tips.
+              </p>
               <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <input
                   type="email"

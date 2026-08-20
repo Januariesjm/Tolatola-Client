@@ -80,7 +80,7 @@ export function MessagesContent() {
     // We need currentUserId to determine which name to show
     // If it's not set yet (async load), we'll have to rely on the data
     const convs = currentConvs || conversations
-    const foundConv = convs.find(c => c.id === conversation.id) || conversation
+    const foundConv = convs.find((c) => c.id === conversation.id) || conversation
 
     // Fallback logic for shop name
     const shopName = foundConv.shop?.name || foundConv.vendor?.full_name || foundConv.customer?.full_name || "Chat"
@@ -128,9 +128,7 @@ export function MessagesContent() {
                   <CardContent className="flex items-start gap-4 p-4">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={conversation.shop?.logo_url || otherUser?.profile_image_url} />
-                      <AvatarFallback>
-                        {conversation.shop?.name?.charAt(0) || otherUser?.full_name?.charAt(0) || "S"}
-                      </AvatarFallback>
+                      <AvatarFallback>{conversation.shop?.name?.charAt(0) || otherUser?.full_name?.charAt(0) || "S"}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
@@ -141,9 +139,7 @@ export function MessagesContent() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {conversation.last_message || "Start a conversation"}
-                      </p>
+                      <p className="text-sm text-muted-foreground truncate">{conversation.last_message || "Start a conversation"}</p>
                     </div>
                   </CardContent>
                 </Card>

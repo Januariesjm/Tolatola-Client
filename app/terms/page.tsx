@@ -2,12 +2,26 @@ import React from "react"
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { Scale, Users, Gavel, Wallet, ShieldAlert, Copyright, MessageCircle, AlertCircle, ShieldCheck, Globe, Zap, CheckCircle2 } from "lucide-react"
+import {
+  Scale,
+  Users,
+  Gavel,
+  Wallet,
+  ShieldAlert,
+  Copyright,
+  MessageCircle,
+  AlertCircle,
+  ShieldCheck,
+  Globe,
+  Zap,
+  CheckCircle2,
+} from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Terms & Conditions | TOLA Tanzania - Marketplace & Ecommerce",
-  description: "Legal framework for using the Tola Digital trade and Supply Chain Ecosystem. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
+  description:
+    "Legal framework for using the Tola Digital trade and Supply Chain Ecosystem. Our terms ensure a fair, secure, and transparent trading ecosystem for all Tanzanian users.",
   alternates: {
     canonical: "https://tolatola.co/terms",
   },
@@ -27,11 +41,7 @@ export default async function TermsPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -40,27 +50,33 @@ export default async function TermsPage() {
     {
       title: "Agreement to Terms",
       icon: <Gavel />,
-      content: "By accessing TOLA, you enter into a legally binding agreement with TOLA Digital trade and Supply Chain Ecosystem. These terms govern your use of our digital infrastructure, secure payment services, and community interactions."
+      content:
+        "By accessing TOLA, you enter into a legally binding agreement with TOLA Digital trade and Supply Chain Ecosystem. These terms govern your use of our digital infrastructure, secure payment services, and community interactions.",
     },
     {
       title: "User Obligations",
       icon: <Users />,
       content: (
         <div className="space-y-4">
-          <p>Users must provide verified credentials, maintain account security, and interact with the ecosystem with integrity. We enforce a strict 'one-human, one-account' policy to prevent platform abuse.</p>
+          <p>
+            Users must provide verified credentials, maintain account security, and interact with the ecosystem with integrity. We enforce a
+            strict 'one-human, one-account' policy to prevent platform abuse.
+          </p>
         </div>
-      )
+      ),
     },
     {
       title: "Vendor Standard",
       icon: <Zap />,
-      content: "Vendors are required to undergo NIDA & TIN verification. By listing products, vendors guarantee product authenticity, accurate pricing, and commitment to the TOLA delivery timeline."
+      content:
+        "Vendors are required to undergo NIDA & TIN verification. By listing products, vendors guarantee product authenticity, accurate pricing, and commitment to the TOLA delivery timeline.",
     },
     {
       title: "Secure Transactions",
       icon: <CheckCircle2 className="h-6 w-6" />,
-      content: "TOLA facilitates commerce through a secure payment processing system. Funds are released by licensed PSPs only upon delivery confirmation. We act as a neutral intermediary in all transactional flows."
-    }
+      content:
+        "TOLA facilitates commerce through a secure payment processing system. Funds are released by licensed PSPs only upon delivery confirmation. We act as a neutral intermediary in all transactional flows.",
+    },
   ]
 
   return (
@@ -77,7 +93,9 @@ export default async function TermsPage() {
             <div className="inline-flex p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-6">
               <Scale className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight">Legal <span className="text-primary italic underline decoration-white/20 underline-offset-8">Framework</span></h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight">
+              Legal <span className="text-primary italic underline decoration-white/20 underline-offset-8">Framework</span>
+            </h1>
             <p className="text-stone-400 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed italic">
               Fairness, Security, and Transparency. Our terms are designed to protect every participant in the TOLA ecosystem.
             </p>
@@ -88,7 +106,10 @@ export default async function TermsPage() {
         <section className="py-12 md:py-16 container mx-auto px-4 -mt-12 relative z-20">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {sections.map((section, i) => (
-              <Card key={i} className="border-none shadow-lg rounded-[2rem] bg-white p-6 group hover:scale-[1.02] transition-all duration-500">
+              <Card
+                key={i}
+                className="border-none shadow-lg rounded-[2rem] bg-white p-6 group hover:scale-[1.02] transition-all duration-500"
+              >
                 <div className="mb-4 p-3 rounded-2xl bg-stone-50 text-stone-900 w-fit group-hover:bg-primary group-hover:text-white transition-colors">
                   {React.cloneElement(section.icon as any, { className: "h-5 w-5" })}
                 </div>
@@ -109,11 +130,17 @@ export default async function TermsPage() {
                 <div className="space-y-6">
                   <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
                     <h3 className="text-primary font-black mb-3 uppercase tracking-widest text-[10px]">Integrity Breach</h3>
-                    <p className="text-stone-400 leading-relaxed italic text-sm">"Any attempts to circumvent TOLA's internal messaging or payment system will result in permanent account suspension. We maintain a zero-tolerance policy for off-platform transactions."</p>
+                    <p className="text-stone-400 leading-relaxed italic text-sm">
+                      "Any attempts to circumvent TOLA's internal messaging or payment system will result in permanent account suspension.
+                      We maintain a zero-tolerance policy for off-platform transactions."
+                    </p>
                   </div>
                   <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
                     <h3 className="text-primary font-black mb-3 uppercase tracking-widest text-[10px]">KYC Fraud</h3>
-                    <p className="text-stone-400 leading-relaxed italic text-sm">"Uploading forged NIDA, TIN, or Business Licenses is a criminal offense under Tanzanian law. We report all fraudulent activities to the relevant authorities."</p>
+                    <p className="text-stone-400 leading-relaxed italic text-sm">
+                      "Uploading forged NIDA, TIN, or Business Licenses is a criminal offense under Tanzanian law. We report all fraudulent
+                      activities to the relevant authorities."
+                    </p>
                   </div>
                 </div>
               </div>
@@ -122,7 +149,8 @@ export default async function TermsPage() {
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight sticky top-24">Dispute Resolution</h2>
                 <div className="space-y-6">
                   <p className="text-stone-300 text-lg leading-relaxed italic">
-                    TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses transactional data and system logs to determine a fair outcome.
+                    TOLA acts as a neutral arbitrator. In the event of a conflict between buyer and vendor, our resolution center uses
+                    transactional data and system logs to determine a fair outcome.
                   </p>
                   <div className="flex items-center gap-4 py-4 px-6 bg-primary rounded-[1.5rem]">
                     <ShieldCheck className="h-8 w-8 text-white" />
@@ -142,12 +170,20 @@ export default async function TermsPage() {
           <div className="container mx-auto px-4 text-center max-w-2xl">
             <Copyright className="h-10 w-10 text-stone-300 mx-auto mb-6" />
             <h2 className="text-2xl md:text-4xl font-black mb-4 tracking-tight">Need legal clarification?</h2>
-            <p className="text-muted-foreground text-lg mb-8 italic">Our legal council is available to decode any part of our platform framework for you.</p>
+            <p className="text-muted-foreground text-lg mb-8 italic">
+              Our legal council is available to decode any part of our platform framework for you.
+            </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="mailto:legal@tolatola.co" className="px-8 py-3.5 bg-primary text-white rounded-2xl font-black shadow-xl hover:scale-105 transition-all text-lg">
+              <a
+                href="mailto:legal@tolatola.co"
+                className="px-8 py-3.5 bg-primary text-white rounded-2xl font-black shadow-xl hover:scale-105 transition-all text-lg"
+              >
                 legal@tolatola.co
               </a>
-              <a href="/faq" className="px-8 py-3.5 bg-white border border-stone-200 rounded-2xl font-black shadow-lg hover:scale-105 transition-all text-lg">
+              <a
+                href="/faq"
+                className="px-8 py-3.5 bg-white border border-stone-200 rounded-2xl font-black shadow-lg hover:scale-105 transition-all text-lg"
+              >
                 Visit FAQ Hub
               </a>
             </div>

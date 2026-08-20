@@ -32,7 +32,7 @@ import {
   Tag,
   ArrowLeft,
   Loader2,
-  X
+  X,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { clientApiGet, clientApiPost, clientApiPut, clientApiDelete } from "@/lib/api-client"
@@ -82,7 +82,7 @@ export function BlogManagementTab() {
   const [isEditing, setIsEditing] = useState(false)
   const [editingPost, setEditingPost] = useState<Partial<BlogPost> | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
-  
+
   // Category Form state
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
@@ -105,7 +105,7 @@ export function BlogManagementTab() {
     try {
       const postsRes = await clientApiGet<{ data: BlogPost[] }>("admin/blog/posts")
       const categoriesRes = await clientApiGet<{ data: Category[] }>("blog/categories")
-      
+
       setPosts(postsRes.data || [])
       setCategories(categoriesRes.data || [])
     } catch (error) {
@@ -125,7 +125,7 @@ export function BlogManagementTab() {
   const handleFileUpload = async (file: File, type: "cover" | "inline") => {
     try {
       setUploadingImage(true)
-      
+
       // Convert file to Base64
       const reader = new FileReader()
       const base64Promise = new Promise<string>((resolve) => {
@@ -138,11 +138,11 @@ export function BlogManagementTab() {
       const response = await clientApiPost<{ url: string }>("uploads/blog", {
         filename: file.name,
         data: base64Data,
-        contentType: file.type
+        contentType: file.type,
       })
 
       if (type === "cover") {
-        setEditingPost(prev => ({ ...prev, cover_image_url: response.url }))
+        setEditingPost((prev) => ({ ...prev, cover_image_url: response.url }))
       } else {
         // Insert image at cursor position in contenteditable
         if (editorRef.current) {
@@ -150,7 +150,7 @@ export function BlogManagementTab() {
           document.execCommand(
             "insertHTML",
             false,
-            `<img src="${response.url}" alt="${file.name}" class="my-6 rounded-2xl max-w-full h-auto shadow-md" />`
+            `<img src="${response.url}" alt="${file.name}" class="my-6 rounded-2xl max-w-full h-auto shadow-md" />`,
           )
         }
       }
@@ -180,7 +180,7 @@ export function BlogManagementTab() {
       seo_keywords: [],
       is_featured: false,
       category_id: categories[0]?.id || null,
-      scheduled_at: ""
+      scheduled_at: "",
     })
     setIsEditing(true)
   }
@@ -188,7 +188,7 @@ export function BlogManagementTab() {
   const handleOpenEditPost = (post: BlogPost) => {
     setEditingPost({
       ...post,
-      scheduled_at: post.scheduled_at ? new Date(post.scheduled_at).toISOString().slice(0, 16) : ""
+      scheduled_at: post.scheduled_at ? new Date(post.scheduled_at).toISOString().slice(0, 16) : "",
     })
     setIsEditing(true)
     setTimeout(() => {
@@ -202,7 +202,7 @@ export function BlogManagementTab() {
     if (!confirm("Are you sure you want to delete this blog article? This action cannot be undone.")) return
     try {
       await clientApiDelete(`admin/blog/posts/${id}`)
-      setPosts(prev => prev.filter(p => p.id !== id))
+      setPosts((prev) => prev.filter((p) => p.id !== id))
       alert("Article deleted successfully.")
     } catch (error) {
       log.error("failed to delete post", error)
@@ -228,12 +228,12 @@ export function BlogManagementTab() {
       if (editingPost.id) {
         // Update
         const res = await clientApiPut<{ data: BlogPost }>(`admin/blog/posts/${editingPost.id}`, payload)
-        setPosts(prev => prev.map(p => p.id === res.data.id ? res.data : p))
+        setPosts((prev) => prev.map((p) => (p.id === res.data.id ? res.data : p)))
         alert("Article updated successfully!")
       } else {
         // Create
         const res = await clientApiPost<{ data: BlogPost }>("admin/blog/posts", payload)
-        setPosts(prev => [res.data, ...prev])
+        setPosts((prev) => [res.data, ...prev])
         alert("Article created successfully!")
       }
       setIsEditing(false)
@@ -259,18 +259,18 @@ export function BlogManagementTab() {
         // Edit
         const res = await clientApiPut<{ data: Category }>(`admin/blog/categories/${editingCategory.id}`, {
           name: categoryName,
-          description: categoryDesc
+          description: categoryDesc,
         })
-        setCategories(prev => prev.map(c => c.id === res.data.id ? { ...res.data, post_count: c.post_count } : c))
+        setCategories((prev) => prev.map((c) => (c.id === res.data.id ? { ...res.data, post_count: c.post_count } : c)))
         setEditingCategory(null)
         alert("Category updated successfully!")
       } else {
         // Create
         const res = await clientApiPost<{ data: Category }>("admin/blog/categories", {
           name: categoryName,
-          description: categoryDesc
+          description: categoryDesc,
         })
-        setCategories(prev => [...prev, { ...res.data, post_count: 0 }])
+        setCategories((prev) => [...prev, { ...res.data, post_count: 0 }])
         alert("Category created successfully!")
       }
       setCategoryName("")
@@ -288,7 +288,7 @@ export function BlogManagementTab() {
     if (!confirm("Are you sure you want to delete this category?")) return
     try {
       await clientApiDelete(`admin/blog/categories/${id}`)
-      setCategories(prev => prev.filter(c => c.id !== id))
+      setCategories((prev) => prev.filter((c) => c.id !== id))
       alert("Category deleted successfully.")
     } catch (error) {
       log.error("failed to delete category", error, { categoryId: id })
@@ -309,7 +309,7 @@ export function BlogManagementTab() {
       if (!currentTags.includes(cleanTag)) {
         setEditingPost({
           ...editingPost,
-          tags: [...currentTags, cleanTag]
+          tags: [...currentTags, cleanTag],
         })
       }
       setTagInput("")
@@ -320,7 +320,7 @@ export function BlogManagementTab() {
     if (editingPost) {
       setEditingPost({
         ...editingPost,
-        tags: (editingPost.tags || []).filter(t => t !== tagToRemove)
+        tags: (editingPost.tags || []).filter((t) => t !== tagToRemove),
       })
     }
   }
@@ -331,7 +331,6 @@ export function BlogManagementTab() {
       handleAddTag()
     }
   }
-
 
   // =============================================================================
   // EDITOR FORMATTING HELPERS
@@ -349,9 +348,10 @@ export function BlogManagementTab() {
   }
 
   // Filter posts based on search/status
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(postSearch.toLowerCase()) || 
-                          (post.excerpt && post.excerpt.toLowerCase().includes(postSearch.toLowerCase()))
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(postSearch.toLowerCase()) ||
+      (post.excerpt && post.excerpt.toLowerCase().includes(postSearch.toLowerCase()))
     const matchesStatus = statusFilter === "all" ? true : post.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -378,9 +378,7 @@ export function BlogManagementTab() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h2 className="text-2xl font-black tracking-tight">
-                  {editingPost?.id ? "Edit Article" : "Create New Article"}
-                </h2>
+                <h2 className="text-2xl font-black tracking-tight">{editingPost?.id ? "Edit Article" : "Create New Article"}</h2>
                 <p className="text-sm text-muted-foreground">Draft and design premium content for the TOLA platform</p>
               </div>
             </div>
@@ -400,27 +398,38 @@ export function BlogManagementTab() {
             <div className="lg:col-span-2 space-y-6">
               <Card className="border-none shadow-sm bg-white rounded-3xl p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="post-title" className="text-sm font-black uppercase tracking-wider text-slate-500">Title</Label>
+                  <Label htmlFor="post-title" className="text-sm font-black uppercase tracking-wider text-slate-500">
+                    Title
+                  </Label>
                   <Input
                     id="post-title"
                     placeholder="Enter article title..."
                     value={editingPost?.title || ""}
-                    onChange={(e) => setEditingPost(prev => ({
-                      ...prev,
-                      title: e.target.value,
-                      slug: prev?.id ? prev.slug : e.target.value.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-")
-                    }))}
+                    onChange={(e) =>
+                      setEditingPost((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                        slug: prev?.id
+                          ? prev.slug
+                          : e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9\s-]/g, "")
+                              .replace(/\s+/g, "-"),
+                      }))
+                    }
                     className="text-xl font-bold h-12 rounded-xl focus-visible:ring-primary/20"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-excerpt" className="text-sm font-black uppercase tracking-wider text-slate-500">Excerpt / Brief Summary</Label>
+                  <Label htmlFor="post-excerpt" className="text-sm font-black uppercase tracking-wider text-slate-500">
+                    Excerpt / Brief Summary
+                  </Label>
                   <Textarea
                     id="post-excerpt"
                     placeholder="Provide a short hook or description (will appear on listing grid)..."
                     value={editingPost?.excerpt || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, excerpt: e.target.value }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, excerpt: e.target.value }))}
                     rows={3}
                     className="rounded-xl resize-none italic"
                   />
@@ -439,11 +448,7 @@ export function BlogManagementTab() {
                     />
                     {editingPost?.cover_image_url && (
                       <div className="relative h-20 w-32 rounded-xl overflow-hidden border">
-                        <img
-                          src={editingPost.cover_image_url}
-                          alt="Cover"
-                          className="h-full w-full object-cover"
-                        />
+                        <img src={editingPost.cover_image_url} alt="Cover" className="h-full w-full object-cover" />
                       </div>
                     )}
                   </div>
@@ -455,22 +460,64 @@ export function BlogManagementTab() {
                   <Label className="text-sm font-black uppercase tracking-wider text-slate-500">Body Content</Label>
                   <div className="border border-stone-200 rounded-3xl overflow-hidden">
                     <div className="bg-stone-50 border-b border-stone-200 p-2 flex flex-wrap gap-1">
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("formatBlock", "<h2>")} title="Heading 2" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("formatBlock", "<h2>")}
+                        title="Heading 2"
+                        className="h-8 w-8"
+                      >
                         <Heading1 className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("formatBlock", "<h3>")} title="Heading 3" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("formatBlock", "<h3>")}
+                        title="Heading 3"
+                        className="h-8 w-8"
+                      >
                         <Heading2 className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("bold")} title="Bold" className="h-8 w-8 font-bold">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("bold")}
+                        title="Bold"
+                        className="h-8 w-8 font-bold"
+                      >
                         <Bold className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("italic")} title="Italic" className="h-8 w-8 italic">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("italic")}
+                        title="Italic"
+                        className="h-8 w-8 italic"
+                      >
                         <Italic className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("insertUnorderedList")} title="Bullet List" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("insertUnorderedList")}
+                        title="Bullet List"
+                        className="h-8 w-8"
+                      >
                         <List className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" type="button" onClick={() => execCommand("insertOrderedList")} title="Numbered List" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => execCommand("insertOrderedList")}
+                        title="Numbered List"
+                        className="h-8 w-8"
+                      >
                         <ListOrdered className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" type="button" onClick={insertLink} title="Insert Link" className="h-8 w-8">
@@ -509,11 +556,13 @@ export function BlogManagementTab() {
                 </h3>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-status" className="text-xs font-black uppercase tracking-wider text-slate-500">Publishing Status</Label>
+                  <Label htmlFor="post-status" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    Publishing Status
+                  </Label>
                   <select
                     id="post-status"
                     value={editingPost?.status || "draft"}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, status: e.target.value as any }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, status: e.target.value as any }))}
                     className="w-full h-10 px-3 rounded-xl border border-stone-200 bg-transparent text-sm focus:outline-none"
                   >
                     <option value="draft">Save as Draft</option>
@@ -524,47 +573,61 @@ export function BlogManagementTab() {
 
                 {editingPost?.status === "scheduled" && (
                   <div className="space-y-2 animate-in fade-in duration-300">
-                    <Label htmlFor="post-scheduled-at" className="text-xs font-black uppercase tracking-wider text-slate-500">Schedule Date & Time</Label>
+                    <Label htmlFor="post-scheduled-at" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                      Schedule Date & Time
+                    </Label>
                     <Input
                       id="post-scheduled-at"
                       type="datetime-local"
                       value={editingPost.scheduled_at || ""}
-                      onChange={(e) => setEditingPost(prev => ({ ...prev, scheduled_at: e.target.value }))}
+                      onChange={(e) => setEditingPost((prev) => ({ ...prev, scheduled_at: e.target.value }))}
                       className="rounded-xl"
                     />
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-category" className="text-xs font-black uppercase tracking-wider text-slate-500">Category</Label>
+                  <Label htmlFor="post-category" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    Category
+                  </Label>
                   <select
                     id="post-category"
                     value={editingPost?.category_id || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, category_id: e.target.value || null }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, category_id: e.target.value || null }))}
                     className="w-full h-10 px-3 rounded-xl border border-stone-200 bg-transparent text-sm focus:outline-none"
                   >
                     <option value="">Select Category...</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-author" className="text-xs font-black uppercase tracking-wider text-slate-500">Author Name</Label>
+                  <Label htmlFor="post-author" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    Author Name
+                  </Label>
                   <Input
                     id="post-author"
                     value={editingPost?.author_name || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, author_name: e.target.value }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, author_name: e.target.value }))}
                     className="rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-tags" className="text-xs font-black uppercase tracking-wider text-slate-500">Tags</Label>
+                  <Label htmlFor="post-tags" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    Tags
+                  </Label>
                   <div className="flex flex-wrap gap-1.5 mb-2 min-h-6">
                     {(editingPost?.tags || []).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 border-none">
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 border-none"
+                      >
                         {tag}
                         <button
                           type="button"
@@ -575,9 +638,7 @@ export function BlogManagementTab() {
                         </button>
                       </Badge>
                     ))}
-                    {(editingPost?.tags || []).length === 0 && (
-                      <span className="text-xs text-stone-400 italic">No tags added yet.</span>
-                    )}
+                    {(editingPost?.tags || []).length === 0 && <span className="text-xs text-stone-400 italic">No tags added yet.</span>}
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -599,16 +660,17 @@ export function BlogManagementTab() {
                   </div>
                 </div>
 
-
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="space-y-0.5">
-                    <Label htmlFor="is-featured" className="text-sm font-bold">Featured Article</Label>
+                    <Label htmlFor="is-featured" className="text-sm font-bold">
+                      Featured Article
+                    </Label>
                     <p className="text-xs text-muted-foreground">Highlight on blog home page banner</p>
                   </div>
                   <Switch
                     id="is-featured"
                     checked={editingPost?.is_featured || false}
-                    onCheckedChange={(checked) => setEditingPost(prev => ({ ...prev, is_featured: checked }))}
+                    onCheckedChange={(checked) => setEditingPost((prev) => ({ ...prev, is_featured: checked }))}
                   />
                 </div>
               </Card>
@@ -620,28 +682,30 @@ export function BlogManagementTab() {
                 </h3>
 
                 <div className="space-y-2">
-                  <Label htmlFor="seo-title" className="text-xs font-black uppercase tracking-wider text-slate-500">SEO Meta Title</Label>
+                  <Label htmlFor="seo-title" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    SEO Meta Title
+                  </Label>
                   <Input
                     id="seo-title"
                     placeholder="Custom page title for google search..."
                     value={editingPost?.seo_title || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, seo_title: e.target.value }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, seo_title: e.target.value }))}
                     className="rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <Label htmlFor="meta-desc" className="text-xs font-black uppercase tracking-wider text-slate-500">Meta Description</Label>
-                    <span className="text-[10px] text-muted-foreground">
-                      {(editingPost?.meta_description || "").length}/160 chars
-                    </span>
+                    <Label htmlFor="meta-desc" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                      Meta Description
+                    </Label>
+                    <span className="text-[10px] text-muted-foreground">{(editingPost?.meta_description || "").length}/160 chars</span>
                   </div>
                   <Textarea
                     id="meta-desc"
                     placeholder="Hook users on Google search results page (150-160 characters)..."
                     value={editingPost?.meta_description || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, meta_description: e.target.value }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, meta_description: e.target.value }))}
                     rows={4}
                     className="rounded-xl resize-none text-xs"
                     maxLength={160}
@@ -649,25 +713,34 @@ export function BlogManagementTab() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="seo-keywords" className="text-xs font-black uppercase tracking-wider text-slate-500">SEO Keywords (comma separated)</Label>
+                  <Label htmlFor="seo-keywords" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    SEO Keywords (comma separated)
+                  </Label>
                   <Input
                     id="seo-keywords"
                     placeholder="tola updates, marketplace announcements"
                     value={editingPost?.seo_keywords?.join(", ") || ""}
-                    onChange={(e) => setEditingPost(prev => ({
-                      ...prev,
-                      seo_keywords: e.target.value.split(",").map(k => k.trim()).filter(Boolean)
-                    }))}
+                    onChange={(e) =>
+                      setEditingPost((prev) => ({
+                        ...prev,
+                        seo_keywords: e.target.value
+                          .split(",")
+                          .map((k) => k.trim())
+                          .filter(Boolean),
+                      }))
+                    }
                     className="rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="post-slug" className="text-xs font-black uppercase tracking-wider text-slate-500">URL Slug</Label>
+                  <Label htmlFor="post-slug" className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    URL Slug
+                  </Label>
                   <Input
                     id="post-slug"
                     value={editingPost?.slug || ""}
-                    onChange={(e) => setEditingPost(prev => ({ ...prev, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }))}
+                    onChange={(e) => setEditingPost((prev) => ({ ...prev, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") }))}
                     placeholder="my-custom-slug"
                     className="rounded-xl text-xs font-mono"
                   />
@@ -729,15 +802,14 @@ export function BlogManagementTab() {
 
               <div className="grid gap-4">
                 {filteredPosts.map((post) => (
-                  <Card key={post.id} className="border-none shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl bg-white overflow-hidden p-6">
+                  <Card
+                    key={post.id}
+                    className="border-none shadow-sm hover:shadow-md transition-all duration-300 rounded-3xl bg-white overflow-hidden p-6"
+                  >
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                       {post.cover_image_url && (
                         <div className="w-full md:w-48 h-32 rounded-2xl overflow-hidden shrink-0 border relative">
-                          <img
-                            src={post.cover_image_url}
-                            alt={post.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
+                          <img src={post.cover_image_url} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
@@ -746,30 +818,29 @@ export function BlogManagementTab() {
                             {post.blog_categories?.name || "Uncategorized"}
                           </Badge>
                           {post.is_featured && (
-                            <Badge className="bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider">
-                              Featured
-                            </Badge>
+                            <Badge className="bg-amber-500 text-white text-[10px] uppercase font-bold tracking-wider">Featured</Badge>
                           )}
                           <Badge
                             className={
                               post.status === "published"
                                 ? "bg-green-500 text-white"
                                 : post.status === "scheduled"
-                                ? "bg-indigo-500 text-white"
-                                : "bg-stone-400 text-white"
+                                  ? "bg-indigo-500 text-white"
+                                  : "bg-stone-400 text-white"
                             }
                           >
                             {post.status}
                           </Badge>
                         </div>
 
-                        <h3 className="text-xl font-bold text-slate-900 leading-tight mb-2 hover:text-primary cursor-pointer truncate" onClick={() => handleOpenEditPost(post)}>
+                        <h3
+                          className="text-xl font-bold text-slate-900 leading-tight mb-2 hover:text-primary cursor-pointer truncate"
+                          onClick={() => handleOpenEditPost(post)}
+                        >
                           {post.title}
                         </h3>
-                        
-                        <p className="text-sm text-stone-500 line-clamp-2 italic mb-4">
-                          "{post.excerpt || "No summary provided."}"
-                        </p>
+
+                        <p className="text-sm text-stone-500 line-clamp-2 italic mb-4">"{post.excerpt || "No summary provided."}"</p>
 
                         <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-stone-400">
                           <span className="flex items-center gap-1.5">
@@ -792,15 +863,33 @@ export function BlogManagementTab() {
                       </div>
 
                       <div className="flex gap-2 self-stretch md:self-auto justify-end">
-                        <Button size="sm" variant="outline" className="rounded-full h-9 w-9 p-0" title="Edit Article" onClick={() => handleOpenEditPost(post)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full h-9 w-9 p-0"
+                          title="Edit Article"
+                          onClick={() => handleOpenEditPost(post)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         {post.status === "published" && (
-                          <Button size="sm" variant="outline" className="rounded-full h-9 w-9 p-0" title="View Public Post" onClick={() => window.open(`/blog/${post.slug}`, '_blank')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full h-9 w-9 p-0"
+                            title="View Public Post"
+                            onClick={() => window.open(`/blog/${post.slug}`, "_blank")}
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         )}
-                        <Button size="sm" variant="destructive" className="rounded-full h-9 w-9 p-0" title="Delete" onClick={() => handleDeletePost(post.id)}>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="rounded-full h-9 w-9 p-0"
+                          title="Delete"
+                          onClick={() => handleDeletePost(post.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -826,9 +915,7 @@ export function BlogManagementTab() {
                 <div className="md:col-span-1">
                   <Card className="border-none shadow-sm bg-white rounded-3xl p-6">
                     <CardHeader className="p-0 pb-4 border-b mb-4">
-                      <CardTitle className="text-lg font-bold">
-                        {editingCategory ? "Edit Category" : "Add New Category"}
-                      </CardTitle>
+                      <CardTitle className="text-lg font-bold">{editingCategory ? "Edit Category" : "Add New Category"}</CardTitle>
                       <CardDescription>Organize articles with tags and slugs</CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSaveCategory} className="space-y-4">
@@ -890,9 +977,7 @@ export function BlogManagementTab() {
                             </Badge>
                           </div>
                           <p className="text-xs font-mono text-stone-400 mt-1">Slug: {cat.slug}</p>
-                          {cat.description && (
-                            <p className="text-sm text-stone-500 italic mt-2">"{cat.description}"</p>
-                          )}
+                          {cat.description && <p className="text-sm text-stone-500 italic mt-2">"{cat.description}"</p>}
                         </div>
                         <div className="flex gap-2">
                           <Button

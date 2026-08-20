@@ -59,14 +59,16 @@ function parseHistoryText(text?: string): Message[] {
   }
 
   if (matches.length === 0) {
-    return [{
-      id: "hist-0",
-      message: cleanText,
-      created_at: new Date().toISOString(),
-      sender_id: "",
-      sender_type: "user",
-      sender: { id: "", full_name: "Customer User" }
-    }]
+    return [
+      {
+        id: "hist-0",
+        message: cleanText,
+        created_at: new Date().toISOString(),
+        sender_id: "",
+        sender_type: "user",
+        sender: { id: "", full_name: "Customer User" },
+      },
+    ]
   }
 
   const result: Message[] = []
@@ -90,14 +92,22 @@ function parseHistoryText(text?: string): Message[] {
       sender: {
         id: isBot ? "" : isAgent ? "agent" : "user",
         full_name: isBot ? "Moureen Tyler (AI Agent)" : isAgent ? "Support Agent" : "Customer User",
-      }
+      },
     })
   }
 
   return result
 }
 
-export function ChatDialog({ open, onOpenChange, conversationId, shopName, productName, ticketDescription, isAdminView = false }: ChatDialogProps) {
+export function ChatDialog({
+  open,
+  onOpenChange,
+  conversationId,
+  shopName,
+  productName,
+  ticketDescription,
+  isAdminView = false,
+}: ChatDialogProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
@@ -119,7 +129,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
         messagesEndRef.current.scrollIntoView({ behavior: smooth ? "smooth" : "auto" })
       }
       if (scrollRef.current) {
-        const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]')
+        const scrollElement = scrollRef.current.querySelector("[data-radix-scroll-area-viewport]")
         if (scrollElement) {
           scrollElement.scrollTop = scrollElement.scrollHeight
         }
@@ -172,21 +182,17 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
             loadMessages()
           },
         )
-        .on(
-          "broadcast",
-          { event: "message" },
-          (payload: any) => {
-            console.log("[ChatDialog] Broadcast message received:", payload)
-            const newMsg = payload.payload
-            if (newMsg) {
-              setMessages((prev) => {
-                if (prev.some((m) => m.id === newMsg.id)) return prev
-                return [...prev, newMsg]
-              })
-              scrollToBottom()
-            }
+        .on("broadcast", { event: "message" }, (payload: any) => {
+          console.log("[ChatDialog] Broadcast message received:", payload)
+          const newMsg = payload.payload
+          if (newMsg) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMsg.id)) return prev
+              return [...prev, newMsg]
+            })
+            scrollToBottom()
           }
-        )
+        })
         .subscribe((status) => {
           console.log(`[ChatDialog] Realtime status for ${conversationId}:`, status)
         })
@@ -295,9 +301,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
     if (parsedHistory.length === 0) return messages
     if (messages.length === 0) return parsedHistory
 
-    const missingHistory = parsedHistory.filter(
-      (h) => !messages.some((m) => m.message.trim() === h.message.trim() || m.id === h.id)
-    )
+    const missingHistory = parsedHistory.filter((h) => !messages.some((m) => m.message.trim() === h.message.trim() || m.id === h.id))
     return [...missingHistory, ...messages]
   })()
 
@@ -312,9 +316,7 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 <div className="relative">
                   <Avatar className="h-10 w-10 border border-emerald-500/40 shadow-sm">
                     <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback className="bg-emerald-600 text-white font-bold">
-                      {shopName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-emerald-600 text-white font-bold">{shopName.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-900 animate-pulse" />
                 </div>
@@ -334,10 +336,20 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                 <Badge variant="outline" className="hidden sm:inline-flex text-[11px] text-slate-300 border-slate-700 bg-slate-800/80 mr-1">
                   {displayMessages.length} {displayMessages.length === 1 ? "msg" : "msgs"}
                 </Badge>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => handleCall("voice")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800"
+                  onClick={() => handleCall("voice")}
+                >
                   <Phone className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800" onClick={() => handleCall("video")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-300 hover:text-white hover:bg-slate-800"
+                  onClick={() => handleCall("video")}
+                >
                   <Video className="h-4 w-4" />
                 </Button>
               </div>
@@ -378,10 +390,11 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                           AI Assistant
                         </Badge>
                       )
-                      bubbleStyle = "bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-950 dark:text-amber-100 border border-amber-300/60 dark:border-amber-700/50 rounded-tl-xs"
+                      bubbleStyle =
+                        "bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 text-amber-950 dark:text-amber-100 border border-amber-300/60 dark:border-amber-700/50 rounded-tl-xs"
                     } else if (isAgent) {
                       alignRight = false
-                      senderName = isSelf ? "You (Support Agent)" : (msg.sender?.full_name || "Support Agent")
+                      senderName = isSelf ? "You (Support Agent)" : msg.sender?.full_name || "Support Agent"
                       avatarIcon = <Headset className="h-4 w-4" />
                       avatarBg = "bg-blue-600 text-white"
                       badgeComponent = (
@@ -389,11 +402,12 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                           Support Agent
                         </Badge>
                       )
-                      bubbleStyle = "bg-blue-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-blue-200/80 dark:border-slate-700/70 rounded-tl-xs"
+                      bubbleStyle =
+                        "bg-blue-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-blue-200/80 dark:border-slate-700/70 rounded-tl-xs"
                     } else {
                       // Customer / User message
                       alignRight = true
-                      senderName = isSelf && !isAdminView ? "You" : (msg.sender?.full_name || shopName || "Customer User")
+                      senderName = isSelf && !isAdminView ? "You" : msg.sender?.full_name || shopName || "Customer User"
                       avatarIcon = <User className="h-4 w-4" />
                       avatarBg = "bg-emerald-600 text-white"
                       badgeComponent = isAdminView ? (
@@ -407,16 +421,18 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
                     return (
                       <div key={msg.id} className={`flex gap-3 ${alignRight ? "flex-row-reverse" : "flex-row"}`}>
                         <Avatar className="h-8 w-8 mt-1 shrink-0 border shadow-xs">
-                          <AvatarImage src={isBot ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" : msg.sender?.profile_image_url || "/placeholder.svg"} />
-                          <AvatarFallback className={avatarBg}>
-                            {avatarIcon}
-                          </AvatarFallback>
+                          <AvatarImage
+                            src={
+                              isBot
+                                ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+                                : msg.sender?.profile_image_url || "/placeholder.svg"
+                            }
+                          />
+                          <AvatarFallback className={avatarBg}>{avatarIcon}</AvatarFallback>
                         </Avatar>
                         <div className={`flex flex-col max-w-[78%] ${alignRight ? "items-end" : "items-start"}`}>
                           <div className="flex items-center gap-1.5 mb-1 px-0.5">
-                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                              {senderName}
-                            </span>
+                            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">{senderName}</span>
                             {badgeComponent}
                           </div>
 
@@ -468,7 +484,10 @@ export function ChatDialog({ open, onOpenChange, conversationId, shopName, produ
           </div>
 
           {/* Form Input Footer */}
-          <form onSubmit={handleSendMessage} className="border-t border-slate-200 dark:border-slate-800 px-4 py-3 bg-white dark:bg-slate-950 shrink-0">
+          <form
+            onSubmit={handleSendMessage}
+            className="border-t border-slate-200 dark:border-slate-800 px-4 py-3 bg-white dark:bg-slate-950 shrink-0"
+          >
             <div className="flex items-center gap-2">
               <input
                 type="file"

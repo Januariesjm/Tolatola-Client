@@ -105,16 +105,20 @@ export default async function HomePage() {
     default: "/abstract-categories.png",
   }
 
-  const productsWithDiscount = allProducts.map((product: any) => {
-    let discountPercent = 0
-    if (product.compare_at_price && product.compare_at_price > product.price) {
-      discountPercent = Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
-    }
-    return { ...product, discountPercent }
-  }) || []
+  const productsWithDiscount =
+    allProducts.map((product: any) => {
+      let discountPercent = 0
+      if (product.compare_at_price && product.compare_at_price > product.price) {
+        discountPercent = Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+      }
+      return { ...product, discountPercent }
+    }) || []
 
   const featuredProducts = productsWithDiscount.slice(0, 10)
-  const bestSelling = [...productsWithDiscount].sort((a, b) => (b.sales_count || 0) - (a.sales_count || 0)).filter((p) => (p.sales_count || 0) > 0).slice(0, 10)
+  const bestSelling = [...productsWithDiscount]
+    .sort((a, b) => (b.sales_count || 0) - (a.sales_count || 0))
+    .filter((p) => (p.sales_count || 0) > 0)
+    .slice(0, 10)
   const bestDeals = productsWithDiscount.filter((p) => p.discountPercent > 0).slice(0, 10)
 
   const features = [
@@ -123,22 +127,22 @@ export default async function HomePage() {
       desc: "Your payments are protected with encrypted escrow and processed securely by licensed PSPs.",
       image: "/trust-secure-payments.png",
       badge: "Encrypted Escrow",
-      badgeColor: "bg-blue-50 text-[#1D61E7] border-blue-200"
+      badgeColor: "bg-blue-50 text-[#1D61E7] border-blue-200",
     },
     {
       title: "NIDA Verified",
       desc: "Every vendor undergoes rigorous NIDA identity and business vetting before listing products.",
       image: "/trust-nida-verified.png",
       badge: "Verified Merchant",
-      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200"
+      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
     },
     {
       title: "Swift Delivery",
       desc: "Local express logistics partners ensure your orders reach your doorstep in record time.",
       image: "/trust-swift-delivery.png",
       badge: "Speed Logistics",
-      badgeColor: "bg-amber-50 text-amber-700 border-amber-200"
-    }
+      badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
+    },
   ]
 
   return (
@@ -166,7 +170,6 @@ export default async function HomePage() {
       />
 
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
-
 
       <CategoriesNav categories={categories || []} />
 
@@ -205,9 +208,14 @@ export default async function HomePage() {
                 <Sparkles className="h-2.5 w-2.5" />
                 <span>Selections for you</span>
               </div>
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-stone-900 dark:text-white">Shop by <span className="text-primary dark:text-blue-400 italic">Category</span></h2>
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-stone-900 dark:text-white">
+                Shop by <span className="text-primary dark:text-blue-400 italic">Category</span>
+              </h2>
             </div>
-            <Link href="/shop" className="group flex items-center justify-center gap-1 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-blue-400 transition-colors">
+            <Link
+              href="/shop"
+              className="group flex items-center justify-center gap-1 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:text-primary dark:hover:text-blue-400 transition-colors"
+            >
               View Entire Catalog <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -233,7 +241,10 @@ export default async function HomePage() {
 
             <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {features.map((f, i) => (
-                <Card key={i} className="border border-stone-200/80 shadow-md hover:shadow-xl rounded-2xl p-4 md:p-5 bg-white group hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+                <Card
+                  key={i}
+                  className="border border-stone-200/80 shadow-md hover:shadow-xl rounded-2xl p-4 md:p-5 bg-white group hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden"
+                >
                   <div className="space-y-3.5">
                     {/* Compact Image Box */}
                     <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-stone-900 border border-stone-200/60 shadow-inner group-hover:scale-[1.01] transition-transform duration-500">
@@ -245,7 +256,9 @@ export default async function HomePage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent" />
                       <div className="absolute bottom-2.5 left-2.5">
-                        <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full border backdrop-blur-md shadow-xs ${f.badgeColor}`}>
+                        <span
+                          className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full border backdrop-blur-md shadow-xs ${f.badgeColor}`}
+                        >
                           {f.badge}
                         </span>
                       </div>
@@ -274,16 +287,28 @@ export default async function HomePage() {
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white text-primary text-xs font-bold tracking-widest uppercase">
                   Open for Enrollment
                 </div>
-                <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight tracking-tight">Grow Your Brand <br />Across <span className="text-white/40">Tanzania</span></h2>
-                <p className="text-primary-foreground/80 text-base font-medium">Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and payment protection for every sale.</p>
+                <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight tracking-tight">
+                  Grow Your Brand <br />
+                  Across <span className="text-white/40">Tanzania</span>
+                </h2>
+                <p className="text-primary-foreground/80 text-base font-medium">
+                  Join 500+ verified merchants. Secure mobile money payouts, managed logistics, and payment protection for every sale.
+                </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/vendor/register">
-                    <Button size="lg" className="w-full sm:w-auto text-base font-bold rounded-xl bg-stone-900 text-white hover:bg-stone-950 shadow-lg transition-all py-6 px-8">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto text-base font-bold rounded-xl bg-stone-900 text-white hover:bg-stone-950 shadow-lg transition-all py-6 px-8"
+                    >
                       Become a seller
                     </Button>
                   </Link>
                   <Link href="/contact">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto text-base font-bold rounded-xl bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary backdrop-blur-md py-6 px-8">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full sm:w-auto text-base font-bold rounded-xl bg-white/10 border-white/20 text-white hover:bg-white hover:text-primary backdrop-blur-md py-6 px-8"
+                    >
                       Contact Sales
                     </Button>
                   </Link>

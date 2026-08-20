@@ -5,17 +5,13 @@ import { createClient } from "@/lib/supabase/server"
  * Can be extracted to separate microservice later
  */
 export class ProductService {
-  async getProducts(filters?: {
-    category?: string
-    minPrice?: number
-    maxPrice?: number
-    search?: string
-  }) {
+  async getProducts(filters?: { category?: string; minPrice?: number; maxPrice?: number; search?: string }) {
     const supabase = await createClient()
 
     let query = supabase
       .from("products")
-      .select(`
+      .select(
+        `
         *,
         shops (
           id,
@@ -26,7 +22,8 @@ export class ProductService {
           id,
           name
         )
-      `)
+      `,
+      )
       .eq("approval_status", "approved")
 
     if (filters?.category) {
@@ -54,7 +51,8 @@ export class ProductService {
 
     const { data } = await supabase
       .from("products")
-      .select(`
+      .select(
+        `
         *,
         shops (
           id,
@@ -66,7 +64,8 @@ export class ProductService {
           id,
           name
         )
-      `)
+      `,
+      )
       .eq("id", productId)
       .single()
 

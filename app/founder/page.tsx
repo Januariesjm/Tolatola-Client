@@ -28,11 +28,7 @@ export default async function FounderPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -46,7 +42,7 @@ export default async function FounderPage() {
         <section className="relative overflow-hidden bg-stone-950 text-white py-24 md:py-32">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-70" />
           <div className="absolute -bottom-48 -left-48 w-96 h-96 rounded-full bg-primary/10 blur-[120px]" />
-          
+
           <div className="container mx-auto px-4 max-w-6xl relative z-10">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 mb-6 px-4.5 py-1.5 rounded-full bg-primary/20 text-primary border border-primary/30">
@@ -57,7 +53,8 @@ export default async function FounderPage() {
                 The Visionary Behind <span className="text-primary italic">TOLA</span>
               </h1>
               <p className="text-lg md:text-xl text-stone-300 font-medium italic max-w-2xl leading-relaxed">
-                "We are building an ecosystem where trust, technology, and opportunity come together to power the future of African commerce."
+                "We are building an ecosystem where trust, technology, and opportunity come together to power the future of African
+                commerce."
               </p>
             </div>
           </div>
@@ -66,7 +63,6 @@ export default async function FounderPage() {
         {/* Biography & Portrait Section */}
         <section className="py-16 md:py-24 container mx-auto px-4 max-w-6xl -mt-10 relative z-20">
           <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
-            
             {/* Left Sidebar: Photo and Key Details */}
             <div className="lg:col-span-4 space-y-8">
               <div className="sticky top-28">
@@ -82,16 +78,28 @@ export default async function FounderPage() {
                   <div className="text-center px-2 pb-2">
                     <h2 className="text-2xl font-black tracking-tight text-slate-900">Faraja Dastan Mhalale</h2>
                     <p className="text-sm font-black text-primary uppercase tracking-widest mt-1">Founder & CEO</p>
-                    
+
                     {/* Social links */}
                     <div className="flex justify-center gap-3 mt-6 border-t border-dashed border-stone-100 pt-5">
-                      <a href="#" className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all" title="LinkedIn Profile">
+                      <a
+                        href="#"
+                        className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all"
+                        title="LinkedIn Profile"
+                      >
                         <Linkedin className="h-4.5 w-4.5" />
                       </a>
-                      <a href="#" className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all" title="Twitter Profile">
+                      <a
+                        href="#"
+                        className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all"
+                        title="Twitter Profile"
+                      >
                         <Twitter className="h-4.5 w-4.5" />
                       </a>
-                      <a href="mailto:info@tolatola.co" className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all" title="Contact Email">
+                      <a
+                        href="mailto:info@tolatola.co"
+                        className="h-10 w-10 rounded-full border border-stone-200 hover:bg-primary hover:text-white hover:border-primary text-stone-500 flex items-center justify-center transition-all"
+                        title="Contact Email"
+                      >
                         <Mail className="h-4.5 w-4.5" />
                       </a>
                     </div>
@@ -121,39 +129,56 @@ export default async function FounderPage() {
 
             {/* Right Column: In-depth Vision Narrative */}
             <div className="lg:col-span-8 space-y-12">
-              
               {/* Vision Block */}
               <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed space-y-6">
                 <p className="text-xl font-medium leading-relaxed text-stone-600 italic border-l-4 border-primary pl-6">
-                  Faraja Dastan Mhalale is the Founder and Chief Executive Officer of TOLA, a Digital Trade & Supply Chain Ecosystem building the digital infrastructure for trusted, efficient, and inclusive commerce across Africa.
+                  Faraja Dastan Mhalale is the Founder and Chief Executive Officer of TOLA, a Digital Trade & Supply Chain Ecosystem
+                  building the digital infrastructure for trusted, efficient, and inclusive commerce across Africa.
                 </p>
 
                 <p>
-                  He founded TOLA after recognizing a fundamental challenge: while Africa is one of the world's fastest-growing regions, millions of businesses—from farmers and manufacturers to wholesalers, retailers, and service providers—continue to face fragmented markets, inefficient supply chains, limited market access, high transaction costs, and low levels of trust in digital trade. These structural challenges prevent businesses from reaching their full potential and reduce the continent's economic competitiveness.
+                  He founded TOLA after recognizing a fundamental challenge: while Africa is one of the world's fastest-growing regions,
+                  millions of businesses—from farmers and manufacturers to wholesalers, retailers, and service providers—continue to face
+                  fragmented markets, inefficient supply chains, limited market access, high transaction costs, and low levels of trust in
+                  digital trade. These structural challenges prevent businesses from reaching their full potential and reduce the
+                  continent's economic competitiveness.
                 </p>
 
                 <p>
-                  Faraja believes that Africa does not simply need more online marketplaces; it needs an integrated digital trade ecosystem capable of connecting every participant in the value chain. This vision gave birth to TOLA.
+                  Faraja believes that Africa does not simply need more online marketplaces; it needs an integrated digital trade ecosystem
+                  capable of connecting every participant in the value chain. This vision gave birth to TOLA.
                 </p>
 
                 <p>
-                  TOLA is designed to bring together buyers, sellers, manufacturers, farmers, logistics providers, service providers, financial institutions, and business support services within a single technology ecosystem. By integrating digital commerce, supply chain coordination, logistics, business networking, and trusted transactions, TOLA enables businesses to operate more efficiently, expand into new markets, reduce operational costs, and build long-term commercial relationships.
+                  TOLA is designed to bring together buyers, sellers, manufacturers, farmers, logistics providers, service providers,
+                  financial institutions, and business support services within a single technology ecosystem. By integrating digital
+                  commerce, supply chain coordination, logistics, business networking, and trusted transactions, TOLA enables businesses to
+                  operate more efficiently, expand into new markets, reduce operational costs, and build long-term commercial relationships.
                 </p>
 
                 <p>
-                  Under Faraja's leadership, TOLA is developing technology that supports businesses from product discovery to order management, payments, fulfilment, customer engagement, and supply chain visibility. The platform is built to strengthen both domestic and cross-border trade while supporting the digital transformation of African commerce.
+                  Under Faraja's leadership, TOLA is developing technology that supports businesses from product discovery to order
+                  management, payments, fulfilment, customer engagement, and supply chain visibility. The platform is built to strengthen
+                  both domestic and cross-border trade while supporting the digital transformation of African commerce.
                 </p>
 
                 <p>
-                  His long-term vision extends beyond building a successful technology company. He aims to help create a more connected, transparent, and resilient African economy where businesses of every size have equal access to markets, opportunities, and digital tools for growth.
+                  His long-term vision extends beyond building a successful technology company. He aims to help create a more connected,
+                  transparent, and resilient African economy where businesses of every size have equal access to markets, opportunities, and
+                  digital tools for growth.
                 </p>
 
                 <p>
-                  Faraja is committed to positioning TOLA as one of Africa's leading digital trade and supply chain infrastructures—powering trusted transactions, supporting millions of businesses, enabling sustainable economic growth, creating employment opportunities, and contributing to the realization of the African Continental Free Trade Area (AfCFTA) by making cross-border commerce simpler, safer, and more accessible through technology.
+                  Faraja is committed to positioning TOLA as one of Africa's leading digital trade and supply chain infrastructures—powering
+                  trusted transactions, supporting millions of businesses, enabling sustainable economic growth, creating employment
+                  opportunities, and contributing to the realization of the African Continental Free Trade Area (AfCFTA) by making
+                  cross-border commerce simpler, safer, and more accessible through technology.
                 </p>
 
                 <p>
-                  His leadership philosophy is built on innovation, integrity, execution, collaboration, and long-term value creation. He believes that the future of Africa will be shaped not only by technology, but by platforms that build trust, remove barriers to trade, and empower entrepreneurs to compete at a global scale.
+                  His leadership philosophy is built on innovation, integrity, execution, collaboration, and long-term value creation. He
+                  believes that the future of Africa will be shaped not only by technology, but by platforms that build trust, remove
+                  barriers to trade, and empower entrepreneurs to compete at a global scale.
                 </p>
               </div>
 
@@ -165,16 +190,21 @@ export default async function FounderPage() {
                     <Quote className="h-6 w-6 text-primary shrink-0" />
                     Founder's Message
                   </h3>
-                  
+
                   <div className="space-y-4 text-slate-700 italic text-lg leading-relaxed mb-8">
                     <p>
-                      "Trade has always been one of the greatest drivers of human progress. Yet millions of African businesses still struggle to access markets, trusted business partners, efficient supply chains, and the digital tools needed to grow. TOLA was created to change that reality."
+                      "Trade has always been one of the greatest drivers of human progress. Yet millions of African businesses still
+                      struggle to access markets, trusted business partners, efficient supply chains, and the digital tools needed to grow.
+                      TOLA was created to change that reality."
                     </p>
                     <p>
-                      "Our mission is to build the digital infrastructure that enables every business—from the smallest local enterprise to the largest manufacturer—to trade with confidence, operate more efficiently, and unlock new opportunities across Africa and beyond."
+                      "Our mission is to build the digital infrastructure that enables every business—from the smallest local enterprise to
+                      the largest manufacturer—to trade with confidence, operate more efficiently, and unlock new opportunities across
+                      Africa and beyond."
                     </p>
                     <p>
-                      "We are not simply building a marketplace. We are building an ecosystem where trust, technology, and opportunity come together to power the future of African commerce."
+                      "We are not simply building a marketplace. We are building an ecosystem where trust, technology, and opportunity come
+                      together to power the future of African commerce."
                     </p>
                   </div>
 
@@ -186,7 +216,6 @@ export default async function FounderPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </section>
@@ -202,7 +231,7 @@ export default async function FounderPage() {
               <p className="text-stone-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 Connect your business to the most trusted, inclusive, and connected trade ecosystem in Tanzania and beyond.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
                 <Link href="/vendor/register">
                   <button className="h-12 w-full sm:w-auto px-8 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl hover:scale-[1.03] transition-transform shadow-xl flex items-center justify-center gap-2 text-sm">
@@ -224,4 +253,3 @@ export default async function FounderPage() {
     </div>
   )
 }
-

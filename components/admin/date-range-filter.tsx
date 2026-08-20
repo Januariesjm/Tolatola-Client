@@ -12,11 +12,7 @@ interface DateRangeFilterProps {
 }
 
 // ── Utility: filter any array by a date field ──────────────────────
-export function filterByDateRange<T extends Record<string, any>>(
-  items: T[],
-  period: DatePeriod,
-  dateField: string = "created_at",
-): T[] {
+export function filterByDateRange<T extends Record<string, any>>(items: T[], period: DatePeriod, dateField: string = "created_at"): T[] {
   if (period === "all") return items
 
   const now = new Date()
@@ -64,11 +60,7 @@ export function DateRangeFilter({ value, onChange, className = "" }: DateRangeFi
           onClick={() => onChange(p.value)}
           className={`
             px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200
-            ${
-              value === p.value
-                ? "bg-primary text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
-            }
+            ${value === p.value ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"}
           `}
         >
           {p.label}

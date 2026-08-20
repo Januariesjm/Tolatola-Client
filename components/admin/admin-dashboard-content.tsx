@@ -6,12 +6,7 @@ import { Tabs } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
 import { logger } from "@/lib/logger"
 import type { AdminDashboardContentProps } from "@/lib/types/admin"
-import {
-  filterTicketsByDepartment,
-  getDepartmentForRole,
-  getInitialTab,
-  isSuperAdminRole,
-} from "@/lib/admin/dashboard-utils"
+import { filterTicketsByDepartment, getDepartmentForRole, getInitialTab, isSuperAdminRole } from "@/lib/admin/dashboard-utils"
 import { filterByDateRange, type DatePeriod } from "./date-range-filter"
 import { DashboardHeader } from "./dashboard/dashboard-header"
 import { DashboardMobileTabs } from "./dashboard/dashboard-mobile-tabs"
@@ -52,14 +47,8 @@ export function AdminDashboardContent(props: AdminDashboardContentProps) {
   const [overviewPeriod, setOverviewPeriod] = useState<DatePeriod>("all")
 
   // Overview metrics respect the date filter; the tab panels show unfiltered data.
-  const filteredOrders = useMemo(
-    () => filterByDateRange(orders, overviewPeriod),
-    [orders, overviewPeriod],
-  )
-  const filteredPayouts = useMemo(
-    () => filterByDateRange(payouts, overviewPeriod),
-    [payouts, overviewPeriod],
-  )
+  const filteredOrders = useMemo(() => filterByDateRange(orders, overviewPeriod), [orders, overviewPeriod])
+  const filteredPayouts = useMemo(() => filterByDateRange(payouts, overviewPeriod), [payouts, overviewPeriod])
 
   const handleLogout = async () => {
     try {
@@ -84,9 +73,7 @@ export function AdminDashboardContent(props: AdminDashboardContentProps) {
   // Strip the meta-info entry the promotions query appends, if present.
   const actualPromotions = promotions.filter((p) => !p._adminUsers && !p.id?.includes("_"))
 
-  const pendingRecovery = incompleteRegistrations.filter(
-    (r) => r.recovery_status === "pending",
-  ).length
+  const pendingRecovery = incompleteRegistrations.filter((r) => r.recovery_status === "pending").length
   const pendingHr = careerApplications.filter((a) => a.status === "pending").length
   const pendingPayouts = filteredPayouts.filter((p) => p.status === "pending").length
 
@@ -111,10 +98,7 @@ export function AdminDashboardContent(props: AdminDashboardContentProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/40">
-      <DashboardHeader
-        roleName={adminRole?.role?.role_name || "Administrator"}
-        onSignOut={handleLogout}
-      />
+      <DashboardHeader roleName={adminRole?.role?.role_name || "Administrator"} onSignOut={handleLogout} />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         <DashboardStatCards
@@ -127,9 +111,7 @@ export function AdminDashboardContent(props: AdminDashboardContentProps) {
               .filter((o) => o.payment_status === "paid")
               .reduce((sum: number, o) => sum + Number(o.total_amount || 0), 0),
             pendingPayouts,
-            activeOrders: filteredOrders.filter(
-              (o) => !["delivered", "cancelled"].includes(o.status),
-            ).length,
+            activeOrders: filteredOrders.filter((o) => !["delivered", "cancelled"].includes(o.status)).length,
             pendingVendorKyc: pendingVendors.length,
             pendingTransporterKyc: pendingTransporters.length,
             totalCustomers: stats.totalCustomers,
@@ -141,11 +123,7 @@ export function AdminDashboardContent(props: AdminDashboardContentProps) {
         />
 
         <div className="flex gap-6 items-start">
-          <DashboardSidebarNav
-            navContext={navContext}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+          <DashboardSidebarNav navContext={navContext} activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

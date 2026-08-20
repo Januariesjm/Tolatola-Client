@@ -39,10 +39,11 @@ export default async function ProfilePage() {
   const { data: kyc } = await (supabase.from("customer_kyc").select("*").eq("user_id", user.id) as any).maybeSingle()
 
   // Fetch orders
-  const { data: orders } = await (supabase
-    .from("orders")
-    .select(
-      `
+  const { data: orders } = await (
+    supabase
+      .from("orders")
+      .select(
+        `
       *,
       order_items (
         *,
@@ -52,25 +53,19 @@ export default async function ProfilePage() {
         )
       )
     `,
-    )
-    .eq("customer_id", user.id) as any)
-    .order("created_at", { ascending: false })
+      )
+      .eq("customer_id", user.id) as any
+  ).order("created_at", { ascending: false })
 
   // Fetch transactions
-  const { data: transactions } = await (supabase
-    .from("transactions")
-    .select("*")
-    .eq("user_id", user.id) as any)
+  const { data: transactions } = await (supabase.from("transactions").select("*").eq("user_id", user.id) as any)
     .order("created_at", { ascending: false })
     .limit(50)
 
   // Fetch support tickets
-  const { data: tickets } = await (supabase
-    .from("support_tickets")
-    .select("*")
-    .eq("user_id", user.id) as any)
-    .order("created_at", { ascending: false })
-
+  const { data: tickets } = await (supabase.from("support_tickets").select("*").eq("user_id", user.id) as any).order("created_at", {
+    ascending: false,
+  })
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">

@@ -12,12 +12,7 @@ interface WebMapPickerProps {
   title?: string
 }
 
-export function WebMapPicker({
-  latitude,
-  longitude,
-  onLocationSelect,
-  title = "Pin Location on Map",
-}: WebMapPickerProps) {
+export function WebMapPicker({ latitude, longitude, onLocationSelect, title = "Pin Location on Map" }: WebMapPickerProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const markerInstanceRef = useRef<any>(null)
@@ -133,7 +128,7 @@ export function WebMapPicker({
         })
         console.error("GPS Error:", error)
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 10000 },
     )
   }
 
@@ -152,11 +147,7 @@ export function WebMapPicker({
           disabled={isLocating || !isGoogleLoaded}
           className="rounded-full border-primary/20 hover:border-primary text-xs font-bold gap-2 hover:bg-primary/5 transition-all"
         >
-          {isLocating ? (
-            <Loader2 className="h-3 w-3 animate-spin text-primary" />
-          ) : (
-            <Locate className="h-3 w-3 text-primary" />
-          )}
+          {isLocating ? <Loader2 className="h-3 w-3 animate-spin text-primary" /> : <Locate className="h-3 w-3 text-primary" />}
           Use Current GPS
         </Button>
       </div>
@@ -174,15 +165,11 @@ export function WebMapPicker({
       <div className="flex gap-4">
         <div className="flex-1 bg-stone-50 border border-stone-100 rounded-2xl p-3 flex flex-col items-center justify-center">
           <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Latitude</span>
-          <span className="text-xs font-black text-stone-700 mt-1">
-            {latitude ? latitude.toFixed(6) : "Not pinned"}
-          </span>
+          <span className="text-xs font-black text-stone-700 mt-1">{latitude ? latitude.toFixed(6) : "Not pinned"}</span>
         </div>
         <div className="flex-1 bg-stone-50 border border-stone-100 rounded-2xl p-3 flex flex-col items-center justify-center">
           <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">Longitude</span>
-          <span className="text-xs font-black text-stone-700 mt-1">
-            {longitude ? longitude.toFixed(6) : "Not pinned"}
-          </span>
+          <span className="text-xs font-black text-stone-700 mt-1">{longitude ? longitude.toFixed(6) : "Not pinned"}</span>
         </div>
       </div>
       <p className="text-[10px] text-stone-400 font-bold text-center italic">

@@ -72,11 +72,12 @@ export interface AdminNavItem {
   isVisible: (ctx: AdminNavContext) => boolean
 }
 
-const can = (permission: string) => (ctx: AdminNavContext) =>
-  ctx.permissions.includes(permission)
+const can = (permission: string) => (ctx: AdminNavContext) => ctx.permissions.includes(permission)
 
-const canAny = (...permissions: string[]) => (ctx: AdminNavContext) =>
-  permissions.some((permission) => ctx.permissions.includes(permission))
+const canAny =
+  (...permissions: string[]) =>
+  (ctx: AdminNavContext) =>
+    permissions.some((permission) => ctx.permissions.includes(permission))
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   {

@@ -17,7 +17,7 @@ interface TransporterWithdrawalsTabProps {
   availableBalance: number
 }
 
-const COMMISSION_RATE = 0.10
+const COMMISSION_RATE = 0.1
 
 export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: TransporterWithdrawalsTabProps) {
   const [amount, setAmount] = useState("")
@@ -135,7 +135,9 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                   <SelectItem value="halopesa">HaloPesa</SelectItem>
                   <SelectItem value="ezypesa">EzyPesa</SelectItem>
                   <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="m-pesa" disabled>M-Pesa (Under Maintenance)</SelectItem>
+                  <SelectItem value="m-pesa" disabled>
+                    M-Pesa (Under Maintenance)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -174,12 +176,14 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
           ) : (
             <div className="space-y-3">
               {withdrawals.map((withdrawal) => (
-                <div key={withdrawal.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg">
+                <div
+                  key={withdrawal.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg"
+                >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm capitalize">{withdrawal.payment_method.replace("_", " ")}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(withdrawal.created_at).toLocaleDateString()} at{" "}
-                      {new Date(withdrawal.created_at).toLocaleTimeString()}
+                      {new Date(withdrawal.created_at).toLocaleDateString()} at {new Date(withdrawal.created_at).toLocaleTimeString()}
                     </p>
                     {withdrawal.notes && <p className="text-xs text-muted-foreground mt-1">{withdrawal.notes}</p>}
                   </div>

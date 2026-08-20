@@ -128,7 +128,9 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
                 <Flame className="h-3.5 w-3.5" />
                 <span>Top Sellers</span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Most <span className="text-amber-500 italic">Selling</span></h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Most <span className="text-amber-500 italic">Selling</span>
+              </h2>
             </div>
           </div>
 
@@ -179,9 +181,17 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
           <div className="relative z-10 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-3 md:space-y-4">
-              <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">Verified Vendors. <br /><span className="text-primary italic">Guaranteed Quality.</span></h2>
-              <p className="text-stone-400 text-sm md:text-base font-medium">Every seller on TOLA undergoes rigorous KYC verification for your safety.</p>
-              <Link href="/about" className="inline-flex items-center gap-1.5 text-white font-semibold text-sm hover:text-primary transition-colors">
+              <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">
+                Verified Vendors. <br />
+                <span className="text-primary italic">Guaranteed Quality.</span>
+              </h2>
+              <p className="text-stone-400 text-sm md:text-base font-medium">
+                Every seller on TOLA undergoes rigorous KYC verification for your safety.
+              </p>
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-1.5 text-white font-semibold text-sm hover:text-primary transition-colors"
+              >
                 Learn about our vetting process <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -203,7 +213,9 @@ export function HomeProductsSection({ featuredProducts, bestDeals, bestSelling }
                 <TrendingUp className="h-3.5 w-3.5" />
                 <span>Unbeatable Prices</span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Best Deals <span className="text-destructive italic">In Town</span></h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                Best Deals <span className="text-destructive italic">In Town</span>
+              </h2>
             </div>
           </div>
 

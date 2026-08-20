@@ -116,20 +116,14 @@ export function ShopDetailContent({ shop, products }: ShopDetailContentProps) {
                 </Link>
                 <CardHeader>
                   <Link href={`/product/${product.id}`}>
-                    <CardTitle className="text-lg line-clamp-2 hover:text-primary transition-colors">
-                      {product.name}
-                    </CardTitle>
+                    <CardTitle className="text-lg line-clamp-2 hover:text-primary transition-colors">{product.name}</CardTitle>
                   </Link>
                   <CardDescription className="text-lg font-semibold text-primary">
                     TZS {product.price?.toLocaleString() || "0"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    className="w-full"
-                    size="sm"
-                  >
+                  <Button onClick={() => handleAddToCart(product)} className="w-full" size="sm">
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Add to Cart
                   </Button>
@@ -142,12 +136,3 @@ export function ShopDetailContent({ shop, products }: ShopDetailContentProps) {
     </div>
   )
 }
-
-
-
-
-
-
-
-
-

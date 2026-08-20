@@ -64,7 +64,9 @@ export function SecureFundsManagementTab({ transactions }: SecureFundsManagement
                     <CardTitle className="text-lg">Ref #{transaction.orders?.order_number}</CardTitle>
                     <CardDescription>Merchant: {transaction.shops?.name}</CardDescription>
                   </div>
-                  <Badge className={statusColors[transaction.status]}>{transaction.status === 'held' ? 'Protected' : transaction.status}</Badge>
+                  <Badge className={statusColors[transaction.status]}>
+                    {transaction.status === "held" ? "Protected" : transaction.status}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent>

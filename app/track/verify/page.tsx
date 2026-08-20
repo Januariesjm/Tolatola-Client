@@ -48,14 +48,11 @@ export default function TrackVerifyPage() {
     setError(null)
     setLoading(true)
     try {
-      const res = await clientApiPostPublic<{ success: boolean; token?: string; error?: string }>(
-        "tracking/verify-otp",
-        {
-          tracking_code: stored.tracking_code,
-          contact: stored.contact,
-          otp: otp.trim(),
-        }
-      )
+      const res = await clientApiPostPublic<{ success: boolean; token?: string; error?: string }>("tracking/verify-otp", {
+        tracking_code: stored.tracking_code,
+        contact: stored.contact,
+        otp: otp.trim(),
+      })
       if (res.success && res.token) {
         sessionStorage.removeItem(TRACKING_STORAGE_KEY)
         router.replace(`/track/status?token=${encodeURIComponent(res.token)}`)
@@ -98,9 +95,7 @@ export default function TrackVerifyPage() {
               <ShieldCheck className="h-7 w-7 text-primary" />
             </div>
             <CardTitle className="text-2xl font-black tracking-tight">Enter verification code</CardTitle>
-            <CardDescription>
-              We sent a 6-digit code to the contact details you entered. It expires in 5 minutes.
-            </CardDescription>
+            <CardDescription>We sent a 6-digit code to the contact details you entered. It expires in 5 minutes.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleVerify} className="space-y-4">

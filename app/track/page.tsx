@@ -50,10 +50,7 @@ function TrackOrderInner() {
         contact: contactNorm,
       })
       if (typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem(
-          TRACKING_STORAGE_KEY,
-          JSON.stringify({ tracking_code: code, contact: contactNorm })
-        )
+        sessionStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify({ tracking_code: code, contact: contactNorm }))
       }
       toast({ title: "OTP sent", description: `Check your ${isEmail ? "email" : "phone"} for the 6-digit code.` })
       router.push("/track/verify")
@@ -66,7 +63,9 @@ function TrackOrderInner() {
           const parsed = JSON.parse(jsonPart)
           if (parsed.error) msg = parsed.error
         }
-      } catch { /* use default msg */ }
+      } catch {
+        /* use default msg */
+      }
       setError(msg)
       toast({ title: "Error", description: msg, variant: "destructive" })
     } finally {
@@ -89,9 +88,7 @@ function TrackOrderInner() {
               <PackageSearch className="h-7 w-7 text-primary" />
             </div>
             <CardTitle className="text-2xl font-black tracking-tight">{t("track.title")}</CardTitle>
-            <CardDescription>
-              {t("track.desc")}
-            </CardDescription>
+            <CardDescription>{t("track.desc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSendOtp} className="space-y-4">
@@ -123,11 +120,7 @@ function TrackOrderInner() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <Button
-                type="submit"
-                className="w-full h-12 rounded-xl font-bold text-base"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full h-12 rounded-xl font-bold text-base" disabled={loading}>
                 {loading ? t("track.sending") : t("track.send_otp")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

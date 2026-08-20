@@ -31,19 +31,14 @@ export async function POST(request: Request) {
     // This matches the RLS policy requirement: (storage.foldername(name))[1] = auth.uid()::text
     const filename = `${user.id}/${documentType}-${Date.now()}-${file.name}`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(filename, buffer, {
-        contentType: file.type,
-        upsert: true,
-      })
+    const { data: uploadData, error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(filename, buffer, {
+      contentType: file.type,
+      upsert: true,
+    })
 
     if (uploadError) {
       console.error("Upload error:", uploadError)
-      return NextResponse.json(
-        { error: `Upload failed: ${uploadError.message}` },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 })
     }
 
     // Get public URL
@@ -59,9 +54,6 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Upload error:", error)
-    return NextResponse.json(
-      { error: `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}` },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}` }, { status: 500 })
   }
 }

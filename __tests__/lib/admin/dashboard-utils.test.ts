@@ -1,9 +1,4 @@
-import {
-  getInitialTab,
-  isSuperAdminRole,
-  getDepartmentForRole,
-  filterTicketsByDepartment,
-} from "@/lib/admin/dashboard-utils"
+import { getInitialTab, isSuperAdminRole, getDepartmentForRole, filterTicketsByDepartment } from "@/lib/admin/dashboard-utils"
 
 describe("dashboard-utils (lib/admin/dashboard-utils.ts)", () => {
   describe("getInitialTab", () => {

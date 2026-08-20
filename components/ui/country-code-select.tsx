@@ -147,20 +147,12 @@ export function CountryCodeSelect({ value, onChange, disabled }: CountryCodeSele
   const containerRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const selected = useMemo(
-    () => COUNTRY_CODES.find((c) => c.dial === value) || COUNTRY_CODES[0],
-    [value],
-  )
+  const selected = useMemo(() => COUNTRY_CODES.find((c) => c.dial === value) || COUNTRY_CODES[0], [value])
 
   const filtered = useMemo(() => {
     if (!search.trim()) return COUNTRY_CODES
     const q = search.toLowerCase()
-    return COUNTRY_CODES.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.dial.includes(q) ||
-        c.code.toLowerCase().includes(q),
-    )
+    return COUNTRY_CODES.filter((c) => c.name.toLowerCase().includes(q) || c.dial.includes(q) || c.code.toLowerCase().includes(q))
   }, [search])
 
   // Close on click outside
@@ -188,7 +180,10 @@ export function CountryCodeSelect({ value, onChange, disabled }: CountryCodeSele
       <button
         type="button"
         disabled={disabled}
-        onClick={() => { setOpen(!open); setSearch("") }}
+        onClick={() => {
+          setOpen(!open)
+          setSearch("")
+        }}
         className="flex items-center gap-1.5 h-11 px-3 rounded-md border border-input bg-background text-sm
                    hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring
                    disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
@@ -199,8 +194,10 @@ export function CountryCodeSelect({ value, onChange, disabled }: CountryCodeSele
       </button>
 
       {open && (
-        <div className="absolute z-50 top-full left-0 mt-1 w-72 max-h-72 bg-white border border-slate-200
-                        rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+        <div
+          className="absolute z-50 top-full left-0 mt-1 w-72 max-h-72 bg-white border border-slate-200
+                        rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+        >
           {/* Search */}
           <div className="p-2 border-b border-slate-100 sticky top-0 bg-white">
             <div className="relative">

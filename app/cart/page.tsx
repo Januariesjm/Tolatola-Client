@@ -16,14 +16,20 @@ export default async function CartPage() {
   let kycStatus = null
 
   if (user) {
-    const { data: profileData } = await (supabase.from("users").select("*").eq("id", user.id as string) as any).single()
+    const { data: profileData } = await (
+      supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id as string) as any
+    ).single()
     profile = profileData
 
-    const { data: kycData } = await (supabase
-      .from("customer_kyc")
-      .select("kyc_status")
-      .eq("user_id", user.id as string) as any)
-      .maybeSingle()
+    const { data: kycData } = await (
+      supabase
+        .from("customer_kyc")
+        .select("kyc_status")
+        .eq("user_id", user.id as string) as any
+    ).maybeSingle()
     kycStatus = kycData?.kyc_status
   }
 

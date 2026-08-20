@@ -14,28 +14,27 @@ export async function POST(request: NextRequest) {
     const supabase = createRouteHandlerClient({ cookies })
 
     // Generate a unique file name
-    const fileExt = file.name.split('.').pop()
+    const fileExt = file.name.split(".").pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${fileName}`
 
     // Upload to 'promotions' bucket
-    const { data, error } = await supabase.storage
-      .from('promotions')
-      .upload(filePath, file)
+    const { data, error } = await supabase.storage.from("promotions").upload(filePath, file)
 
     if (error) {
       console.error("Supabase storage upload error object:", JSON.stringify(error, null, 2))
-      return NextResponse.json({
-        error: "Upload to Supabase failed",
-        details: error.message || "Unknown error",
-        code: (error as any).statusCode || "500"
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          error: "Upload to Supabase failed",
+          details: error.message || "Unknown error",
+          code: (error as any).statusCode || "500",
+        },
+        { status: 500 },
+      )
     }
 
     // Get public URL
-    const { data: publicUrlData } = supabase.storage
-      .from('promotions')
-      .getPublicUrl(filePath)
+    const { data: publicUrlData } = supabase.storage.from("promotions").getPublicUrl(filePath)
 
     return NextResponse.json({
       url: publicUrlData.publicUrl,
@@ -45,9 +44,12 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Upload handler caught exception:", error)
-    return NextResponse.json({
-      error: "Internal Server Error in Upload Handler",
-      details: error instanceof Error ? error.message : String(error)
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Internal Server Error in Upload Handler",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }

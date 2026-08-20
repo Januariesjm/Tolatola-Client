@@ -38,12 +38,7 @@ jest.mock("@/lib/api", () => ({
   },
 }))
 
-import {
-  serverApiGet,
-  serverApiPost,
-  serverApiPatch,
-  serverApiPut,
-} from "@/lib/api-server"
+import { serverApiGet, serverApiPost, serverApiPatch, serverApiPut } from "@/lib/api-server"
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -76,11 +71,7 @@ describe("api-server (lib/api-server.ts)", () => {
 
       await serverApiGet("products", { next: { revalidate: 60 } })
 
-      expect(mockApiGet).toHaveBeenCalledWith(
-        "products",
-        "server-token",
-        { next: { revalidate: 60 } }
-      )
+      expect(mockApiGet).toHaveBeenCalledWith("products", "server-token", { next: { revalidate: 60 } })
     })
 
     it("serverApiPost passes body and token to api.post", async () => {

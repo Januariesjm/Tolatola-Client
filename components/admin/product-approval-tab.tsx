@@ -54,11 +54,7 @@ export function ProductApprovalTab({ products }: ProductApprovalTabProps) {
           {products.map((product) => (
             <Card key={product.id}>
               <div className="aspect-square bg-muted">
-                <img
-                  src={product.image_url || "/placeholder.svg"}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={product.image_url || "/placeholder.svg"} alt={product.name} className="w-full h-full object-cover" />
               </div>
               <CardHeader>
                 <div className="flex items-center justify-between">

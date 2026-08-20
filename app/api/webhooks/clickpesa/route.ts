@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         paid_at: status === "COMPLETED" || status === "SUCCESS" ? new Date().toISOString() : null,
       })
       .eq("id", orderId)
-      .select('*, order_items(*, product:products(shop_id))') // Fetch items to identify shops
+      .select("*, order_items(*, product:products(shop_id))") // Fetch items to identify shops
       .single()
 
     if (updateError) {
@@ -57,10 +57,7 @@ export async function POST(request: NextRequest) {
       // The update query above returns the order, but we can't easily join deep in update in Supabase JS sometimes depending on version,
       // but let's try to fetch items if needed.
 
-      const { data: orderItems } = await supabase
-        .from('order_items')
-        .select('shop_id')
-        .eq('order_id', orderId)
+      const { data: orderItems } = await supabase.from("order_items").select("shop_id").eq("order_id", orderId)
 
       if (orderItems) {
         const shopIds = [...new Set(orderItems.map((item: any) => item.shop_id))]
@@ -68,11 +65,7 @@ export async function POST(request: NextRequest) {
         const { createNotification } = await import("@/lib/notifications")
 
         for (const shopId of shopIds) {
-          const { data: shop } = await supabase
-            .from('shops')
-            .select('owner_id, name')
-            .eq('id', shopId)
-            .single()
+          const { data: shop } = await supabase.from("shops").select("owner_id, name").eq("id", shopId).single()
 
           if (shop && shop.owner_id) {
             await createNotification({
@@ -83,8 +76,8 @@ export async function POST(request: NextRequest) {
               data: {
                 orderId: orderId,
                 shopId: shopId,
-                status: 'paid'
-              }
+                status: "paid",
+              },
             })
           }
         }

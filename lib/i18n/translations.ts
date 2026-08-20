@@ -143,7 +143,7 @@ export const translations = {
     "category.motorcycles": "Motorcycles",
     "category.men": "Men",
     "category.women": "Women",
-    "category.kids": "Kids"
+    "category.kids": "Kids",
   },
   sw: {
     // Header & Navigation
@@ -179,8 +179,7 @@ export const translations = {
     // Hero
     "hero.welcome": "Karibu TOLA",
     "hero.tagline": "Soko Kuu la Tanzania la Wauzaji Wengi",
-    "hero.description":
-      "Unganisha na wauzaji wa ndani, nunua kwa usalama, na upate usafirishaji wa haraka Tanzania nzima",
+    "hero.description": "Unganisha na wauzaji wa ndani, nunua kwa usalama, na upate usafirishaji wa haraka Tanzania nzima",
     "hero.special_offer": "Toleo Maalum",
     "hero.start_shopping": "Anza Kununua",
     "hero.become_seller": "Kuwa Muuzaji",
@@ -260,7 +259,8 @@ export const translations = {
 
     // Tracking
     "track.title": "Fuatilia agizo lako",
-    "track.desc": "Ingiza nambari yako ya ufuatiliaji na nambari ya simu au barua pepe iliyotumiwa kwa agizo hilo. Tutatuma nambari ya siri ya mara moja ili kuthibitisha.",
+    "track.desc":
+      "Ingiza nambari yako ya ufuatiliaji na nambari ya simu au barua pepe iliyotumiwa kwa agizo hilo. Tutatuma nambari ya siri ya mara moja ili kuthibitisha.",
     "track.code_label": "Nambari ya ufuatiliaji au Nambari ya Agizo",
     "track.contact_label": "Nambari ya simu au Barua pepe",
     "track.send_otp": "Tuma OTP",
@@ -290,7 +290,7 @@ export const translations = {
     "category.motorcycles": "Pikipiki",
     "category.men": "Wanaume",
     "category.women": "Wanawake",
-    "category.kids": "Watoto"
+    "category.kids": "Watoto",
   },
   ar: {
     // Header & Navigation
@@ -436,7 +436,7 @@ export const translations = {
     "category.motorcycles": "الدراجات النارية",
     "category.men": "رجال",
     "category.women": "نساء",
-    "category.kids": "أطفال"
+    "category.kids": "أطفال",
   },
   zh: {
     // Header & Navigation
@@ -582,7 +582,7 @@ export const translations = {
     "category.motorcycles": "摩托车",
     "category.men": "男士",
     "category.women": "女士",
-    "category.kids": "儿童"
+    "category.kids": "儿童",
   },
 }
 
@@ -590,11 +590,7 @@ export const translations = {
  * Returns the translated category name for a given slug and t() function.
  * Falls back to the raw DB name if no translation exists.
  */
-export function getCategoryTranslation(
-  slug: string | undefined | null,
-  rawName: string,
-  t: (key: TranslationKey) => string
-): string {
+export function getCategoryTranslation(slug: string | undefined | null, rawName: string, t: (key: TranslationKey) => string): string {
   if (!slug) return rawName
   const key = `category.${slug}` as TranslationKey
   const translated = t(key)

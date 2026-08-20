@@ -27,7 +27,6 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
   }
 
   return (
-
     <div className="space-y-6">
       {orders.length === 0 ? (
         <div className="text-center py-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">
@@ -39,9 +38,7 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
             You haven't placed any orders yet. Start exploring our marketplace to find amazing products.
           </p>
           <Link href="/shop">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-8">
-              Start Shopping
-            </Button>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-8">Start Shopping</Button>
           </Link>
         </div>
       ) : (
@@ -58,7 +55,7 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
                     <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    Placed on {new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                    Placed on {new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: "long" })}
                   </p>
                 </div>
                 <div className="text-right">
@@ -73,11 +70,7 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
                     <div key={item.id} className="flex items-start gap-4">
                       <div className="h-16 w-16 flex-shrink-0 bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
                         {item.product?.images?.[0] ? (
-                          <img
-                            src={item.product.images[0]}
-                            alt={item.product.name}
-                            className="h-full w-full object-cover"
-                          />
+                          <img src={item.product.images[0]} alt={item.product.name} className="h-full w-full object-cover" />
                         ) : (
                           <div className="h-full w-full flex items-center justify-center">
                             <Package className="h-6 w-6 text-zinc-300" />
@@ -96,16 +89,17 @@ export default function OrderHistoryTab({ orders }: OrderHistoryTabProps) {
 
                   {order.order_items?.length > 2 && (
                     <div className="pl-20 pt-1">
-                      <p className="text-sm text-muted-foreground italic">
-                        +{order.order_items.length - 2} more items in this order
-                      </p>
+                      <p className="text-sm text-muted-foreground italic">+{order.order_items.length - 2} more items in this order</p>
                     </div>
                   )}
                 </div>
 
                 <div className="mt-6 flex items-center justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
                   <Link href={`/orders/${order.id}`}>
-                    <Button variant="outline" className="group-hover:border-indigo-200 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/10 dark:group-hover:border-indigo-800 dark:group-hover:text-indigo-300 transition-colors">
+                    <Button
+                      variant="outline"
+                      className="group-hover:border-indigo-200 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/10 dark:group-hover:border-indigo-800 dark:group-hover:text-indigo-300 transition-colors"
+                    >
                       <Eye className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
                       View Order Details
                     </Button>

@@ -37,22 +37,24 @@ export function ActivityLogsTab() {
     try {
       setLoading(true)
       const supabase = createClient()
-      
+
       const { data, error } = await supabase
         .from("admin_activity_logs")
-        .select(`
+        .select(
+          `
           *,
           admin:admin_id (full_name, email)
-        `)
+        `,
+        )
         .order("created_at", { ascending: false })
         .limit(100)
 
       if (error) throw error
-      
+
       // Ensure data conforms to ActivityLog type by picking correct fields
-      const formattedData = (data || []).map(log => ({
+      const formattedData = (data || []).map((log) => ({
         ...log,
-        admin: Array.isArray(log.admin) ? log.admin[0] : (log.admin || { full_name: "Unknown", email: "" })
+        admin: Array.isArray(log.admin) ? log.admin[0] : log.admin || { full_name: "Unknown", email: "" },
       })) as ActivityLog[]
 
       setLogs(formattedData)
@@ -63,22 +65,29 @@ export function ActivityLogsTab() {
     }
   }
 
-  const filteredLogs = logs.filter(log => 
-    log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.resource.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.admin?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.admin?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredLogs = logs.filter(
+    (log) =>
+      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.resource.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.admin?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.admin?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
   const formatAction = (action: string) => {
-    const formatted = action.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())
-    switch(action) {
-      case "approve": return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">{formatted}</Badge>
-      case "reject": return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">{formatted}</Badge>
-      case "activate": return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">{formatted}</Badge>
-      case "deactivate": return <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-100">{formatted}</Badge>
-      case "assign_role": return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">{formatted}</Badge>
-      default: return <Badge variant="outline">{formatted}</Badge>
+    const formatted = action.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    switch (action) {
+      case "approve":
+        return <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100">{formatted}</Badge>
+      case "reject":
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">{formatted}</Badge>
+      case "activate":
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">{formatted}</Badge>
+      case "deactivate":
+        return <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-100">{formatted}</Badge>
+      case "assign_role":
+        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">{formatted}</Badge>
+      default:
+        return <Badge variant="outline">{formatted}</Badge>
     }
   }
 
@@ -139,9 +148,7 @@ export function ActivityLogsTab() {
                       <div className="font-medium text-slate-900">{log.admin?.full_name || "Unknown Admin"}</div>
                       <div className="text-xs text-slate-500">{log.admin?.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {formatAction(log.action)}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{formatAction(log.action)}</td>
                     <td className="px-6 py-4 text-slate-600 truncate max-w-[200px]" title={log.resource}>
                       {log.resource}
                     </td>

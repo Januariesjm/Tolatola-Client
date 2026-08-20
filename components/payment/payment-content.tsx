@@ -37,9 +37,7 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
     const interval = setInterval(async () => {
       attempts++
       try {
-        const res = await clientApiGet<{ data: { payment_status: string; status: string } }>(
-          `payments/status/${order.id}`
-        )
+        const res = await clientApiGet<{ data: { payment_status: string; status: string } }>(`payments/status/${order.id}`)
         if (res.data?.payment_status === "paid" || res.data?.status === "confirmed") {
           setPaymentCompleted(true)
           setOrder((prev: any) => ({ ...prev, payment_status: "paid", status: res.data.status }))
@@ -75,7 +73,7 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
     if (paymentCompleted) {
       localStorage.removeItem("cart")
       window.dispatchEvent(new Event("cartUpdated"))
-      router.push('/checkout/success/' + order.id)
+      router.push("/checkout/success/" + order.id)
     }
   }, [paymentCompleted, order.id, router])
 
@@ -145,7 +143,9 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
                       </p>
                       <div className="flex items-center gap-2 pt-4">
                         <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-white/40 italic">Payment protection unavailable for COD</span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-white/40 italic">
+                          Payment protection unavailable for COD
+                        </span>
                       </div>
                     </div>
 
@@ -197,7 +197,9 @@ export function PaymentContent({ order: initialOrder, user }: PaymentContentProp
                           <p className="font-bold text-stone-900 text-sm truncate leading-tight">{item.products?.name || "Product"}</p>
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-black uppercase text-stone-400">Qty: {item.quantity}</span>
-                            <span className="text-stone-900 font-black text-sm">{(item.unit_price * item.quantity).toLocaleString()} TZS</span>
+                            <span className="text-stone-900 font-black text-sm">
+                              {(item.unit_price * item.quantity).toLocaleString()} TZS
+                            </span>
                           </div>
                         </div>
                       </div>

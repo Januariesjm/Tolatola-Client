@@ -27,17 +27,17 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
 
   const initialAssignment = initialOrderId
     ? assignments.find((a) => a.order_id === initialOrderId || a.id === initialOrderId || a.orders?.order_number === initialOrderId)
-    : undefined;
+    : undefined
 
-  let initialInnerTab = TAB_AVAILABLE;
+  let initialInnerTab = TAB_AVAILABLE
   if (initialAssignment) {
-    if (initialAssignment.status === "accepted") initialInnerTab = TAB_ACCEPTED;
-    else if (["picked_up", "in_transit"].includes(initialAssignment.status)) initialInnerTab = TAB_IN_TRANSIT;
-    else if (initialAssignment.status === "delivered") initialInnerTab = TAB_COMPLETED;
-    else if (initialAssignment.accepted_at) initialInnerTab = TAB_ACCEPTED;
+    if (initialAssignment.status === "accepted") initialInnerTab = TAB_ACCEPTED
+    else if (["picked_up", "in_transit"].includes(initialAssignment.status)) initialInnerTab = TAB_IN_TRANSIT
+    else if (initialAssignment.status === "delivered") initialInnerTab = TAB_COMPLETED
+    else if (initialAssignment.accepted_at) initialInnerTab = TAB_ACCEPTED
   }
 
-  const [activeTab, setActiveTab] = useState(initialInnerTab);
+  const [activeTab, setActiveTab] = useState(initialInnerTab)
   const [updating, setUpdating] = useState<string | null>(null)
 
   // Delivery PIN State
@@ -61,10 +61,10 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   }, [initialOrderId])
 
   const availableTrips = assignments.filter(
-    (a) => a.is_available_order || (["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at)
+    (a) => a.is_available_order || (["assigned", "ready_for_pickup"].includes(a.status) && !a.accepted_at),
   )
   const acceptedTrips = assignments.filter(
-    (a) => !a.is_available_order && (a.status === "accepted" || (a.status === "assigned" && !!a.accepted_at))
+    (a) => !a.is_available_order && (a.status === "accepted" || (a.status === "assigned" && !!a.accepted_at)),
   )
   const inTransitTrips = assignments.filter((a) => !a.is_available_order && ["picked_up", "in_transit"].includes(a.status))
   const completedTrips = assignments.filter((a) => !a.is_available_order && a.status === "delivered")
@@ -73,7 +73,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
     setUpdating(assignmentId)
     try {
       const { clientApiPatch, clientApiPost } = await import("@/lib/api-client")
-      
+
       // If accepting an order from the general available pool
       if (isAvailableOrder && newStatus === "accepted" && orderId) {
         await clientApiPost(`assignments/accept/${orderId}`)
@@ -89,7 +89,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
 
         await clientApiPatch(`assignments/${assignmentId}`, updateData)
       }
-      
+
       router.refresh()
     } catch (error: any) {
       console.error("Error updating assignment:", error)
@@ -104,12 +104,12 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       alert("Please enter a valid 4-digit Delivery PIN.")
       return
     }
-    
+
     setUpdating(selectedAssignmentId)
     try {
       const { clientApiPost } = await import("@/lib/api-client")
       await clientApiPost(`assignments/${selectedAssignmentId}/verify-pin`, { pin: deliveryPin })
-      
+
       setPinModalOpen(false)
       setSelectedAssignmentId(null)
       setDeliveryPin("")
@@ -123,7 +123,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   }
 
   const getStatusBadge = (assignment: any) => {
-    const status = (assignment.status === "assigned" && assignment.accepted_at) ? "accepted" : assignment.status
+    const status = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
     const variants: any = {
       assigned: "secondary",
       ready_for_pickup: "secondary",
@@ -156,236 +156,216 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       <div className="space-y-4">
         {list.map((assignment) => {
           const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
-          const isNotYetAccepted = (["assigned", "ready_for_pickup", "available"].includes(assignment.status)) && !assignment.accepted_at
-          const displayStatus = (assignment.status === "assigned" && assignment.accepted_at) ? "accepted" : assignment.status
-          
+          const isNotYetAccepted = ["assigned", "ready_for_pickup", "available"].includes(assignment.status) && !assignment.accepted_at
+          const displayStatus = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
+
           return (
-          <Card 
-            key={assignment.id} 
-            id={`order-${assignment.order_id}`}
-            className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}
-          >
-            <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <CardTitle className="text-sm sm:text-lg truncate">Order #{assignment.orders?.order_number}</CardTitle>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                    {assignment.transport_methods?.name} • {assignment.distance_km} km
-                  </p>
-                </div>
-                {getStatusBadge(assignment)}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
-              {/* Shop Info */}
-              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="font-medium text-sm">
-                    Pickup from: {assignment.shops?.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {assignment.shops?.district}, {assignment.shops?.region}
-                  </p>
-                  {isAccepted && assignment.shops?.address && (
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
-                        {assignment.shops.address}
-                      </p>
-                      {assignment.shops.latitude && assignment.shops.longitude && (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${assignment.shops.latitude},${assignment.shops.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
-                        >
-                          <MapPin className="h-3 w-3" />
-                          View Pickup Location
-                        </a>
-                      )}
-                    </div>
-                  )}
-                  {isAccepted && assignment.shops?.phone && (
-                    <a href={`tel:${assignment.shops.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
-                      <Phone className="h-3 w-3" />
-                      {assignment.shops.phone}
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Customer Info */}
-              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="font-medium text-sm">
-                    Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
-                  </p>
-                  {isAccepted && assignment.orders?.shipping_address && (
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
-                        {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
-                        {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
-                      </p>
-                      {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
-                        >
-                          <MapPin className="h-3 w-3" />
-                          View Delivery Location
-                        </a>
-                      )}
-                    </div>
-                  )}
-                  {isAccepted && assignment.orders?.users?.phone && (
-                    <a
-                      href={`tel:${assignment.orders.users.phone}`}
-                      className="text-sm text-blue-600 flex items-center gap-1"
-                    >
-                      <Phone className="h-3 w-3" />
-                      {assignment.orders.users.phone}
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {!isAccepted && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  Exact locations will be revealed after you accept this cargo.
-                </div>
-              )}
-
-              {/* Delivery Fee */}
-              <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                <span className="text-sm font-medium">Delivery Fee</span>
-                <span className="text-lg font-bold text-green-700">
-                  {Number(assignment.delivery_fee).toLocaleString()} TZS
-                </span>
-              </div>
-
-              {/* Navigation Directions */}
-              {isAccepted && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
-                <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
-                    <Navigation className="h-3.5 w-3.5" />
-                    <span>Navigation & Route Directions</span>
+            <Card key={assignment.id} id={`order-${assignment.order_id}`} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
+              <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <CardTitle className="text-sm sm:text-lg truncate">Order #{assignment.orders?.order_number}</CardTitle>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                      {assignment.transport_methods?.name} • {assignment.distance_km} km
+                    </p>
                   </div>
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&origin=${assignment.shops.latitude},${assignment.shops.longitude}&destination=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full text-xs text-center bg-primary hover:bg-stone-900 text-white py-2.5 px-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
-                  >
-                    <Navigation className="h-3.5 w-3.5" />
-                    Open Route: Shop ➔ Customer Directions
-                  </a>
+                  {getStatusBadge(assignment)}
                 </div>
-              )}
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
+                {/* Shop Info */}
+                <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                  <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1 space-y-1">
+                    <p className="font-medium text-sm">Pickup from: {assignment.shops?.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {assignment.shops?.district}, {assignment.shops?.region}
+                    </p>
+                    {isAccepted && assignment.shops?.address && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground border-t pt-1 mt-1">{assignment.shops.address}</p>
+                        {assignment.shops.latitude && assignment.shops.longitude && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${assignment.shops.latitude},${assignment.shops.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            View Pickup Location
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    {isAccepted && assignment.shops?.phone && (
+                      <a href={`tel:${assignment.shops.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {assignment.shops.phone}
+                      </a>
+                    )}
+                  </div>
+                </div>
 
+                {/* Customer Info */}
+                <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1 space-y-1">
+                    <p className="font-medium text-sm">
+                      Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
+                    </p>
+                    {isAccepted && assignment.orders?.shipping_address && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
+                          {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
+                          {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
+                        </p>
+                        {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            View Delivery Location
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    {isAccepted && assignment.orders?.users?.phone && (
+                      <a href={`tel:${assignment.orders.users.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {assignment.orders.users.phone}
+                      </a>
+                    )}
+                  </div>
+                </div>
 
-              {isAccepted && (
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {assignment.shops?.vendors?.user_id && (
+                {!isAccepted && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Exact locations will be revealed after you accept this cargo.
+                  </div>
+                )}
+
+                {/* Delivery Fee */}
+                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <span className="text-sm font-medium">Delivery Fee</span>
+                  <span className="text-lg font-bold text-green-700">{Number(assignment.delivery_fee).toLocaleString()} TZS</span>
+                </div>
+
+                {/* Navigation Directions */}
+                {isAccepted && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
+                  <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
+                      <Navigation className="h-3.5 w-3.5" />
+                      <span>Navigation & Route Directions</span>
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=${assignment.shops.latitude},${assignment.shops.longitude}&destination=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full text-xs text-center bg-primary hover:bg-stone-900 text-white py-2.5 px-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
+                    >
+                      <Navigation className="h-3.5 w-3.5" />
+                      Open Route: Shop ➔ Customer Directions
+                    </a>
+                  </div>
+                )}
+
+                {isAccepted && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {assignment.shops?.vendors?.user_id && (
+                      <div className="flex-1">
+                        <ChatButton
+                          receiverId={assignment.shops.vendors.user_id}
+                          orderId={assignment.order_id}
+                          shopName={assignment.shops?.name || "Vendor"}
+                          label="Chat with Shop"
+                        />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <ChatButton
-                        receiverId={assignment.shops.vendors.user_id}
+                        receiverId={assignment.orders?.customer_id}
                         orderId={assignment.order_id}
-                        shopName={assignment.shops?.name || "Vendor"}
-                        label="Chat with Shop"
+                        shopName={assignment.orders?.users?.full_name || "Customer"}
+                        label="Chat with Customer"
                       />
                     </div>
-                  )}
-                  <div className="flex-1">
-                    <ChatButton
-                      receiverId={assignment.orders?.customer_id}
-                      orderId={assignment.order_id}
-                      shopName={assignment.orders?.users?.full_name || "Customer"}
-                      label="Chat with Customer"
-                    />
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Action Buttons */}
-              {isNotYetAccepted && (
-                <div className="flex gap-3">
-                  {!assignment.is_available_order && (
+                {/* Action Buttons */}
+                {isNotYetAccepted && (
+                  <div className="flex gap-3">
+                    {!assignment.is_available_order && (
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
+                        onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
+                        disabled={updating === assignment.id}
+                      >
+                        Reject Cargo
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
-                      className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                      onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                      onClick={() => updateStatus(assignment.id, "accepted", assignment.is_available_order, assignment.order_id)}
                       disabled={updating === assignment.id}
                     >
-                      Reject Cargo
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      {updating === assignment.id ? "Accepting..." : "Accept Cargo"}
                     </Button>
-                  )}
+                  </div>
+                )}
+
+                {/* isAccepted covers ("accepted" status OR "assigned" with accepted_at) */}
+                {(displayStatus === "accepted" || displayStatus === "assigned") && isAccepted && (
+                  <Button className="w-full" onClick={() => updateStatus(assignment.id, "picked_up")} disabled={updating === assignment.id}>
+                    <Package className="h-4 w-4 mr-2" />
+                    {updating === assignment.id ? "Updating..." : "Mark as Picked Up"}
+                  </Button>
+                )}
+
+                {assignment.status === "picked_up" && (
                   <Button
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                    onClick={() => updateStatus(assignment.id, "accepted", assignment.is_available_order, assignment.order_id)}
+                    className="w-full"
+                    onClick={() => updateStatus(assignment.id, "in_transit")}
+                    disabled={updating === assignment.id}
+                  >
+                    <Truck className="h-4 w-4 mr-2" />
+                    {updating === assignment.id ? "Updating..." : "Start Delivery"}
+                  </Button>
+                )}
+
+                {assignment.status === "in_transit" && (
+                  <Button
+                    className="w-full"
+                    variant="default"
+                    onClick={() => {
+                      setSelectedAssignmentId(assignment.id)
+                      setDeliveryPin("")
+                      setPinModalOpen(true)
+                    }}
                     disabled={updating === assignment.id}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    {updating === assignment.id ? "Accepting..." : "Accept Cargo"}
+                    {updating === assignment.id ? "Completing..." : "Complete Delivery"}
                   </Button>
-                </div>
-              )}
+                )}
 
-              {/* isAccepted covers ("accepted" status OR "assigned" with accepted_at) */}
-              {(displayStatus === "accepted" || displayStatus === "assigned") && isAccepted && (
-                <Button
-                  className="w-full"
-                  onClick={() => updateStatus(assignment.id, "picked_up")}
-                  disabled={updating === assignment.id}
-                >
-                  <Package className="h-4 w-4 mr-2" />
-                  {updating === assignment.id ? "Updating..." : "Mark as Picked Up"}
-                </Button>
-              )}
-
-              {assignment.status === "picked_up" && (
-                <Button
-                  className="w-full"
-                  onClick={() => updateStatus(assignment.id, "in_transit")}
-                  disabled={updating === assignment.id}
-                >
-                  <Truck className="h-4 w-4 mr-2" />
-                  {updating === assignment.id ? "Updating..." : "Start Delivery"}
-                </Button>
-              )}
-
-              {assignment.status === "in_transit" && (
-                <Button
-                  className="w-full"
-                  variant="default"
-                  onClick={() => {
-                    setSelectedAssignmentId(assignment.id)
-                    setDeliveryPin("")
-                    setPinModalOpen(true)
-                  }}
-                  disabled={updating === assignment.id}
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {updating === assignment.id ? "Completing..." : "Complete Delivery"}
-                </Button>
-              )}
-
-              {assignment.status === "delivered" && assignment.delivered_at && (
-                <div className="text-center py-2">
-                  <p className="text-sm text-green-600 font-medium">✓ Completed</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(assignment.delivered_at).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                {assignment.status === "delivered" && assignment.delivered_at && (
+                  <div className="text-center py-2">
+                    <p className="text-sm text-green-600 font-medium">✓ Completed</p>
+                    <p className="text-xs text-muted-foreground">{new Date(assignment.delivered_at).toLocaleDateString()}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )
         })}
       </div>
@@ -395,38 +375,46 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-      <div className="overflow-x-auto -mx-1 px-1 scrollbar-hide">
-        <TabsList className="inline-flex w-auto min-w-full grid-cols-none">
-          <TabsTrigger value={TAB_AVAILABLE} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
-            <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-            <span className="hidden sm:inline">Available Trips</span>
-            <span className="sm:hidden">Available</span>
-            {availableTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{availableTrips.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_ACCEPTED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
-            <span className="hidden sm:inline">Accepted Trips</span>
-            <span className="sm:hidden">Accepted</span>
-            {acceptedTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{acceptedTrips.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_IN_TRANSIT} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
-            <span className="hidden sm:inline">In Transit</span>
-            <span className="sm:hidden">Transit</span>
-            {inTransitTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{inTransitTrips.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value={TAB_COMPLETED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
-            Completed
-            {completedTrips.length > 0 && (
-              <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{completedTrips.length}</Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-      </div>
+        <div className="overflow-x-auto -mx-1 px-1 scrollbar-hide">
+          <TabsList className="inline-flex w-auto min-w-full grid-cols-none">
+            <TabsTrigger value={TAB_AVAILABLE} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+              <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+              <span className="hidden sm:inline">Available Trips</span>
+              <span className="sm:hidden">Available</span>
+              {availableTrips.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {availableTrips.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_ACCEPTED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+              <span className="hidden sm:inline">Accepted Trips</span>
+              <span className="sm:hidden">Accepted</span>
+              {acceptedTrips.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {acceptedTrips.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_IN_TRANSIT} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+              <span className="hidden sm:inline">In Transit</span>
+              <span className="sm:hidden">Transit</span>
+              {inTransitTrips.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {inTransitTrips.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value={TAB_COMPLETED} className="text-xs sm:text-sm px-2 sm:px-3 gap-1">
+              Completed
+              {completedTrips.length > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {completedTrips.length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value={TAB_AVAILABLE} className="mt-4">
           {renderList(availableTrips)}
         </TabsContent>
@@ -441,7 +429,13 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
         </TabsContent>
       </Tabs>
 
-      <Dialog open={pinModalOpen} onOpenChange={(open) => { setPinModalOpen(open); if (!open) setDeliveryPin(""); }}>
+      <Dialog
+        open={pinModalOpen}
+        onOpenChange={(open) => {
+          setPinModalOpen(open)
+          if (!open) setDeliveryPin("")
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Verify Delivery 📦</DialogTitle>
@@ -450,19 +444,15 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
-            <Input 
-              type="text" 
-              maxLength={4} 
-              placeholder="e.g. 1234" 
-              value={deliveryPin} 
-              onChange={(e) => setDeliveryPin(e.target.value.replace(/\D/g, ''))}
+            <Input
+              type="text"
+              maxLength={4}
+              placeholder="e.g. 1234"
+              value={deliveryPin}
+              onChange={(e) => setDeliveryPin(e.target.value.replace(/\D/g, ""))}
               className="text-center text-2xl tracking-widest font-bold"
             />
-            <Button
-              onClick={verifyDeliveryPin}
-              disabled={updating === selectedAssignmentId || deliveryPin.length !== 4}
-              className="w-full"
-            >
+            <Button onClick={verifyDeliveryPin} disabled={updating === selectedAssignmentId || deliveryPin.length !== 4} className="w-full">
               {updating === selectedAssignmentId ? "Verifying..." : "Verify & Complete"}
             </Button>
           </div>

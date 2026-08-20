@@ -8,9 +8,7 @@
 
 import { act, renderHook, waitFor } from "@testing-library/react"
 
-type RealtimeHandler = (payload: {
-  new?: { conversation_id?: string; sender_type?: string }
-}) => void
+type RealtimeHandler = (payload: { new?: { conversation_id?: string; sender_type?: string } }) => void
 
 let capturedHandler: RealtimeHandler | undefined
 let selectedIds: string[] | undefined
@@ -64,9 +62,7 @@ describe("useTicketMessageCounts", () => {
       { conversation_id: "c2", sender_type: "admin" },
     ]
 
-    const { result } = renderHook(() =>
-      useTicketMessageCounts([{ conversation_id: "c1" }, { conversation_id: "c2" }]),
-    )
+    const { result } = renderHook(() => useTicketMessageCounts([{ conversation_id: "c1" }, { conversation_id: "c2" }]))
 
     await waitFor(() => expect(result.current.counts).toEqual({ c1: 2, c2: 1 }))
   })
@@ -91,14 +87,7 @@ describe("useTicketMessageCounts", () => {
   it("queries only tickets that have a conversation", async () => {
     rows = []
 
-    renderHook(() =>
-      useTicketMessageCounts([
-        { conversation_id: "c1" },
-        { conversation_id: null },
-        {},
-        { conversation_id: "c2" },
-      ]),
-    )
+    renderHook(() => useTicketMessageCounts([{ conversation_id: "c1" }, { conversation_id: null }, {}, { conversation_id: "c2" }]))
 
     await waitFor(() => expect(selectedIds).toEqual(["c1", "c2"]))
   })
@@ -187,10 +176,9 @@ describe("useTicketMessageCounts", () => {
   it("does not re-subscribe when a new tickets array holds the same conversations", async () => {
     rows = []
 
-    const { rerender } = renderHook(
-      ({ tickets }) => useTicketMessageCounts(tickets),
-      { initialProps: { tickets: [{ conversation_id: "c1" }] } },
-    )
+    const { rerender } = renderHook(({ tickets }) => useTicketMessageCounts(tickets), {
+      initialProps: { tickets: [{ conversation_id: "c1" }] },
+    })
     await waitFor(() => expect(subscribe).toHaveBeenCalledTimes(1))
 
     // New array identity, identical conversation ids.

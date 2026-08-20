@@ -7,11 +7,7 @@
  * revoke the object URL it creates.
  */
 
-import {
-  exportSurveysToCsv,
-  exportSurveysToExcel,
-  exportSurveysToPdf,
-} from "@/lib/admin/validation-surveys-export"
+import { exportSurveysToCsv, exportSurveysToExcel, exportSurveysToPdf } from "@/lib/admin/validation-surveys-export"
 import type { ValidationSurvey } from "@/lib/admin/validation-surveys-types"
 
 function survey(overrides: Partial<ValidationSurvey> = {}): ValidationSurvey {

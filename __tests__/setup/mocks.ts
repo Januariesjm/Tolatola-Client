@@ -46,7 +46,23 @@ export function createSupabaseClientMock(options: SupabaseClientMockOptions = {}
   // method returns the builder, so any chain length works.
   const builder: Record<string, unknown> = {}
   const terminal = () => Promise.resolve(result)
-  for (const method of ["select", "insert", "update", "upsert", "delete", "eq", "neq", "in", "is", "order", "range", "match", "filter", "not", "or"]) {
+  for (const method of [
+    "select",
+    "insert",
+    "update",
+    "upsert",
+    "delete",
+    "eq",
+    "neq",
+    "in",
+    "is",
+    "order",
+    "range",
+    "match",
+    "filter",
+    "not",
+    "or",
+  ]) {
     builder[method] = jest.fn(() => builder)
   }
   for (const method of ["single", "maybeSingle", "limit", "then"]) {

@@ -57,13 +57,7 @@ export function ChatButton({ shopId, shopName, productId, productName, receiverI
 
   return (
     <>
-      <Button
-        onClick={handleOpenChat}
-        disabled={loading}
-        variant="outline"
-        size="lg"
-        className="w-full sm:w-auto bg-transparent"
-      >
+      <Button onClick={handleOpenChat} disabled={loading} variant="outline" size="lg" className="w-full sm:w-auto bg-transparent">
         <MessageSquare className="mr-2 h-5 w-5" />
         {loading ? "Loading..." : label || "Chat with Seller"}
       </Button>

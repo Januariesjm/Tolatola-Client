@@ -35,7 +35,9 @@ export default function AgentSetupPage() {
 
     async function checkSession() {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
 
         // If we have token parameters from an email link, prioritize the setup/activation flow.
         if (token && mail) {
@@ -165,7 +167,6 @@ export default function AgentSetupPage() {
 
       <div className="relative w-full max-w-lg">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-2xl shadow-emerald-950/20">
-          
           {/* Success screen */}
           {success ? (
             <div className="text-center py-8 space-y-6 animate-in fade-in zoom-in duration-500">
@@ -174,9 +175,7 @@ export default function AgentSetupPage() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-black text-white tracking-tight">Congratulations! Password Updated</h2>
-                <p className="text-sm text-slate-400">
-                  Your account has been successfully set up. Redirecting you to the dashboard now...
-                </p>
+                <p className="text-sm text-slate-400">Your account has been successfully set up. Redirecting you to the dashboard now...</p>
               </div>
               <div className="pt-4">
                 <Loader2 className="h-6 w-6 text-emerald-500 animate-spin mx-auto" />
@@ -189,9 +188,7 @@ export default function AgentSetupPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl mb-4 shadow-lg shadow-emerald-500/25">
                   <KeyRound className="h-8 w-8 text-white" />
                 </div>
-                <h1 className="text-2xl font-black text-white tracking-tight">
-                  Create Your Password
-                </h1>
+                <h1 className="text-2xl font-black text-white tracking-tight">Create Your Password</h1>
                 <p className="text-xs text-slate-400 mt-1.5 uppercase font-black tracking-widest text-emerald-400">
                   {agentName ? `Welcome, ${agentName}` : "TOLA Agent Portal"}
                 </p>
@@ -205,9 +202,9 @@ export default function AgentSetupPage() {
                 <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl">
                   <p className="text-xs text-rose-400 leading-relaxed font-semibold">{error}</p>
                   {!agentName && (
-                    <Button 
-                      variant="link" 
-                      onClick={() => router.push("/agent/login")} 
+                    <Button
+                      variant="link"
+                      onClick={() => router.push("/agent/login")}
                       className="text-xs text-emerald-400 p-0 h-auto mt-2 font-bold hover:text-emerald-300"
                     >
                       Go to the Login Page →
@@ -220,9 +217,7 @@ export default function AgentSetupPage() {
                 <form onSubmit={handleSetupPassword} className="space-y-6">
                   {/* Password Input */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      New Password
-                    </label>
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">New Password</label>
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
@@ -244,9 +239,7 @@ export default function AgentSetupPage() {
 
                   {/* Confirm Password */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      Confirm Password
-                    </label>
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Confirm Password</label>
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Confirm your password"
@@ -262,25 +255,33 @@ export default function AgentSetupPage() {
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password Requirements:</span>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="flex items-center gap-1.5">
-                        <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasMinLength ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
+                        <div
+                          className={`h-4 w-4 rounded-full flex items-center justify-center ${hasMinLength ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}
+                        >
                           <Check className="h-3 w-3" />
                         </div>
                         <span className={hasMinLength ? "text-slate-300" : "text-slate-500"}>8+ Characters</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasUpper ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
+                        <div
+                          className={`h-4 w-4 rounded-full flex items-center justify-center ${hasUpper ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}
+                        >
                           <Check className="h-3 w-3" />
                         </div>
                         <span className={hasUpper ? "text-slate-300" : "text-slate-500"}>Uppercase Letter (A)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasLower ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
+                        <div
+                          className={`h-4 w-4 rounded-full flex items-center justify-center ${hasLower ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}
+                        >
                           <Check className="h-3 w-3" />
                         </div>
                         <span className={hasLower ? "text-slate-300" : "text-slate-500"}>Lowercase Letter (a)</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className={`h-4 w-4 rounded-full flex items-center justify-center ${hasNumber ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}>
+                        <div
+                          className={`h-4 w-4 rounded-full flex items-center justify-center ${hasNumber ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-slate-600"}`}
+                        >
                           <Check className="h-3 w-3" />
                         </div>
                         <span className={hasNumber ? "text-slate-300" : "text-slate-500"}>Number (0-9)</span>
@@ -307,7 +308,6 @@ export default function AgentSetupPage() {
               )}
             </>
           )}
-
         </div>
       </div>
     </div>

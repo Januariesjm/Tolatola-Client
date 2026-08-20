@@ -35,11 +35,7 @@ export interface TicketLike {
   [key: string]: unknown
 }
 
-export function filterTicketsByDepartment<T extends TicketLike>(
-  tickets: T[],
-  isSuperAdmin: boolean,
-  userDepartment?: string
-): T[] {
+export function filterTicketsByDepartment<T extends TicketLike>(tickets: T[], isSuperAdmin: boolean, userDepartment?: string): T[] {
   return tickets.filter((t) => {
     if (t.status !== "open") return false
     if (isSuperAdmin) return true

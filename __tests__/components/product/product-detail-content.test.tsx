@@ -161,16 +161,11 @@ describe("ProductDetailContent", () => {
       const [item] = readCart()
       expect(item).toMatchObject({ product_id: "p-1", quantity: 1 })
       expect(item.product.price).toBe(25000)
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Added to cart" }),
-      )
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Added to cart" }))
     })
 
     it("merges quantity into an existing line instead of duplicating it", async () => {
-      localStorage.setItem(
-        "cart",
-        JSON.stringify([{ product_id: "p-1", quantity: 2, product: { ...simpleProduct } }]),
-      )
+      localStorage.setItem("cart", JSON.stringify([{ product_id: "p-1", quantity: 2, product: { ...simpleProduct } }]))
 
       render(<ProductDetailContent product={simpleProduct} reviews={[]} isLiked={false} />)
       await clickAddToCart()
@@ -256,9 +251,7 @@ describe("ProductDetailContent", () => {
       const fetchMock = mockRecommendations({ body: { data: [] } })
       render(<ProductDetailContent product={simpleProduct} reviews={[]} isLiked={false} />)
 
-      await waitFor(() =>
-        expect(fetchMock).toHaveBeenCalledWith(`${API_BASE}/products/p-1/recommendations`),
-      )
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(`${API_BASE}/products/p-1/recommendations`))
     })
 
     it("renders the recommended products it receives", async () => {

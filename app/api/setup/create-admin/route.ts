@@ -23,10 +23,7 @@ export async function POST(request: NextRequest) {
 
     if (!setupKeySecret) {
       console.error("[setup/create-admin] ADMIN_SETUP_KEY is not set; refusing request")
-      return NextResponse.json(
-        { error: "Admin setup is not configured on this deployment." },
-        { status: 503 },
-      )
+      return NextResponse.json({ error: "Admin setup is not configured on this deployment." }, { status: 503 })
     }
 
     const { email, password, fullName, setupKey } = await request.json()
@@ -48,11 +45,7 @@ export async function POST(request: NextRequest) {
     const supabase = (await createClient()) as any
 
     // Check if any admin user already exists
-    const { data: existingAdmins, error: checkError } = await supabase
-      .from("users")
-      .select("id")
-      .eq("user_type", "admin")
-      .limit(1)
+    const { data: existingAdmins, error: checkError } = await supabase.from("users").select("id").eq("user_type", "admin").limit(1)
 
     if (checkError) {
       console.error("[v0] Error checking existing admins:", checkError)
@@ -60,10 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingAdmins && existingAdmins.length > 0) {
-      return NextResponse.json(
-        { error: "Admin user already exists. This setup can only be used once." },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Admin user already exists. This setup can only be used once." }, { status: 400 })
     }
 
     // Create the admin user using Supabase Auth Admin API

@@ -61,29 +61,18 @@ export function CookieConsentBanner() {
             <Cookie className="h-4 w-4" />
           </div>
           <div className="space-y-1 text-sm">
-            <p className="font-semibold text-slate-900">
-              We use cookies to improve performance.
-            </p>
+            <p className="font-semibold text-slate-900">We use cookies to improve performance.</p>
             <p className="text-xs text-slate-600">
-              TolaTola uses essential and performance cookies to understand usage and enhance your experience.
-              You can accept tracking cookies or continue with only essential cookies.
+              TolaTola uses essential and performance cookies to understand usage and enhance your experience. You can accept tracking
+              cookies or continue with only essential cookies.
             </p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full sm:w-auto text-xs"
-            onClick={handleReject}
-          >
+          <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs" onClick={handleReject}>
             Reject
           </Button>
-          <Button
-            size="sm"
-            className="w-full sm:w-auto text-xs"
-            onClick={handleAccept}
-          >
+          <Button size="sm" className="w-full sm:w-auto text-xs" onClick={handleAccept}>
             Accept
           </Button>
         </div>
@@ -91,4 +80,3 @@ export function CookieConsentBanner() {
     </div>
   )
 }
-

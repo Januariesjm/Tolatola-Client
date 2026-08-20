@@ -78,13 +78,12 @@ function MemoryGauge({ label, usedMB, totalMB, color }: { label: string; usedMB:
     <div className="space-y-2">
       <div className="flex justify-between items-baseline">
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
-        <span className="text-xs text-slate-300 font-mono">{usedMB.toFixed(1)} / {totalMB.toFixed(1)} MB</span>
+        <span className="text-xs text-slate-300 font-mono">
+          {usedMB.toFixed(1)} / {totalMB.toFixed(1)} MB
+        </span>
       </div>
       <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-700 ease-out ${gaugeColor}`}
-          style={{ width: `${pct}%` }}
-        />
+        <div className={`h-full rounded-full transition-all duration-700 ease-out ${gaugeColor}`} style={{ width: `${pct}%` }} />
       </div>
       <p className="text-right text-[10px] text-slate-500 font-mono">{pct.toFixed(1)}%</p>
     </div>
@@ -171,14 +170,14 @@ export function SystemHealthTab() {
         <XCircle className="h-12 w-12 text-red-400 mb-4" />
         <h2 className="text-xl font-bold text-slate-900 mb-2">Unable to reach server</h2>
         <p className="text-slate-500 mb-4">The health endpoint did not respond.</p>
-        <Button onClick={() => fetchHealth()} variant="outline">Retry</Button>
+        <Button onClick={() => fetchHealth()} variant="outline">
+          Retry
+        </Button>
       </div>
     )
   }
 
-  const heapUsedPct = health.memory.heapTotalMB > 0
-    ? (health.memory.heapUsedMB / health.memory.heapTotalMB) * 100
-    : 0
+  const heapUsedPct = health.memory.heapTotalMB > 0 ? (health.memory.heapUsedMB / health.memory.heapTotalMB) * 100 : 0
 
   return (
     <div className="space-y-4">
@@ -195,9 +194,7 @@ export function SystemHealthTab() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-slate-500">
-                Last updated: {lastRefresh.toLocaleTimeString()}
-              </span>
+              <span className="text-[10px] text-slate-500">Last updated: {lastRefresh.toLocaleTimeString()}</span>
               <Button
                 size="sm"
                 variant="ghost"
@@ -225,11 +222,15 @@ export function SystemHealthTab() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Node.js</span>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-mono">{health.version}</Badge>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-mono">
+                  {health.version}
+                </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Platform</span>
-                <span className="text-xs text-slate-300 font-mono">{health.platform} ({health.arch})</span>
+                <span className="text-xs text-slate-300 font-mono">
+                  {health.platform} ({health.arch})
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">PID</span>
@@ -237,11 +238,14 @@ export function SystemHealthTab() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Environment</span>
-                <Badge variant="outline" className={`text-[10px] font-mono ${
-                  health.environment === "production"
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                    : "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                }`}>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] font-mono ${
+                    health.environment === "production"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                  }`}
+                >
                   {health.environment}
                 </Badge>
               </div>
@@ -263,10 +267,15 @@ export function SystemHealthTab() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Latency</span>
-                <span className={`text-xs font-mono font-bold ${
-                  health.database.latencyMs > 500 ? "text-red-400" :
-                  health.database.latencyMs > 200 ? "text-amber-400" : "text-emerald-400"
-                }`}>
+                <span
+                  className={`text-xs font-mono font-bold ${
+                    health.database.latencyMs > 500
+                      ? "text-red-400"
+                      : health.database.latencyMs > 200
+                        ? "text-amber-400"
+                        : "text-emerald-400"
+                  }`}
+                >
                   {health.database.latencyMs}ms
                 </span>
               </div>
@@ -326,24 +335,14 @@ export function SystemHealthTab() {
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Memory Usage</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <MemoryGauge
-              label="Heap Used"
-              usedMB={health.memory.heapUsedMB}
-              totalMB={health.memory.heapTotalMB}
-              color="bg-blue-500"
-            />
+            <MemoryGauge label="Heap Used" usedMB={health.memory.heapUsedMB} totalMB={health.memory.heapTotalMB} color="bg-blue-500" />
             <MemoryGauge
               label="RSS (Resident Set)"
               usedMB={health.memory.rssMB}
               totalMB={health.memory.rssMB * 1.3}
               color="bg-purple-500"
             />
-            <MemoryGauge
-              label="Heap Allocated"
-              usedMB={health.memory.heapTotalMB}
-              totalMB={health.memory.rssMB}
-              color="bg-cyan-500"
-            />
+            <MemoryGauge label="Heap Allocated" usedMB={health.memory.heapTotalMB} totalMB={health.memory.rssMB} color="bg-cyan-500" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-[#2a2a4a]">
             <div>

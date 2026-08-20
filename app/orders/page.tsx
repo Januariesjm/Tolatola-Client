@@ -18,17 +18,14 @@ export default async function OrdersPage() {
 
   const { data: profile } = await (supabase.from("users").select("*").eq("id", user.id) as any).single()
 
-  const { data: kycData } = await (supabase
-    .from("customer_kyc")
-    .select("kyc_status")
-    .eq("user_id", user.id) as any)
-    .maybeSingle()
+  const { data: kycData } = await (supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id) as any).maybeSingle()
 
   // Get user's orders
-  const { data: orders } = await (supabase
-    .from("orders")
-    .select(
-      `
+  const { data: orders } = await (
+    supabase
+      .from("orders")
+      .select(
+        `
       *,
       order_items (
         *,
@@ -38,9 +35,9 @@ export default async function OrdersPage() {
         )
       )
     `,
-    )
-    .eq("customer_id", user.id) as any)
-    .order("created_at", { ascending: false })
+      )
+      .eq("customer_id", user.id) as any
+  ).order("created_at", { ascending: false })
 
   return (
     <div className="min-h-screen bg-background">

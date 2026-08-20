@@ -11,12 +11,7 @@ jest.mock("@/lib/api-server", () => ({
   serverApiGet: (...args: unknown[]) => mockServerApiGet(...args),
 }))
 
-import {
-  ALL_PERMISSIONS,
-  ROLE_DEFINITIONS,
-  getUserAdminRole,
-  hasPermission,
-} from "@/lib/admin/roles"
+import { ALL_PERMISSIONS, ROLE_DEFINITIONS, getUserAdminRole, hasPermission } from "@/lib/admin/roles"
 
 type RoleName = keyof typeof ROLE_DEFINITIONS
 
@@ -60,9 +55,7 @@ describe("ROLE_DEFINITIONS", () => {
   })
 
   it("keeps manage_admins exclusive to Super Admin", () => {
-    const holders = roleNames.filter((n) =>
-      ROLE_DEFINITIONS[n].permissions.includes("manage_admins"),
-    )
+    const holders = roleNames.filter((n) => ROLE_DEFINITIONS[n].permissions.includes("manage_admins"))
     expect(holders).toEqual(["Super Admin"])
   })
 

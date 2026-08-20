@@ -27,10 +27,7 @@ export async function POST(request: Request) {
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(roleId)) {
-      return NextResponse.json(
-        { error: "Invalid role ID format. Please ensure admin roles are properly set up." },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Invalid role ID format. Please ensure admin roles are properly set up." }, { status: 400 })
     }
 
     const { data: roleExists, error: roleCheckError } = await supabase
@@ -40,10 +37,7 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (roleCheckError || !roleExists) {
-      return NextResponse.json(
-        { error: "Selected role does not exist. Please refresh and try again." },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Selected role does not exist. Please refresh and try again." }, { status: 400 })
     }
 
     const { data: userData } = await supabase.from("users").select("email, full_name").eq("id", userId).single()

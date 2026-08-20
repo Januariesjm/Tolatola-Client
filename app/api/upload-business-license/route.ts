@@ -24,71 +24,71 @@ export async function POST(request: Request) {
     }
 
     const bucketName = process.env.STORAGE_BUCKET || "uploads"
-    let supabase: any;
-    let usingServiceKey = false;
+    let supabase: any
+    let usingServiceKey = false
 
     // Check for Service Role Key
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 
     if (serviceRoleKey && supabaseUrl) {
       // Basic validation of JWT format to catch obviously bad keys
-      if (serviceRoleKey.split('.').length === 3) {
+      if (serviceRoleKey.split(".").length === 3) {
         try {
           // Attempt to create client with Service Key
           supabase = createClient(supabaseUrl, serviceRoleKey, {
             auth: {
               persistSession: false,
               autoRefreshToken: false,
-              detectSessionInUrl: false
-            }
-          });
-          usingServiceKey = true;
-          console.log("Using Supabase Service Role Client for upload (RLS Bypassed)");
+              detectSessionInUrl: false,
+            },
+          })
+          usingServiceKey = true
+          console.log("Using Supabase Service Role Client for upload (RLS Bypassed)")
         } catch (e) {
-          console.error("Failed to initialize Supabase with Service Key:", e);
+          console.error("Failed to initialize Supabase with Service Key:", e)
         }
       } else {
-        console.warn("SUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.");
+        console.warn("SUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.")
       }
     } else {
-      console.warn("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.");
+      console.warn("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.")
     }
 
     if (!usingServiceKey) {
-      console.log("Using standard RouteHandlerClient as fallback (Subject to RLS)");
-      supabase = createRouteHandlerClient({ cookies });
+      console.log("Using standard RouteHandlerClient as fallback (Subject to RLS)")
+      supabase = createRouteHandlerClient({ cookies })
 
       // Debug user session
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log(`Current session user: ${session?.user?.id || 'None'}`);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      console.log(`Current session user: ${session?.user?.id || "None"}`)
     }
 
     // Upload to Supabase Storage
     const fileName = `business-licenses/${Date.now()}-${file.name}`
     console.log(`Attempting to upload to bucket: ${bucketName}, file: ${fileName}`)
 
-    const { data, error } = await supabase.storage
-      .from(bucketName)
-      .upload(fileName, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type
-      })
+    const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    })
 
     if (error) {
       console.error("Supabase storage upload error details:", error)
       const errorMsg = usingServiceKey
         ? `Upload failed with Service Key: ${error.message}`
-        : `Upload failed (User Session): ${error.message}. Likely RLS or Permission issue.`;
+        : `Upload failed (User Session): ${error.message}. Likely RLS or Permission issue.`
 
       return NextResponse.json({ error: errorMsg, details: error }, { status: 500 })
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucketName)
-      .getPublicUrl(fileName)
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucketName).getPublicUrl(fileName)
 
     return NextResponse.json({ url: publicUrl })
   } catch (error: any) {

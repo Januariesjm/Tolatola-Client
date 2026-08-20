@@ -26,17 +26,20 @@ interface AnalyticsTabProps {
     totalDeliveryFees: number
     totalTransporterEarnings: number
   }
-  vendorTypesAnalytics?: Record<string, {
-    count: number
-    approvedCount: number
-    totalProducts: number
-    approvedProducts: number
-    totalSales: number
-    completedSales: number
-    totalOrders: number
-    completedOrders: number
-    averageOrderValue: number
-  }>
+  vendorTypesAnalytics?: Record<
+    string,
+    {
+      count: number
+      approvedCount: number
+      totalProducts: number
+      approvedProducts: number
+      totalSales: number
+      completedSales: number
+      totalOrders: number
+      completedOrders: number
+      averageOrderValue: number
+    }
+  >
   orders?: any[]
   payouts?: any[]
 }
@@ -57,20 +60,23 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], pa
   const filteredPayouts = useMemo(() => filterByDateRange(payouts, period), [payouts, period])
 
   // Recomputed stats from filtered data
-  const filteredGMV = useMemo(() => 
-    filteredOrders.filter((o: any) => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
-    [filteredOrders]
+  const filteredGMV = useMemo(
+    () =>
+      filteredOrders.filter((o: any) => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
+    [filteredOrders],
   )
   const filteredTotalOrders = filteredOrders.length
   const filteredCompletedOrders = filteredOrders.filter((o: any) => o.status === "delivered").length
-  const filteredSecureHold = useMemo(() =>
-    filteredOrders.filter((o: any) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
-      .reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
-    [filteredOrders]
+  const filteredSecureHold = useMemo(
+    () =>
+      filteredOrders
+        .filter((o: any) => o.payment_status === "paid" && o.status !== "delivered" && o.status !== "cancelled")
+        .reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0),
+    [filteredOrders],
   )
-  const filteredTotalPayouts = useMemo(() =>
-    filteredPayouts.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0),
-    [filteredPayouts]
+  const filteredTotalPayouts = useMemo(
+    () => filteredPayouts.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0),
+    [filteredPayouts],
   )
 
   return (
@@ -216,17 +222,15 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], pa
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              <p className="text-3xl font-bold">
-                TZS {(stats.totalTransporterEarnings ?? 0).toLocaleString()}
-              </p>
+              <p className="text-3xl font-bold">TZS {(stats.totalTransporterEarnings ?? 0).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Paid to transporters</p>
             </div>
           </CardContent>
         </Card>
-      </div >
+      </div>
 
       {/* Performance Indicators */}
-      < Card >
+      <Card>
         <CardHeader>
           <CardTitle>Performance Indicators</CardTitle>
           <CardDescription>Key Digital trade and Supply Chain Ecosystem health metrics</CardDescription>
@@ -252,10 +256,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], pa
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold">
-                  {stats.totalDeliveries > 0
-                    ? Math.round((stats.completedDeliveries / stats.totalDeliveries) * 100)
-                    : 0}
-                  %
+                  {stats.totalDeliveries > 0 ? Math.round((stats.completedDeliveries / stats.totalDeliveries) * 100) : 0}%
                 </p>
               </div>
             </div>
@@ -291,10 +292,7 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], pa
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold">
-                  {stats.totalTransporters > 0
-                    ? Math.round((stats.approvedTransporters / stats.totalTransporters) * 100)
-                    : 0}
-                  %
+                  {stats.totalTransporters > 0 ? Math.round((stats.approvedTransporters / stats.totalTransporters) * 100) : 0}%
                 </p>
               </div>
             </div>
@@ -327,104 +325,96 @@ export function AnalyticsTab({ stats, vendorTypesAnalytics = {}, orders = [], pa
             </div>
           </div>
         </CardContent>
-      </Card >
+      </Card>
 
       {/* Vendor Type Analytics */}
-      {
-        Object.keys(vendorTypesAnalytics).length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendor Type Analytics</CardTitle>
-              <CardDescription>Performance breakdown by vendor type</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {Object.entries(vendorTypesAnalytics).map(([type, analytics]: [string, any]) => (
-                  <div key={type} className="border rounded-lg p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-bold">{vendorTypeLabels[type] || type}</h3>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">{analytics.count}</p>
-                        <p className="text-sm text-muted-foreground">Total Vendors</p>
+      {Object.keys(vendorTypesAnalytics).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Vendor Type Analytics</CardTitle>
+            <CardDescription>Performance breakdown by vendor type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {Object.entries(vendorTypesAnalytics).map(([type, analytics]: [string, any]) => (
+                <div key={type} className="border rounded-lg p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold">{vendorTypeLabels[type] || type}</h3>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold">{analytics.count}</p>
+                      <p className="text-sm text-muted-foreground">Total Vendors</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Approved Vendors</p>
+                      <p className="text-2xl font-bold">{analytics.approvedCount}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {analytics.count > 0 ? Math.round((analytics.approvedCount / analytics.count) * 100) : 0}% approval rate
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Products</p>
+                      <p className="text-2xl font-bold">{analytics.totalProducts}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{analytics.approvedProducts} approved</p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Sales</p>
+                      <p className="text-2xl font-bold">TZS {(analytics.totalSales || 0).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{(analytics.completedSales || 0).toLocaleString()} completed</p>
+                    </div>
+
+                    <div className="p-4 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
+                      <p className="text-2xl font-bold">{analytics.totalOrders}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Avg: TZS {(analytics.averageOrderValue || 0).toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Order Completion Rate</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary transition-all"
+                            style={{
+                              width: `${analytics.totalOrders > 0 ? (analytics.completedOrders / analytics.totalOrders) * 100 : 0}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium">
+                          {analytics.totalOrders > 0 ? Math.round((analytics.completedOrders / analytics.totalOrders) * 100) : 0}%
+                        </span>
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="p-4 bg-muted rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Approved Vendors</p>
-                        <p className="text-2xl font-bold">{analytics.approvedCount}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {analytics.count > 0 ? Math.round((analytics.approvedCount / analytics.count) * 100) : 0}% approval rate
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-muted rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Total Products</p>
-                        <p className="text-2xl font-bold">{analytics.totalProducts}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {analytics.approvedProducts} approved
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-muted rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Total Sales</p>
-                        <p className="text-2xl font-bold">TZS {(analytics.totalSales || 0).toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {(analytics.completedSales || 0).toLocaleString()} completed
-                        </p>
-                      </div>
-
-                      <div className="p-4 bg-muted rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-1">Total Orders</p>
-                        <p className="text-2xl font-bold">{analytics.totalOrders}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Avg: TZS {(analytics.averageOrderValue || 0).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Order Completion Rate</p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary transition-all"
-                              style={{
-                                width: `${analytics.totalOrders > 0 ? (analytics.completedOrders / analytics.totalOrders) * 100 : 0}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">
-                            {analytics.totalOrders > 0 ? Math.round((analytics.completedOrders / analytics.totalOrders) * 100) : 0}%
-                          </span>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Sales Contribution</p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-green-500 transition-all"
+                            style={{
+                              width: `${stats.totalGMV > 0 ? (analytics.totalSales / stats.totalGMV) * 100 : 0}%`,
+                            }}
+                          />
                         </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Sales Contribution</p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-green-500 transition-all"
-                              style={{
-                                width: `${stats.totalGMV > 0 ? (analytics.totalSales / stats.totalGMV) * 100 : 0}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">
-                            {stats.totalGMV > 0 ? Math.round((analytics.totalSales / stats.totalGMV) * 100) : 0}%
-                          </span>
-                        </div>
+                        <span className="text-sm font-medium">
+                          {stats.totalGMV > 0 ? Math.round((analytics.totalSales / stats.totalGMV) * 100) : 0}%
+                        </span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )
-      }
-    </div >
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   )
 }

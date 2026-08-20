@@ -5,8 +5,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Package, CheckCircle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, Truck, Clock, Wallet, Loader2, RefreshCw } from "lucide-react"
+import {
+  Package,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Calendar,
+  MapPin,
+  DollarSign,
+  Truck,
+  Clock,
+  Wallet,
+  Loader2,
+  RefreshCw,
+} from "lucide-react"
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
+import { STATUS_TO_TAB, useVendorOrders } from "@/hooks/use-vendor-orders"
+import { logger } from "@/lib/logger"
 import { useToast } from "@/hooks/use-toast"
 
 import { createClient } from "@/lib/supabase/client"
@@ -23,120 +38,24 @@ const TAB_READY = "ready"
 const TAB_COMPLETED = "completed"
 const TAB_EARNINGS = "earnings"
 
+const log = logger.child("vendor.orders-tab")
+
 export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps) {
-  const [orders, setOrders] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set())
-  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState(TAB_NEW)
-  const [period, setPeriod] = useState<DatePeriod>("all")
   const { toast } = useToast()
-
-  const prevOrderCountRef = useRef(0)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const fetchOrders = useCallback(async (silent = false) => {
-    if (!silent) setIsLoading(true)
-    else setIsRefreshing(true)
-    try {
-      const res = await clientApiGet<{ orders: any[] }>(`shops/${shopId}/orders`)
-      const newOrders = res.orders || []
-      
-      // Show toast if new orders arrived during silent refresh
-      if (silent && newOrders.length > prevOrderCountRef.current && prevOrderCountRef.current > 0) {
-        const diff = newOrders.length - prevOrderCountRef.current
-        toast({
-          title: `${diff} New Order${diff > 1 ? 's' : ''} 🔔`,
-          description: "You have new orders waiting to be processed.",
-        })
-      }
-      prevOrderCountRef.current = newOrders.length
-      setOrders(newOrders)
-    } catch (err) {
-      console.error("Failed to load orders", err)
-    }
-    setIsLoading(false)
-    setIsRefreshing(false)
-  }, [shopId, toast])
-
-  useEffect(() => {
-    fetchOrders()
-  }, [fetchOrders])
-
-  // Supabase Realtime Subscriptions for immediate updates
-  useEffect(() => {
-    const supabase = createClient()
-    
-    // Subscribe to changes on order_items matching this shop
-    const itemsChannel = supabase
-      .channel('vendor-order-items')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'order_items', filter: `shop_id=eq.${shopId}` },
-        () => fetchOrders(true)
-      )
-      .subscribe()
-
-    // Subscribe to changes on orders table (since status updates happen there)
-    // RLS will restrict what the client receives if properly configured
-    const ordersChannel = supabase
-      .channel('vendor-orders')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders' },
-        () => fetchOrders(true)
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(itemsChannel)
-      supabase.removeChannel(ordersChannel)
-    }
-  }, [shopId, fetchOrders])
-
-  // Auto-refresh orders every 15 seconds (fallback)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchOrders(true) // silent refresh
-    }, 15000)
-    return () => clearInterval(interval)
-  }, [fetchOrders])
-
-  // Handle initial expansion if orderId is provided
-  useEffect(() => {
-    if (!isLoading && initialOrderId && orders.length > 0) {
-      const order = orders.find(o => o.id === initialOrderId)
-      if (order) {
-        setExpandedOrders(new Set([initialOrderId]))
-        // Determine correct tab
-        const destTab = statusToTab[order.status] || (["pending", "paid", "confirmed"].includes(order.status) ? TAB_NEW : TAB_NEW)
-        setActiveTab(destTab)
-
-        // Scroll into view (optional but helpful)
-        setTimeout(() => {
-          document.getElementById(`order-${initialOrderId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 500)
-      }
-    }
-  }, [isLoading, initialOrderId, orders])
-
-  const toggleOrderDetails = (orderId: string) => {
-    const newExpanded = new Set(expandedOrders)
-    if (newExpanded.has(orderId)) {
-      newExpanded.delete(orderId)
-    } else {
-      newExpanded.add(orderId)
-    }
-    setExpandedOrders(newExpanded)
-  }
-
-  const statusToTab: Record<string, string> = {
-    processing: TAB_PREPARING,
-    ready_for_pickup: TAB_READY,
-    shipped: TAB_COMPLETED,
-    delivered: TAB_COMPLETED,
-    confirmed: TAB_NEW,
-  }
+  const {
+    orders,
+    isLoading,
+    isRefreshing,
+    expandedOrders,
+    updatingOrderId,
+    setUpdatingOrderId,
+    activeTab,
+    setActiveTab,
+    period,
+    setPeriod,
+    fetchOrders,
+    toggleOrderDetails,
+  } = useVendorOrders(shopId, initialOrderId)
 
   const statusLabels: Record<string, string> = {
     pending: "Pending",
@@ -178,10 +97,10 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
       })
       await fetchOrders()
       // Auto-switch to the destination tab
-      const destTab = statusToTab[newStatus]
+      const destTab = STATUS_TO_TAB[newStatus]
       if (destTab) setActiveTab(destTab)
     } catch (err) {
-      console.error("Failed to update order", err)
+      log.error("failed to update order", err)
       toast({
         title: "Update Failed",
         description: "Could not update the order status. Please try again.",
@@ -204,26 +123,26 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
   }
 
   const getCustomerName = (order: any) => {
-    return order.users?.full_name ||
-      order.users?.email ||
-      order.shipping_address?.full_name ||
-      order.shipping_address?.phone ||
-      "Unknown"
+    return order.users?.full_name || order.users?.email || order.shipping_address?.full_name || order.shipping_address?.phone || "Unknown"
   }
 
   const getOrderTotal = (order: any) => {
     return (order.items || []).reduce((sum: number, item: any) => {
-      const line = Number(item.total_price ?? ((item.unit_price ?? item.price ?? 0) * (item.quantity ?? 0)))
+      const line = Number(item.total_price ?? (item.unit_price ?? item.price ?? 0) * (item.quantity ?? 0))
       return sum + line + Number(item.delivery_fee || 0)
     }, 0)
   }
 
   const dateFilteredOrders = useMemo(() => filterByDateRange(orders, period), [orders, period])
 
-  const newOrders = dateFilteredOrders.filter((o) => ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status))
+  const newOrders = dateFilteredOrders.filter((o) =>
+    ["pending", "pending_payment", "confirmed", "paid", "payment_received"].includes(o.status),
+  )
   const preparingOrders = dateFilteredOrders.filter((o) => ["processing", "preparing"].includes(o.status))
   const readyOrders = dateFilteredOrders.filter((o) => o.status === "ready_for_pickup")
-  const completedOrders = dateFilteredOrders.filter((o) => ["dispatched", "in_transit", "delivered", "shipped", "completed"].includes(o.status))
+  const completedOrders = dateFilteredOrders.filter((o) =>
+    ["dispatched", "in_transit", "delivered", "shipped", "completed"].includes(o.status),
+  )
   const totalEarnings = completedOrders.reduce((sum, o) => sum + (getOrderTotal(o) || 0), 0)
 
   const renderOrderList = (list: any[]) => {
@@ -237,11 +156,7 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
         </Card>
       )
     }
-    return (
-      <div className="space-y-3">
-        {list.map((order) => renderOrderCard(order))}
-      </div>
-    )
+    return <div className="space-y-3">{list.map((order) => renderOrderCard(order))}</div>
   }
 
   const renderOrderCard = (order: any) => {
@@ -259,7 +174,10 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                 </span>
                 <div className="flex items-center flex-wrap gap-1.5 min-w-0">
                   <span className="font-bold text-sm sm:text-base truncate">{order.order_number}</span>
-                  <Badge className={`${statusColors[order.status]} text-[10px] sm:text-xs px-1.5 py-0 sm:py-0.5 whitespace-nowrap`} variant="secondary">
+                  <Badge
+                    className={`${statusColors[order.status]} text-[10px] sm:text-xs px-1.5 py-0 sm:py-0.5 whitespace-nowrap`}
+                    variant="secondary"
+                  >
                     {statusLabels[order.status] || order.status.replace("_", " ")}
                   </Badge>
                 </div>
@@ -268,9 +186,15 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <div className="text-right">
                 <div className="text-xs sm:text-sm font-bold text-stone-900">TZS {orderTotal.toLocaleString()}</div>
-                <div className="text-[10px] sm:text-xs text-muted-foreground">{order.items.length} {order.items.length === 1 ? 'item' : 'items'}</div>
+                <div className="text-[10px] sm:text-xs text-muted-foreground">
+                  {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                </div>
               </div>
-              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+              )}
             </div>
           </div>
         </CardHeader>
@@ -294,11 +218,15 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
               <div className="space-y-2 bg-muted/50 rounded-lg p-3">
                 {order.items.map((item: any) => (
                   <div key={item.id} className="flex justify-between items-start gap-2 text-xs sm:text-sm">
-                    <span className="font-medium text-stone-700 break-words flex-1">{item.products?.name} × {item.quantity}</span>
+                    <span className="font-medium text-stone-700 break-words flex-1">
+                      {item.products?.name} × {item.quantity}
+                    </span>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-stone-900">TZS {(item.unit_price * item.quantity).toLocaleString()}</p>
                       {item.delivery_fee > 0 && (
-                        <p className="text-[9px] sm:text-[10px] text-green-600 font-bold">+ Delivery: TZS {item.delivery_fee.toLocaleString()}</p>
+                        <p className="text-[9px] sm:text-[10px] text-green-600 font-bold">
+                          + Delivery: TZS {item.delivery_fee.toLocaleString()}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -340,13 +268,16 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                               "Assigned Transporter"}
                           </p>
                           <p className="text-xs text-muted-foreground capitalize">
-                            {order.transporter_assignment.transporters?.vehicle_type} • {order.transporter_assignment.transporters?.vehicle_registration || "—"}
+                            {order.transporter_assignment.transporters?.vehicle_type} •{" "}
+                            {order.transporter_assignment.transporters?.vehicle_registration || "—"}
                           </p>
                         </div>
                         <Badge variant="outline" className="bg-white">
                           {order.transporter_assignment.status === "assigned" && !order.transporter_assignment.accepted_at
                             ? "Searching..."
-                            : (order.transporter_assignment.accepted_at ? "Accepted" : order.transporter_assignment.status?.replace("_", " "))}
+                            : order.transporter_assignment.accepted_at
+                              ? "Accepted"
+                              : order.transporter_assignment.status?.replace("_", " ")}
                         </Badge>
                       </div>
                       {order.transporter_assignment.transporters?.users?.phone && (
@@ -362,19 +293,38 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
             )}
             <div className="flex gap-2 flex-wrap pt-2">
               {(order.status === "pending" || order.status === "paid") && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "confirmed")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700">
-                  {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                <Button
+                  size="sm"
+                  onClick={() => updateOrderStatus(order.id, "confirmed")}
+                  disabled={updatingOrderId === order.id}
+                  className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700"
+                >
+                  {updatingOrderId === order.id ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                  )}
                   Confirm Order
                 </Button>
               )}
               {order.status === "confirmed" && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "processing")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 font-bold">
+                <Button
+                  size="sm"
+                  onClick={() => updateOrderStatus(order.id, "processing")}
+                  disabled={updatingOrderId === order.id}
+                  className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 font-bold"
+                >
                   {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Package className="h-4 w-4 mr-2" />}
                   Start Processing
                 </Button>
               )}
               {(order.status === "processing" || order.status === "preparing") && (
-                <Button size="sm" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} disabled={updatingOrderId === order.id} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold">
+                <Button
+                  size="sm"
+                  onClick={() => updateOrderStatus(order.id, "ready_for_pickup")}
+                  disabled={updatingOrderId === order.id}
+                  className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 font-bold"
+                >
                   {updatingOrderId === order.id ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Truck className="h-4 w-4 mr-2" />}
                   Mark Ready for Pickup
                 </Button>
@@ -395,10 +345,22 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
                               ? "Transporter Assigned: Waiting for Acceptance"
                               : "Searching for Transporter..."}
                   </Badge>
-                  {(!order.transporter_assignment || !order.transporter_assignment.accepted_at || ["cancelled", "rejected"].includes(order.transporter_assignment?.status)) && (
-                    <Button size="sm" variant="outline" onClick={() => updateOrderStatus(order.id, "ready_for_pickup")} disabled={updatingOrderId === order.id} className="text-xs h-7 ml-2">
-                       {updatingOrderId === order.id ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Truck className="h-3 w-3 mr-1" />}
-                       Retry Search
+                  {(!order.transporter_assignment ||
+                    !order.transporter_assignment.accepted_at ||
+                    ["cancelled", "rejected"].includes(order.transporter_assignment?.status)) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateOrderStatus(order.id, "ready_for_pickup")}
+                      disabled={updatingOrderId === order.id}
+                      className="text-xs h-7 ml-2"
+                    >
+                      {updatingOrderId === order.id ? (
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      ) : (
+                        <Truck className="h-3 w-3 mr-1" />
+                      )}
+                      Retry Search
                     </Button>
                   )}
                 </div>
@@ -432,14 +394,8 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
         <h2 className="text-2xl font-bold">Your Orders</h2>
         <div className="flex items-center gap-2 flex-wrap">
           <DateRangeFilter value={period} onChange={setPeriod} />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchOrders(true)}
-            disabled={isRefreshing}
-            className="gap-1.5"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <Button variant="outline" size="sm" onClick={() => fetchOrders(true)} disabled={isRefreshing} className="gap-1.5">
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
           <Badge variant="secondary">{dateFilteredOrders.length} Total</Badge>
@@ -452,25 +408,33 @@ export function VendorOrdersTab({ shopId, initialOrderId }: VendorOrdersTabProps
             <TabsTrigger value={TAB_NEW} className="text-xs sm:text-sm px-2.5 sm:px-3">
               New
               {newOrders.length > 0 && (
-                <Badge variant="destructive" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs animate-pulse">{newOrders.length}</Badge>
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs animate-pulse">
+                  {newOrders.length}
+                </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value={TAB_PREPARING} className="text-xs sm:text-sm px-2.5 sm:px-3">
               Preparing
               {preparingOrders.length > 0 && (
-                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{preparingOrders.length}</Badge>
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {preparingOrders.length}
+                </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value={TAB_READY} className="text-xs sm:text-sm px-2.5 sm:px-3">
               Ready
               {readyOrders.length > 0 && (
-                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{readyOrders.length}</Badge>
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {readyOrders.length}
+                </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value={TAB_COMPLETED} className="text-xs sm:text-sm px-2.5 sm:px-3">
               Completed
               {completedOrders.length > 0 && (
-                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">{completedOrders.length}</Badge>
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] sm:text-xs">
+                  {completedOrders.length}
+                </Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value={TAB_EARNINGS} className="text-xs sm:text-sm px-2.5 sm:px-3 gap-1">

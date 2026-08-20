@@ -13,13 +13,7 @@ const log = logger.child("app.global-error-boundary")
  * and cannot rely on the app's providers, fonts or global stylesheet having
  * loaded. Styles are inline for that reason -- keep it dependency-free.
  */
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     log.error("unhandled error in root layout", error, { digest: error.digest })
   }, [error])
@@ -34,19 +28,15 @@ export default function GlobalError({
           alignItems: "center",
           justifyContent: "center",
           padding: "1.5rem",
-          fontFamily:
-            "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           color: "#111827",
           background: "#f9fafb",
         }}
       >
         <div style={{ maxWidth: "32rem", textAlign: "center" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-            Something went wrong
-          </h1>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>Something went wrong</h1>
           <p style={{ color: "#4b5563", lineHeight: 1.6, marginBottom: "1.5rem" }}>
-            The application failed to load. Please try again — if the problem persists, contact
-            support.
+            The application failed to load. Please try again — if the problem persists, contact support.
           </p>
           <button
             onClick={reset}

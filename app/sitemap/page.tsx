@@ -17,11 +17,7 @@ export default async function SitemapPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }

@@ -188,11 +188,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
       {currentUrl && (
         <div className="relative group">
           <div className="h-48 w-full bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
-            <img
-              src={currentUrl || "/placeholder.svg"}
-              alt={label}
-              className="w-full h-full object-cover"
-            />
+            <img src={currentUrl || "/placeholder.svg"} alt={label} className="w-full h-full object-cover" />
           </div>
           {canEdit && (
             <Button
@@ -424,7 +420,11 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
 
           {canEdit && (
             <div className="flex justify-end pt-4">
-              <Button type="submit" disabled={isLoading || uploadingDoc !== null} className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px]">
+              <Button
+                type="submit"
+                disabled={isLoading || uploadingDoc !== null}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[200px]"
+              >
                 {isLoading ? "Submitting..." : kyc ? "Resubmit Application" : "Submit Application"}
               </Button>
             </div>

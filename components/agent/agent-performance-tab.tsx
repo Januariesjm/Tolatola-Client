@@ -3,20 +3,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/client"
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts"
-import {
-  Loader2,
-} from "lucide-react"
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts"
+import { Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 
 interface AgentPerformanceTabProps {
@@ -24,10 +12,7 @@ interface AgentPerformanceTabProps {
   trend: any[]
 }
 
-export function AgentPerformanceTab({
-  agent,
-  trend,
-}: AgentPerformanceTabProps) {
+export function AgentPerformanceTab({ agent, trend }: AgentPerformanceTabProps) {
   const { toast } = useToast()
   const [period, setPeriod] = useState<"week" | "month" | "year">("month")
   const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +23,9 @@ export function AgentPerformanceTab({
     setIsLoading(true)
     try {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
 
       const response = await fetch(`${apiBase}/agents/performance?period=${period}`, {
@@ -99,7 +86,7 @@ export function AgentPerformanceTab({
           <h3 className="text-sm font-bold text-slate-800">Performance Analytics</h3>
           <p className="text-xs text-slate-400">Registration reports based on chosen period</p>
         </div>
-        
+
         {/* Period Selector Buttons */}
         <div className="flex bg-slate-100 p-1 rounded-xl">
           <button
@@ -140,37 +127,23 @@ export function AgentPerformanceTab({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
               <CardContent className="p-6">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                  Registrations In Period
-                </span>
-                <span className="text-2xl font-black text-slate-900 block mb-1">
-                  {totalRegistrations}
-                </span>
-                <p className="text-xs text-slate-400">
-                  Total users registered by you during this period
-                </p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Registrations In Period</span>
+                <span className="text-2xl font-black text-slate-900 block mb-1">{totalRegistrations}</span>
+                <p className="text-xs text-slate-400">Total users registered by you during this period</p>
               </CardContent>
             </Card>
 
             <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
               <CardContent className="p-6">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                  Conversion Rate
-                </span>
-                <span className="text-2xl font-black text-emerald-600 block mb-1">
-                  {conversionRate}%
-                </span>
-                <p className="text-xs text-slate-400">
-                  Percentage of registrations verified as active
-                </p>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Conversion Rate</span>
+                <span className="text-2xl font-black text-emerald-600 block mb-1">{conversionRate}%</span>
+                <p className="text-xs text-slate-400">Percentage of registrations verified as active</p>
               </CardContent>
             </Card>
 
             <Card className="shadow-sm rounded-xl border border-slate-200 bg-white">
               <CardContent className="p-6">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                  Verification Status
-                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Verification Status</span>
                 <div className="flex gap-4 mt-1">
                   <div>
                     <span className="text-xs font-bold text-emerald-600 block">{statusBreakdown.active}</span>
@@ -219,10 +192,25 @@ export function AgentPerformanceTab({
                     />
                     <YAxis tickLine={false} axisLine={false} stroke="#94a3b8" style={{ fontSize: "10px" }} />
                     <Tooltip
-                      labelFormatter={(str) => new Date(str).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                      contentStyle={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
+                      labelFormatter={(str) =>
+                        new Date(str).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+                      }
+                      contentStyle={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                      }}
                     />
-                    <Area type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorCount)" name="New Users" />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#10b981"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorCount)"
+                      name="New Users"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>

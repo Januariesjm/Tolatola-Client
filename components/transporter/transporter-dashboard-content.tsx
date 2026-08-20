@@ -27,60 +27,54 @@ interface TransporterDashboardContentProps {
   user: any
 }
 
-export function TransporterDashboardContent({
-  transporter,
-  assignments,
-  payments,
-  withdrawals,
-  user,
-}: TransporterDashboardContentProps) {
+export function TransporterDashboardContent({ transporter, assignments, payments, withdrawals, user }: TransporterDashboardContentProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialTab = searchParams.get("tab") || "assignments"
   const initialOrderId = searchParams.get("orderId") || undefined
   const { toast } = useToast()
-  
+
   const [activeTab, setActiveTab] = useState(initialTab)
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false)
   const [locationStatus, setLocationStatus] = useState<"updated" | "error" | "idle">("idle")
-  
+
   const [localAssignments, setLocalAssignments] = useState(assignments)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [period, setPeriod] = useState<DatePeriod>("all")
   const prevAvailableCountRef = useRef(0)
 
   // Auto-refresh mechanism
-  const fetchAssignments = useCallback(async (silent = false) => {
-    if (silent) setIsRefreshing(true)
-    try {
-      const [assignmentsRes, availableRes] = await Promise.all([
-        clientApiGet<{ assignments: any[] }>("assignments"),
-        clientApiGet<{ availableOrders: any[] }>("assignments/available").catch(() => ({ availableOrders: [] }))
-      ])
-      
-      const allAssignments = [
-        ...(assignmentsRes.assignments || []),
-        ...(availableRes.availableOrders || []),
-      ]
+  const fetchAssignments = useCallback(
+    async (silent = false) => {
+      if (silent) setIsRefreshing(true)
+      try {
+        const [assignmentsRes, availableRes] = await Promise.all([
+          clientApiGet<{ assignments: any[] }>("assignments"),
+          clientApiGet<{ availableOrders: any[] }>("assignments/available").catch(() => ({ availableOrders: [] })),
+        ])
 
-      const newAvailableCount = (availableRes.availableOrders || []).length
-      
-      if (silent && newAvailableCount > prevAvailableCountRef.current && prevAvailableCountRef.current > 0) {
-        const diff = newAvailableCount - prevAvailableCountRef.current
-        toast({
-          title: `New Delivery Available! 📦`,
-          description: `${diff} new order${diff > 1 ? 's' : ''} ready for pickup.`,
-        })
+        const allAssignments = [...(assignmentsRes.assignments || []), ...(availableRes.availableOrders || [])]
+
+        const newAvailableCount = (availableRes.availableOrders || []).length
+
+        if (silent && newAvailableCount > prevAvailableCountRef.current && prevAvailableCountRef.current > 0) {
+          const diff = newAvailableCount - prevAvailableCountRef.current
+          toast({
+            title: `New Delivery Available! 📦`,
+            description: `${diff} new order${diff > 1 ? "s" : ""} ready for pickup.`,
+          })
+        }
+
+        prevAvailableCountRef.current = newAvailableCount
+        setLocalAssignments(allAssignments)
+      } catch (err) {
+        console.error("Failed to load transporter assignments", err)
+      } finally {
+        setIsRefreshing(false)
       }
-      
-      prevAvailableCountRef.current = newAvailableCount
-      setLocalAssignments(allAssignments)
-    } catch (err) {
-      console.error("Failed to load transporter assignments", err)
-    } finally {
-      setIsRefreshing(false)
-    }
-  }, [toast])
+    },
+    [toast],
+  )
 
   // Poll every 30 seconds
   useEffect(() => {
@@ -124,7 +118,7 @@ export function TransporterDashboardContent({
         console.error("Geolocation error:", error)
         setLocationStatus("error")
         setIsUpdatingLocation(false)
-      }
+      },
     )
   }
 
@@ -156,15 +150,12 @@ export function TransporterDashboardContent({
   const dateFilteredWithdrawals = useMemo(() => filterByDateRange(withdrawals, period), [withdrawals, period])
 
   const activeAssignments = dateFilteredAssignments.filter((a) => {
-    const isAccepted = ["accepted", "picked_up", "in_transit"].includes(a.status) ||
-      (a.status === "assigned" && a.accepted_at);
-    const isReady = a.status === "ready_for_pickup";
-    return isAccepted || isReady;
+    const isAccepted = ["accepted", "picked_up", "in_transit"].includes(a.status) || (a.status === "assigned" && a.accepted_at)
+    const isReady = a.status === "ready_for_pickup"
+    return isAccepted || isReady
   })
   const completedAssignments = dateFilteredAssignments.filter((a) => a.status === "delivered")
-  const availableBalance = dateFilteredPayments
-    .filter((p) => p.status === "available")
-    .reduce((sum, p) => sum + Number(p.amount), 0)
+  const availableBalance = dateFilteredPayments.filter((p) => p.status === "available").reduce((sum, p) => sum + Number(p.amount), 0)
   const pendingBalance = dateFilteredPayments.filter((p) => p.status === "pending").reduce((sum, p) => sum + Number(p.amount), 0)
 
   return (
@@ -174,7 +165,9 @@ export function TransporterDashboardContent({
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-10 sm:h-16 md:h-20 w-auto" />
-            <span className="hidden sm:inline-block"><HeaderAnimatedText /></span>
+            <span className="hidden sm:inline-block">
+              <HeaderAnimatedText />
+            </span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="text-xs sm:text-sm text-muted-foreground capitalize hidden sm:inline">{transporter.vehicle_type} Driver</span>
@@ -202,7 +195,7 @@ export function TransporterDashboardContent({
               disabled={isRefreshing}
               className="gap-1.5 shrink-0 text-xs sm:text-sm"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh Trips
             </Button>
           </div>
@@ -241,7 +234,9 @@ export function TransporterDashboardContent({
             <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
-                <span className="text-lg sm:text-2xl font-bold">{availableBalance.toLocaleString()} <span className="text-xs sm:text-base">TZS</span></span>
+                <span className="text-lg sm:text-2xl font-bold">
+                  {availableBalance.toLocaleString()} <span className="text-xs sm:text-base">TZS</span>
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -263,18 +258,11 @@ export function TransporterDashboardContent({
               <CardTitle className="text-xs sm:text-sm font-medium">My Location</CardTitle>
             </CardHeader>
             <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-              <Button
-                size="sm"
-                className="w-full text-xs sm:text-sm"
-                onClick={updateLocation}
-                disabled={isUpdatingLocation}
-              >
+              <Button size="sm" className="w-full text-xs sm:text-sm" onClick={updateLocation} disabled={isUpdatingLocation}>
                 <MapPin className="h-4 w-4 mr-1 sm:mr-2" />
                 {isUpdatingLocation ? "Updating..." : "Update Location"}
               </Button>
-              {locationStatus === "updated" && (
-                <p className="text-[10px] text-green-600 mt-2 text-center font-medium">✓ Location synced</p>
-              )}
+              {locationStatus === "updated" && <p className="text-[10px] text-green-600 mt-2 text-center font-medium">✓ Location synced</p>}
               {locationStatus === "error" && (
                 <p className="text-[10px] text-red-600 mt-2 text-center font-medium">Failed to sync location</p>
               )}
@@ -319,9 +307,9 @@ export function TransporterDashboardContent({
           </div>
 
           <TabsContent value="assignments">
-            <TransporterAssignmentsTab 
-              assignments={dateFilteredAssignments} 
-              transporterId={transporter.id} 
+            <TransporterAssignmentsTab
+              assignments={dateFilteredAssignments}
+              transporterId={transporter.id}
               initialOrderId={initialOrderId}
             />
           </TabsContent>

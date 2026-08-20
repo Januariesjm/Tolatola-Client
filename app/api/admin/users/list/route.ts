@@ -38,10 +38,7 @@ export async function GET() {
       const roleIds = users.filter((u) => u.admin_role_id).map((u) => u.admin_role_id)
 
       if (roleIds.length > 0) {
-        const { data: roles } = await supabase
-          .from("admin_roles")
-          .select("id, role_name, access_level, description")
-          .in("id", roleIds)
+        const { data: roles } = await supabase.from("admin_roles").select("id, role_name, access_level, description").in("id", roleIds)
 
         if (roles) {
           roles.forEach((role) => rolesMap.set(role.id, role))
@@ -55,10 +52,10 @@ export async function GET() {
         u.admin_role_id && rolesMap.has(u.admin_role_id)
           ? rolesMap.get(u.admin_role_id)
           : {
-            role_name: "Super Admin",
-            access_level: 100,
-            description: "Full system access (default)",
-          },
+              role_name: "Super Admin",
+              access_level: 100,
+              description: "Full system access (default)",
+            },
     }))
 
     return NextResponse.json({ users: usersWithRoles || [] })

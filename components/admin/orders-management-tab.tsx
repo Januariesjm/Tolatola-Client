@@ -96,7 +96,7 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
               className="pl-10 h-11 rounded-xl border-slate-200 focus:ring-primary focus:border-primary shadow-sm"
             />
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="h-11 rounded-xl border-slate-200 px-4 gap-2">
@@ -107,13 +107,27 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
             <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
               <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked={statusFilter === "all"} onCheckedChange={() => setStatusFilter("all")}>All Status</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "pending"} onCheckedChange={() => setStatusFilter("pending")}>Pending</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "confirmed"} onCheckedChange={() => setStatusFilter("confirmed")}>Confirmed</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "processing"} onCheckedChange={() => setStatusFilter("processing")}>Processing</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "shipped"} onCheckedChange={() => setStatusFilter("shipped")}>Shipped</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "delivered"} onCheckedChange={() => setStatusFilter("delivered")}>Delivered</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "cancelled"} onCheckedChange={() => setStatusFilter("cancelled")}>Cancelled</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "all"} onCheckedChange={() => setStatusFilter("all")}>
+                All Status
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "pending"} onCheckedChange={() => setStatusFilter("pending")}>
+                Pending
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "confirmed"} onCheckedChange={() => setStatusFilter("confirmed")}>
+                Confirmed
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "processing"} onCheckedChange={() => setStatusFilter("processing")}>
+                Processing
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "shipped"} onCheckedChange={() => setStatusFilter("shipped")}>
+                Shipped
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "delivered"} onCheckedChange={() => setStatusFilter("delivered")}>
+                Delivered
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "cancelled"} onCheckedChange={() => setStatusFilter("cancelled")}>
+                Cancelled
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -127,14 +141,17 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
             </div>
             <h3 className="text-lg font-semibold text-slate-900">No orders found</h3>
             <p className="text-slate-500 mt-1 max-w-xs mx-auto">
-              {searchQuery || statusFilter !== "all" 
-                ? "Try adjusting your filters or search term to find what you're looking for." 
+              {searchQuery || statusFilter !== "all"
+                ? "Try adjusting your filters or search term to find what you're looking for."
                 : "There are currently no orders in the system."}
             </p>
             {(searchQuery || statusFilter !== "all") && (
-              <Button 
-                variant="link" 
-                onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}
+              <Button
+                variant="link"
+                onClick={() => {
+                  setSearchQuery("")
+                  setStatusFilter("all")
+                }}
                 className="mt-4 text-primary font-medium"
               >
                 Clear all filters
@@ -151,9 +168,7 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                          #{idx + 1}
-                        </span>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">#{idx + 1}</span>
                         <span className="text-sm font-bold uppercase tracking-wider text-slate-400">Order</span>
                         <h3 className="text-xl font-bold text-slate-900">#{order.order_number}</h3>
                       </div>
@@ -163,15 +178,24 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className={`rounded-lg px-3 py-1 font-semibold border-2 ${statusColors[order.status] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                      <Badge
+                        variant="outline"
+                        className={`rounded-lg px-3 py-1 font-semibold border-2 ${statusColors[order.status] || "bg-slate-100 text-slate-600 border-slate-200"}`}
+                      >
                         {order.status.replace("_", " ")}
                       </Badge>
-                      <Badge variant="outline" className={`rounded-lg px-3 py-1 font-semibold border-2 ${paymentStatusColors[order.payment_status] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                      <Badge
+                        variant="outline"
+                        className={`rounded-lg px-3 py-1 font-semibold border-2 ${paymentStatusColors[order.payment_status] || "bg-slate-100 text-slate-600 border-slate-200"}`}
+                      >
                         <CreditCard className="h-3 w-3 mr-1.5" />
                         {order.payment_status}
                       </Badge>
                       {order.transporter_status && (
-                        <Badge variant="outline" className={`rounded-lg px-3 py-1 font-semibold border-2 ${transporterStatusColors[order.transporter_status] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg px-3 py-1 font-semibold border-2 ${transporterStatusColors[order.transporter_status] || "bg-slate-100 text-slate-600 border-slate-200"}`}
+                        >
                           <Truck className="h-3 w-3 mr-1.5" />
                           {order.transporter_status.replace("_", " ")}
                         </Badge>
@@ -207,8 +231,12 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
                         <MapPin className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
                         <div className="space-y-0.5">
                           <p className="font-medium text-slate-900">{order.shipping_address?.street || "Street N/A"}</p>
-                          <p>{order.shipping_address?.ward}, {order.shipping_address?.district}</p>
-                          <p>{order.shipping_address?.region}, {order.shipping_address?.country}</p>
+                          <p>
+                            {order.shipping_address?.ward}, {order.shipping_address?.district}
+                          </p>
+                          <p>
+                            {order.shipping_address?.region}, {order.shipping_address?.country}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -220,9 +248,7 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
                           <Package className="h-5 w-5 text-indigo-600" />
                         </div>
                         <div className="space-y-1">
-                          <p className="font-bold text-slate-900">
-                            {order.order_items?.length || 0} Products
-                          </p>
+                          <p className="font-bold text-slate-900">{order.order_items?.length || 0} Products</p>
                           <p className="text-sm text-slate-500">
                             {order.order_items?.[0]?.products?.name || "N/A"}
                             {(order.order_items?.length || 0) > 1 && ` + ${order.order_items.length - 1} more`}
@@ -234,9 +260,7 @@ export function OrdersManagementTab({ orders }: OrdersManagementTabProps) {
                     <div className="space-y-3">
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Total Amount</p>
                       <div className="flex flex-col">
-                        <span className="text-2xl font-black text-slate-900">
-                          TZS {order.total_amount.toLocaleString()}
-                        </span>
+                        <span className="text-2xl font-black text-slate-900">TZS {order.total_amount.toLocaleString()}</span>
                         <span className="text-xs text-slate-400 font-medium uppercase tracking-wide">
                           via {order.payment_method.replace("-", " ")}
                         </span>

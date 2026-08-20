@@ -5,43 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { 
-  Users, 
-  Plus, 
-  Search, 
-  Trash2, 
-  Loader2, 
-  SlidersHorizontal, 
-  RotateCcw, 
-  Shield, 
+  Users,
+  Plus,
+  Search,
+  Trash2,
+  Loader2,
+  SlidersHorizontal,
+  RotateCcw,
+  Shield,
   Calendar,
   Pencil,
   Building,
   Briefcase,
   Mail,
-  Phone
+  Phone,
 } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { logger } from "@/lib/logger"
@@ -66,13 +48,13 @@ export interface HRStaff {
 export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
   const [staffList, setStaffList] = useState<HRStaff[]>(initialStaff)
   const [search, setSearch] = useState("")
-  
+
   // Advanced filters toggle & criteria
   const [showFilters, setShowFilters] = useState(false)
   const [filterRole, setFilterRole] = useState("all")
   const [filterDateFrom, setFilterDateFrom] = useState("")
   const [filterDateTo, setFilterDateTo] = useState("")
-  
+
   // Status tab selection
   const [activeStatusTab, setActiveStatusTab] = useState<"active" | "suspended" | "inactive" | "terminated">("active")
 
@@ -111,7 +93,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
         else if (s.status === "terminated") acc.terminated++
         return acc
       },
-      { active: 0, suspended: 0, exited: 0, terminated: 0 }
+      { active: 0, suspended: 0, exited: 0, terminated: 0 },
     )
   }, [staffList])
 
@@ -213,9 +195,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
     setLoading(true)
     setError(null)
     try {
-      const payload = editingStaff 
-        ? { id: editingStaff.id, ...formData }
-        : formData
+      const payload = editingStaff ? { id: editingStaff.id, ...formData } : formData
 
       const res = await clientApiPost<any>("admin/hr/staff", payload)
       if (res.data) {
@@ -257,8 +237,8 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <Users className="h-5 w-5 text-primary" />
           Employees Directory
         </CardTitle>
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold flex items-center gap-2 self-start sm:self-center"
           onClick={handleAddClick}
         >
@@ -354,9 +334,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <button
             onClick={() => setActiveStatusTab("active")}
             className={`flex items-center gap-2 pb-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
-              activeStatusTab === "active"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+              activeStatusTab === "active" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 block"></span>
@@ -365,9 +343,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <button
             onClick={() => setActiveStatusTab("suspended")}
             className={`flex items-center gap-2 pb-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
-              activeStatusTab === "suspended"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+              activeStatusTab === "suspended" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 block"></span>
@@ -376,9 +352,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <button
             onClick={() => setActiveStatusTab("inactive")}
             className={`flex items-center gap-2 pb-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
-              activeStatusTab === "inactive"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+              activeStatusTab === "inactive" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-sm bg-slate-500 block"></span>
@@ -387,9 +361,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
           <button
             onClick={() => setActiveStatusTab("terminated")}
             className={`flex items-center gap-2 pb-2.5 text-xs sm:text-sm font-semibold border-b-2 transition-all ${
-              activeStatusTab === "terminated"
-                ? "border-primary text-primary"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+              activeStatusTab === "terminated" ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-sm bg-red-500 block"></span>
@@ -400,9 +372,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
         {/* Directory Table */}
         <div className="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
-            <div className="p-12 text-center text-slate-500">
-              No staff records found matching your filters.
-            </div>
+            <div className="p-12 text-center text-slate-500">No staff records found matching your filters.</div>
           ) : (
             <Table>
               <TableHeader className="bg-slate-50">
@@ -535,10 +505,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
               </div>
               <div className="space-y-1.5">
                 <Label>Department</Label>
-                <Select
-                  value={formData.department}
-                  onValueChange={(val) => setFormData({ ...formData, department: val })}
-                >
+                <Select value={formData.department} onValueChange={(val) => setFormData({ ...formData, department: val })}>
                   <SelectTrigger className="rounded-lg text-sm">
                     <SelectValue placeholder="Select Department" />
                   </SelectTrigger>
@@ -591,10 +558,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
               </div>
               <div className="space-y-1.5">
                 <Label>Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(val) => setFormData({ ...formData, status: val })}
-                >
+                <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
                   <SelectTrigger className="rounded-lg text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -608,11 +572,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
               </div>
             </div>
 
-            {error && (
-              <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">
-                {error}
-              </div>
-            )}
+            {error && <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">{error}</div>}
 
             <div className="flex justify-end gap-2 pt-2 border-t mt-4">
               <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">

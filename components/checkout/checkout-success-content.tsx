@@ -6,7 +6,22 @@ import { useToast } from "@/hooks/use-toast"
 import { clientApiPost, clientApiGet } from "@/lib/api-client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, Package, Truck, Home, ShoppingBag, ShieldCheck, MapPin, Phone, User, Building2, Loader2, AlertCircle, CreditCard, ExternalLink } from "lucide-react"
+import {
+  CheckCircle2,
+  Package,
+  Truck,
+  Home,
+  ShoppingBag,
+  ShieldCheck,
+  MapPin,
+  Phone,
+  User,
+  Building2,
+  Loader2,
+  AlertCircle,
+  CreditCard,
+  ExternalLink,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CheckoutSuccessContentProps {
@@ -24,24 +39,24 @@ const STEPS_DETAILS = [
 ]
 
 const FULL_STATUS_MAP: Record<string, number> = {
-  "pending": 0,
-  "pending_payment": 0,
-  "PAYMENT_CONFIRMED": 1,
-  "confirmed": 1,
-  "paid": 1,
-  "PROCESSING": 2,
-  "processing": 2,
-  "preparing": 2,
-  "DISPATCHED": 3,
-  "dispatched": 3,
-  "ready_for_pickup": 3,
-  "picked_up": 3,
-  "IN_TRANSIT": 4,
-  "in_transit": 4,
-  "shipped": 4,
-  "DELIVERED": 5,
-  "delivered": 5,
-  "completed": 5,
+  pending: 0,
+  pending_payment: 0,
+  PAYMENT_CONFIRMED: 1,
+  confirmed: 1,
+  paid: 1,
+  PROCESSING: 2,
+  processing: 2,
+  preparing: 2,
+  DISPATCHED: 3,
+  dispatched: 3,
+  ready_for_pickup: 3,
+  picked_up: 3,
+  IN_TRANSIT: 4,
+  in_transit: 4,
+  shipped: 4,
+  DELIVERED: 5,
+  delivered: 5,
+  completed: 5,
 }
 
 function OrderStatusProgress({ status }: { status: string }) {
@@ -68,7 +83,7 @@ function OrderStatusProgress({ status }: { status: string }) {
                 className={cn(
                   "h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 border-4",
                   isActive ? "bg-primary border-primary text-white" : "bg-white border-stone-100 text-stone-300",
-                  isCurrent && isActive && "animate-pulse ring-4 ring-primary/20"
+                  isCurrent && isActive && "animate-pulse ring-4 ring-primary/20",
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -76,7 +91,7 @@ function OrderStatusProgress({ status }: { status: string }) {
               <span
                 className={cn(
                   "text-[10px] font-bold uppercase tracking-wider text-center max-w-[80px]",
-                  isActive ? "text-primary" : "text-stone-400"
+                  isActive ? "text-primary" : "text-stone-400",
                 )}
               >
                 {step.label}
@@ -88,9 +103,7 @@ function OrderStatusProgress({ status }: { status: string }) {
 
       {/* Detailed Vertical Tracking List */}
       <div className="bg-stone-50 rounded-2xl p-6 border border-stone-100">
-        <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">
-          Detailed Tracking Events
-        </h4>
+        <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">Detailed Tracking Events</h4>
         <div className="space-y-5">
           {STEPS_DETAILS.map((step, idx) => {
             const isDone = currentIndex > idx || (currentIndex === idx && isCompleted)
@@ -102,36 +115,20 @@ function OrderStatusProgress({ status }: { status: string }) {
                   <div
                     className={cn(
                       "h-6 w-6 rounded-full flex items-center justify-center border-2 border-white ring-2 ring-transparent shadow-sm flex-shrink-0 z-10",
-                      isDone ? "bg-green-500" : isCurrent ? "bg-primary animate-pulse" : "bg-stone-200"
+                      isDone ? "bg-green-500" : isCurrent ? "bg-primary animate-pulse" : "bg-stone-200",
                     )}
                   >
-                    {isDone ? (
-                      <CheckCircle2 className="h-4 w-4 text-white" />
-                    ) : (
-                      <div className="h-2 w-2 rounded-full bg-white" />
-                    )}
+                    {isDone ? <CheckCircle2 className="h-4 w-4 text-white" /> : <div className="h-2 w-2 rounded-full bg-white" />}
                   </div>
                   {idx !== STEPS_DETAILS.length - 1 && (
-                    <div
-                      className={cn(
-                        "w-0.5 h-full min-h-[20px] -my-1",
-                        isDone ? "bg-green-500" : "bg-stone-200"
-                      )}
-                    />
+                    <div className={cn("w-0.5 h-full min-h-[20px] -my-1", isDone ? "bg-green-500" : "bg-stone-200")} />
                   )}
                 </div>
                 <div className="pt-0.5 pb-2">
-                  <p
-                    className={cn(
-                      "text-sm font-bold",
-                      isDone ? "text-stone-900" : isCurrent ? "text-primary" : "text-stone-400"
-                    )}
-                  >
+                  <p className={cn("text-sm font-bold", isDone ? "text-stone-900" : isCurrent ? "text-primary" : "text-stone-400")}>
                     {step.label}
                   </p>
-                  {isCurrent && (
-                    <p className="text-xs text-stone-500 mt-1">Currently in progress...</p>
-                  )}
+                  {isCurrent && <p className="text-xs text-stone-500 mt-1">Currently in progress...</p>}
                 </div>
               </div>
             )
@@ -150,7 +147,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
 
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<"processing" | "paid" | "failed">(
-    order.payment_status === "paid" || order.payment_method === "cash-on-delivery" ? "paid" : "processing"
+    order.payment_status === "paid" || order.payment_method === "cash-on-delivery" ? "paid" : "processing",
   )
 
   // Clear cart on mount (safety net in case checkout didn't clear it)
@@ -171,8 +168,8 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
     async function checkStatus() {
       if (cancelled) return
       try {
-        const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string } }>( 
-          `payments/status/${order.id}`
+        const res = await clientApiGet<{ data?: { payment_status?: string; status?: string; click_pesa_error?: string } }>(
+          `payments/status/${order.id}`,
         )
         const payload = (res as any)?.data ?? res
         const pStatus = payload?.payment_status
@@ -257,8 +254,8 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                   {order.payment_method === "cash-on-delivery"
                     ? "Success! We've received your order. Please prepare cash for delivery."
                     : paymentStatus === "paid"
-                    ? "Your order has been successfully placed and payment is secured."
-                    : "Your order has been placed! Payment is being processed."}
+                      ? "Your order has been successfully placed and payment is secured."
+                      : "Your order has been placed! Payment is being processed."}
                 </p>
               </div>
             </div>
@@ -276,8 +273,8 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                       {["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa", "tigo-pesa"].includes(order.payment_method)
                         ? "Please check your phone and approve the USSD prompt to complete payment."
                         : ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(order.payment_method)
-                        ? "Use the control number to complete payment through your bank."
-                        : "Your payment is being verified. This usually takes a moment."}
+                          ? "Use the control number to complete payment through your bank."
+                          : "Your payment is being verified. This usually takes a moment."}
                     </p>
                   </div>
                 </div>
@@ -311,58 +308,56 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
               {paymentStatus !== "paid" &&
                 ["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(order.payment_method) &&
                 order.clickpesa_transaction_id && (
-                <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-5 w-5 text-primary" />
-                    <p className="text-sm font-black text-stone-900">Complete Bank Payment</p>
+                  <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="flex items-center gap-3">
+                      <Building2 className="h-5 w-5 text-primary" />
+                      <p className="text-sm font-black text-stone-900">Complete Bank Payment</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
+                      <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
+                        {order.clickpesa_transaction_id}
+                      </p>
+                    </div>
+                    <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
+                      <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
+                      <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
+                        <li>Dial *150*03# (CRDB SimBanking)</li>
+                        <li>Select &apos;Bill Payment&apos;</li>
+                        <li>Enter the Control Number above</li>
+                        <li>Follow prompts to complete payment</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                    <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                      {order.clickpesa_transaction_id}
-                    </p>
-                  </div>
-                  <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
-                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
-                    <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
-                      <li>Dial *150*03# (CRDB SimBanking)</li>
-                      <li>Select &apos;Bill Payment&apos;</li>
-                      <li>Enter the Control Number above</li>
-                      <li>Follow prompts to complete payment</li>
-                    </ul>
-                  </div>
-                </div>
-              )}
+                )}
 
               {/* Card Payment Link (for card payments with pending status) */}
               {paymentStatus !== "paid" &&
                 ["visa", "mastercard", "unionpay"].includes(order.payment_method) &&
                 order.stripe_payment_intent_id &&
                 order.stripe_payment_intent_id.startsWith("http") && (
-                <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                    <p className="text-sm font-black text-stone-900">Complete Card Payment</p>
+                  <div className="p-6 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      <p className="text-sm font-black text-stone-900">Complete Card Payment</p>
+                    </div>
+                    <p className="text-xs text-stone-500 leading-relaxed">
+                      Tap the button below to open the secure payment gateway and complete your card transaction.
+                    </p>
+                    <a
+                      href={order.stripe_payment_intent_id}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-primary hover:bg-stone-900 text-white font-bold text-sm rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Pay Securely with Card
+                    </a>
                   </div>
-                  <p className="text-xs text-stone-500 leading-relaxed">
-                    Tap the button below to open the secure payment gateway and complete your card transaction.
-                  </p>
-                  <a
-                    href={order.stripe_payment_intent_id}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-4 px-6 bg-primary hover:bg-stone-900 text-white font-bold text-sm rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Pay Securely with Card
-                  </a>
-                </div>
-              )}
+                )}
 
               <div className="space-y-4">
-                <h3 className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
-                  Live Order Tracking
-                </h3>
+                <h3 className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Live Order Tracking</h3>
                 <OrderStatusProgress status={order.status} />
               </div>
 
@@ -371,7 +366,11 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Order Number</p>
                     <p className="text-lg font-black text-stone-900 tabular-nums">
-                      {order.order_number || `TOLA-${new Date().getFullYear()}-${String(order.id || "").slice(-8).toUpperCase().padStart(8, "0")}`}
+                      {order.order_number ||
+                        `TOLA-${new Date().getFullYear()}-${String(order.id || "")
+                          .slice(-8)
+                          .toUpperCase()
+                          .padStart(8, "0")}`}
                     </p>
                   </div>
 
@@ -388,19 +387,13 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                   </div>
 
                   <div className="space-y-4 bg-stone-50 rounded-[2rem] p-6 border border-stone-100">
-                    <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">
-                      Receipt Items
-                    </h4>
+                    <h4 className="text-sm font-black text-stone-900 border-b border-stone-200 pb-3 mb-4">Receipt Items</h4>
                     <div className="space-y-4 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar">
                       {order.order_items?.map((item: any) => (
                         <div key={item.id} className="flex gap-4 items-center">
                           <div className="h-14 w-14 rounded-xl bg-white border border-stone-100 overflow-hidden flex-shrink-0">
                             {item.products?.images?.[0] ? (
-                              <img
-                                src={item.products.images[0]}
-                                alt={item.products.name}
-                                className="h-full w-full object-cover"
-                              />
+                              <img src={item.products.images[0]} alt={item.products.name} className="h-full w-full object-cover" />
                             ) : (
                               <div className="h-full w-full flex items-center justify-center bg-stone-50">
                                 <ShoppingBag className="h-5 w-5 text-stone-300" />
@@ -408,9 +401,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold text-stone-900 text-sm truncate">
-                              {item.products?.name || "Product"}
-                            </p>
+                            <p className="font-bold text-stone-900 text-sm truncate">{item.products?.name || "Product"}</p>
                             <p className="text-[10px] font-bold text-stone-400 uppercase">Qty: {item.quantity}</p>
                           </div>
                           <p className="font-black text-stone-900 text-sm whitespace-nowrap">
@@ -431,17 +422,13 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                       </div>
                       <div className="flex justify-between items-center pt-3 border-t border-stone-200">
                         <span className="text-[10px] font-black uppercase text-primary tracking-[0.1em]">Total</span>
-                        <span className="text-xl font-black text-stone-900">
-                          {order.total_amount?.toLocaleString()} TZS
-                        </span>
+                        <span className="text-xl font-black text-stone-900">{order.total_amount?.toLocaleString()} TZS</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-
                 <div className="space-y-6">
-
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Shipping To</h4>
                     <div className="space-y-5">
@@ -451,9 +438,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                         </div>
                         <div className="space-y-0.5">
                           <p className="text-[10px] font-bold text-stone-400 uppercase">Recipient</p>
-                          <p className="font-black text-stone-900">
-                            {order.shipping_address?.full_name || user?.email || "Guest"}
-                          </p>
+                          <p className="font-black text-stone-900">{order.shipping_address?.full_name || user?.email || "Guest"}</p>
                         </div>
                       </div>
 
@@ -474,8 +459,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                         <div className="space-y-0.5">
                           <p className="text-[10px] font-bold text-stone-400 uppercase">Address</p>
                           <p className="font-bold text-stone-900 leading-tight">
-                            {order.shipping_address?.street && `${order.shipping_address?.street},`}{" "}
-                            {order.shipping_address?.ward}
+                            {order.shipping_address?.street && `${order.shipping_address?.street},`} {order.shipping_address?.ward}
                             <br />
                             {order.shipping_address?.district}, {order.shipping_address?.region}
                           </p>
@@ -490,12 +474,8 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
                         <ShieldCheck className="h-6 w-6 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
-                          Purchase Shield Active
-                        </p>
-                        <p className="text-sm font-bold leading-tight">
-                          Your order is protected by TOLA&apos;s buyer protection.
-                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">Purchase Shield Active</p>
+                        <p className="text-sm font-bold leading-tight">Your order is protected by TOLA&apos;s buyer protection.</p>
                       </div>
                     </div>
                   </div>

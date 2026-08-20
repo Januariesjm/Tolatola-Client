@@ -42,13 +42,16 @@ export default async function TransporterDashboardPage() {
     ])
 
     // Merge: own assignments + available orders from marketplace
-    const allAssignments = [
-      ...(assignmentsRes.assignments || []),
-      ...(availableRes.availableOrders || []),
-    ]
+    const allAssignments = [...(assignmentsRes.assignments || []), ...(availableRes.availableOrders || [])]
 
     return (
-      <Suspense fallback={<div className="flex h-screen items-center justify-center p-4"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}>
+      <Suspense
+        fallback={
+          <div className="flex h-screen items-center justify-center p-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          </div>
+        }
+      >
         <TransporterDashboardContent
           transporter={transporter}
           assignments={allAssignments}

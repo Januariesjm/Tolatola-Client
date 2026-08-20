@@ -8,10 +8,7 @@ export async function verifyAdminSetup() {
 
   try {
     // Check if admin_roles table exists and has data
-    const { data: roles, error: rolesError } = await supabase
-      .from("admin_roles")
-      .select("id, role_name")
-      .limit(1)
+    const { data: roles, error: rolesError } = await supabase.from("admin_roles").select("id, role_name").limit(1)
 
     if (rolesError) {
       console.error("[v0] Admin roles table not found:", rolesError.message)
@@ -22,10 +19,7 @@ export async function verifyAdminSetup() {
     }
 
     // Check if admin_permissions table exists
-    const { data: permissions, error: permissionsError } = await supabase
-      .from("admin_permissions")
-      .select("id, permission_key")
-      .limit(1)
+    const { data: permissions, error: permissionsError } = await supabase.from("admin_permissions").select("id, permission_key").limit(1)
 
     if (permissionsError) {
       console.error("[v0] Admin permissions table not found:", permissionsError.message)
@@ -36,10 +30,7 @@ export async function verifyAdminSetup() {
     }
 
     // Check if users table has admin_role_id column
-    const { data: userCheck, error: userError } = await supabase
-      .from("users")
-      .select("admin_role_id")
-      .limit(1)
+    const { data: userCheck, error: userError } = await supabase.from("users").select("admin_role_id").limit(1)
 
     if (userError) {
       if (userError.message.includes("admin_role_id")) {

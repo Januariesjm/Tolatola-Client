@@ -72,12 +72,8 @@ export default function AgentLoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl mb-4 shadow-lg shadow-emerald-500/25">
               <Shield className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">
-              TOLA Agent Portal
-            </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Sign in to your agent account
-            </p>
+            <h1 className="text-2xl font-black text-white tracking-tight">TOLA Agent Portal</h1>
+            <p className="text-sm text-slate-400 mt-1">Sign in to your agent account</p>
           </div>
 
           {/* Error Message */}
@@ -90,9 +86,7 @@ export default function AgentLoginPage() {
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Email Address
-              </label>
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Email Address</label>
               <Input
                 type="email"
                 placeholder="agent@tolatola.co"
@@ -104,9 +98,7 @@ export default function AgentLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Password
-              </label>
+              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">Password</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -145,8 +137,7 @@ export default function AgentLoginPage() {
           {/* Footer Links */}
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-500">
-              Don't have an agent account?{" "}
-              <span className="text-emerald-400">Contact your administrator.</span>
+              Don't have an agent account? <span className="text-emerald-400">Contact your administrator.</span>
             </p>
           </div>
         </div>

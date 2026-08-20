@@ -33,11 +33,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  const { data: kycData } = await supabase
-    .from("customer_kyc")
-    .select("kyc_status")
-    .eq("user_id", user.id)
-    .maybeSingle()
+  const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
 
   // Get order with items
   const { data: order, error } = await supabase

@@ -9,20 +9,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
-  Smartphone, Truck, MapPin, Loader2, CheckCircle2,
-  CreditCard, Banknote, Building2, ChevronDown,
-  ShieldCheck, Wallet, ArrowRight, ShoppingBag,
-  Zap, Info
+  Smartphone,
+  Truck,
+  MapPin,
+  Loader2,
+  CheckCircle2,
+  CreditCard,
+  Banknote,
+  Building2,
+  ChevronDown,
+  ShieldCheck,
+  Wallet,
+  ArrowRight,
+  ShoppingBag,
+  Zap,
+  Info,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { calculateDeliveryDistance, calculateDeliveryDistanceByCoords } from "@/app/actions/maps"
 import type { TransportMethod } from "@/app/actions/maps"
@@ -30,7 +35,6 @@ import { useToast } from "@/hooks/use-toast"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
 import { WebMapPicker } from "@/components/checkout/web-map-picker"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
-
 
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { CheckoutContentProps, CartItem } from "@/lib/types/checkout"
@@ -63,17 +67,22 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   })
   const [transportMethods, setTransportMethods] = useState<TransportMethod[]>([])
   const [selectedTransportId, setSelectedTransportId] = useState<string>("")
-  const [shopDeliveries, setShopDeliveries] = useState<Record<string, {
-    distanceKm: number
-    deliveryFee: number
-    duration?: string
-    transportMethod?: string
-    transportMethodId?: string | null
-    shopName: string
-    shopLat: number
-    shopLng: number
-    deliveryAvailable?: boolean
-  }>>({})
+  const [shopDeliveries, setShopDeliveries] = useState<
+    Record<
+      string,
+      {
+        distanceKm: number
+        deliveryFee: number
+        duration?: string
+        transportMethod?: string
+        transportMethodId?: string | null
+        shopName: string
+        shopLat: number
+        shopLng: number
+        deliveryAvailable?: boolean
+      }
+    >
+  >({})
   const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -138,18 +147,11 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         }
       })
 
-      const method =
-        transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
-        transportMethods[0]
+      const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
 
       for (const sId in shopsData) {
         const shop = shopsData[sId]
-        const result = await calculateDeliveryDistanceByCoords(
-          coordinates.lat,
-          coordinates.lng,
-          shop.lat,
-          shop.lng
-        )
+        const result = await calculateDeliveryDistanceByCoords(coordinates.lat, coordinates.lng, shop.lat, shop.lng)
 
         if (result) {
           const fee = calculateFee(method, result.distanceKm, shop.weight, shop.deliveryAvailable !== false)
@@ -184,9 +186,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
   useEffect(() => {
     if (Object.keys(shopDeliveries).length > 0 && selectedTransportId && cartItems.length > 0) {
-      const method =
-        transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) ||
-        transportMethods[0]
+      const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
 
       const updatedDeliveries = { ...shopDeliveries }
       const shopsWeight: Record<string, number> = {}
@@ -318,7 +318,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         const dInfo = shopDeliveries[sId]
 
         // Only assign the fee to the first item from this shop to avoid double counting in totals
-        const feeToAssign = !shopAssignedFee[sId] ? (dInfo?.deliveryFee || 0) : 0
+        const feeToAssign = !shopAssignedFee[sId] ? dInfo?.deliveryFee || 0 : 0
         shopAssignedFee[sId] = true
 
         return {
@@ -398,7 +398,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             expiryDate: cardDetails.expiry,
             cvv: cardDetails.cvv,
           },
-        }
+        },
       )
 
       if (payRes.success) {
@@ -440,9 +440,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               <h2 className="text-2xl font-black tracking-tight">Processing Payment</h2>
             </div>
             <CardContent className="p-8 text-center space-y-6">
-              <p className="text-stone-600 font-medium leading-relaxed">
-                Please wait while we process your payment...
-              </p>
+              <p className="text-stone-600 font-medium leading-relaxed">Please wait while we process your payment...</p>
               <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-green-600" />
                 <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
@@ -466,9 +464,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-stone-900 leading-none">
                 {t("checkout.place_order")}
               </h1>
-              <p className="text-stone-600 text-xs sm:text-base font-medium max-w-xl">
-                Complete your purchase securely below.
-              </p>
+              <p className="text-stone-600 text-xs sm:text-base font-medium max-w-xl">Complete your purchase securely below.</p>
             </div>
             <div className="hidden md:flex flex-col items-end gap-1 p-4 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100">
               <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">{t("cart.total")}</p>
@@ -482,7 +478,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 {/* Shipping Section */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                      1
+                    </div>
                     <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">{t("checkout.shipping")}</h2>
                   </div>
 
@@ -490,7 +488,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Full Name *</Label>
+                          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
+                            Full Name *
+                          </Label>
                           <Input
                             id="fullName"
                             value={fullName}
@@ -501,7 +501,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Phone Number *</Label>
+                          <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
+                            Phone Number *
+                          </Label>
                           <Input
                             id="phone"
                             type="tel"
@@ -516,7 +518,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
                       {!user && (
                         <div className="space-y-2">
-                          <Label htmlFor="guestEmail" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">Email Address *</Label>
+                          <Label htmlFor="guestEmail" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
+                            Email Address *
+                          </Label>
                           <Input
                             id="guestEmail"
                             type="email"
@@ -526,7 +530,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
                             placeholder="your@email.com"
                           />
-                          <p className="text-[10px] text-stone-400 font-bold px-1 italic">We'll send your order confirmation and tracking details here.</p>
+                          <p className="text-[10px] text-stone-400 font-bold px-1 italic">
+                            We'll send your order confirmation and tracking details here.
+                          </p>
                         </div>
                       )}
 
@@ -544,13 +550,14 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           onLocationSelect={(coords) => {
                             setLatitude(coords.lat)
                             setLongitude(coords.lng)
-                            const dummyAddress = [addressData.street, addressData.ward, addressData.district, addressData.region].filter(Boolean).join(", ") || "Selected Pin"
+                            const dummyAddress =
+                              [addressData.street, addressData.ward, addressData.district, addressData.region].filter(Boolean).join(", ") ||
+                              "Selected Pin"
                             handleAddressComplete(dummyAddress, coords)
                           }}
                           title="Verify Delivery Location Pin"
                         />
                       </div>
-
 
                       {isCalculatingDelivery && (
                         <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
@@ -573,7 +580,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             <span>Delivery Logistics Breakdown</span>
                           </div>
                           {Object.entries(shopDeliveries).map(([shopId, info]) => (
-                            <div key={shopId} className="p-3.5 sm:p-5 md:p-6 bg-stone-50 rounded-2xl md:rounded-[2rem] border border-stone-100 space-y-3 md:space-y-4 overflow-hidden">
+                            <div
+                              key={shopId}
+                              className="p-3.5 sm:p-5 md:p-6 bg-stone-50 rounded-2xl md:rounded-[2rem] border border-stone-100 space-y-3 md:space-y-4 overflow-hidden"
+                            >
                               <div className="flex items-center justify-between gap-2">
                                 <div className="space-y-0.5 min-w-0">
                                   <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
@@ -586,25 +596,54 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
                               <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                                 <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
-                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">Distance</p>
+                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">
+                                    Distance
+                                  </p>
                                   <p className="text-[10px] sm:text-xs font-black text-stone-800 truncate">{info.distanceKm} KM</p>
                                 </div>
                                 <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
-                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">Status</p>
-                                  <p className={cn("text-[10px] sm:text-xs font-black truncate", info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600")}>
-                                    {info.deliveryAvailable !== false ? (info.duration || "Fast") : "Pickup"}
+                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">
+                                    Status
+                                  </p>
+                                  <p
+                                    className={cn(
+                                      "text-[10px] sm:text-xs font-black truncate",
+                                      info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600",
+                                    )}
+                                  >
+                                    {info.deliveryAvailable !== false ? info.duration || "Fast" : "Pickup"}
                                   </p>
                                 </div>
-                                <div className={cn("p-2 sm:p-3 rounded-xl md:rounded-2xl border space-y-0.5 min-w-0", info.deliveryAvailable !== false ? "bg-[#2563EB]/5 border-[#2563EB]/10" : "bg-stone-100 border-stone-200")}>
-                                  <p className={cn("text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide truncate", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400")}>Fee</p>
-                                  <p className={cn("text-[10px] sm:text-xs font-black truncate", info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500")}>
+                                <div
+                                  className={cn(
+                                    "p-2 sm:p-3 rounded-xl md:rounded-2xl border space-y-0.5 min-w-0",
+                                    info.deliveryAvailable !== false
+                                      ? "bg-[#2563EB]/5 border-[#2563EB]/10"
+                                      : "bg-stone-100 border-stone-200",
+                                  )}
+                                >
+                                  <p
+                                    className={cn(
+                                      "text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide truncate",
+                                      info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400",
+                                    )}
+                                  >
+                                    Fee
+                                  </p>
+                                  <p
+                                    className={cn(
+                                      "text-[10px] sm:text-xs font-black truncate",
+                                      info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500",
+                                    )}
+                                  >
                                     {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
                                   </p>
                                 </div>
                               </div>
                               {info.deliveryAvailable === false && (
                                 <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-2.5 sm:p-3 rounded-xl border border-amber-100">
-                                  Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after payment.
+                                  Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after
+                                  payment.
                                 </p>
                               )}
                             </div>
@@ -618,22 +657,23 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 {/* Transport Section */}
                 <section className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                      2
+                    </div>
                     <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
                   </div>
 
                   <div className="w-full">
-                    <Select
-                      value={selectedTransportId}
-                      onValueChange={setSelectedTransportId}
-                    >
+                    <Select value={selectedTransportId} onValueChange={setSelectedTransportId}>
                       <SelectTrigger className="w-full !h-auto py-4 md:!py-8 rounded-2xl md:rounded-[2.5rem] border-2 border-stone-200 bg-white px-4 md:px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/40 shadow-sm hover:shadow-md group">
                         <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
                           <div className="h-10 w-10 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-inner">
                             <Truck className="h-5 w-5 md:h-7 md:w-7" />
                           </div>
                           <div className="flex flex-col items-start text-left gap-0.5 md:gap-1.5 overflow-hidden min-w-0 flex-1">
-                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">Delivery Method</span>
+                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">
+                              Delivery Method
+                            </span>
                             <div className="font-black text-stone-900 text-base md:text-xl tracking-tight truncate w-full">
                               <SelectValue placeholder="Please select delivery method" />
                             </div>
@@ -673,7 +713,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
               {/* Payment Section */}
               <section className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">3</div>
+                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                    3
+                  </div>
                   <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Choose Payment</h2>
                 </div>
 
@@ -690,7 +732,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           </AccordionTrigger>
                           <AccordionContent className="p-2 sm:p-4 mt-2 space-y-4">
                             <div className="space-y-2">
-                              <Label htmlFor="paymentPhone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Phone Number</Label>
+                              <Label htmlFor="paymentPhone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                                Phone Number
+                              </Label>
                               <Input
                                 id="paymentPhone"
                                 type="tel"
@@ -713,22 +757,28 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   htmlFor={p.id}
                                   className={cn(
                                     "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
-                                    paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
-                                    p.maintenance && "opacity-60 grayscale-[0.5]"
+                                    paymentMethod === p.id
+                                      ? "bg-primary/5 border-primary shadow-sm"
+                                      : "border-stone-100 hover:border-stone-300",
+                                    p.maintenance && "opacity-60 grayscale-[0.5]",
                                   )}
                                 >
                                   <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
-                                  <div className={cn(
-                                    "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                                    paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
-                                  )}>
+                                  <div
+                                    className={cn(
+                                      "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                                      paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
+                                    )}
+                                  >
                                     <Smartphone className="h-4 w-4" />
                                   </div>
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between">
                                       <p className="font-bold text-stone-900 text-sm">{p.name}</p>
                                       {p.maintenance && (
-                                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">Service Down</span>
+                                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">
+                                          Service Down
+                                        </span>
                                       )}
                                     </div>
                                     <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
@@ -749,15 +799,23 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           <AccordionContent className="p-3.5 sm:p-6 mt-2 sm:mt-4 space-y-4 sm:space-y-6">
                             <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                               {["visa", "mastercard", "unionpay"].map((c) => (
-                                <Label key={c} htmlFor={c} className={cn(
-                                  "flex flex-col items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
-                                  paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
-                                )}>
+                                <Label
+                                  key={c}
+                                  htmlFor={c}
+                                  className={cn(
+                                    "flex flex-col items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
+                                    paymentMethod === c
+                                      ? "bg-primary/5 border-primary shadow-sm"
+                                      : "border-stone-100 hover:border-stone-300",
+                                  )}
+                                >
                                   <RadioGroupItem value={c} id={c} className="sr-only" />
-                                  <div className={cn(
-                                    "h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center transition-colors",
-                                    paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
-                                  )}>
+                                  <div
+                                    className={cn(
+                                      "h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center transition-colors",
+                                      paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
+                                    )}
+                                  >
                                     <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </div>
                                   <span className="font-bold uppercase tracking-wide text-[9px] sm:text-[10px] text-stone-900">{c}</span>
@@ -766,7 +824,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                             </div>
                             <div className="space-y-3 pt-3 border-t border-stone-100">
                               <div className="space-y-2">
-                                <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Card Number</Label>
+                                <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                                  Card Number
+                                </Label>
                                 <Input
                                   id="cardNumber"
                                   value={cardDetails.number}
@@ -777,7 +837,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                               </div>
                               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                                 <div className="space-y-2">
-                                  <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Expiry</Label>
+                                  <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                                    Expiry
+                                  </Label>
                                   <Input
                                     id="expiry"
                                     value={cardDetails.expiry}
@@ -787,7 +849,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">CVV / CVC</Label>
+                                  <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                                    CVV / CVC
+                                  </Label>
                                   <Input
                                     id="cvv"
                                     value={cardDetails.cvv}
@@ -810,18 +874,24 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           </AccordionTrigger>
                           <AccordionContent className="p-3.5 sm:p-6 space-y-3 mt-2 sm:mt-4">
                             {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
-                              <Label key={b} htmlFor={b} className={cn(
-                                "flex items-center gap-3 sm:gap-4 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                                paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
-                              )}>
+                              <Label
+                                key={b}
+                                htmlFor={b}
+                                className={cn(
+                                  "flex items-center gap-3 sm:gap-4 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                                  paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300",
+                                )}
+                              >
                                 <RadioGroupItem value={b} id={b} className="sr-only" />
-                                <div className={cn(
-                                  "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-colors shrink-0",
-                                  paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
-                                )}>
+                                <div
+                                  className={cn(
+                                    "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-colors shrink-0",
+                                    paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400",
+                                  )}
+                                >
                                   <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </div>
-                                <span className="font-bold text-xs sm:text-sm text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
+                                <span className="font-bold text-xs sm:text-sm text-stone-900 capitalize">{b.replace(/-/g, " ")}</span>
                               </Label>
                             ))}
                           </AccordionContent>
@@ -844,14 +914,20 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                 <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                   <div className="space-y-4 sm:space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
                     {cartItems.map((item) => {
-                      const itemId = `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+                      const itemId = `${item.product_id}-${item.selected_color?.name || ""}-${item.selected_size || ""}`
                       return (
                         <div key={itemId} className="flex gap-3 sm:gap-4">
                           <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
                             {item.selected_color?.image || item.product.images?.[0] ? (
-                              <img src={item.selected_color?.image || item.product.images?.[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                              <img
+                                src={item.selected_color?.image || item.product.images?.[0]}
+                                alt={item.product.name}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="h-5 w-5 text-stone-200" /></div>
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ShoppingBag className="h-5 w-5 text-stone-200" />
+                              </div>
                             )}
                           </div>
                           <div className="flex-1 space-y-1 min-w-0">
@@ -862,7 +938,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                               <div className="flex flex-wrap gap-1">
                                 {item.selected_color && (
                                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-                                    <span 
+                                    <span
                                       className="w-1.5 h-1.5 rounded-full border border-stone-300"
                                       style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
                                     />
@@ -879,7 +955,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
 
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-stone-400 font-bold text-[11px]">Qty: {item.quantity}</span>
-                              <span className="text-stone-900 font-extrabold text-xs">{(item.product.price * item.quantity).toLocaleString()} TZS</span>
+                              <span className="text-stone-900 font-extrabold text-xs">
+                                {(item.product.price * item.quantity).toLocaleString()} TZS
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -894,11 +972,13 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                     </div>
                     <div className="flex justify-between items-center text-xs sm:text-sm">
                       <span className="text-stone-500 font-bold">Delivery</span>
-                      <span className={cn(
-                        "font-bold tracking-tight",
-                        (Object.keys(shopDeliveries).length > 0) ? "text-stone-900" : "text-primary italic animate-pulse"
-                      )}>
-                        {(Object.keys(shopDeliveries).length > 0) ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
+                      <span
+                        className={cn(
+                          "font-bold tracking-tight",
+                          Object.keys(shopDeliveries).length > 0 ? "text-stone-900" : "text-primary italic animate-pulse",
+                        )}
+                      >
+                        {Object.keys(shopDeliveries).length > 0 ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-xs sm:text-sm">

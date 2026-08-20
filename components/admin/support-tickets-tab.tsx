@@ -151,12 +151,30 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
   }
 
   const departmentBadgeStyles: Record<string, { label: string; className: string }> = {
-    general: { label: "General Support", className: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-    it: { label: "IT Support", className: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800" },
-    finance: { label: "Finance & Payouts", className: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800" },
-    hr: { label: "Human Resources", className: "bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800" },
-    vendor: { label: "Vendor Management", className: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800" },
-    logistics: { label: "Logistics & Delivery", className: "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800" },
+    general: {
+      label: "General Support",
+      className: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+    },
+    it: {
+      label: "IT Support",
+      className: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+    },
+    finance: {
+      label: "Finance & Payouts",
+      className: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+    },
+    hr: {
+      label: "Human Resources",
+      className: "bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800",
+    },
+    vendor: {
+      label: "Vendor Management",
+      className: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+    },
+    logistics: {
+      label: "Logistics & Delivery",
+      className: "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+    },
   }
 
   // Filter tickets by department (if scoped to department or filtered by Super Admin)
@@ -214,14 +232,20 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
         <div className="flex items-center gap-3">
           <div className="bg-slate-800 px-3.5 py-1.5 rounded-xl border border-slate-700 text-xs flex items-center gap-2">
             <MessageCircle className="h-4 w-4 text-emerald-400" />
-            <span>Total Tickets: <strong className="text-white">{scopedTickets.length}</strong></span>
+            <span>
+              Total Tickets: <strong className="text-white">{scopedTickets.length}</strong>
+            </span>
           </div>
 
           {/* Delete All Resolved Button */}
           {resolvedCount > 0 && (
             <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold h-9 px-3.5 gap-1.5 shadow-sm">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold h-9 px-3.5 gap-1.5 shadow-sm"
+                >
                   <Trash2 className="h-4 w-4" />
                   Delete All Resolved ({resolvedCount})
                 </Button>
@@ -232,8 +256,10 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
                     <Trash2 className="h-5 w-5" /> Delete All Resolved Tickets?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action will <strong>permanently delete all {resolvedCount} resolved and completed tickets</strong> along with all associated chat messages and conversation records.
-                    <br /><br />
+                    This action will <strong>permanently delete all {resolvedCount} resolved and completed tickets</strong> along with all
+                    associated chat messages and conversation records.
+                    <br />
+                    <br />
                     <span className="text-rose-500 font-semibold">This action cannot be undone.</span>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -305,9 +331,13 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                statusFilter === tab.id ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
-              }`}>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  statusFilter === tab.id
+                    ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                    : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 {tab.count}
               </span>
             </button>
@@ -360,21 +390,19 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
                         <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                           #{index + 1}
                         </span>
-                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
-                          {ticket.subject}
-                        </CardTitle>
+                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">{ticket.subject}</CardTitle>
                         <Badge variant="outline" className={`text-[11px] font-semibold ${deptInfo.className}`}>
                           {deptInfo.label}
                         </Badge>
                         {hasNewUserMsg && (
-                          <Badge className="bg-emerald-500 text-white text-[10px] animate-pulse px-2 py-0.5">
-                            New Reply Received
-                          </Badge>
+                          <Badge className="bg-emerald-500 text-white text-[10px] animate-pulse px-2 py-0.5">New Reply Received</Badge>
                         )}
                       </div>
                       <CardDescription className="text-xs flex items-center gap-1.5 text-slate-500">
                         <User className="h-3.5 w-3.5 text-slate-400" />
-                        <span>From: <strong>{ticket.users?.full_name || ticket.users?.email || ticket.guest_name || "Customer User"}</strong></span>
+                        <span>
+                          From: <strong>{ticket.users?.full_name || ticket.users?.email || ticket.guest_name || "Customer User"}</strong>
+                        </span>
                       </CardDescription>
                     </div>
 
@@ -398,10 +426,14 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1 text-slate-400">
                         <Clock className="h-3.5 w-3.5" />
-                        {new Date(ticket.created_at).toLocaleDateString()} at {new Date(ticket.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(ticket.created_at).toLocaleDateString()} at{" "}
+                        {new Date(ticket.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                       {msgCount > 0 && (
-                        <Badge variant="secondary" className="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/50 text-[11px] flex items-center gap-1">
+                        <Badge
+                          variant="secondary"
+                          className="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/50 text-[11px] flex items-center gap-1"
+                        >
                           <MessageSquare className="h-3 w-3" />
                           {msgCount} {msgCount === 1 ? "Message" : "Messages"}
                         </Badge>

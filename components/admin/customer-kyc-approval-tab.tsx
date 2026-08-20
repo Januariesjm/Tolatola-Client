@@ -6,14 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, Eye, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -24,318 +17,281 @@ import { logger } from "@/lib/logger"
 const log = logger.child("admin.customer-kyc-approval-tab")
 
 interface CustomerKYCApprovalTabProps {
-    customers: any[]
+  customers: any[]
 }
 
 export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProps) {
-    const router = useRouter()
-    const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
-    const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
-    const [rejectionReason, setRejectionReason] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [viewDocumentDialog, setViewDocumentDialog] = useState(false)
-    const [documentUrl, setDocumentUrl] = useState("")
+  const router = useRouter()
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
+  const [rejectionReason, setRejectionReason] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [viewDocumentDialog, setViewDocumentDialog] = useState(false)
+  const [documentUrl, setDocumentUrl] = useState("")
 
-    const handleApprove = async (kycId: string) => {
-        setIsSubmitting(true)
+  const handleApprove = async (kycId: string) => {
+    setIsSubmitting(true)
 
-        try {
-            await clientApiPost(`admin/customers-kyc/${kycId}/approve`)
-            router.refresh()
-        } catch (error) {
-            log.error("error approving customer KYC", error)
-            alert("Failed to approve KYC. Please try again.")
-        }
-
-        setIsSubmitting(false)
+    try {
+      await clientApiPost(`admin/customers-kyc/${kycId}/approve`)
+      router.refresh()
+    } catch (error) {
+      log.error("error approving customer KYC", error)
+      alert("Failed to approve KYC. Please try again.")
     }
 
-    const handleRejectClick = (kyc: any) => {
-        setSelectedCustomer(kyc)
-        setRejectionReason("")
-        setRejectDialogOpen(true)
+    setIsSubmitting(false)
+  }
+
+  const handleRejectClick = (kyc: any) => {
+    setSelectedCustomer(kyc)
+    setRejectionReason("")
+    setRejectDialogOpen(true)
+  }
+
+  const handleRejectConfirm = async () => {
+    if (!rejectionReason.trim()) {
+      alert("Please provide a reason for rejection")
+      return
     }
 
-    const handleRejectConfirm = async () => {
-        if (!rejectionReason.trim()) {
-            alert("Please provide a reason for rejection")
-            return
-        }
+    setIsSubmitting(true)
 
-        setIsSubmitting(true)
+    try {
+      await clientApiPost(`admin/customers-kyc/${selectedCustomer.id}/reject`, {
+        reason: rejectionReason,
+      })
 
-        try {
-            await clientApiPost(`admin/customers-kyc/${selectedCustomer.id}/reject`, {
-                reason: rejectionReason
-            })
-
-            setRejectDialogOpen(false)
-            setSelectedCustomer(null)
-            setRejectionReason("")
-            router.refresh()
-        } catch (error) {
-            log.error("error rejecting customer KYC", error)
-            alert("Failed to reject KYC. Please try again.")
-        }
-
-        setIsSubmitting(false)
+      setRejectDialogOpen(false)
+      setSelectedCustomer(null)
+      setRejectionReason("")
+      router.refresh()
+    } catch (error) {
+      log.error("error rejecting customer KYC", error)
+      alert("Failed to reject KYC. Please try again.")
     }
 
-    const handleViewDocument = (url: string) => {
-        setDocumentUrl(url)
-        setViewDocumentDialog(true)
-    }
+    setIsSubmitting(false)
+  }
 
-    return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Customer KYC Applications</h2>
-                <Badge variant="outline">{customers.length} Pending</Badge>
-            </div>
+  const handleViewDocument = (url: string) => {
+    setDocumentUrl(url)
+    setViewDocumentDialog(true)
+  }
 
-            {customers.length === 0 ? (
-                <Card>
-                    <CardContent className="py-12 text-center">
-                        <p className="text-muted-foreground">No pending customer KYC applications</p>
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                    {customers.map((kyc, idx) => (
-                        <Card key={kyc.id}>
-                            <CardHeader>
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                                        <User className="h-5 w-5 text-primary shrink-0" />
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-2 min-w-0 w-full">
-                                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                                                    #{idx + 1}
-                                                </span>
-                                                <CardTitle className="truncate flex-1 min-w-0">{kyc.users?.full_name || "Unnamed User"}</CardTitle>
-                                            </div>
-                                            <CardDescription className="mt-1 truncate">{kyc.users?.email}</CardDescription>
-                                        </div>
-                                    </div>
-                                    <Badge className="bg-yellow-500 shrink-0">Pending Review</Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Full Name:</span>
-                                        <span className="font-medium">{kyc.full_name || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Email:</span>
-                                        <span className="font-medium">{kyc.users?.email || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Phone:</span>
-                                        <span className="font-medium">{kyc.phone_number || kyc.users?.phone || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Date of Birth:</span>
-                                        <span className="font-medium">{kyc.date_of_birth ? new Date(kyc.date_of_birth).toLocaleDateString() : "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Address:</span>
-                                        <span className="font-medium text-right max-w-[200px] truncate">{kyc.address || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">City/Region:</span>
-                                        <span className="font-medium">{[kyc.city, kyc.region].filter(Boolean).join(", ") || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">ID Type:</span>
-                                        <span className="font-medium uppercase">{kyc.id_type || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">ID Number:</span>
-                                        <span className="font-medium">{kyc.id_number || "N/A"}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Applied:</span>
-                                        <span className="font-medium">{new Date(kyc.created_at).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Customer KYC Applications</h2>
+        <Badge variant="outline">{customers.length} Pending</Badge>
+      </div>
 
-                                {/* Document previews */}
-                                <div className="pt-2 border-t space-y-2">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {kyc.id_document_front_url && (
-                                            <div className="space-y-1">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="w-full h-auto p-0 overflow-hidden"
-                                                    onClick={() => handleViewDocument(kyc.id_document_front_url)}
-                                                >
-                                                    <img
-                                                        src={kyc.id_document_front_url}
-                                                        alt="ID Front"
-                                                        className="w-full h-20 object-cover"
-                                                    />
-                                                </Button>
-                                                <p className="text-[10px] text-center text-muted-foreground">ID Front</p>
-                                            </div>
-                                        )}
-                                        {kyc.id_document_back_url && (
-                                            <div className="space-y-1">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="w-full h-auto p-0 overflow-hidden"
-                                                    onClick={() => handleViewDocument(kyc.id_document_back_url)}
-                                                >
-                                                    <img
-                                                        src={kyc.id_document_back_url}
-                                                        alt="ID Back"
-                                                        className="w-full h-20 object-cover"
-                                                    />
-                                                </Button>
-                                                <p className="text-[10px] text-center text-muted-foreground">ID Back</p>
-                                            </div>
-                                        )}
-                                        {kyc.selfie_url && (
-                                            <div className="space-y-1">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="w-full h-auto p-0 overflow-hidden"
-                                                    onClick={() => handleViewDocument(kyc.selfie_url)}
-                                                >
-                                                    <img
-                                                        src={kyc.selfie_url}
-                                                        alt="Selfie with ID"
-                                                        className="w-full h-20 object-cover"
-                                                    />
-                                                </Button>
-                                                <p className="text-[10px] text-center text-muted-foreground">Selfie</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {!kyc.id_document_front_url && !kyc.id_document_back_url && !kyc.selfie_url && (
-                                        <p className="text-xs text-muted-foreground text-center py-2">No documents uploaded</p>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-2 pt-4 border-t">
-                                    <Button
-                                        className="flex-1 bg-green-600 hover:bg-green-700"
-                                        onClick={() => handleApprove(kyc.id)}
-                                        disabled={isSubmitting}
-                                    >
-                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                        Approve
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 border-red-600 text-red-600 hover:bg-red-50 bg-transparent"
-                                        onClick={() => handleRejectClick(kyc)}
-                                        disabled={isSubmitting}
-                                    >
-                                        <XCircle className="h-4 w-4 mr-2" />
-                                        Reject
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+      {customers.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">No pending customer KYC applications</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-6">
+          {customers.map((kyc, idx) => (
+            <Card key={kyc.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <User className="h-5 w-5 text-primary shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0 w-full">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">#{idx + 1}</span>
+                        <CardTitle className="truncate flex-1 min-w-0">{kyc.users?.full_name || "Unnamed User"}</CardTitle>
+                      </div>
+                      <CardDescription className="mt-1 truncate">{kyc.users?.email}</CardDescription>
+                    </div>
+                  </div>
+                  <Badge className="bg-yellow-500 shrink-0">Pending Review</Badge>
                 </div>
-            )}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Full Name:</span>
+                    <span className="font-medium">{kyc.full_name || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="font-medium">{kyc.users?.email || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="font-medium">{kyc.phone_number || kyc.users?.phone || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Date of Birth:</span>
+                    <span className="font-medium">{kyc.date_of_birth ? new Date(kyc.date_of_birth).toLocaleDateString() : "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Address:</span>
+                    <span className="font-medium text-right max-w-[200px] truncate">{kyc.address || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">City/Region:</span>
+                    <span className="font-medium">{[kyc.city, kyc.region].filter(Boolean).join(", ") || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ID Type:</span>
+                    <span className="font-medium uppercase">{kyc.id_type || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ID Number:</span>
+                    <span className="font-medium">{kyc.id_number || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Applied:</span>
+                    <span className="font-medium">{new Date(kyc.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
 
-            {/* Rejection Dialog */}
-            <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Reject Customer KYC</DialogTitle>
-                        <DialogDescription>
-                            Please provide a reason for rejecting {selectedCustomer?.users?.full_name}'s KYC application.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="rejection-reason">Rejection Reason</Label>
-                            <Textarea
-                                id="rejection-reason"
-                                placeholder="e.g., ID document is blurred, ID number mismatch, etc."
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                rows={4}
-                                className="resize-none"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setRejectDialogOpen(false)} disabled={isSubmitting}>
-                            Cancel
-                        </Button>
+                {/* Document previews */}
+                <div className="pt-2 border-t space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {kyc.id_document_front_url && (
+                      <div className="space-y-1">
                         <Button
-                            variant="destructive"
-                            onClick={handleRejectConfirm}
-                            disabled={isSubmitting || !rejectionReason.trim()}
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-auto p-0 overflow-hidden"
+                          onClick={() => handleViewDocument(kyc.id_document_front_url)}
                         >
-                            Confirm Rejection
+                          <img src={kyc.id_document_front_url} alt="ID Front" className="w-full h-20 object-cover" />
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        <p className="text-[10px] text-center text-muted-foreground">ID Front</p>
+                      </div>
+                    )}
+                    {kyc.id_document_back_url && (
+                      <div className="space-y-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-auto p-0 overflow-hidden"
+                          onClick={() => handleViewDocument(kyc.id_document_back_url)}
+                        >
+                          <img src={kyc.id_document_back_url} alt="ID Back" className="w-full h-20 object-cover" />
+                        </Button>
+                        <p className="text-[10px] text-center text-muted-foreground">ID Back</p>
+                      </div>
+                    )}
+                    {kyc.selfie_url && (
+                      <div className="space-y-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full h-auto p-0 overflow-hidden"
+                          onClick={() => handleViewDocument(kyc.selfie_url)}
+                        >
+                          <img src={kyc.selfie_url} alt="Selfie with ID" className="w-full h-20 object-cover" />
+                        </Button>
+                        <p className="text-[10px] text-center text-muted-foreground">Selfie</p>
+                      </div>
+                    )}
+                  </div>
+                  {!kyc.id_document_front_url && !kyc.id_document_back_url && !kyc.selfie_url && (
+                    <p className="text-xs text-muted-foreground text-center py-2">No documents uploaded</p>
+                  )}
+                </div>
 
-            {/* Document Viewer Dialog */}
-            <Dialog open={viewDocumentDialog} onOpenChange={setViewDocumentDialog}>
-                <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-4">
-                    <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <div>
-                            <DialogTitle>ID Document Preview</DialogTitle>
-                            <DialogDescription>
-                                Full size preview of the uploaded identity document
-                            </DialogDescription>
-                        </div>
-                        <div className="flex gap-2 mr-6">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-9"
-                                onClick={() => window.open(documentUrl, '_blank')}
-                            >
-                                <ExternalLink className="h-4 w-4 mr-2" />
-                                Open Original
-                            </Button>
-                        </div>
-                    </DialogHeader>
-                    <div className="relative flex-1 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
-                        {documentUrl ? (
-                            documentUrl.toLowerCase().endsWith('.pdf') ? (
-                                <iframe
-                                    src={`${documentUrl}#toolbar=0`}
-                                    className="w-full h-full border-none"
-                                    title="PDF Document Viewer"
-                                />
-                            ) : (
-                                <div className="w-full h-full overflow-auto flex items-center justify-center p-4">
-                                    <img
-                                        src={documentUrl}
-                                        alt="Document"
-                                        className="max-w-full h-auto shadow-2xl rounded-sm"
-                                    />
-                                </div>
-                            )
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3">
-                                <FileText className="h-12 w-12 opacity-20" />
-                                <p>No document selected</p>
-                            </div>
-                        )}
-                    </div>
-                    <DialogFooter className="pt-4">
-                        <Button variant="secondary" onClick={() => setViewDocumentDialog(false)}>
-                            Close Preview
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                <div className="flex gap-2 pt-4 border-t">
+                  <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleApprove(kyc.id)} disabled={isSubmitting}>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-red-600 text-red-600 hover:bg-red-50 bg-transparent"
+                    onClick={() => handleRejectClick(kyc)}
+                    disabled={isSubmitting}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Reject
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-    )
+      )}
+
+      {/* Rejection Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Customer KYC</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting {selectedCustomer?.users?.full_name}'s KYC application.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="rejection-reason">Rejection Reason</Label>
+              <Textarea
+                id="rejection-reason"
+                placeholder="e.g., ID document is blurred, ID number mismatch, etc."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRejectConfirm} disabled={isSubmitting || !rejectionReason.trim()}>
+              Confirm Rejection
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Viewer Dialog */}
+      <Dialog open={viewDocumentDialog} onOpenChange={setViewDocumentDialog}>
+        <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-4">
+          <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <DialogTitle>ID Document Preview</DialogTitle>
+              <DialogDescription>Full size preview of the uploaded identity document</DialogDescription>
+            </div>
+            <div className="flex gap-2 mr-6">
+              <Button variant="outline" size="sm" className="h-9" onClick={() => window.open(documentUrl, "_blank")}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Original
+              </Button>
+            </div>
+          </DialogHeader>
+          <div className="relative flex-1 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
+            {documentUrl ? (
+              documentUrl.toLowerCase().endsWith(".pdf") ? (
+                <iframe src={`${documentUrl}#toolbar=0`} className="w-full h-full border-none" title="PDF Document Viewer" />
+              ) : (
+                <div className="w-full h-full overflow-auto flex items-center justify-center p-4">
+                  <img src={documentUrl} alt="Document" className="max-w-full h-auto shadow-2xl rounded-sm" />
+                </div>
+              )
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-3">
+                <FileText className="h-12 w-12 opacity-20" />
+                <p>No document selected</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="pt-4">
+            <Button variant="secondary" onClick={() => setViewDocumentDialog(false)}>
+              Close Preview
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }

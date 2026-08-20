@@ -22,10 +22,7 @@ export async function GET() {
     }
 
     // Fetch revoke history
-    const { data: history, error } = await supabase
-      .from("admin_revoke_history")
-      .select("*")
-      .order("revoked_at", { ascending: false })
+    const { data: history, error } = await supabase.from("admin_revoke_history").select("*").order("revoked_at", { ascending: false })
 
     if (error) {
       console.error("[v0] Error fetching revoke history:", error.message)

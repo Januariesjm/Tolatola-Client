@@ -77,12 +77,14 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
           ) : (
             <div className="space-y-3">
               {payments.map((payment) => (
-                <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg">
+                <div
+                  key={payment.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg"
+                >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{payment.description || `${payment.payment_type} payment`}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(payment.created_at).toLocaleDateString()} at{" "}
-                      {new Date(payment.created_at).toLocaleTimeString()}
+                      {new Date(payment.created_at).toLocaleDateString()} at {new Date(payment.created_at).toLocaleTimeString()}
                     </p>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">

@@ -12,10 +12,5 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
       item: item.url.startsWith("http") ? item.url : `https://tolatola.co${item.url}`,
     })),
   }
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  )
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 }

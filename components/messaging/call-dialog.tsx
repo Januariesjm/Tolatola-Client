@@ -80,11 +80,7 @@ export function CallDialog({ open, onOpenChange, conversationId, callType, shopN
           {callStatus === "calling" && (
             <div className="text-center space-y-2">
               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto animate-pulse">
-                {callType === "voice" ? (
-                  <Phone className="h-10 w-10 text-primary" />
-                ) : (
-                  <Video className="h-10 w-10 text-primary" />
-                )}
+                {callType === "voice" ? <Phone className="h-10 w-10 text-primary" /> : <Video className="h-10 w-10 text-primary" />}
               </div>
               <p className="text-lg font-medium">Calling...</p>
             </div>
@@ -93,11 +89,7 @@ export function CallDialog({ open, onOpenChange, conversationId, callType, shopN
           {callStatus === "connected" && (
             <div className="text-center space-y-2">
               <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto">
-                {callType === "voice" ? (
-                  <Phone className="h-10 w-10 text-green-500" />
-                ) : (
-                  <Video className="h-10 w-10 text-green-500" />
-                )}
+                {callType === "voice" ? <Phone className="h-10 w-10 text-green-500" /> : <Video className="h-10 w-10 text-green-500" />}
               </div>
               <p className="text-lg font-medium">Connected</p>
               <p className="text-2xl font-mono">{formatDuration(duration)}</p>
@@ -105,12 +97,7 @@ export function CallDialog({ open, onOpenChange, conversationId, callType, shopN
           )}
 
           <div className="flex gap-4">
-            <Button
-              variant={muted ? "default" : "outline"}
-              size="icon"
-              className="h-12 w-12 rounded-full"
-              onClick={() => setMuted(!muted)}
-            >
+            <Button variant={muted ? "default" : "outline"} size="icon" className="h-12 w-12 rounded-full" onClick={() => setMuted(!muted)}>
               {muted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
             </Button>
 

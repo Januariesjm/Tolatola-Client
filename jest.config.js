@@ -27,12 +27,7 @@ const config = {
     // Shared fixtures, not suites.
     "<rootDir>/__tests__/setup/",
   ],
-  collectCoverageFrom: [
-    "lib/**/*.{ts,tsx}",
-    "components/**/*.{ts,tsx}",
-    "!**/*.d.ts",
-    "!**/node_modules/**",
-  ],
+  collectCoverageFrom: ["lib/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "!**/*.d.ts", "!**/node_modules/**"],
   /**
    * Coverage floor, enforced in CI by `npm test`.
    *

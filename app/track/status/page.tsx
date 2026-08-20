@@ -99,7 +99,7 @@ function StatusDashboardInner() {
       setLoading(false)
       return
     }
-    
+
     // Initial fetch
     fetchStatus(false)
 
@@ -181,23 +181,22 @@ function StatusDashboardInner() {
               <Truck className="h-6 w-6 text-primary animate-bounce" />
             </div>
             <div>
-              <h2 className="text-lg font-extrabold text-foreground mb-1">
-                Have you received your product? 🚚
-              </h2>
+              <h2 className="text-lg font-extrabold text-foreground mb-1">Have you received your product? 🚚</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received your items.
+                Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received
+                your items.
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-sm mt-1">
-              <Button 
-                onClick={handleConfirmDelivery} 
-                disabled={confirming} 
+              <Button
+                onClick={handleConfirmDelivery}
+                disabled={confirming}
                 className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold h-11 rounded-xl"
               >
                 {confirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Confirm Delivery
               </Button>
-              <Button 
+              <Button
                 asChild
                 variant="destructive"
                 className="flex-1 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-2 font-bold h-11 rounded-xl"
@@ -226,9 +225,7 @@ function StatusDashboardInner() {
           <CardContent className="p-6 space-y-8">
             {/* Timeline progress */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                Order timeline
-              </h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Order timeline</h3>
               <Progress value={progressPercent} className="h-2 rounded-full" />
               <ul className="space-y-3">
                 {TIMELINE_STEPS.map((step, idx) => {
@@ -244,22 +241,14 @@ function StatusDashboardInner() {
                         <Circle className="h-5 w-5 text-muted-foreground/50 flex-shrink-0" />
                       )}
                       <span
-                        className={
-                          done
-                            ? "font-medium text-foreground"
-                            : current
-                              ? "font-semibold text-primary"
-                              : "text-muted-foreground"
-                        }
+                        className={done ? "font-medium text-foreground" : current ? "font-semibold text-primary" : "text-muted-foreground"}
                       >
                         {step.label}
                       </span>
                       {(() => {
                         const item = timeline.find((t: any) => t.status === step.id)
                         return item?.completed_at ? (
-                          <span className="text-xs text-muted-foreground ml-auto">
-                            {new Date(item.completed_at).toLocaleString()}
-                          </span>
+                          <span className="text-xs text-muted-foreground ml-auto">{new Date(item.completed_at).toLocaleString()}</span>
                         ) : null
                       })()}
                     </li>
@@ -273,53 +262,58 @@ function StatusDashboardInner() {
               <div className="space-y-4 pt-6 border-t">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-primary" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                    Real-time Fund Status
-                  </h3>
-                  <Badge variant="outline" className="ml-auto bg-primary/5 text-primary border-primary/20 capitalize font-semibold px-2 py-0.5">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Real-time Fund Status</h3>
+                  <Badge
+                    variant="outline"
+                    className="ml-auto bg-primary/5 text-primary border-primary/20 capitalize font-semibold px-2 py-0.5"
+                  >
                     {data.fund_status.status.replace(/_/g, " ").toLowerCase()}
                   </Badge>
                 </div>
 
                 <div className="relative pl-6 border-l-2 border-muted space-y-6 ml-3 mt-4">
                   {data.fund_status.timeline.map((step) => {
-                    const isCompleted = step.status === "completed";
-                    const StepIcon = {
-                      payment_received: Coins,
-                      protected: Lock,
-                      pending_settlement: Clock,
-                      vendor_paid: Wallet,
-                      transporter_paid: Truck,
-                      settlement_completed: CheckCircle2
-                    }[step.key] || Circle;
+                    const isCompleted = step.status === "completed"
+                    const StepIcon =
+                      {
+                        payment_received: Coins,
+                        protected: Lock,
+                        pending_settlement: Clock,
+                        vendor_paid: Wallet,
+                        transporter_paid: Truck,
+                        settlement_completed: CheckCircle2,
+                      }[step.key] || Circle
 
                     return (
                       <div key={step.key} className="relative flex items-start gap-3 transition-all duration-200">
                         {/* Dot indicator on the timeline border */}
-                        <div className={`absolute -left-[33px] top-0.5 p-1 rounded-full border-2 bg-background transition-colors duration-300 ${
-                          isCompleted ? "border-green-600 text-green-600" : "border-muted text-muted-foreground"
-                        }`}>
+                        <div
+                          className={`absolute -left-[33px] top-0.5 p-1 rounded-full border-2 bg-background transition-colors duration-300 ${
+                            isCompleted ? "border-green-600 text-green-600" : "border-muted text-muted-foreground"
+                          }`}
+                        >
                           <StepIcon className="h-3.5 w-3.5" />
                         </div>
                         <div className="flex flex-col">
-                          <span className={`text-sm font-bold transition-colors duration-200 ${
-                            isCompleted ? "text-foreground" : "text-muted-foreground/70"
-                          }`}>
+                          <span
+                            className={`text-sm font-bold transition-colors duration-200 ${
+                              isCompleted ? "text-foreground" : "text-muted-foreground/70"
+                            }`}
+                          >
                             {step.label}
                           </span>
-                          <span className="text-xs text-muted-foreground mt-0.5">
-                            {step.description}
-                          </span>
+                          <span className="text-xs text-muted-foreground mt-0.5">{step.description}</span>
                         </div>
                       </div>
-                    );
+                    )
                   })}
                 </div>
 
                 <div className="bg-muted/40 rounded-xl p-3 border border-muted text-xs text-muted-foreground flex gap-2 items-start mt-4">
                   <AlertTriangle className="h-4 w-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
                   <p className="leading-relaxed">
-                    TOLA does not hold customer funds or operate a wallet; it only displays the real-time fund status provided by our payment and escrow partners.
+                    TOLA does not hold customer funds or operate a wallet; it only displays the real-time fund status provided by our
+                    payment and escrow partners.
                   </p>
                 </div>
               </div>
@@ -328,9 +322,7 @@ function StatusDashboardInner() {
             {/* Delivery details */}
             {data.transporter && (
               <div className="space-y-4 rounded-xl border bg-muted/20 p-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  Delivery details
-                </h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Delivery details</h3>
                 <div className="flex items-center gap-3">
                   <Truck className="h-5 w-5 text-muted-foreground" />
                   <span className="font-medium">{data.transporter.name}</span>
@@ -344,9 +336,7 @@ function StatusDashboardInner() {
                 {order.estimated_arrival && (
                   <div className="flex items-center gap-3">
                     <Clock className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm">
-                      Estimated arrival: {new Date(order.estimated_arrival).toLocaleString()}
-                    </span>
+                    <span className="text-sm">Estimated arrival: {new Date(order.estimated_arrival).toLocaleString()}</span>
                   </div>
                 )}
               </div>

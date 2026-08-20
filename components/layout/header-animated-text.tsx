@@ -38,9 +38,7 @@ export function HeaderAnimatedText() {
           {word}
         </span>
       ))}
-      {displayedWords.length < words.length && (
-        <span className="inline-block w-0.5 h-4 md:h-5 lg:h-6 bg-primary animate-pulse" />
-      )}
+      {displayedWords.length < words.length && <span className="inline-block w-0.5 h-4 md:h-5 lg:h-6 bg-primary animate-pulse" />}
     </div>
   )
 }

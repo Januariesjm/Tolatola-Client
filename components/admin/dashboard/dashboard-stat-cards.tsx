@@ -53,13 +53,7 @@ export interface DashboardStatCardsProps {
  * The "Overview" metric strip. Each card is permission-gated, so an admin only
  * sees the numbers their role covers.
  */
-export function DashboardStatCards({
-  permissions,
-  canManageAgents,
-  period,
-  onPeriodChange,
-  metrics,
-}: DashboardStatCardsProps) {
+export function DashboardStatCards({ permissions, canManageAgents, period, onPeriodChange, metrics }: DashboardStatCardsProps) {
   const can = (permission: string) => permissions.includes(permission)
 
   const cards: StatCard[] = [
@@ -179,12 +173,8 @@ export function DashboardStatCards({
             return (
               <Card key={card.key} className={`shadow-sm rounded-xl border ${card.border} bg-white`}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                    {card.title}
-                  </CardTitle>
-                  <div
-                    className={`h-8 w-8 rounded-full ${card.iconBubble} flex items-center justify-center`}
-                  >
+                  <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{card.title}</CardTitle>
+                  <div className={`h-8 w-8 rounded-full ${card.iconBubble} flex items-center justify-center`}>
                     <Icon className={`h-4 w-4 ${card.iconColor}`} />
                   </div>
                 </CardHeader>

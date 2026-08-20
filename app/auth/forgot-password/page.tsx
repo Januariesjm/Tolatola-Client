@@ -70,16 +70,12 @@ function ForgotPasswordContent() {
               <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Reset your password
               </CardTitle>
-              <CardDescription className="text-base">
-                Enter the email associated with your TOLA account.
-              </CardDescription>
+              <CardDescription className="text-base">Enter the email associated with your TOLA account.</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
               {success && (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800 text-center">
-                  {success}
-                </div>
+                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800 text-center">{success}</div>
               )}
               {error && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive text-center">
@@ -136,4 +132,3 @@ export default function ForgotPasswordPage() {
     </Suspense>
   )
 }
-

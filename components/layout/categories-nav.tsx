@@ -54,7 +54,7 @@ function getCatImage(cat: Category): string {
 export function CategoriesNav({ categories, currentCategory }: CategoriesNavProps) {
   const { t } = useLanguage()
   const parentCategories = categories
-    .filter(c => !c.parent_id)
+    .filter((c) => !c.parent_id)
     .sort((a, b) => {
       const isAService = a.slug === "services" || a.name?.toLowerCase() === "services"
       const isBService = b.slug === "services" || b.name?.toLowerCase() === "services"
@@ -68,17 +68,19 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
       <div className="container mx-auto px-4">
         <div className="flex items-start gap-4 lg:gap-6 overflow-x-auto lg:overflow-visible scrollbar-hide py-4">
           {/* All Categories */}
-          <Link
-            href="/shop"
-            className="flex flex-col items-center gap-2 flex-shrink-0 group"
-          >
-            <div className={`h-14 w-14 lg:h-16 lg:w-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${!currentCategory
-              ? "bg-primary text-white shadow-lg shadow-primary/20 ring-2 ring-primary/30"
-              : "bg-stone-100/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60 group-hover:bg-stone-100 dark:group-hover:bg-stone-800"
-              }`}>
+          <Link href="/shop" className="flex flex-col items-center gap-2 flex-shrink-0 group">
+            <div
+              className={`h-14 w-14 lg:h-16 lg:w-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${
+                !currentCategory
+                  ? "bg-primary text-white shadow-lg shadow-primary/20 ring-2 ring-primary/30"
+                  : "bg-stone-100/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700/60 group-hover:bg-stone-100 dark:group-hover:bg-stone-800"
+              }`}
+            >
               <Grid3x3 className="h-6 w-6 lg:h-7 lg:w-7" />
             </div>
-            <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] ${!currentCategory ? "text-primary dark:text-blue-400 font-extrabold" : "text-stone-700 dark:text-stone-300 group-hover:text-primary dark:group-hover:text-blue-400"}`}>
+            <span
+              className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] ${!currentCategory ? "text-primary dark:text-blue-400 font-extrabold" : "text-stone-700 dark:text-stone-300 group-hover:text-primary dark:group-hover:text-blue-400"}`}
+            >
               {t("category.all")}
             </span>
           </Link>
@@ -92,22 +94,19 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
 
             return (
               <div key={category.id} className="relative group flex-shrink-0">
-                <Link
-                  href={`/shop?category=${category.slug}`}
-                  className="flex flex-col items-center gap-2 flex-shrink-0"
-                >
-                  <div className={`relative h-14 w-14 lg:h-16 lg:w-16 rounded-2xl overflow-hidden bg-stone-50 dark:bg-stone-900 border transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${isActive
-                    ? "ring-2 ring-primary border-primary shadow-lg shadow-primary/20"
-                    : "border-stone-200/80 dark:border-stone-800 group-hover:border-primary/40 dark:group-hover:border-blue-400/40"
-                    }`}>
-                    <Image
-                      src={imageUrl || "/placeholder.svg"}
-                      alt={category.name}
-                      fill
-                      className="object-cover"
-                    />
+                <Link href={`/shop?category=${category.slug}`} className="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div
+                    className={`relative h-14 w-14 lg:h-16 lg:w-16 rounded-2xl overflow-hidden bg-stone-50 dark:bg-stone-900 border transition-all duration-300 group-hover:scale-105 group-hover:shadow-md ${
+                      isActive
+                        ? "ring-2 ring-primary border-primary shadow-lg shadow-primary/20"
+                        : "border-stone-200/80 dark:border-stone-800 group-hover:border-primary/40 dark:group-hover:border-blue-400/40"
+                    }`}
+                  >
+                    <Image src={imageUrl || "/placeholder.svg"} alt={category.name} fill className="object-cover" />
                   </div>
-                  <span className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] line-clamp-2 ${isActive ? "text-primary dark:text-blue-400 font-extrabold" : "text-stone-700 dark:text-stone-300 group-hover:text-primary dark:group-hover:text-blue-400"}`}>
+                  <span
+                    className={`text-[11px] lg:text-xs font-bold text-center leading-tight max-w-[72px] line-clamp-2 ${isActive ? "text-primary dark:text-blue-400 font-extrabold" : "text-stone-700 dark:text-stone-300 group-hover:text-primary dark:group-hover:text-blue-400"}`}
+                  >
                     {getCategoryTranslation(category.slug, category.name, t)}
                   </span>
                 </Link>
@@ -139,16 +138,9 @@ export function CategoriesNav({ categories, currentCategory }: CategoriesNavProp
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
                               <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700 flex-shrink-0">
-                                <Image
-                                  src={getCatImage(sub)}
-                                  alt={sub.name}
-                                  fill
-                                  className="object-cover"
-                                />
+                                <Image src={getCatImage(sub)} alt={sub.name} fill className="object-cover" />
                               </div>
-                              <span className="text-xs font-bold truncate">
-                                {getCategoryTranslation(sub.slug, sub.name, t)}
-                              </span>
+                              <span className="text-xs font-bold truncate">{getCategoryTranslation(sub.slug, sub.name, t)}</span>
                             </div>
                             <ChevronRight className="h-3.5 w-3.5 opacity-0 group-hover/sub:opacity-100 group-hover/sub:translate-x-0.5 transition-all text-primary dark:text-blue-400 flex-shrink-0" />
                           </Link>

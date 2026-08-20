@@ -24,9 +24,12 @@ export default function TransactionHistoryTab({ transactions }: TransactionHisto
 
   const getTransactionLabel = (type: string) => {
     switch (type) {
-      case "escrow_hold": return "Payment Protected"
-      case "escrow_release": return "Payment Released"
-      default: return type.replace("_", " ")
+      case "escrow_hold":
+        return "Payment Protected"
+      case "escrow_release":
+        return "Payment Released"
+      default:
+        return type.replace("_", " ")
     }
   }
 
@@ -44,7 +47,6 @@ export default function TransactionHistoryTab({ transactions }: TransactionHisto
   }
 
   return (
-
     <div className="space-y-6">
       {transactions.length === 0 ? (
         <div className="text-center py-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800">

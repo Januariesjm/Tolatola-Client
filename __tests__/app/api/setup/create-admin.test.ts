@@ -194,9 +194,7 @@ describe("POST /api/setup/create-admin", () => {
 
   describe("one-time use", () => {
     it("returns 400 when an admin already exists", async () => {
-      mockCreateClient.mockResolvedValue(
-        supabaseStub({ existingAdmins: [{ id: "existing-admin" }] }).client,
-      )
+      mockCreateClient.mockResolvedValue(supabaseStub({ existingAdmins: [{ id: "existing-admin" }] }).client)
 
       const response = await POST(
         jsonRequest({

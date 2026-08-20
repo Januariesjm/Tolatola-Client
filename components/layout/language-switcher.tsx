@@ -21,12 +21,19 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-10 px-4 rounded-xl hover:bg-stone-100 flex items-center gap-3 transition-all duration-300">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-10 px-4 rounded-xl hover:bg-stone-100 flex items-center gap-3 transition-all duration-300"
+        >
           <Globe className="h-4 w-4 text-stone-400 group-hover:text-primary transition-colors" />
           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-900">{currentLanguage?.flag}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl border-stone-100 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-500">
+      <DropdownMenuContent
+        align="end"
+        className="w-56 p-2 rounded-2xl border-stone-100 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-500"
+      >
         <div className="px-3 py-2">
           <p className="text-[8px] font-black uppercase tracking-[0.3em] text-stone-400">Select Dialect</p>
         </div>
@@ -36,7 +43,7 @@ export function LanguageSwitcher() {
             onClick={() => setLanguage(lang.code)}
             className={cn(
               "rounded-xl h-12 cursor-pointer flex items-center justify-between px-4 transition-colors",
-              language === lang.code ? "bg-primary/5 text-primary" : "focus:bg-stone-50"
+              language === lang.code ? "bg-primary/5 text-primary" : "focus:bg-stone-50",
             )}
           >
             <span className="flex items-center gap-3">

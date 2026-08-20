@@ -18,9 +18,9 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`
+        Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ userType: userType || "vendor" })
+      body: JSON.stringify({ userType: userType || "vendor" }),
     })
 
     if (!backendRes.ok) {

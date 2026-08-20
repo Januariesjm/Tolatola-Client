@@ -37,10 +37,7 @@ export function useTicketMessageCounts(tickets: TicketLike[]): TicketMessageCoun
 
   const supabase = useMemo(() => createClient(), [])
 
-  const conversationIds = useMemo(
-    () => tickets.map((t) => t.conversation_id).filter(Boolean) as string[],
-    [tickets],
-  )
+  const conversationIds = useMemo(() => tickets.map((t) => t.conversation_id).filter(Boolean) as string[], [tickets])
 
   // Join on the ids themselves rather than the array identity, so a new
   // tickets array with the same conversations does not re-fetch.
@@ -51,10 +48,7 @@ export function useTicketMessageCounts(tickets: TicketLike[]): TicketMessageCoun
       const ids = conversationKey ? conversationKey.split(",") : []
       if (ids.length === 0) return
 
-      const { data } = await supabase
-        .from("messages")
-        .select("conversation_id, sender_type")
-        .in("conversation_id", ids)
+      const { data } = await supabase.from("messages").select("conversation_id, sender_type").in("conversation_id", ids)
 
       if (!data) return
 

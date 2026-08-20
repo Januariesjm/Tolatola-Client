@@ -38,9 +38,7 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">My Orders</h1>
-          <p className="text-muted-foreground text-lg">
-            Track and manage your recent purchases
-          </p>
+          <p className="text-muted-foreground text-lg">Track and manage your recent purchases</p>
         </div>
 
         {orders.length === 0 ? (
@@ -53,37 +51,33 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
               It looks like you haven't placed any orders yet. Start exploring our marketplace to find great products.
             </p>
             <Link href="/shop">
-              <Button size="lg" className="rounded-full px-8">Start Shopping</Button>
+              <Button size="lg" className="rounded-full px-8">
+                Start Shopping
+              </Button>
             </Link>
           </div>
         ) : (
           <div className="grid gap-6">
             {orders.map((order) => (
-              <Card
-                key={order.id}
-                className="group hover:shadow-md transition-all duration-200 border-border/60 overflow-hidden bg-white"
-              >
+              <Card key={order.id} className="group hover:shadow-md transition-all duration-200 border-border/60 overflow-hidden bg-white">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 bg-gray-50/50 border-b">
                   <div className="flex flex-col sm:gap-1">
                     <div className="flex items-center gap-3">
-                      <CardTitle className="text-base font-semibold">
-                        Order #{order.order_number}
-                      </CardTitle>
-                      <Badge
-                        variant="outline"
-                        className={cn("capitalize font-medium border", getStatusColor(order.status))}
-                      >
+                      <CardTitle className="text-base font-semibold">Order #{order.order_number}</CardTitle>
+                      <Badge variant="outline" className={cn("capitalize font-medium border", getStatusColor(order.status))}>
                         {order.status}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
-                        <span>{new Date(order.created_at).toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}</span>
+                        <span>
+                          {new Date(order.created_at).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </span>
                       </div>
                       <div className="hidden sm:flex items-center gap-1.5">
                         <div className="w-1 h-1 rounded-full bg-gray-300" />
@@ -94,7 +88,11 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
                   </div>
 
                   <Link href={`/orders/${order.id}`}>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto gap-2 group-hover:border-primary/50 group-hover:text-primary transition-colors">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto gap-2 group-hover:border-primary/50 group-hover:text-primary transition-colors"
+                    >
                       View Details
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -107,7 +105,7 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
                       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide py-1">
                         {order.order_items.map((item: any) => {
                           // Handle case where product might use images array or primary_image_url
-                          const imageUrl = item.products?.images?.[0] || item.products?.primary_image_url || "/placeholder-product.png";
+                          const imageUrl = item.products?.images?.[0] || item.products?.primary_image_url || "/placeholder-product.png"
 
                           return (
                             <div key={item.id} className="relative group/item flex-shrink-0">
@@ -118,13 +116,12 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
                                   alt={item.products?.name || "Product"}
                                   className="w-full h-full object-cover transition-transform duration-300 group-hover/item:scale-105"
                                   onError={(e) => {
-                                    (e.target as HTMLImageElement).src = `https://placehold.co/100x100?text=${encodeURIComponent(item.products?.name?.substring(0, 2) || 'PR')}`
+                                    ;(e.target as HTMLImageElement).src =
+                                      `https://placehold.co/100x100?text=${encodeURIComponent(item.products?.name?.substring(0, 2) || "PR")}`
                                   }}
                                 />
                               </div>
-                              <div className="mt-1.5 w-20 sm:w-24 text-xs font-medium truncate text-gray-600">
-                                {item.products?.name}
-                              </div>
+                              <div className="mt-1.5 w-20 sm:w-24 text-xs font-medium truncate text-gray-600">{item.products?.name}</div>
                             </div>
                           )
                         })}
@@ -144,7 +141,9 @@ export function OrdersListContent({ orders }: OrdersListContentProps) {
 
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground bg-gray-50 px-3 py-1.5 rounded-full">
                         <Box className="h-4 w-4" />
-                        <span>{order.order_items.length} {order.order_items.length === 1 ? "Item" : "Items"}</span>
+                        <span>
+                          {order.order_items.length} {order.order_items.length === 1 ? "Item" : "Items"}
+                        </span>
                       </div>
                     </div>
                   </div>

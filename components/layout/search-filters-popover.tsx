@@ -23,28 +23,16 @@ interface SearchFiltersPopoverProps {
 export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopoverProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   // Get category from URL - it's a slug, find the matching category ID
   const categorySlug = searchParams.get("category")
-  const categoryFromSlug = categorySlug 
-    ? categories.find(c => c.slug === categorySlug)
-    : null
-  
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    categoryFromSlug ? [categoryFromSlug.id] : []
-  )
-  const [minPriceInput, setMinPriceInput] = useState<string>(
-    searchParams.get("minPrice") || ""
-  )
-  const [maxPriceInput, setMaxPriceInput] = useState<string>(
-    searchParams.get("maxPrice") || ""
-  )
-  const [locationQuery, setLocationQuery] = useState<string>(
-    searchParams.get("location") || ""
-  )
-  const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">(
-    (searchParams.get("sort") as any) || "name"
-  )
+  const categoryFromSlug = categorySlug ? categories.find((c) => c.slug === categorySlug) : null
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(categoryFromSlug ? [categoryFromSlug.id] : [])
+  const [minPriceInput, setMinPriceInput] = useState<string>(searchParams.get("minPrice") || "")
+  const [maxPriceInput, setMaxPriceInput] = useState<string>(searchParams.get("maxPrice") || "")
+  const [locationQuery, setLocationQuery] = useState<string>(searchParams.get("location") || "")
+  const [sortBy, setSortBy] = useState<"name" | "price_asc" | "price_desc" | "newest">((searchParams.get("sort") as any) || "name")
 
   const handleCategoryToggle = (categoryId: string) => {
     const updated = selectedCategories.includes(categoryId)
@@ -85,11 +73,11 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
     const newMaxPrice = partial.maxPrice ?? (maxPriceInput ? parseInt(maxPriceInput) : undefined)
     const newLocation = partial.location ?? locationQuery
     const newSortBy = partial.sortBy ?? sortBy
-    
+
     // Update URL params
     const params = new URLSearchParams(searchParams.toString())
     if (newCategories.length > 0) {
-      const category = categories.find(c => c.id === newCategories[0])
+      const category = categories.find((c) => c.id === newCategories[0])
       if (category) {
         params.set("category", category.slug)
       } else {
@@ -147,21 +135,20 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 mt-2 max-h-48 overflow-y-auto">
-          {categories.filter((c: any) => !c.parent_id).map((category) => (
-            <div key={category.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`filter-category-${category.id}`}
-                checked={selectedCategories.includes(category.id)}
-                onCheckedChange={() => handleCategoryToggle(category.id)}
-              />
-              <label
-                htmlFor={`filter-category-${category.id}`}
-                className="text-sm cursor-pointer flex-1"
-              >
-                {category.name}
-              </label>
-            </div>
-          ))}
+          {categories
+            .filter((c: any) => !c.parent_id)
+            .map((category) => (
+              <div key={category.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`filter-category-${category.id}`}
+                  checked={selectedCategories.includes(category.id)}
+                  onCheckedChange={() => handleCategoryToggle(category.id)}
+                />
+                <label htmlFor={`filter-category-${category.id}`} className="text-sm cursor-pointer flex-1">
+                  {category.name}
+                </label>
+              </div>
+            ))}
         </CollapsibleContent>
       </Collapsible>
 
@@ -186,11 +173,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
               }}
               className="h-9 text-sm rounded-xl border-stone-200"
             />
-            <Button
-              size="sm"
-              onClick={handleLocationApply}
-              className="h-9 px-3 rounded-xl text-xs font-bold"
-            >
+            <Button size="sm" onClick={handleLocationApply} className="h-9 px-3 rounded-xl text-xs font-bold">
               Apply
             </Button>
           </div>
@@ -222,11 +205,7 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
               className="h-9 text-sm rounded-xl"
             />
           </div>
-          <Button
-            size="sm"
-            onClick={handlePriceApply}
-            className="w-full h-8 rounded-xl text-xs font-bold"
-          >
+          <Button size="sm" onClick={handlePriceApply} className="w-full h-8 rounded-xl text-xs font-bold">
             Apply Price
           </Button>
         </CollapsibleContent>
@@ -259,8 +238,6 @@ export function SearchFiltersPopover({ categories, onClose }: SearchFiltersPopov
           ))}
         </div>
       </div>
-
     </div>
   )
 }
-

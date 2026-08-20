@@ -56,9 +56,7 @@ export function ClickPesaPayment({ orderId, amount, paymentMethod, onSuccess, on
 
       if (result.success) {
         if (result.controlNumber) {
-          alert(
-            `Payment control number: ${result.controlNumber}\nUse this number to complete payment through your bank.`,
-          )
+          alert(`Payment control number: ${result.controlNumber}\nUse this number to complete payment through your bank.`)
         }
         onSuccess(result.transactionId || "pending")
       } else {
@@ -91,9 +89,7 @@ export function ClickPesaPayment({ orderId, amount, paymentMethod, onSuccess, on
                 required
                 disabled={loading}
               />
-              <p className="text-sm text-muted-foreground">
-                You will receive a USSD prompt on your phone to complete the payment
-              </p>
+              <p className="text-sm text-muted-foreground">You will receive a USSD prompt on your phone to complete the payment</p>
             </div>
           )}
 
@@ -143,8 +139,8 @@ export function ClickPesaPayment({ orderId, amount, paymentMethod, onSuccess, on
           {isBank && (
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                Click "Pay Now" to generate a control number. You can then use this number to complete payment through
-                your CRDB bank service.
+                Click "Pay Now" to generate a control number. You can then use this number to complete payment through your CRDB bank
+                service.
               </p>
             </div>
           )}

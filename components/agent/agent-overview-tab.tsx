@@ -4,18 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-  Users,
-  Store,
-  Truck,
-  TrendingUp,
-  Award,
-  Plus,
-  ArrowRight,
-  ShieldCheck,
-  Clock,
-  Coins
-} from "lucide-react"
+import { Users, Store, Truck, TrendingUp, Award, Plus, ArrowRight, ShieldCheck, Clock, Coins } from "lucide-react"
 
 interface AgentOverviewTabProps {
   stats: any
@@ -25,13 +14,7 @@ interface AgentOverviewTabProps {
   commissions: any[]
 }
 
-export function AgentOverviewTab({
-  stats,
-  agent,
-  setActiveTab,
-  registrations,
-  commissions,
-}: AgentOverviewTabProps) {
+export function AgentOverviewTab({ stats, agent, setActiveTab, registrations, commissions }: AgentOverviewTabProps) {
   const [referralLink, setReferralLink] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [copied, setCopied] = useState(false)
@@ -43,7 +26,9 @@ export function AgentOverviewTab({
       try {
         const { createClient } = await import("@/lib/supabase/client")
         const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
         const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
 
         const response = await fetch(`${apiBase}/agents/referral-link`, {
@@ -76,7 +61,7 @@ export function AgentOverviewTab({
   }
 
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Hello! Register on TOLA using my referral link to get started: ${referralLink || "https://tolatola.co/auth/sign-up?ref=" + agent.agent_code}`
+    `Hello! Register on TOLA using my referral link to get started: ${referralLink || "https://tolatola.co/auth/sign-up?ref=" + agent.agent_code}`,
   )}`
 
   // Format currency
@@ -176,11 +161,10 @@ export function AgentOverviewTab({
       {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
         <div className="relative z-10 max-w-2xl">
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
-            Welcome back, {agent.users?.full_name || "Sales Officer"}!
-          </h2>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">Welcome back, {agent.users?.full_name || "Sales Officer"}!</h2>
           <p className="text-slate-600 text-sm md:text-base mb-4">
-            This is your sales and registration management hub. Share your unique referral link below to automatically register and attribute new customers, vendors, or transporters to your profile.
+            This is your sales and registration management hub. Share your unique referral link below to automatically register and
+            attribute new customers, vendors, or transporters to your profile.
           </p>
           <div className="flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -197,9 +181,7 @@ export function AgentOverviewTab({
 
       {/* Referral Link Card */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-          Your Referral Link
-        </h3>
+        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Your Referral Link</h3>
         <Card className="border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/20 shadow-sm rounded-xl overflow-hidden">
           <CardContent className="p-6 md:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2 flex-1">
@@ -209,10 +191,11 @@ export function AgentOverviewTab({
               </div>
               <h4 className="text-lg font-bold text-slate-900">Invite new Customers, Vendors, and Transporters</h4>
               <p className="text-slate-500 text-xs leading-relaxed max-w-xl">
-                Share your unique referral link. When they click it and complete sign-up, they will be automatically mapped to your dashboard, and you will earn commissions upon approval.
+                Share your unique referral link. When they click it and complete sign-up, they will be automatically mapped to your
+                dashboard, and you will earn commissions upon approval.
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
               <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl font-mono text-xs text-slate-700 select-all overflow-x-auto whitespace-nowrap shadow-inner flex-1 lg:flex-initial">
                 {isLoadingReferral ? (
@@ -221,7 +204,7 @@ export function AgentOverviewTab({
                   referralLink || `https://tolatola.co/auth/sign-up?ref=${agent.agent_code}`
                 )}
               </div>
-              
+
               <div className="flex gap-2 flex-shrink-0">
                 <Button
                   onClick={handleCopy}
@@ -247,9 +230,7 @@ export function AgentOverviewTab({
       {/* KPI Cards Grid */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-            Performance Overview
-          </h3>
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Performance Overview</h3>
           <DateRangeFilter value={period} onChange={setPeriod} />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -258,20 +239,14 @@ export function AgentOverviewTab({
             return (
               <Card key={i} className={`shadow-sm rounded-xl border transition-all hover:shadow-md ${kpi.color}`}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">
-                    {kpi.title}
-                  </CardTitle>
+                  <CardTitle className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">{kpi.title}</CardTitle>
                   <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${kpi.iconBg}`}>
                     <Icon className="h-4 w-4" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl md:text-2xl font-bold tracking-tight mb-1">
-                    {kpi.value}
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    {kpi.subtext}
-                  </p>
+                  <div className="text-xl md:text-2xl font-bold tracking-tight mb-1">{kpi.value}</div>
+                  <p className="text-[11px] text-slate-400 font-medium">{kpi.subtext}</p>
                 </CardContent>
               </Card>
             )
@@ -284,9 +259,7 @@ export function AgentOverviewTab({
         {/* Recent Registrations Table */}
         <Card className="lg:col-span-2 shadow-sm rounded-xl border border-slate-200 bg-white">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-bold text-slate-800">
-              Recent Registrations
-            </CardTitle>
+            <CardTitle className="text-sm font-bold text-slate-800">Recent Registrations</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -301,12 +274,7 @@ export function AgentOverviewTab({
             {recentRegistrations.length === 0 ? (
               <div className="text-center py-10">
                 <p className="text-xs text-slate-400">You haven't registered any users yet.</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="mt-3 text-xs"
-                >
+                <Button variant="outline" size="sm" onClick={handleCopy} className="mt-3 text-xs">
                   Copy Referral Link
                 </Button>
               </div>
@@ -325,27 +293,31 @@ export function AgentOverviewTab({
                   <tbody className="divide-y divide-slate-100">
                     {recentRegistrations.map((reg) => (
                       <tr key={reg.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-3 px-1 font-bold text-slate-900 truncate max-w-[120px]">
-                          {reg.full_name}
-                        </td>
+                        <td className="py-3 px-1 font-bold text-slate-900 truncate max-w-[120px]">{reg.full_name}</td>
                         <td className="py-3 px-1 capitalize">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
-                            reg.registration_type === "vendor" ? "bg-emerald-50 text-emerald-700" :
-                            reg.registration_type === "customer" ? "bg-blue-50 text-blue-700" :
-                            "bg-amber-50 text-amber-700"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
+                              reg.registration_type === "vendor"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : reg.registration_type === "customer"
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "bg-amber-50 text-amber-700"
+                            }`}
+                          >
                             {reg.registration_type}
                           </span>
                         </td>
-                        <td className="py-3 px-1 text-slate-600 font-mono">
-                          {reg.phone}
-                        </td>
+                        <td className="py-3 px-1 text-slate-600 font-mono">{reg.phone}</td>
                         <td className="py-3 px-1">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
-                            reg.status === "active" ? "bg-emerald-100 text-emerald-800" :
-                            reg.status === "pending" ? "bg-amber-100 text-amber-800" :
-                            "bg-slate-100 text-slate-800"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
+                              reg.status === "active"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : reg.status === "pending"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-slate-100 text-slate-800"
+                            }`}
+                          >
                             {reg.status}
                           </span>
                         </td>
@@ -372,7 +344,10 @@ export function AgentOverviewTab({
           <CardContent className="space-y-4 text-xs leading-relaxed text-slate-600">
             <div className="bg-amber-50/50 p-3 rounded-lg border border-amber-100/60">
               <h5 className="font-bold text-amber-900 mb-1">How to Earn:</h5>
-              <p>Commissions are automatically calculated once someone registers using your referral link. Registrations must be approved by an administrator before payouts are finalized.</p>
+              <p>
+                Commissions are automatically calculated once someone registers using your referral link. Registrations must be approved by
+                an administrator before payouts are finalized.
+              </p>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center py-1.5 border-b border-slate-100">

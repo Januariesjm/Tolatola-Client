@@ -201,12 +201,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
+                  <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required />
                 </div>
 
                 <div className="space-y-2">
@@ -275,10 +270,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                       onChange={(e) => setFormData({ ...formData, text_color: e.target.value })}
                       className="w-20"
                     />
-                    <Input
-                      value={formData.text_color}
-                      onChange={(e) => setFormData({ ...formData, text_color: e.target.value })}
-                    />
+                    <Input value={formData.text_color} onChange={(e) => setFormData({ ...formData, text_color: e.target.value })} />
                   </div>
                 </div>
               </div>
@@ -358,14 +350,10 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
-                          #{idx + 1}
-                        </span>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">#{idx + 1}</span>
                         <h3 className="font-semibold text-lg">{promotion.title}</h3>
                       </div>
-                      {promotion.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{promotion.description}</p>
-                      )}
+                      {promotion.description && <p className="text-sm text-muted-foreground mt-1">{promotion.description}</p>}
                       <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
                         <span>Order: {promotion.display_order}</span>
                         <span>Button: {promotion.button_text}</span>
@@ -373,11 +361,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => toggleActive(promotion.id, promotion.is_active)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => toggleActive(promotion.id, promotion.is_active)}>
                         {promotion.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleEdit(promotion)}>

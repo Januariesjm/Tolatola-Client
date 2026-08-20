@@ -17,7 +17,6 @@ import { TanzaniaAddressForm } from "../../../components/checkout/tanzania-addre
 import { WebMapPicker } from "../../../components/checkout/web-map-picker"
 import { useRegistrationRecovery } from "../../../hooks/use-registration-recovery"
 
-
 type KYCType = "individual" | "company"
 
 export default function VendorRegisterPageClient() {
@@ -109,11 +108,7 @@ export default function VendorRegisterPageClient() {
       }
       setUser(user)
 
-      const { data: existingVendor } = await supabase
-        .from("vendors")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: existingVendor } = await supabase.from("vendors").select("*").eq("user_id", user.id).maybeSingle()
 
       if (existingVendor) {
         router.push("/vendor/dashboard")
@@ -179,9 +174,7 @@ export default function VendorRegisterPageClient() {
         vendorData.representative_position = repPosition
       }
 
-      const { error: vendorError } = await supabase
-        .from("vendors")
-        .insert(vendorData)
+      const { error: vendorError } = await supabase.from("vendors").insert(vendorData)
 
       if (vendorError) throw vendorError
 
@@ -224,8 +217,9 @@ export default function VendorRegisterPageClient() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label
                           htmlFor="individual"
-                          className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${kycType === "individual" ? "border-primary bg-primary/5" : "border-stone-200 hover:border-primary/50"
-                            }`}
+                          className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                            kycType === "individual" ? "border-primary bg-primary/5" : "border-stone-200 hover:border-primary/50"
+                          }`}
                         >
                           <RadioGroupItem value="individual" id="individual" />
                           <div className="flex items-center gap-3">
@@ -239,8 +233,9 @@ export default function VendorRegisterPageClient() {
 
                         <label
                           htmlFor="company"
-                          className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${kycType === "company" ? "border-primary bg-primary/5" : "border-stone-200 hover:border-primary/50"
-                            }`}
+                          className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                            kycType === "company" ? "border-primary bg-primary/5" : "border-stone-200 hover:border-primary/50"
+                          }`}
                         >
                           <RadioGroupItem value="company" id="company" />
                           <div className="flex items-center gap-3">
@@ -319,23 +314,27 @@ export default function VendorRegisterPageClient() {
                               village: location.village,
                               street: location.street,
                             }}
-                            onChange={(addr) => setLocation(prev => ({ ...prev, ...addr }))}
-                            onAddressComplete={(full, coords) => setLocation(prev => ({
-                              ...prev,
-                              address: full,
-                              latitude: coords?.lat || null,
-                              longitude: coords?.lng || null
-                            }))}
+                            onChange={(addr) => setLocation((prev) => ({ ...prev, ...addr }))}
+                            onAddressComplete={(full, coords) =>
+                              setLocation((prev) => ({
+                                ...prev,
+                                address: full,
+                                latitude: coords?.lat || null,
+                                longitude: coords?.lng || null,
+                              }))
+                            }
                           />
 
                           <WebMapPicker
                             latitude={location.latitude}
                             longitude={location.longitude}
-                            onLocationSelect={(coords) => setLocation(prev => ({
-                              ...prev,
-                              latitude: coords.lat,
-                              longitude: coords.lng
-                            }))}
+                            onLocationSelect={(coords) =>
+                              setLocation((prev) => ({
+                                ...prev,
+                                latitude: coords.lat,
+                                longitude: coords.lng,
+                              }))
+                            }
                             title="Verify Business Location Pin"
                           />
                         </div>

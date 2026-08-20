@@ -33,7 +33,7 @@ export function SiteFooter() {
     offices: [
       { name: "Mikocheni Dar Es Salaam HQ", phone: "+255 678 227 227", icon: MapPin },
       { name: "Kibaha Pwani Main Branch", phone: "+255 625 377 978", icon: Globe },
-    ]
+    ],
   }
 
   return (
@@ -75,18 +75,22 @@ export function SiteFooter() {
 
       <div className="container mx-auto px-4 py-6 sm:py-12 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-12 md:gap-16">
-
           {/* Brand & Mission */}
           <div className="lg:col-span-4 space-y-5 sm:space-y-8">
             <Link href="/" className="inline-block group">
               <div className="relative h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 rounded-[1.25rem] sm:rounded-[1.5rem] overflow-hidden shadow-2xl ring-4 ring-teal-800/50 group-hover:rotate-6 transition-transform duration-500">
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-cover" />
               </div>
-              <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-black tracking-tighter text-white">TOLA<span className="text-primary">.</span></h2>
-              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-cyan-300/70 mt-1 sm:mt-2">Digital trade and Supply Chain Ecosystem</p>
+              <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-black tracking-tighter text-white">
+                TOLA<span className="text-primary">.</span>
+              </h2>
+              <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-cyan-300/70 mt-1 sm:mt-2">
+                Digital trade and Supply Chain Ecosystem
+              </p>
             </Link>
             <p className="text-xs sm:text-sm leading-relaxed max-w-sm">
-              Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with global accessibility.
+              Empowering Tanzania's digital trade through a secure, high-end multi-vendor ecosystem. Tola bridges local craftsmanship with
+              global accessibility.
             </p>
             <div className="pt-2">
               <a
@@ -112,13 +116,24 @@ export function SiteFooter() {
               {[
                 { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61585501071622" },
                 { icon: Instagram, href: "https://www.instagram.com/tola_tanzania/" },
-                { icon: Linkedin, href: "https://www.linkedin.com/in/faraja-dastan-mhalale-970821239/" }
+                { icon: Linkedin, href: "https://www.linkedin.com/in/faraja-dastan-mhalale-970821239/" },
               ].map((social, i) => (
-                <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-800/40 flex items-center justify-center hover:bg-white hover:text-teal-900 transition-all duration-300 group">
+                <a
+                  key={i}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-800/40 flex items-center justify-center hover:bg-white hover:text-teal-900 transition-all duration-300 group"
+                >
                   <social.icon className="h-4 w-4 sm:h-5 sm:w-5 opacity-50 group-hover:opacity-100" />
                 </a>
               ))}
-              <a href="https://www.tiktok.com/@tolatola.inc?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-800/40 flex items-center justify-center hover:bg-white hover:text-teal-900 transition-all duration-300 group">
+              <a
+                href="https://www.tiktok.com/@tolatola.inc?is_from_webapp=1&sender_device=pc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-teal-800/40 flex items-center justify-center hover:bg-white hover:text-teal-900 transition-all duration-300 group"
+              >
                 <svg className="h-4 w-4 sm:h-5 sm:w-5 opacity-50 group-hover:opacity-100" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                 </svg>
@@ -133,7 +148,10 @@ export function SiteFooter() {
               <ul className="space-y-2.5 sm:space-y-4">
                 {footerLinks.company.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-xs sm:text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group">
+                    <Link
+                      href={link.href}
+                      className="text-xs sm:text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group"
+                    >
                       <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all hidden sm:block" />
                       {link.name}
                     </Link>
@@ -149,14 +167,17 @@ export function SiteFooter() {
                   <li key={link.name}>
                     {link.name === "Contact Us" ? (
                       <button
-                        onClick={() => window.dispatchEvent(new Event('open-support-chat'))}
+                        onClick={() => window.dispatchEvent(new Event("open-support-chat"))}
                         className="text-xs sm:text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group w-full text-left"
                       >
                         <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all hidden sm:block" />
                         Live Support
                       </button>
                     ) : (
-                      <Link href={link.href} className="text-xs sm:text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group">
+                      <Link
+                        href={link.href}
+                        className="text-xs sm:text-sm font-bold hover:text-white transition-colors flex items-center gap-2 group"
+                      >
                         <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all hidden sm:block" />
                         {link.name}
                       </Link>
@@ -172,13 +193,21 @@ export function SiteFooter() {
             <h3 className="font-serif text-base sm:text-xl italic text-white">Global Presence</h3>
             <div className="grid gap-3 sm:gap-6">
               {footerLinks.offices.map((office) => (
-                <div key={office.name} className="flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-teal-800/20 border border-cyan-700/30">
+                <div
+                  key={office.name}
+                  className="flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-teal-800/20 border border-cyan-700/30"
+                >
                   <div className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0 rounded-lg bg-white/10 flex items-center justify-center text-white">
                     <office.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-white font-black text-[9px] sm:text-[10px] uppercase tracking-widest truncate">{office.name}</h4>
-                    <a href={`tel:${office.phone.replace(/\s+/g, '')}`} className="text-xs sm:text-sm font-bold mt-0.5 sm:mt-1 block hover:text-white transition-colors">{office.phone}</a>
+                    <a
+                      href={`tel:${office.phone.replace(/\s+/g, "")}`}
+                      className="text-xs sm:text-sm font-bold mt-0.5 sm:mt-1 block hover:text-white transition-colors"
+                    >
+                      {office.phone}
+                    </a>
                   </div>
                 </div>
               ))}
@@ -188,7 +217,6 @@ export function SiteFooter() {
               <span className="text-[9px] sm:text-[10px] font-black tracking-widest uppercase">support@tolatola.co</span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -219,7 +247,9 @@ export function SiteFooter() {
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="h-1 w-1 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-cyan-300/60">System Status: Operational</span>
+                  <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-cyan-300/60">
+                    System Status: Operational
+                  </span>
                 </div>
                 <ThemeToggle />
               </div>

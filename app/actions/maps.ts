@@ -43,11 +43,7 @@ export async function getGoogleMapsScriptUrl(): Promise<string | null> {
   return `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initGoogleMapsCallback`
 }
 
-export async function calculateDeliveryDistance(
-  region: string,
-  district?: string,
-  ward?: string,
-): Promise<DistanceResult | null> {
+export async function calculateDeliveryDistance(region: string, district?: string, ward?: string): Promise<DistanceResult | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
@@ -150,7 +146,7 @@ export async function calculateDeliveryDistanceByCoords(
   lat: number,
   lng: number,
   originLat?: number,
-  originLng?: number
+  originLng?: number,
 ): Promise<DistanceResult | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
@@ -159,8 +155,8 @@ export async function calculateDeliveryDistanceByCoords(
     return null
   }
 
-  const origin = (originLat && originLng) ? `${originLat},${originLng}` : encodeURIComponent(BASE_LOCATION.address)
-  const originCoords = (originLat && originLng) ? { lat: originLat, lng: originLng } : { lat: BASE_LOCATION.lat, lng: BASE_LOCATION.lng }
+  const origin = originLat && originLng ? `${originLat},${originLng}` : encodeURIComponent(BASE_LOCATION.address)
+  const originCoords = originLat && originLng ? { lat: originLat, lng: originLng } : { lat: BASE_LOCATION.lat, lng: BASE_LOCATION.lng }
 
   console.log(`[MAPS] Calculating delivery from origin: ${origin} to destination: ${lat},${lng}`)
   if (!originLat || !originLng) {
@@ -198,7 +194,6 @@ export async function calculateDeliveryDistanceByCoords(
       deliveryFee,
       duration: estimateDeliveryTime(estimatedRoadDistance),
     }
-
   } catch (error) {
     console.error("[v0] Distance calculation via coords error:", error)
     return null

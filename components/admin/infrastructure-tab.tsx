@@ -113,13 +113,20 @@ function ServiceStatusBadge({ status }: { status: string }) {
 function ServiceIcon({ type }: { type: string }) {
   const cls = "h-5 w-5"
   switch (type) {
-    case "database": return <Database className={`${cls} text-emerald-400`} />
-    case "storage": return <HardDrive className={`${cls} text-purple-400`} />
-    case "email": return <Mail className={`${cls} text-blue-400`} />
-    case "sms": return <MessageSquare className={`${cls} text-cyan-400`} />
-    case "payment": return <CreditCard className={`${cls} text-amber-400`} />
-    case "maps": return <MapPin className={`${cls} text-rose-400`} />
-    default: return <Globe className={`${cls} text-slate-400`} />
+    case "database":
+      return <Database className={`${cls} text-emerald-400`} />
+    case "storage":
+      return <HardDrive className={`${cls} text-purple-400`} />
+    case "email":
+      return <Mail className={`${cls} text-blue-400`} />
+    case "sms":
+      return <MessageSquare className={`${cls} text-cyan-400`} />
+    case "payment":
+      return <CreditCard className={`${cls} text-amber-400`} />
+    case "maps":
+      return <MapPin className={`${cls} text-rose-400`} />
+    default:
+      return <Globe className={`${cls} text-slate-400`} />
   }
 }
 
@@ -158,7 +165,9 @@ export function InfrastructureTab() {
     }
   }, [])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -180,7 +189,9 @@ export function InfrastructureTab() {
       <div className="flex flex-col items-center justify-center h-[60vh]">
         <XCircle className="h-12 w-12 text-red-400 mb-4" />
         <h2 className="text-xl font-bold text-slate-900 mb-2">Unable to load infrastructure data</h2>
-        <Button onClick={() => fetchData()} variant="outline">Retry</Button>
+        <Button onClick={() => fetchData()} variant="outline">
+          Retry
+        </Button>
       </div>
     )
   }
@@ -195,13 +206,7 @@ export function InfrastructureTab() {
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Infrastructure Overview</h2>
           <p className="text-sm text-slate-500">Server, hosting, and connected service status</p>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => fetchData(true)}
-          disabled={refreshing}
-          className="h-8 text-xs gap-1.5"
-        >
+        <Button size="sm" variant="outline" onClick={() => fetchData(true)} disabled={refreshing} className="h-8 text-xs gap-1.5">
           <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
           {refreshing ? "Refreshing..." : "Refresh"}
         </Button>
@@ -236,7 +241,9 @@ export function InfrastructureTab() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">CPU Model</span>
-                <span className="text-xs text-slate-300 font-mono truncate max-w-[200px]" title={data.server.cpuModel}>{data.server.cpuModel}</span>
+                <span className="text-xs text-slate-300 font-mono truncate max-w-[200px]" title={data.server.cpuModel}>
+                  {data.server.cpuModel}
+                </span>
               </div>
               {data.server.networkInterfaces.length > 0 && (
                 <div className="flex justify-between items-center">
@@ -257,7 +264,10 @@ export function InfrastructureTab() {
                 <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1.5">Load Average (1m / 5m / 15m)</p>
                 <div className="flex gap-3">
                   {data.server.loadAverage.map((load, i) => (
-                    <span key={i} className={`text-sm font-mono font-bold ${load > data.server.cpus ? "text-red-400" : load > data.server.cpus * 0.7 ? "text-amber-400" : "text-emerald-400"}`}>
+                    <span
+                      key={i}
+                      className={`text-sm font-mono font-bold ${load > data.server.cpus ? "text-red-400" : load > data.server.cpus * 0.7 ? "text-amber-400" : "text-emerald-400"}`}
+                    >
                       {load.toFixed(2)}
                     </span>
                   ))}
@@ -278,11 +288,16 @@ export function InfrastructureTab() {
             <div className="space-y-2.5">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Node.js</span>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-mono">{data.runtime.nodeVersion}</Badge>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px] font-mono">
+                  {data.runtime.nodeVersion}
+                </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">Environment</span>
-                <Badge variant="outline" className={`text-[10px] font-mono ${data.runtime.environment === "production" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] font-mono ${data.runtime.environment === "production" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}`}
+                >
                   {data.runtime.environment}
                 </Badge>
               </div>
@@ -335,7 +350,9 @@ export function InfrastructureTab() {
                   <div className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Clock className="h-3 w-3" />
                     <span>Latency: </span>
-                    <span className={`font-mono font-bold ${svc.latencyMs > 500 ? "text-red-400" : svc.latencyMs > 200 ? "text-amber-400" : "text-emerald-400"}`}>
+                    <span
+                      className={`font-mono font-bold ${svc.latencyMs > 500 ? "text-red-400" : svc.latencyMs > 200 ? "text-amber-400" : "text-emerald-400"}`}
+                    >
                       {svc.latencyMs}ms
                     </span>
                   </div>
@@ -345,7 +362,9 @@ export function InfrastructureTab() {
                   {Object.entries(svc.details).map(([key, val]) => (
                     <div key={key} className="flex justify-between text-[11px]">
                       <span className="text-slate-500 capitalize">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-                      <span className="text-slate-400 font-mono truncate max-w-[160px]" title={val}>{val}</span>
+                      <span className="text-slate-400 font-mono truncate max-w-[160px]" title={val}>
+                        {val}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -361,9 +380,7 @@ export function InfrastructureTab() {
           <CardContent className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <Package className="h-4 w-4 text-amber-400" />
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                Dependencies ({data.dependencies.length})
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Dependencies ({data.dependencies.length})</h3>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">

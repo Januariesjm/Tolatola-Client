@@ -88,11 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -120,15 +116,17 @@ export default async function BlogPostPage({ params }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    "headline": post.title,
-    "image": [post.cover_image_url || "https://tolatola.co/logo-new.png"],
-    "datePublished": post.published_at,
-    "dateModified": post.published_at,
-    "author": [{
-      "@type": "Person",
-      "name": post.author_name,
-      "url": "https://tolatola.co/blog"
-    }]
+    headline: post.title,
+    image: [post.cover_image_url || "https://tolatola.co/logo-new.png"],
+    datePublished: post.published_at,
+    dateModified: post.published_at,
+    author: [
+      {
+        "@type": "Person",
+        name: post.author_name,
+        url: "https://tolatola.co/blog",
+      },
+    ],
   }
 
   const shareUrl = encodeURIComponent(`https://tolatola.co/blog/${post.slug}`)
@@ -137,10 +135,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-stone-50/50 flex flex-col">
       {/* Dynamic SEO JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <SiteHeader user={user} profile={profile} kycStatus={kycStatus} />
 
@@ -170,15 +165,9 @@ export default async function BlogPostPage({ params }: PageProps) {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight text-slate-900">
-              {post.title}
-            </h1>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight text-slate-900">{post.title}</h1>
 
-            {post.excerpt && (
-              <p className="text-xl text-stone-500 leading-relaxed italic max-w-3xl">
-                "{post.excerpt}"
-              </p>
-            )}
+            {post.excerpt && <p className="text-xl text-stone-500 leading-relaxed italic max-w-3xl">"{post.excerpt}"</p>}
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-y border-stone-200/60 py-6">
               <div className="flex items-center gap-3">
@@ -243,11 +232,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           {/* Full Cover Image */}
           {post.cover_image_url && (
             <div className="aspect-[21/9] rounded-[2rem] overflow-hidden shadow-xl border mb-12 bg-stone-100 relative">
-              <img
-                src={post.cover_image_url}
-                alt={post.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+              <img src={post.cover_image_url} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
             </div>
           )}
 
@@ -262,7 +247,10 @@ export default async function BlogPostPage({ params }: PageProps) {
               <h3 className="text-3xl font-black tracking-tight mb-8">Related Articles</h3>
               <div className="grid md:grid-cols-3 gap-8">
                 {relatedPosts.map((related) => (
-                  <Card key={related.id} className="border-none shadow-sm hover:shadow-xl transition-all duration-500 rounded-[2rem] bg-white overflow-hidden group hover:-translate-y-1 flex flex-col justify-between">
+                  <Card
+                    key={related.id}
+                    className="border-none shadow-sm hover:shadow-xl transition-all duration-500 rounded-[2rem] bg-white overflow-hidden group hover:-translate-y-1 flex flex-col justify-between"
+                  >
                     <div>
                       <div className="aspect-[16/10] relative overflow-hidden bg-stone-100">
                         <img

@@ -111,9 +111,7 @@ describe("getAuthToken", () => {
   it("throws when the provider rejects the credentials", async () => {
     queueResponses([{ ok: false, body: { message: "bad creds" } }])
 
-    await expect(new ClickPesaClient().getAuthToken()).rejects.toThrow(
-      "Failed to generate ClickPesa token",
-    )
+    await expect(new ClickPesaClient().getAuthToken()).rejects.toThrow("Failed to generate ClickPesa token")
   })
 })
 
@@ -122,13 +120,7 @@ describe("initiateMobileMoneyPayment", () => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, PAYMENT_RESULT])
     const client = new ClickPesaClient()
 
-    const result = await client.initiateMobileMoneyPayment(
-      5000,
-      "255700000001",
-      "m-pesa",
-      "ref-1",
-      "https://app.test/callback",
-    )
+    const result = await client.initiateMobileMoneyPayment(5000, "255700000001", "m-pesa", "ref-1", "https://app.test/callback")
 
     expect(calls.map((c) => c.url)).toEqual([
       `${BASE}/third-parties/generate-token`,
@@ -141,13 +133,7 @@ describe("initiateMobileMoneyPayment", () => {
   it("sends the merchant reference and callback only on initiate", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, PAYMENT_RESULT])
 
-    await new ClickPesaClient().initiateMobileMoneyPayment(
-      5000,
-      "255700000001",
-      "m-pesa",
-      "ref-1",
-      "https://app.test/callback",
-    )
+    await new ClickPesaClient().initiateMobileMoneyPayment(5000, "255700000001", "m-pesa", "ref-1", "https://app.test/callback")
 
     const preview = JSON.parse(String(calls[1].init?.body))
     const initiate = JSON.parse(String(calls[2].init?.body))
@@ -165,13 +151,7 @@ describe("initiateMobileMoneyPayment", () => {
   it("authorizes both payment calls with the bearer token", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, PAYMENT_RESULT])
 
-    await new ClickPesaClient().initiateMobileMoneyPayment(
-      100,
-      "255700000001",
-      "airtel-money",
-      "ref",
-      "https://cb",
-    )
+    await new ClickPesaClient().initiateMobileMoneyPayment(100, "255700000001", "airtel-money", "ref", "https://cb")
 
     for (const call of calls.slice(1)) {
       expect(call.init?.headers).toMatchObject({ Authorization: "tok-abc" })
@@ -181,15 +161,9 @@ describe("initiateMobileMoneyPayment", () => {
   it("does not initiate when the preview fails, and surfaces the provider message", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: false, body: { message: "insufficient funds" } }])
 
-    await expect(
-      new ClickPesaClient().initiateMobileMoneyPayment(
-        5000,
-        "255700000001",
-        "m-pesa",
-        "ref-1",
-        "https://cb",
-      ),
-    ).rejects.toThrow("insufficient funds")
+    await expect(new ClickPesaClient().initiateMobileMoneyPayment(5000, "255700000001", "m-pesa", "ref-1", "https://cb")).rejects.toThrow(
+      "insufficient funds",
+    )
 
     expect(calls.map((c) => c.url)).not.toContain(`${BASE}/payment/ussd-push/initiate`)
   })
@@ -197,21 +171,17 @@ describe("initiateMobileMoneyPayment", () => {
   it("falls back to a generic message when the provider sends no message", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: false, body: {} }])
 
-    await expect(
-      new ClickPesaClient().initiateMobileMoneyPayment(1, "255", "m-pesa", "r", "https://cb"),
-    ).rejects.toThrow("Failed to preview mobile money payment")
+    await expect(new ClickPesaClient().initiateMobileMoneyPayment(1, "255", "m-pesa", "r", "https://cb")).rejects.toThrow(
+      "Failed to preview mobile money payment",
+    )
   })
 
   it("surfaces an initiate failure after a successful preview", async () => {
-    queueResponses([
-      TOKEN_RESPONSE,
-      { ok: true, body: {} },
-      { ok: false, body: { message: "provider timeout" } },
-    ])
+    queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, { ok: false, body: { message: "provider timeout" } }])
 
-    await expect(
-      new ClickPesaClient().initiateMobileMoneyPayment(1, "255", "m-pesa", "r", "https://cb"),
-    ).rejects.toThrow("provider timeout")
+    await expect(new ClickPesaClient().initiateMobileMoneyPayment(1, "255", "m-pesa", "r", "https://cb")).rejects.toThrow(
+      "provider timeout",
+    )
   })
 
   it.each([
@@ -222,13 +192,7 @@ describe("initiateMobileMoneyPayment", () => {
   ])("maps provider %s to %s", async (provider, expected) => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, PAYMENT_RESULT])
 
-    await new ClickPesaClient().initiateMobileMoneyPayment(
-      1,
-      "255",
-      provider as "m-pesa",
-      "r",
-      "https://cb",
-    )
+    await new ClickPesaClient().initiateMobileMoneyPayment(1, "255", provider as "m-pesa", "r", "https://cb")
 
     expect(JSON.parse(String(calls[1].init?.body)).provider).toBe(expected)
   })
@@ -247,13 +211,7 @@ describe("initiateMobileMoneyPayment", () => {
   it("mis-maps mixx-by-yas, replacing only the first hyphen (known bug)", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, PAYMENT_RESULT])
 
-    await new ClickPesaClient().initiateMobileMoneyPayment(
-      1,
-      "255",
-      "mixx-by-yas",
-      "r",
-      "https://cb",
-    )
+    await new ClickPesaClient().initiateMobileMoneyPayment(1, "255", "mixx-by-yas", "r", "https://cb")
 
     expect(JSON.parse(String(calls[1].init?.body)).provider).toBe("MIXX_BY-YAS")
   })
@@ -299,15 +257,7 @@ describe("initiateCardPayment", () => {
     queueResponses([TOKEN_RESPONSE, { ok: false, body: { message: "card declined" } }])
 
     await expect(
-      new ClickPesaClient().initiateCardPayment(
-        1,
-        "4111111111111111",
-        "12/28",
-        "123",
-        "visa",
-        "r",
-        "https://cb",
-      ),
+      new ClickPesaClient().initiateCardPayment(1, "4111111111111111", "12/28", "123", "visa", "r", "https://cb"),
     ).rejects.toThrow("card declined")
 
     expect(calls.map((c) => c.url)).not.toContain(`${BASE}/payment/card/initiate`)
@@ -316,17 +266,17 @@ describe("initiateCardPayment", () => {
   it("falls back to a generic message on a declined preview with no message", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: false, body: {} }])
 
-    await expect(
-      new ClickPesaClient().initiateCardPayment(1, "4111", "12/28", "1", "visa", "r", "https://cb"),
-    ).rejects.toThrow("Failed to preview card payment")
+    await expect(new ClickPesaClient().initiateCardPayment(1, "4111", "12/28", "1", "visa", "r", "https://cb")).rejects.toThrow(
+      "Failed to preview card payment",
+    )
   })
 
   it("surfaces an initiate failure after a successful preview", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: true, body: {} }, { ok: false, body: {} }])
 
-    await expect(
-      new ClickPesaClient().initiateCardPayment(1, "4111", "12/28", "1", "visa", "r", "https://cb"),
-    ).rejects.toThrow("Failed to initiate card payment")
+    await expect(new ClickPesaClient().initiateCardPayment(1, "4111", "12/28", "1", "visa", "r", "https://cb")).rejects.toThrow(
+      "Failed to initiate card payment",
+    )
   })
 })
 
@@ -345,8 +295,6 @@ describe("queryPaymentStatus", () => {
   it("throws when the query fails", async () => {
     queueResponses([TOKEN_RESPONSE, { ok: false, body: {} }])
 
-    await expect(new ClickPesaClient().queryPaymentStatus("txn-9")).rejects.toThrow(
-      "Failed to query payment status",
-    )
+    await expect(new ClickPesaClient().queryPaymentStatus("txn-9")).rejects.toThrow("Failed to query payment status")
   })
 })

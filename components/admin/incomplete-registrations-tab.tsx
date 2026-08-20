@@ -32,14 +32,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { format, formatDistanceToNow } from "date-fns"
@@ -200,7 +193,10 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="shadow-sm rounded-xl border-amber-200 bg-white cursor-pointer hover:shadow-md transition-all" onClick={() => setStatusFilter(statusFilter === "pending" ? "all" : "pending")}>
+        <Card
+          className="shadow-sm rounded-xl border-amber-200 bg-white cursor-pointer hover:shadow-md transition-all"
+          onClick={() => setStatusFilter(statusFilter === "pending" ? "all" : "pending")}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Pending</CardTitle>
             <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
@@ -212,7 +208,10 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm rounded-xl border-blue-200 bg-white cursor-pointer hover:shadow-md transition-all" onClick={() => setStatusFilter(statusFilter === "contacted" ? "all" : "contacted")}>
+        <Card
+          className="shadow-sm rounded-xl border-blue-200 bg-white cursor-pointer hover:shadow-md transition-all"
+          onClick={() => setStatusFilter(statusFilter === "contacted" ? "all" : "contacted")}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Contacted</CardTitle>
             <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
@@ -224,7 +223,10 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm rounded-xl border-emerald-200 bg-white cursor-pointer hover:shadow-md transition-all" onClick={() => setStatusFilter(statusFilter === "completed" ? "all" : "completed")}>
+        <Card
+          className="shadow-sm rounded-xl border-emerald-200 bg-white cursor-pointer hover:shadow-md transition-all"
+          onClick={() => setStatusFilter(statusFilter === "completed" ? "all" : "completed")}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Completed</CardTitle>
             <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
@@ -236,7 +238,10 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm rounded-xl border-slate-200 bg-white cursor-pointer hover:shadow-md transition-all" onClick={() => setStatusFilter(statusFilter === "not_interested" ? "all" : "not_interested")}>
+        <Card
+          className="shadow-sm rounded-xl border-slate-200 bg-white cursor-pointer hover:shadow-md transition-all"
+          onClick={() => setStatusFilter(statusFilter === "not_interested" ? "all" : "not_interested")}
+        >
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Not Interested</CardTitle>
             <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
@@ -272,16 +277,24 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <span className="text-sm font-bold text-slate-400 w-6 text-center">#{index + 1}</span>
-                        <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-                          reg.user_type === "vendor" ? "bg-blue-100" :
-                          reg.user_type === "transporter" ? "bg-indigo-100" : "bg-emerald-100"
-                        }`}>
+                        <div
+                          className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
+                            reg.user_type === "vendor"
+                              ? "bg-blue-100"
+                              : reg.user_type === "transporter"
+                                ? "bg-indigo-100"
+                                : "bg-emerald-100"
+                          }`}
+                        >
                           {typeIcons[reg.user_type] || <ShoppingCart className="h-5 w-5 text-emerald-600" />}
                         </div>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold text-slate-900">{reg.full_name || "Anonymous"}</span>
-                            <Badge variant="outline" className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[reg.recovery_status] || ""}`}>
+                            <Badge
+                              variant="outline"
+                              className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[reg.recovery_status] || ""}`}
+                            >
                               {statusLabel[reg.recovery_status] || reg.recovery_status}
                             </Badge>
                             <Badge variant="outline" className="rounded-lg px-2.5 py-0.5 text-[11px] font-semibold capitalize">
@@ -307,23 +320,13 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                         {/* Quick Actions */}
                         {reg.phone && (
                           <>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-xl gap-1.5 text-xs"
-                              asChild
-                            >
+                            <Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs" asChild>
                               <a href={`tel:${reg.phone}`}>
                                 <Phone className="h-3.5 w-3.5" />
                                 Call
                               </a>
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-xl gap-1.5 text-xs"
-                              asChild
-                            >
+                            <Button size="sm" variant="outline" className="rounded-xl gap-1.5 text-xs" asChild>
                               <a href={`sms:${reg.phone}`}>
                                 <MessageSquare className="h-3.5 w-3.5" />
                                 SMS
@@ -389,7 +392,9 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                               <div className="space-y-2">
                                 {Object.entries(reg.form_data).map(([key, value]) => (
                                   <div key={key} className="flex justify-between items-center py-1 border-b border-slate-50">
-                                    <span className="text-xs font-medium text-slate-500 capitalize">{key.replace(/([A-Z])/g, " $1").replace(/_/g, " ")}</span>
+                                    <span className="text-xs font-medium text-slate-500 capitalize">
+                                      {key.replace(/([A-Z])/g, " $1").replace(/_/g, " ")}
+                                    </span>
                                     <span className="text-sm font-semibold text-slate-800">{String(value) || "—"}</span>
                                   </div>
                                 ))}
@@ -404,7 +409,9 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center py-1 border-b border-slate-50">
                                   <span className="text-xs font-medium text-slate-500">Contacted At</span>
-                                  <span className="text-sm font-semibold text-slate-800">{format(new Date(reg.contacted_at), "MMM d, yyyy 'at' p")}</span>
+                                  <span className="text-sm font-semibold text-slate-800">
+                                    {format(new Date(reg.contacted_at), "MMM d, yyyy 'at' p")}
+                                  </span>
                                 </div>
                                 {reg.contact_notes && (
                                   <div className="mt-2">
@@ -444,9 +451,7 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>Mark as Contacted</DialogTitle>
-            <DialogDescription>
-              Add notes about your follow-up with {contactModal?.name || "this user"}.
-            </DialogDescription>
+            <DialogDescription>Add notes about your follow-up with {contactModal?.name || "this user"}.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <Textarea

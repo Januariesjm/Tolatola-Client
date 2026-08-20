@@ -24,17 +24,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "userId is required" }, { status: 400 })
     }
 
-    const { data: userData } = await supabase
-      .from("users")
-      .select("email, full_name, admin_role_id")
-      .eq("id", userId)
-      .single()
+    const { data: userData } = await supabase.from("users").select("email, full_name, admin_role_id").eq("id", userId).single()
 
-    const { data: previousRole } = await supabase
-      .from("admin_roles")
-      .select("role_name")
-      .eq("id", userData?.admin_role_id)
-      .single()
+    const { data: previousRole } = await supabase.from("admin_roles").select("role_name").eq("id", userData?.admin_role_id).single()
 
     const { error } = await supabase
       .from("users")

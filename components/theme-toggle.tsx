@@ -14,7 +14,9 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
   if (!mounted) {
     return (
-      <button className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-teal-800/40 border border-cyan-700/30 text-white text-xs font-semibold ${className}`}>
+      <button
+        className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-teal-800/40 border border-cyan-700/30 text-white text-xs font-semibold ${className}`}
+      >
         <Sun className="h-4 w-4 text-amber-300" />
         <span>Theme</span>
       </button>

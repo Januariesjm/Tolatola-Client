@@ -5,28 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Search,
   FileText,
@@ -69,10 +50,7 @@ interface CareerApplication {
   updated_at: string
 }
 
-const statusConfig: Record<
-  string,
-  { label: string; color: string; icon: React.ReactNode }
-> = {
+const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   pending: {
     label: "Pending",
     color: "bg-amber-50 text-amber-700 border-amber-200",
@@ -95,13 +73,8 @@ const statusConfig: Record<
   },
 }
 
-export function HRApplicationsSubtab({
-  applications: initialApplications,
-}: {
-  applications: CareerApplication[]
-}) {
-  const [applications, setApplications] =
-    useState<CareerApplication[]>(initialApplications)
+export function HRApplicationsSubtab({ applications: initialApplications }: { applications: CareerApplication[] }) {
+  const [applications, setApplications] = useState<CareerApplication[]>(initialApplications)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [positionFilter, setPositionFilter] = useState<string>("all")
@@ -120,10 +93,8 @@ export function HRApplicationsSubtab({
       app.email.toLowerCase().includes(search.toLowerCase()) ||
       app.position.toLowerCase().includes(search.toLowerCase())
 
-    const matchesStatus =
-      statusFilter === "all" || app.status === statusFilter
-    const matchesPosition =
-      positionFilter === "all" || app.position === positionFilter
+    const matchesStatus = statusFilter === "all" || app.status === statusFilter
+    const matchesPosition = positionFilter === "all" || app.position === positionFilter
 
     return matchesSearch && matchesStatus && matchesPosition
   })
@@ -137,11 +108,7 @@ export function HRApplicationsSubtab({
     rejected: applications.filter((a) => a.status === "rejected").length,
   }
 
-  const handleStatusChange = async (
-    id: string,
-    newStatus: string,
-    notes?: string
-  ) => {
+  const handleStatusChange = async (id: string, newStatus: string, notes?: string) => {
     setLoadingId(id)
     try {
       await clientApiPost(`admin/career-applications/${id}/status`, {
@@ -157,8 +124,8 @@ export function HRApplicationsSubtab({
                 ...(notes !== undefined ? { admin_notes: notes } : {}),
                 updated_at: new Date().toISOString(),
               }
-            : a
-        )
+            : a,
+        ),
       )
     } catch (e) {
       log.error("failed to update status", e)
@@ -198,85 +165,57 @@ export function HRApplicationsSubtab({
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Card
           className={`shadow-sm rounded-xl cursor-pointer transition-all ${
-            statusFilter === "all"
-              ? "border-primary/40 bg-primary/5"
-              : "hover:border-primary/20"
+            statusFilter === "all" ? "border-primary/40 bg-primary/5" : "hover:border-primary/20"
           }`}
           onClick={() => setStatusFilter("all")}
         >
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-black">{statusCounts.all}</div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Total
-            </div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</div>
           </CardContent>
         </Card>
         <Card
           className={`shadow-sm rounded-xl cursor-pointer transition-all ${
-            statusFilter === "pending"
-              ? "border-amber-400/40 bg-amber-50"
-              : "hover:border-amber-200"
+            statusFilter === "pending" ? "border-amber-400/40 bg-amber-50" : "hover:border-amber-200"
           }`}
           onClick={() => setStatusFilter("pending")}
         >
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-black text-amber-700">
-              {statusCounts.pending}
-            </div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Pending
-            </div>
+            <div className="text-2xl font-black text-amber-700">{statusCounts.pending}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pending</div>
           </CardContent>
         </Card>
         <Card
           className={`shadow-sm rounded-xl cursor-pointer transition-all ${
-            statusFilter === "reviewed"
-              ? "border-blue-400/40 bg-blue-50"
-              : "hover:border-blue-200"
+            statusFilter === "reviewed" ? "border-blue-400/40 bg-blue-50" : "hover:border-blue-200"
           }`}
           onClick={() => setStatusFilter("reviewed")}
         >
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-black text-blue-700">
-              {statusCounts.reviewed}
-            </div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Reviewed
-            </div>
+            <div className="text-2xl font-black text-blue-700">{statusCounts.reviewed}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reviewed</div>
           </CardContent>
         </Card>
         <Card
           className={`shadow-sm rounded-xl cursor-pointer transition-all ${
-            statusFilter === "shortlisted"
-              ? "border-emerald-400/40 bg-emerald-50"
-              : "hover:border-emerald-200"
+            statusFilter === "shortlisted" ? "border-emerald-400/40 bg-emerald-50" : "hover:border-emerald-200"
           }`}
           onClick={() => setStatusFilter("shortlisted")}
         >
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-black text-emerald-700">
-              {statusCounts.shortlisted}
-            </div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Shortlisted
-            </div>
+            <div className="text-2xl font-black text-emerald-700">{statusCounts.shortlisted}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Shortlisted</div>
           </CardContent>
         </Card>
         <Card
           className={`shadow-sm rounded-xl cursor-pointer transition-all ${
-            statusFilter === "rejected"
-              ? "border-red-400/40 bg-red-50"
-              : "hover:border-red-200"
+            statusFilter === "rejected" ? "border-red-400/40 bg-red-50" : "hover:border-red-200"
           }`}
           onClick={() => setStatusFilter("rejected")}
         >
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-black text-red-700">
-              {statusCounts.rejected}
-            </div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Rejected
-            </div>
+            <div className="text-2xl font-black text-red-700">{statusCounts.rejected}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Rejected</div>
           </CardContent>
         </Card>
       </div>
@@ -321,9 +260,7 @@ export function HRApplicationsSubtab({
               <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-30" />
               <p className="font-semibold">No applications found</p>
               <p className="text-sm mt-1">
-                {applications.length === 0
-                  ? "Applications will appear here when candidates apply."
-                  : "Try adjusting your filters."}
+                {applications.length === 0 ? "Applications will appear here when candidates apply." : "Try adjusting your filters."}
               </p>
             </div>
           ) : (
@@ -331,27 +268,13 @@ export function HRApplicationsSubtab({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="font-bold text-xs uppercase tracking-wider w-[50px]">
-                      #
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      Applicant
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      Position
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      Date
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      Status
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider">
-                      Docs
-                    </TableHead>
-                    <TableHead className="font-bold text-xs uppercase tracking-wider text-right">
-                      Actions
-                    </TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider w-[50px]">#</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider">Applicant</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider">Position</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider">Date</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider">Docs</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-wider text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -366,60 +289,62 @@ export function HRApplicationsSubtab({
                           setIsDetailOpen(true)
                         }}
                       >
-                        <TableCell className="font-medium text-muted-foreground">
-                          {index + 1}
-                        </TableCell>
+                        <TableCell className="font-medium text-muted-foreground">{index + 1}</TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-semibold text-sm">
-                              {app.full_name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {app.email}
-                            </p>
+                            <p className="font-semibold text-sm">{app.full_name}</p>
+                            <p className="text-xs text-muted-foreground">{app.email}</p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm font-medium">
-                            {app.position}
-                          </span>
+                          <span className="text-sm font-medium">{app.position}</span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-muted-foreground">
-                            {formatDate(app.created_at)}
-                          </span>
+                          <span className="text-sm text-muted-foreground">{formatDate(app.created_at)}</span>
                         </TableCell>
                         <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${status.color} gap-1 text-[10px] font-bold uppercase tracking-wider`}
-                          >
+                          <Badge variant="outline" className={`${status.color} gap-1 text-[10px] font-bold uppercase tracking-wider`}>
                             {status.icon}
                             {status.label}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="CV" onClick={() => window.open(app.cv_url, "_blank")}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0"
+                              title="CV"
+                              onClick={() => window.open(app.cv_url, "_blank")}
+                            >
                               <FileText className="h-3.5 w-3.5" />
                             </Button>
                             {app.certificates_url && (
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Certificates" onClick={() => window.open(app.certificates_url, "_blank")}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                title="Certificates"
+                                onClick={() => window.open(app.certificates_url, "_blank")}
+                              >
                                 <GraduationCap className="h-3.5 w-3.5" />
                               </Button>
                             )}
                             {app.application_letter_url && (
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Application Letter" onClick={() => window.open(app.application_letter_url, "_blank")}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                title="Application Letter"
+                                onClick={() => window.open(app.application_letter_url, "_blank")}
+                              >
                                 <FileSignature className="h-3.5 w-3.5" />
                               </Button>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div
-                            className="flex items-center justify-end gap-1"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                             {app.status === "pending" && (
                               <>
                                 <Button
@@ -427,15 +352,9 @@ export function HRApplicationsSubtab({
                                   size="sm"
                                   className="h-8 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                   disabled={loadingId === app.id}
-                                  onClick={() =>
-                                    handleStatusChange(app.id, "reviewed")
-                                  }
+                                  onClick={() => handleStatusChange(app.id, "reviewed")}
                                 >
-                                  {loadingId === app.id ? (
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                  ) : (
-                                    <Eye className="h-3 w-3 mr-1" />
-                                  )}
+                                  {loadingId === app.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Eye className="h-3 w-3 mr-1" />}
                                   Review
                                 </Button>
                                 <Button
@@ -443,9 +362,7 @@ export function HRApplicationsSubtab({
                                   size="sm"
                                   className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                   disabled={loadingId === app.id}
-                                  onClick={() =>
-                                    handleStatusChange(app.id, "shortlisted")
-                                  }
+                                  onClick={() => handleStatusChange(app.id, "shortlisted")}
                                 >
                                   <Star className="h-3 w-3 mr-1" />
                                   Shortlist
@@ -459,9 +376,7 @@ export function HRApplicationsSubtab({
                                   size="sm"
                                   className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                   disabled={loadingId === app.id}
-                                  onClick={() =>
-                                    handleStatusChange(app.id, "shortlisted")
-                                  }
+                                  onClick={() => handleStatusChange(app.id, "shortlisted")}
                                 >
                                   <Star className="h-3 w-3 mr-1" />
                                   Shortlist
@@ -471,9 +386,7 @@ export function HRApplicationsSubtab({
                                   size="sm"
                                   className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                                   disabled={loadingId === app.id}
-                                  onClick={() =>
-                                    handleStatusChange(app.id, "rejected")
-                                  }
+                                  onClick={() => handleStatusChange(app.id, "rejected")}
                                 >
                                   <XCircle className="h-3 w-3 mr-1" />
                                   Reject
@@ -486,9 +399,7 @@ export function HRApplicationsSubtab({
                                 size="sm"
                                 className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                                 disabled={loadingId === app.id}
-                                onClick={() =>
-                                  handleStatusChange(app.id, "rejected")
-                                }
+                                onClick={() => handleStatusChange(app.id, "rejected")}
                               >
                                 <XCircle className="h-3 w-3 mr-1" />
                                 Reject
@@ -500,9 +411,7 @@ export function HRApplicationsSubtab({
                                 size="sm"
                                 className="h-8 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                                 disabled={loadingId === app.id}
-                                onClick={() =>
-                                  handleStatusChange(app.id, "pending")
-                                }
+                                onClick={() => handleStatusChange(app.id, "pending")}
                               >
                                 <Clock className="h-3 w-3 mr-1" />
                                 Reopen
@@ -535,30 +444,22 @@ export function HRApplicationsSubtab({
           {selectedApp && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl font-black">
-                  {selectedApp.full_name}
-                </DialogTitle>
+                <DialogTitle className="text-xl font-black">{selectedApp.full_name}</DialogTitle>
                 <DialogDescription className="space-y-1">
                   <span className="block">{selectedApp.email}</span>
-                  {selectedApp.phone && (
-                    <span className="block">{selectedApp.phone}</span>
-                  )}
+                  {selectedApp.phone && <span className="block">{selectedApp.phone}</span>}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 mt-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Position
-                    </p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Position</p>
                     <p className="font-semibold">{selectedApp.position}</p>
                   </div>
                   <Badge
                     variant="outline"
-                    className={`${
-                      statusConfig[selectedApp.status].color
-                    } gap-1 text-xs font-bold uppercase tracking-wider`}
+                    className={`${statusConfig[selectedApp.status].color} gap-1 text-xs font-bold uppercase tracking-wider`}
                   >
                     {statusConfig[selectedApp.status].icon}
                     {statusConfig[selectedApp.status].label}
@@ -566,9 +467,7 @@ export function HRApplicationsSubtab({
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                    Applied On
-                  </p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Applied On</p>
                   <p className="text-sm">
                     {new Date(selectedApp.created_at).toLocaleString("en-US", {
                       dateStyle: "long",
@@ -579,9 +478,7 @@ export function HRApplicationsSubtab({
 
                 {selectedApp.cover_letter && (
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Cover Letter
-                    </p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Cover Letter</p>
                     <p className="text-sm text-muted-foreground bg-muted/30 rounded-xl p-4 whitespace-pre-wrap">
                       {selectedApp.cover_letter}
                     </p>
@@ -641,46 +538,27 @@ export function HRApplicationsSubtab({
                 </div>
 
                 <div className="border-t pt-4 flex flex-wrap gap-2">
-                  <p className="w-full text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                    Update Status
-                  </p>
-                  {["pending", "reviewed", "shortlisted", "rejected"].map(
-                    (s) => (
-                      <Button
-                        key={s}
-                        variant={
-                          selectedApp.status === s ? "default" : "outline"
-                        }
-                        size="sm"
-                        className="rounded-full text-xs capitalize"
-                        disabled={
-                          loadingId === selectedApp.id ||
-                          selectedApp.status === s
-                        }
-                        onClick={() => {
-                          handleStatusChange(selectedApp.id, s)
-                          setSelectedApp({ ...selectedApp, status: s as any })
-                        }}
-                      >
-                        {loadingId === selectedApp.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                        ) : (
-                          statusConfig[s].icon
-                        )}
-                        <span className="ml-1">
-                          {statusConfig[s].label}
-                        </span>
-                      </Button>
-                    )
-                  )}
+                  <p className="w-full text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Update Status</p>
+                  {["pending", "reviewed", "shortlisted", "rejected"].map((s) => (
+                    <Button
+                      key={s}
+                      variant={selectedApp.status === s ? "default" : "outline"}
+                      size="sm"
+                      className="rounded-full text-xs capitalize"
+                      disabled={loadingId === selectedApp.id || selectedApp.status === s}
+                      onClick={() => {
+                        handleStatusChange(selectedApp.id, s)
+                        setSelectedApp({ ...selectedApp, status: s as any })
+                      }}
+                    >
+                      {loadingId === selectedApp.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : statusConfig[s].icon}
+                      <span className="ml-1">{statusConfig[s].label}</span>
+                    </Button>
+                  ))}
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1 rounded-xl"
-                    onClick={() => setIsDetailOpen(false)}
-                  >
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsDetailOpen(false)}>
                     Close
                   </Button>
                   <Button

@@ -41,26 +41,21 @@ function SignUpSuccessContent() {
                     Click the verification link in the email from <strong>support@tolatola.co</strong> to activate your account.
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    <strong>Note:</strong> The verification link expires in 24 hours. If you don&apos;t see the email, check your spam folder.
+                    <strong>Note:</strong> The verification link expires in 24 hours. If you don&apos;t see the email, check your spam
+                    folder.
                   </p>
                 </div>
                 <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 px-4 py-3 space-y-1">
-                  <p className="text-xs font-semibold text-primary uppercase tracking-[0.18em]">
-                    Legal &amp; Risk Policies
-                  </p>
+                  <p className="text-xs font-semibold text-primary uppercase tracking-[0.18em]">Legal &amp; Risk Policies</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     By creating an account you confirm that you have read and agree to the{" "}
-                    <Link
-                      href="/legal/compliance"
-                      className="text-primary font-semibold underline-offset-2 hover:underline"
-                    >
+                    <Link href="/legal/compliance" className="text-primary font-semibold underline-offset-2 hover:underline">
                       Legal &amp; Risk Policies of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM
                     </Link>
                     , including our liability, insurance and risk transfer framework.
                   </p>
                   <p className="text-[11px] text-muted-foreground/80 italic">
-                    Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN
-                    ECOSYSTEM.
+                    Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
                   </p>
                 </div>
               </div>
@@ -83,11 +78,13 @@ function SignUpSuccessContent() {
 
 export default function SignUpSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      }
+    >
       <SignUpSuccessContent />
     </Suspense>
   )

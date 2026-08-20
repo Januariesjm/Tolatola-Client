@@ -108,12 +108,7 @@ export function DashboardPanels({
   return (
     <>
       <TabsContent value="analytics" className={PANEL_CLASS}>
-        <AnalyticsTab
-          stats={stats}
-          vendorTypesAnalytics={vendorTypesAnalytics}
-          orders={orders}
-          payouts={payouts}
-        />
+        <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} orders={orders} payouts={payouts} />
       </TabsContent>
 
       <TabsContent value="kyc" className={PANEL_CLASS}>

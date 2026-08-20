@@ -5,19 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import {
-  Loader2,
-  Coins,
-  MapPin,
-  Search,
-  CheckCircle,
-  XCircle,
-  UserPlus,
-  Eye,
-  EyeOff,
-  Trash2,
-  Mail,
-} from "lucide-react"
+import { Loader2, Coins, MapPin, Search, CheckCircle, XCircle, UserPlus, Eye, EyeOff, Trash2, Mail } from "lucide-react"
 import { useAgentManagement } from "@/hooks/use-agent-management"
 import { AgentDialogs } from "./agents/agent-dialogs"
 import type { AdminAgent } from "@/lib/admin/agent-types"
@@ -113,7 +101,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             activeSubTab === "commissions" ? "text-primary border-b-2 border-primary" : "text-slate-500 hover:text-slate-900"
           }`}
         >
-          Commission Approvals ({commissions.filter(c => c.status === "pending").length} Pending)
+          Commission Approvals ({commissions.filter((c) => c.status === "pending").length} Pending)
         </button>
         <button
           onClick={() => setActiveSubTab("rates")}
@@ -131,9 +119,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-sm font-bold text-slate-800">Agent Management</CardTitle>
-                <CardDescription className="text-xs">Activate, suspend, delete, or resend activation emails to sales agents.</CardDescription>
+                <CardDescription className="text-xs">
+                  Activate, suspend, delete, or resend activation emails to sales agents.
+                </CardDescription>
               </div>
-              
+
               {/* Search and Filters */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative">
@@ -199,9 +189,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                             <span className="text-[10px] text-slate-400">{agent.users?.email}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-mono font-bold text-emerald-700">
-                          {agent.agent_code}
-                        </td>
+                        <td className="py-3 px-4 font-mono font-bold text-emerald-700">{agent.agent_code}</td>
                         <td className="py-3 px-4">
                           <Badge className="bg-slate-100 text-slate-700 font-bold text-[9px] uppercase">
                             {agent.agent_roles?.role_name || "Sales Agent"}
@@ -220,9 +208,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
-                            agent.status === "active" ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
+                              agent.status === "active" ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
                             {agent.status}
                           </span>
                         </td>
@@ -261,7 +251,9 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                               size="sm"
                               variant="ghost"
                               disabled={isActionLoading === `delete-${agent.id}`}
-                              onClick={() => setDeleteTarget({ id: agent.id, name: agent.users?.full_name || "Agent", code: agent.agent_code })}
+                              onClick={() =>
+                                setDeleteTarget({ id: agent.id, name: agent.users?.full_name || "Agent", code: agent.agent_code })
+                              }
                               className="rounded-xl text-xs h-8 text-rose-600 hover:bg-rose-50"
                               title="Delete agent permanently"
                             >
@@ -319,40 +311,35 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                         <td className="py-3 px-6 font-medium text-slate-400">{index + 1}</td>
                         <td className="py-3 px-6">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-900 text-sm">
-                              {comm.agents?.users?.full_name || "Sales Agent"}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
-                              Code: {comm.agents?.agent_code}
-                            </span>
+                            <span className="font-bold text-slate-900 text-sm">{comm.agents?.users?.full_name || "Sales Agent"}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">Code: {comm.agents?.agent_code}</span>
                           </div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-800">
-                              {comm.agent_registrations?.full_name || "New Registered User"}
-                            </span>
+                            <span className="font-bold text-slate-800">{comm.agent_registrations?.full_name || "New Registered User"}</span>
                             <span className="text-[10px] text-slate-400 capitalize">
                               Category: {comm.agent_registrations?.registration_type}
                             </span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-black text-emerald-600">
-                          {formatTzs(comm.amount)}
-                        </td>
+                        <td className="py-3 px-4 font-black text-emerald-600">{formatTzs(comm.amount)}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
-                            comm.status === "paid" ? "bg-emerald-100 text-emerald-800" :
-                            comm.status === "approved" ? "bg-teal-100 text-teal-800" :
-                            comm.status === "pending" ? "bg-amber-100 text-amber-800" :
-                            "bg-rose-100 text-rose-800"
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold capitalize ${
+                              comm.status === "paid"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : comm.status === "approved"
+                                  ? "bg-teal-100 text-teal-800"
+                                  : comm.status === "pending"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
                             {comm.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-slate-500">
-                          {new Date(comm.created_at).toLocaleDateString()}
-                        </td>
+                        <td className="py-3 px-4 text-slate-500">{new Date(comm.created_at).toLocaleDateString()}</td>
                         <td className="py-3 px-6 text-right">
                           {comm.status === "pending" ? (
                             <div className="flex justify-end gap-1.5">
@@ -411,7 +398,8 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
               Referral Commission Rates
             </CardTitle>
             <CardDescription className="text-xs">
-              Set the commission amount (in TZS) agents earn for each type of referral registration. Changes apply immediately to all future referrals.
+              Set the commission amount (in TZS) agents earn for each type of referral registration. Changes apply immediately to all future
+              referrals.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -424,11 +412,31 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {rates.map((rate) => {
                     const typeConfig: Record<string, { label: string; icon: string; color: string; border: string }> = {
-                      vendor: { label: "Vendor Registration", icon: "🏪", color: "bg-emerald-50 text-emerald-800", border: "border-emerald-200" },
-                      customer: { label: "Customer Registration", icon: "👤", color: "bg-blue-50 text-blue-800", border: "border-blue-200" },
-                      transporter: { label: "Transporter Registration", icon: "🚚", color: "bg-amber-50 text-amber-800", border: "border-amber-200" },
+                      vendor: {
+                        label: "Vendor Registration",
+                        icon: "🏪",
+                        color: "bg-emerald-50 text-emerald-800",
+                        border: "border-emerald-200",
+                      },
+                      customer: {
+                        label: "Customer Registration",
+                        icon: "👤",
+                        color: "bg-blue-50 text-blue-800",
+                        border: "border-blue-200",
+                      },
+                      transporter: {
+                        label: "Transporter Registration",
+                        icon: "🚚",
+                        color: "bg-amber-50 text-amber-800",
+                        border: "border-amber-200",
+                      },
                     }
-                    const config = typeConfig[rate.registration_type] || { label: rate.registration_type, icon: "📋", color: "bg-slate-50 text-slate-800", border: "border-slate-200" }
+                    const config = typeConfig[rate.registration_type] || {
+                      label: rate.registration_type,
+                      icon: "📋",
+                      color: "bg-slate-50 text-slate-800",
+                      border: "border-slate-200",
+                    }
                     return (
                       <div
                         key={rate.registration_type}
@@ -436,14 +444,10 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-lg">{config.icon}</span>
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${config.color}`}>
-                            {config.label}
-                          </span>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${config.color}`}>{config.label}</span>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            Commission Amount (TZS)
-                          </label>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Commission Amount (TZS)</label>
                           <Input
                             type="number"
                             min={0}

@@ -5,7 +5,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { CheckCircle, Package, Truck, MapPin, Store, CheckCircle2, Phone, Home, CreditCard, Calendar, ChevronLeft, ArrowRight, Wallet, AlertTriangle, Loader2 } from "lucide-react"
+import {
+  CheckCircle,
+  Package,
+  Truck,
+  MapPin,
+  Store,
+  CheckCircle2,
+  Phone,
+  Home,
+  CreditCard,
+  Calendar,
+  ChevronLeft,
+  ArrowRight,
+  Wallet,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -80,10 +96,12 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
       <div className="container mx-auto px-4 py-8">
-
         {/* Breadcrumb / Back Navigation */}
         <div className="mb-6">
-          <Link href="/orders" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+          <Link
+            href="/orders"
+            className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Orders
           </Link>
@@ -96,9 +114,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-green-900 mb-1">
-                Order Placed Successfully!
-              </h2>
+              <h2 className="text-lg font-bold text-green-900 mb-1">Order Placed Successfully!</h2>
               <p className="text-green-700 text-sm">
                 Your order has been received and is being processed. You will receive updates via email.
               </p>
@@ -115,24 +131,23 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                 <Truck className="h-6 w-6 text-primary animate-bounce" />
               </div>
               <div className="text-left">
-                <h2 className="text-lg font-extrabold text-foreground mb-1">
-                  Have you received your product? 🚚
-                </h2>
+                <h2 className="text-lg font-extrabold text-foreground mb-1">Have you received your product? 🚚</h2>
                 <p className="text-muted-foreground text-sm max-w-xl">
-                  Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received your items. This will finalize payments and close escrows.
+                  Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received
+                  your items. This will finalize payments and close escrows.
                 </p>
               </div>
             </div>
             <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto flex-shrink-0">
-              <Button 
-                onClick={handleConfirmDelivery} 
-                disabled={isConfirming} 
+              <Button
+                onClick={handleConfirmDelivery}
+                disabled={isConfirming}
                 className="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold px-6 h-11 rounded-xl"
               >
                 {isConfirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Confirm Delivery
               </Button>
-              <Button 
+              <Button
                 asChild
                 variant="destructive"
                 className="flex-1 md:flex-none bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-2 font-bold px-6 h-11 rounded-xl"
@@ -149,7 +164,6 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-
             {/* Header Card */}
             <Card className="border-border/60 overflow-hidden">
               <CardHeader className="bg-white border-b pb-6">
@@ -164,13 +178,11 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5" />
-                      Placed on {new Date(order.created_at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })}
+                      Placed on {new Date(order.created_at).toLocaleString(undefined, { dateStyle: "long", timeStyle: "short" })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={cn("px-3 py-1 text-sm font-medium capitalize", getStatusColor(order.status))}>
-                      {order.status}
-                    </Badge>
+                    <Badge className={cn("px-3 py-1 text-sm font-medium capitalize", getStatusColor(order.status))}>{order.status}</Badge>
                     <Badge className={cn("px-3 py-1 text-sm font-medium capitalize", getPaymentStatusColor(order.payment_status))}>
                       {order.payment_status}
                     </Badge>
@@ -206,9 +218,12 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       {/* Placed */}
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
-                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            "bg-green-500 text-white"
-                          )}>
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
+                              "bg-green-500 text-white",
+                            )}
+                          >
                             <CheckCircle className="h-5 w-5" />
                           </div>
                         </div>
@@ -221,18 +236,57 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       {/* Processing */}
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
-                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            ["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
-                          )}>
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
+                              [
+                                "processing",
+                                "preparing",
+                                "ready_for_pickup",
+                                "dispatched",
+                                "shipped",
+                                "in_transit",
+                                "delivered",
+                                "completed",
+                              ].includes(order.status)
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-100 text-gray-400",
+                            )}
+                          >
                             <Package className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", ["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
+                          <h3
+                            className={cn(
+                              "font-semibold",
+                              [
+                                "processing",
+                                "preparing",
+                                "ready_for_pickup",
+                                "dispatched",
+                                "shipped",
+                                "in_transit",
+                                "delivered",
+                                "completed",
+                              ].includes(order.status)
+                                ? "text-gray-900"
+                                : "text-gray-500",
+                            )}
+                          >
                             Processing
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
-                            {["processing", "preparing", "ready_for_pickup", "dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                            {[
+                              "processing",
+                              "preparing",
+                              "ready_for_pickup",
+                              "dispatched",
+                              "shipped",
+                              "in_transit",
+                              "delivered",
+                              "completed",
+                            ].includes(order.status)
                               ? "Your order is being prepared."
                               : "We are waiting for vendor confirmation."}
                           </p>
@@ -242,14 +296,26 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       {/* Shipped */}
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
-                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
-                          )}>
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
+                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                                ? "bg-green-500 text-white"
+                                : "bg-gray-100 text-gray-400",
+                            )}
+                          >
                             <Truck className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
+                          <h3
+                            className={cn(
+                              "font-semibold",
+                              ["dispatched", "shipped", "in_transit", "delivered", "completed"].includes(order.status)
+                                ? "text-gray-900"
+                                : "text-gray-500",
+                            )}
+                          >
                             Out for Delivery
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
@@ -263,14 +329,22 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       {/* Delivered */}
                       <div className="flex gap-6">
                         <div className="relative z-10 flex-shrink-0">
-                          <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
-                            ["delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400"
-                          )}>
+                          <div
+                            className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-sm ring-1 ring-gray-100",
+                              ["delivered", "completed"].includes(order.status) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-400",
+                            )}
+                          >
                             <Home className="h-5 w-5" />
                           </div>
                         </div>
                         <div className="pt-2">
-                          <h3 className={cn("font-semibold", ["delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500")}>
+                          <h3
+                            className={cn(
+                              "font-semibold",
+                              ["delivered", "completed"].includes(order.status) ? "text-gray-900" : "text-gray-500",
+                            )}
+                          >
                             Delivered
                           </h3>
                           <p className="text-sm text-muted-foreground mt-0.5">
@@ -291,7 +365,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
               </CardHeader>
               <CardContent className="divide-y p-0">
                 {order.order_items.map((item: any) => {
-                  const imageUrl = item.products?.images?.[0] || item.products?.primary_image_url || "/placeholder-product.png";
+                  const imageUrl = item.products?.images?.[0] || item.products?.primary_image_url || "/placeholder-product.png"
                   return (
                     <div key={item.id} className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-6">
                       <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border shadow-sm">
@@ -301,7 +375,8 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                           alt={item.products.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://placehold.co/100x100?text=${encodeURIComponent(item.products?.name?.substring(0, 2) || 'PR')}`
+                            ;(e.target as HTMLImageElement).src =
+                              `https://placehold.co/100x100?text=${encodeURIComponent(item.products?.name?.substring(0, 2) || "PR")}`
                           }}
                         />
                       </div>
@@ -311,9 +386,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                             <h3 className="font-semibold text-gray-900 line-clamp-2 mb-1">{item.products.name}</h3>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                               <Store className="h-3.5 w-3.5" />
-                              <span>
-                                {item.products.shops?.vendors?.business_name || item.products.shops?.name || "Verified Merchant"}
-                              </span>
+                              <span>{item.products.shops?.vendors?.business_name || item.products.shops?.name || "Verified Merchant"}</span>
                             </div>
                           </div>
                           <p className="font-bold text-lg whitespace-nowrap">TZS {item.total_price.toLocaleString()}</p>
@@ -338,19 +411,24 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
 
             {/* Merchant / Service Provider Details */}
             {(() => {
-              const isServiceOrder = order.order_items?.some((item: any) =>
-                item.products?.categories?.slug === 'services' ||
-                item.products?.categories?.name?.toLowerCase() === 'services' ||
-                item.products?.category_name?.toLowerCase() === 'services'
+              const isServiceOrder = order.order_items?.some(
+                (item: any) =>
+                  item.products?.categories?.slug === "services" ||
+                  item.products?.categories?.name?.toLowerCase() === "services" ||
+                  item.products?.category_name?.toLowerCase() === "services",
               )
               const shop = order.order_items[0]?.products?.shops
               const vendorPhone = shop?.vendors?.users?.phone || shop?.phone
 
               return (
-                <Card className={cn(
-                  "border-indigo-100 shadow-sm",
-                  isServiceOrder ? "bg-gradient-to-r from-emerald-50/50 via-teal-50/30 to-indigo-50/40 border-emerald-200 ring-2 ring-emerald-500/20" : "bg-indigo-50/30 dark:bg-indigo-950/10"
-                )}>
+                <Card
+                  className={cn(
+                    "border-indigo-100 shadow-sm",
+                    isServiceOrder
+                      ? "bg-gradient-to-r from-emerald-50/50 via-teal-50/30 to-indigo-50/40 border-emerald-200 ring-2 ring-emerald-500/20"
+                      : "bg-indigo-50/30 dark:bg-indigo-950/10",
+                  )}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg flex items-center gap-2">
@@ -387,9 +465,7 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                             )}
                           </div>
                           <div className="space-y-1 flex-1">
-                            <h4 className="font-bold text-lg text-gray-900">
-                              {shop.vendors?.business_name || shop.name}
-                            </h4>
+                            <h4 className="font-bold text-lg text-gray-900">{shop.vendors?.business_name || shop.name}</h4>
                             <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
                               {vendorPhone && (
                                 <a href={`tel:${vendorPhone}`} className="flex items-center gap-1.5 font-bold text-primary hover:underline">
@@ -445,7 +521,11 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                         Please confirm you have received the order. This will release funds to the vendor and transporter.
                       </p>
                     </div>
-                    <Button onClick={handleConfirmDelivery} disabled={isConfirming} className="bg-blue-600 hover:bg-blue-700 text-white min-w-[150px]">
+                    <Button
+                      onClick={handleConfirmDelivery}
+                      disabled={isConfirming}
+                      className="bg-blue-600 hover:bg-blue-700 text-white min-w-[150px]"
+                    >
                       {isConfirming ? "Verifying..." : "Verify Receipt"}
                     </Button>
                   </div>
@@ -553,12 +633,12 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                       origin={{
                         lat: order.order_items[0].products.shops.latitude || -6.7924,
                         lng: order.order_items[0].products.shops.longitude || 39.2083,
-                        address: order.order_items[0].products.shops.address
+                        address: order.order_items[0].products.shops.address,
                       }}
                       destination={{
                         lat: order.shipping_address?.latitude || -6.7924, // Fallback if not available
                         lng: order.shipping_address?.longitude || 39.2083,
-                        address: order.shipping_address?.address
+                        address: order.shipping_address?.address,
                       }}
                       transporterLocation={order.transporter_assignments[0].transporters?.current_location}
                       className="w-full"
@@ -570,7 +650,9 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
                             <Truck className="h-5 w-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-blue-900">{order.transporter_assignments[0].transporters.users.full_name}</p>
+                            <p className="font-bold text-sm text-blue-900">
+                              {order.transporter_assignments[0].transporters.users.full_name}
+                            </p>
                             <p className="text-xs text-blue-700">Your Transporter</p>
                           </div>
                         </div>

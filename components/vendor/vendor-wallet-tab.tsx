@@ -35,9 +35,7 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
 
   const loadWalletData = async () => {
     try {
-      const res = await clientApiGet<{ balance: number; pendingBalance: number; payouts: any[] }>(
-        `vendors/${vendorId}/wallet`,
-      )
+      const res = await clientApiGet<{ balance: number; pendingBalance: number; payouts: any[] }>(`vendors/${vendorId}/wallet`)
       setBalance(res.balance || 0)
       setPendingBalance(res.pendingBalance || 0)
       setPayouts(res.payouts || [])
@@ -178,7 +176,9 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                   <SelectItem value="halopesa">HaloPesa</SelectItem>
                   <SelectItem value="ezypesa">EzyPesa</SelectItem>
                   <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="m-pesa" disabled>M-Pesa (Under Maintenance)</SelectItem>
+                  <SelectItem value="m-pesa" disabled>
+                    M-Pesa (Under Maintenance)
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -247,12 +247,9 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`text-sm font-medium ${payout.status === "completed"
-                        ? "text-green-600"
-                        : payout.status === "failed"
-                          ? "text-red-600"
-                          : "text-yellow-600"
-                        }`}
+                      className={`text-sm font-medium ${
+                        payout.status === "completed" ? "text-green-600" : payout.status === "failed" ? "text-red-600" : "text-yellow-600"
+                      }`}
                     >
                       {payout.status}
                     </span>

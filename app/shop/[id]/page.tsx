@@ -14,7 +14,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const shop = shopRes.shop
   if (!shop) return { title: "Shop Not Found" }
   const description = shop.description
-    ? (shop.description.length > 160 ? shop.description.substring(0, 157) + "..." : shop.description)
+    ? shop.description.length > 160
+      ? shop.description.substring(0, 157) + "..."
+      : shop.description
     : `Shop from ${shop.name} on TOLA Tanzania. Verified vendor, secure checkout.`
   return {
     title: shop.name,
@@ -69,12 +71,3 @@ export default async function ShopDetailPage({ params }: { params: Promise<{ id:
     </div>
   )
 }
-
-
-
-
-
-
-
-
-

@@ -4,14 +4,7 @@ export type Database = any
 
 // ——— Marketplace logistics (tolatola.co) ———
 
-export const ORDER_STATUS = [
-  "ORDER_RECEIVED",
-  "PAYMENT_SECURED",
-  "VENDOR_PREPARING",
-  "PICKED_UP",
-  "IN_TRANSIT",
-  "DELIVERED",
-] as const
+export const ORDER_STATUS = ["ORDER_RECEIVED", "PAYMENT_SECURED", "VENDOR_PREPARING", "PICKED_UP", "IN_TRANSIT", "DELIVERED"] as const
 export type OrderStatus = (typeof ORDER_STATUS)[number]
 
 export const ESCROW_STATUS = ["HELD", "FROZEN", "RELEASED", "REFUNDED"] as const

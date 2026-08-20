@@ -78,11 +78,7 @@ describe("getVisibleNavItems", () => {
   })
 
   it("reveals both the KYC and management tabs for manage_transporters", () => {
-    expect(keysFor(ctx({ permissions: ["manage_transporters"] }))).toEqual([
-      "transporter-kyc",
-      "transporters",
-      "messaging",
-    ])
+    expect(keysFor(ctx({ permissions: ["manage_transporters"] }))).toEqual(["transporter-kyc", "transporters", "messaging"])
   })
 
   it("reveals all four system tabs for manage_system", () => {

@@ -7,14 +7,7 @@ import { CheckCircle, XCircle, Eye } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -68,7 +61,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
 
     try {
       await clientApiPost(`admin/vendors/${selectedVendor.id}/reject`, {
-        reason: rejectionReason
+        reason: rejectionReason,
       })
 
       setRejectDialogOpen(false)
@@ -95,7 +88,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
         <Badge variant="outline">{(vendors || []).length} Pending</Badge>
       </div>
 
-      {(!vendors || vendors.length === 0) ? (
+      {!vendors || vendors.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">No pending KYC applications</p>
@@ -109,9 +102,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 min-w-0 w-full">
-                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                        #{idx + 1}
-                      </span>
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">#{idx + 1}</span>
                       <CardTitle className="truncate flex-1 min-w-0">{vendor.business_name}</CardTitle>
                     </div>
                     <CardDescription className="mt-1 truncate">{vendor.users?.email}</CardDescription>
@@ -125,7 +116,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                     )}
                     {vendor.users?.vendor_type && (
                       <Badge variant="secondary" className="text-xs capitalize">
-                        {vendor.users.vendor_type.replace(/_/g, ' ')}
+                        {vendor.users.vendor_type.replace(/_/g, " ")}
                       </Badge>
                     )}
                   </div>
@@ -158,9 +149,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
                   {vendor.kyc_type === "company" && (
                     <>
                       <div className="pt-3 border-t">
-                        <p className="text-xs font-bold uppercase tracking-wide text-stone-500 mb-2">
-                          Company Representative
-                        </p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-stone-500 mb-2">Company Representative</p>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Rep. Name:</span>
@@ -236,8 +225,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
           <DialogHeader>
             <DialogTitle>Reject Vendor Application</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting {selectedVendor?.business_name}'s application. This will be shown to
-              the vendor.
+              Please provide a reason for rejecting {selectedVendor?.business_name}'s application. This will be shown to the vendor.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -257,11 +245,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleRejectConfirm}
-              disabled={isSubmitting || !rejectionReason.trim()}
-            >
+            <Button variant="destructive" onClick={handleRejectConfirm} disabled={isSubmitting || !rejectionReason.trim()}>
               Confirm Rejection
             </Button>
           </DialogFooter>
@@ -274,17 +258,10 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
           <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
               <DialogTitle>Business License Document</DialogTitle>
-              <DialogDescription>
-                Full size preview of the uploaded document
-              </DialogDescription>
+              <DialogDescription>Full size preview of the uploaded document</DialogDescription>
             </div>
             <div className="flex gap-2 mr-6">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9"
-                onClick={() => window.open(documentUrl, '_blank')}
-              >
+              <Button variant="outline" size="sm" className="h-9" onClick={() => window.open(documentUrl, "_blank")}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Open Original
               </Button>
@@ -292,19 +269,11 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
           </DialogHeader>
           <div className="relative flex-1 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
             {documentUrl ? (
-              documentUrl.toLowerCase().endsWith('.pdf') ? (
-                <iframe
-                  src={`${documentUrl}#toolbar=0`}
-                  className="w-full h-full border-none"
-                  title="PDF Document Viewer"
-                />
+              documentUrl.toLowerCase().endsWith(".pdf") ? (
+                <iframe src={`${documentUrl}#toolbar=0`} className="w-full h-full border-none" title="PDF Document Viewer" />
               ) : (
                 <div className="w-full h-full overflow-auto flex items-center justify-center p-4">
-                  <img
-                    src={documentUrl}
-                    alt="Document"
-                    className="max-w-full h-auto shadow-2xl rounded-sm"
-                  />
+                  <img src={documentUrl} alt="Document" className="max-w-full h-auto shadow-2xl rounded-sm" />
                 </div>
               )
             ) : (

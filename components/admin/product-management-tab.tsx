@@ -5,29 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Search,
   Trash2,
@@ -168,7 +148,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
 
     try {
       await clientApiDelete(`admin/products/${productToDelete.id}`)
-      
+
       // Update local state immediately
       setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id))
       setDeleteSuccess(`Product "${productToDelete.name}" was permanently deleted.`)
@@ -208,10 +188,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
         <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl animate-in fade-in">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
           <p className="text-sm font-medium">{deleteSuccess}</p>
-          <button
-            onClick={() => setDeleteSuccess(null)}
-            className="ml-auto text-emerald-600 hover:text-emerald-800"
-          >
+          <button onClick={() => setDeleteSuccess(null)} className="ml-auto text-emerald-600 hover:text-emerald-800">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -229,13 +206,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchProducts}
-          disabled={loading}
-          className="self-start md:self-auto gap-2 rounded-xl"
-        >
+        <Button variant="outline" size="sm" onClick={fetchProducts} disabled={loading} className="self-start md:self-auto gap-2 rounded-xl">
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh Catalog
         </Button>
@@ -373,7 +344,9 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
           {/* Active Filter Indicators */}
           {(searchQuery || statusFilter !== "all") && (
             <div className="flex items-center gap-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
-              <span>Showing {filteredProducts.length} of {products.length} products</span>
+              <span>
+                Showing {filteredProducts.length} of {products.length} products
+              </span>
               {searchQuery && (
                 <Badge variant="secondary" className="gap-1 rounded-md text-[11px]">
                   Query: "{searchQuery}"
@@ -473,9 +446,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
                           <Store className="h-3.5 w-3.5 text-slate-400" />
                           <span>{product.shops?.name || "No Shop"}</span>
                         </div>
-                        <p className="text-[11px] text-slate-500">
-                          {product.shops?.vendors?.business_name || "Independent Vendor"}
-                        </p>
+                        <p className="text-[11px] text-slate-500">{product.shops?.vendors?.business_name || "Independent Vendor"}</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -485,9 +456,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
                     </TableCell>
                     <TableCell>
                       <div className="space-y-0.5">
-                        <p className="text-sm font-semibold text-slate-900">
-                          TZS {Number(product.price || 0).toLocaleString()}
-                        </p>
+                        <p className="text-sm font-semibold text-slate-900">TZS {Number(product.price || 0).toLocaleString()}</p>
                         <p className="text-xs text-slate-500">
                           Stock: <span className="font-medium text-slate-700">{product.stock_quantity ?? 0}</span>
                         </p>
@@ -515,7 +484,10 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
         /* Grid View */
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
-            <Card key={product.id} className="border-slate-200/80 shadow-sm rounded-2xl overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+            <Card
+              key={product.id}
+              className="border-slate-200/80 shadow-sm rounded-2xl overflow-hidden flex flex-col hover:shadow-md transition-shadow"
+            >
               <div className="aspect-video bg-slate-100 relative overflow-hidden">
                 <img
                   src={product.image_url || "/placeholder.svg"}
@@ -529,29 +501,21 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
               </div>
 
               <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-base font-bold text-slate-900 line-clamp-1">
-                  {product.name}
-                </CardTitle>
+                <CardTitle className="text-base font-bold text-slate-900 line-clamp-1">{product.name}</CardTitle>
                 <CardDescription className="text-xs text-slate-500 flex items-center gap-1 mt-1">
                   <Store className="h-3.5 w-3.5 text-slate-400" />
                   <span>{product.shops?.name || "No Shop"}</span>
-                  {product.shops?.vendors?.business_name && (
-                    <span>• {product.shops.vendors.business_name}</span>
-                  )}
+                  {product.shops?.vendors?.business_name && <span>• {product.shops.vendors.business_name}</span>}
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="p-4 pt-2 flex-1 flex flex-col justify-between space-y-4">
-                {product.description && (
-                  <p className="text-xs text-slate-600 line-clamp-2">{product.description}</p>
-                )}
+                {product.description && <p className="text-xs text-slate-600 line-clamp-2">{product.description}</p>}
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-slate-400 block text-[10px]">PRICE</span>
-                    <span className="text-sm font-bold text-slate-900">
-                      TZS {Number(product.price || 0).toLocaleString()}
-                    </span>
+                    <span className="text-sm font-bold text-slate-900">TZS {Number(product.price || 0).toLocaleString()}</span>
                   </div>
                   <div className="text-right">
                     <span className="text-slate-400 block text-[10px]">STOCK</span>
@@ -583,7 +547,8 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
               Delete Product Permanently?
             </DialogTitle>
             <DialogDescription className="text-slate-600 pt-1 text-sm">
-              This action cannot be undone. The product and all related marketplace data will be permanently purged from the system database.
+              This action cannot be undone. The product and all related marketplace data will be permanently purged from the system
+              database.
             </DialogDescription>
           </DialogHeader>
 
@@ -618,11 +583,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
                 </ul>
               </div>
 
-              {deleteError && (
-                <div className="p-3 bg-red-100 border border-red-300 text-red-800 rounded-xl text-xs">
-                  {deleteError}
-                </div>
-              )}
+              {deleteError && <div className="p-3 bg-red-100 border border-red-300 text-red-800 rounded-xl text-xs">{deleteError}</div>}
             </div>
           )}
 

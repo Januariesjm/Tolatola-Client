@@ -81,11 +81,7 @@ export class OrderService {
         }
 
         // Update product stock
-        const { data: product } = await supabase
-          .from("products")
-          .select("stock_quantity")
-          .eq("id", item.product_id)
-          .single()
+        const { data: product } = await supabase.from("products").select("stock_quantity").eq("id", item.product_id).single()
 
         if (product) {
           const newStock = product.stock_quantity - item.quantity
@@ -110,7 +106,8 @@ export class OrderService {
 
     const { data: order, error } = await supabase
       .from("orders")
-      .select(`
+      .select(
+        `
         *,
         order_items (
           *,
@@ -123,7 +120,8 @@ export class OrderService {
           email,
           full_name
         )
-      `)
+      `,
+      )
       .eq("id", orderId)
       .single()
 
@@ -151,11 +149,7 @@ export class OrderService {
 
     try {
       // 1. Get transport method details
-      const { data: transportMethod } = await supabase
-        .from("transport_methods")
-        .select("vehicle_type")
-        .eq("id", transportMethodId)
-        .single()
+      const { data: transportMethod } = await supabase.from("transport_methods").select("vehicle_type").eq("id", transportMethodId).single()
 
       if (!transportMethod) {
         throw new Error("Transport method not found")
@@ -164,7 +158,8 @@ export class OrderService {
       // 2. Fetch eligible transporters with active subscriptions
       const { data: eligibleTransporters, error: fetchError } = await supabase
         .from("transporters")
-        .select(`
+        .select(
+          `
           *,
           transporter_subscriptions(
             status,
@@ -173,7 +168,8 @@ export class OrderService {
               display_order
             )
           )
-        `)
+        `,
+        )
         .eq("vehicle_type", transportMethod.vehicle_type)
         .eq("kyc_status", "approved")
         .eq("availability_status", "available")
@@ -186,14 +182,16 @@ export class OrderService {
       }
 
       // 3. Sort by Subscription Tier (display_order) then Rating
-      const sortedTransporters = eligibleTransporters.map((t: any) => {
-        const activeSub = t.transporter_subscriptions?.find((s: any) => s.status === 'active')
-        const planOrder = activeSub?.plan?.display_order ?? 999
-        return { ...t, planOrder }
-      }).sort((a: any, b: any) => {
-        if (a.planOrder !== b.planOrder) return a.planOrder - b.planOrder
-        return (Number(b.rating) || 5) - (Number(a.rating) || 5)
-      })
+      const sortedTransporters = eligibleTransporters
+        .map((t: any) => {
+          const activeSub = t.transporter_subscriptions?.find((s: any) => s.status === "active")
+          const planOrder = activeSub?.plan?.display_order ?? 999
+          return { ...t, planOrder }
+        })
+        .sort((a: any, b: any) => {
+          if (a.planOrder !== b.planOrder) return a.planOrder - b.planOrder
+          return (Number(b.rating) || 5) - (Number(a.rating) || 5)
+        })
 
       const bestTransporter = sortedTransporters[0]
 

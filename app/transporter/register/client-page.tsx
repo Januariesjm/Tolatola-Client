@@ -49,7 +49,7 @@ export default function TransporterRegisterClient() {
   })
 
   // Determine current step for tracking
-  const currentStep = idDocument ? "documents" : (region && district) ? "location" : vehicleType ? "vehicle_info" : "started"
+  const currentStep = idDocument ? "documents" : region && district ? "location" : vehicleType ? "vehicle_info" : "started"
 
   // Auto-save on field changes
   useEffect(() => {
@@ -93,11 +93,7 @@ export default function TransporterRegisterClient() {
       }
       setUser(user)
 
-      const { data: existingTransporter } = await supabase
-        .from("transporters")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: existingTransporter } = await supabase.from("transporters").select("*").eq("user_id", user.id).maybeSingle()
 
       if (existingTransporter) {
         router.push("/transporter/dashboard")
@@ -304,9 +300,7 @@ export default function TransporterRegisterClient() {
                           className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
                         >
                           <Upload className="h-5 w-5 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {idDocument ? idDocument.name : "Choose file..."}
-                          </span>
+                          <span className="text-sm text-muted-foreground">{idDocument ? idDocument.name : "Choose file..."}</span>
                         </label>
                         <Input
                           id="idDocument"
@@ -335,9 +329,7 @@ export default function TransporterRegisterClient() {
                           className="flex-1 flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
                         >
                           <Upload className="h-5 w-5 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            {driverLicense ? driverLicense.name : "Choose file..."}
-                          </span>
+                          <span className="text-sm text-muted-foreground">{driverLicense ? driverLicense.name : "Choose file..."}</span>
                         </label>
                         <Input
                           id="driverLicense"

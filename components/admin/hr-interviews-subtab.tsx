@@ -5,30 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CalendarDays, Plus, Search, Trash2, CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { logger } from "@/lib/logger"
@@ -62,24 +43,43 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
     notes: "",
   })
 
-  const filtered = interviews.filter((i) =>
-    !search ||
-    i.candidate_name.toLowerCase().includes(search.toLowerCase()) ||
-    i.position.toLowerCase().includes(search.toLowerCase())
+  const filtered = interviews.filter(
+    (i) =>
+      !search || i.candidate_name.toLowerCase().includes(search.toLowerCase()) || i.position.toLowerCase().includes(search.toLowerCase()),
   )
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "scheduled":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200"><Clock className="h-3 w-3 mr-1"/> Scheduled</Badge>
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Clock className="h-3 w-3 mr-1" /> Scheduled
+          </Badge>
+        )
       case "completed":
-        return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200"><CheckCircle2 className="h-3 w-3 mr-1"/> Completed</Badge>
+        return (
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+            <CheckCircle2 className="h-3 w-3 mr-1" /> Completed
+          </Badge>
+        )
       case "cancelled":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><XCircle className="h-3 w-3 mr-1"/> Cancelled</Badge>
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            <XCircle className="h-3 w-3 mr-1" /> Cancelled
+          </Badge>
+        )
       case "hired":
-        return <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">Hired</Badge>
+        return (
+          <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+            Hired
+          </Badge>
+        )
       case "rejected":
-        return <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300">Rejected</Badge>
+        return (
+          <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300">
+            Rejected
+          </Badge>
+        )
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -124,7 +124,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
     try {
       const res: any = await clientApiPost("admin/hr/interviews", { id, status: newStatus })
       if (res.data) {
-        setInterviews(interviews.map(i => i.id === id ? res.data : i))
+        setInterviews(interviews.map((i) => (i.id === id ? res.data : i)))
       }
     } catch (err) {
       log.error("failed to update status", err)
@@ -153,28 +153,44 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Candidate Name</Label>
-                  <Input required value={formData.candidate_name} onChange={e => setFormData({...formData, candidate_name: e.target.value})} />
+                  <Input
+                    required
+                    value={formData.candidate_name}
+                    onChange={(e) => setFormData({ ...formData, candidate_name: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Position</Label>
-                  <Input required value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})} />
+                  <Input required value={formData.position} onChange={(e) => setFormData({ ...formData, position: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Date</Label>
-                  <Input type="date" required value={formData.interview_date} onChange={e => setFormData({...formData, interview_date: e.target.value})} />
+                  <Input
+                    type="date"
+                    required
+                    value={formData.interview_date}
+                    onChange={(e) => setFormData({ ...formData, interview_date: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Time</Label>
-                  <Input type="time" required value={formData.interview_time} onChange={e => setFormData({...formData, interview_time: e.target.value})} />
+                  <Input
+                    type="time"
+                    required
+                    value={formData.interview_time}
+                    onChange={(e) => setFormData({ ...formData, interview_time: e.target.value })}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Interviewer Name</Label>
-                  <Input value={formData.interviewer} onChange={e => setFormData({...formData, interviewer: e.target.value})} />
+                  <Input value={formData.interviewer} onChange={(e) => setFormData({ ...formData, interviewer: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(val) => setFormData({...formData, status: val})}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
+                  <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="scheduled">Scheduled</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
@@ -185,7 +201,11 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
               </div>
               <div className="space-y-2">
                 <Label>Notes / Details</Label>
-                <Textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Meeting link or location details..." />
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Meeting link or location details..."
+                />
               </div>
               <Button type="submit" className="w-full rounded-xl" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -207,11 +227,9 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
             />
           </div>
         </div>
-        
+
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            No interviews scheduled.
-          </div>
+          <div className="p-8 text-center text-slate-500">No interviews scheduled.</div>
         ) : (
           <Table>
             <TableHeader className="bg-slate-50">
@@ -225,7 +243,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map(interview => (
+              {filtered.map((interview) => (
                 <TableRow key={interview.id}>
                   <TableCell className="font-medium">{interview.candidate_name}</TableCell>
                   <TableCell>{interview.position}</TableCell>
@@ -238,9 +256,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
                   <TableCell className="text-muted-foreground text-sm">{interview.interviewer || "TBA"}</TableCell>
                   <TableCell>
                     <Select value={interview.status} onValueChange={(val) => handleStatusChange(interview.id, val)}>
-                      <SelectTrigger className="h-8 w-[130px] text-xs">
-                        {getStatusBadge(interview.status)}
-                      </SelectTrigger>
+                      <SelectTrigger className="h-8 w-[130px] text-xs">{getStatusBadge(interview.status)}</SelectTrigger>
                       <SelectContent>
                         <SelectItem value="scheduled">Scheduled</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
@@ -251,7 +267,12 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(interview.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(interview.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

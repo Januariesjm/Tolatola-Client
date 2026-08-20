@@ -44,9 +44,7 @@ function ResetPasswordContent() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Invalid link</CardTitle>
-            <CardDescription>
-              This password reset link is missing a token or has expired. Please request a new one.
-            </CardDescription>
+            <CardDescription>This password reset link is missing a token or has expired. Please request a new one.</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/auth/forgot-password" className="text-primary text-sm font-semibold hover:underline">
@@ -153,16 +151,12 @@ function ResetPasswordContent() {
               <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Set a new password
               </CardTitle>
-              <CardDescription className="text-base">
-                Choose a strong password you don&apos;t use elsewhere.
-              </CardDescription>
+              <CardDescription className="text-base">Choose a strong password you don&apos;t use elsewhere.</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
               {success && (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800 text-center">
-                  {success}
-                </div>
+                <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800 text-center">{success}</div>
               )}
               {error && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive text-center">
@@ -197,9 +191,7 @@ function ResetPasswordContent() {
                       ) : (
                         <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="sr-only">
-                        {showPassword ? "Hide password" : "Show password"}
-                      </span>
+                      <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                     </Button>
                   </div>
                 </div>
@@ -229,9 +221,7 @@ function ResetPasswordContent() {
                       ) : (
                         <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="sr-only">
-                        {showConfirmPassword ? "Hide password" : "Show password"}
-                      </span>
+                      <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
                     </Button>
                   </div>
                 </div>

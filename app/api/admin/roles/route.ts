@@ -5,7 +5,9 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -16,10 +18,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    const { data: roles, error } = await supabase
-      .from("admin_roles")
-      .select("*")
-      .order("access_level", { ascending: false })
+    const { data: roles, error } = await supabase.from("admin_roles").select("*").order("access_level", { ascending: false })
 
     if (error) throw error
 

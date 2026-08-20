@@ -41,7 +41,7 @@ describe("api utility (lib/api.ts)", () => {
           headers: expect.objectContaining({
             "Content-Type": "application/json",
           }),
-        })
+        }),
       )
       expect(result).toEqual(mockData)
     })
@@ -60,7 +60,7 @@ describe("api utility (lib/api.ts)", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer my-token-123",
           }),
-        })
+        }),
       )
     })
 
@@ -84,10 +84,7 @@ describe("api utility (lib/api.ts)", () => {
 
       await api.get("/products")
 
-      expect(fetch).toHaveBeenCalledWith(
-        `${MOCK_BASE_URL}/products`,
-        expect.any(Object)
-      )
+      expect(fetch).toHaveBeenCalledWith(`${MOCK_BASE_URL}/products`, expect.any(Object))
     })
   })
 
@@ -107,7 +104,7 @@ describe("api utility (lib/api.ts)", () => {
         expect.objectContaining({
           method: "POST",
           body: JSON.stringify(requestBody),
-        })
+        }),
       )
       expect(result).toEqual(responseData)
     })
@@ -125,7 +122,7 @@ describe("api utility (lib/api.ts)", () => {
         expect.objectContaining({
           method: "POST",
           body: undefined,
-        })
+        }),
       )
     })
   })
@@ -148,7 +145,7 @@ describe("api utility (lib/api.ts)", () => {
           headers: expect.objectContaining({
             Authorization: "Bearer token",
           }),
-        })
+        }),
       )
     })
   })
@@ -163,10 +160,7 @@ describe("api utility (lib/api.ts)", () => {
 
       await api.put("users/1", body)
 
-      expect(fetch).toHaveBeenCalledWith(
-        `${MOCK_BASE_URL}/users/1`,
-        expect.objectContaining({ method: "PUT" })
-      )
+      expect(fetch).toHaveBeenCalledWith(`${MOCK_BASE_URL}/users/1`, expect.objectContaining({ method: "PUT" }))
     })
   })
 
@@ -179,10 +173,7 @@ describe("api utility (lib/api.ts)", () => {
 
       const result = await api.delete("products/1", "token")
 
-      expect(fetch).toHaveBeenCalledWith(
-        `${MOCK_BASE_URL}/products/1`,
-        expect.objectContaining({ method: "DELETE" })
-      )
+      expect(fetch).toHaveBeenCalledWith(`${MOCK_BASE_URL}/products/1`, expect.objectContaining({ method: "DELETE" }))
       expect(result).toEqual({ deleted: true })
     })
   })
@@ -215,7 +206,7 @@ describe("api utility (lib/api.ts)", () => {
         expect.objectContaining({
           status: 500,
           method: "GET",
-        })
+        }),
       )
       consoleSpy.mockRestore()
     })
@@ -249,10 +240,7 @@ describe("api utility (lib/api.ts)", () => {
 
       await api.get("products")
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:4000/api/products",
-        expect.any(Object)
-      )
+      expect(fetch).toHaveBeenCalledWith("http://localhost:4000/api/products", expect.any(Object))
     })
 
     it("uses default base URL when env var is not set", async () => {
@@ -264,10 +252,7 @@ describe("api utility (lib/api.ts)", () => {
 
       await api.get("products")
 
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:4000/api/products",
-        expect.any(Object)
-      )
+      expect(fetch).toHaveBeenCalledWith("http://localhost:4000/api/products", expect.any(Object))
     })
   })
 })

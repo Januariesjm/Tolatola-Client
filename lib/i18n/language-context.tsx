@@ -56,18 +56,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
    * Translation function
    */
   const t = (key: TranslationKey): string => {
-    return (
-      translations[language]?.[key] ??
-      translations.en[key] ??
-      key
-    )
+    return translations[language]?.[key] ?? translations.en[key] ?? key
   }
 
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  )
+  return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>
 }
 
 export function useLanguage() {

@@ -28,11 +28,11 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
 
   // Poll for processing payouts
   useEffect(() => {
-    const processingPayouts = localPayouts.filter(p => p.status === "processing")
-    
-    if (processingPayouts.length === 0) return;
+    const processingPayouts = localPayouts.filter((p) => p.status === "processing")
 
-    let mounted = true;
+    if (processingPayouts.length === 0) return
+
+    let mounted = true
     const pollStatuses = async () => {
       for (const p of processingPayouts) {
         try {
@@ -42,8 +42,8 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
             const data = await res.json()
             if (data.payout && data.payout.status !== "processing" && mounted) {
               // Update local state
-              setLocalPayouts(prev => prev.map(item => item.id === p.id ? data.payout : item))
-              
+              setLocalPayouts((prev) => prev.map((item) => (item.id === p.id ? data.payout : item)))
+
               toast({
                 title: "Payout Status Updated",
                 description: `Payout to ${p.user_id || p.vendor_id} is now ${data.payout.status}`,
@@ -58,9 +58,9 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
     }
 
     const interval = setInterval(pollStatuses, 5000) // Poll every 5s
-    
+
     return () => {
-      mounted = false;
+      mounted = false
       clearInterval(interval)
     }
   }, [localPayouts, router, toast])
@@ -79,9 +79,9 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
           title: "Payout approved",
           description: "The payout has been initiated and is now processing",
         })
-        
+
         // Optimistically update to processing
-        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "processing" } : p))
+        setLocalPayouts((prev) => prev.map((p) => (p.id === payoutId ? { ...p, status: "processing" } : p)))
         router.refresh()
       } else {
         let errMsg = "Failed to approve payout"
@@ -118,8 +118,8 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
           title: "Payout rejected",
           description: "The payout request has been rejected",
         })
-        
-        setLocalPayouts(prev => prev.map(p => p.id === payoutId ? { ...p, status: "failed" } : p))
+
+        setLocalPayouts((prev) => prev.map((p) => (p.id === payoutId ? { ...p, status: "failed" } : p)))
         router.refresh()
       } else {
         throw new Error("Failed to reject payout")
@@ -241,9 +241,7 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
                           </span>
                         )}
                         {payout.status === "failed" && payout.failure_reason && (
-                          <span className="text-red-500 font-medium dark:text-red-400">
-                            Reason: {payout.failure_reason}
-                          </span>
+                          <span className="text-red-500 font-medium dark:text-red-400">Reason: {payout.failure_reason}</span>
                         )}
                       </p>
                     </div>

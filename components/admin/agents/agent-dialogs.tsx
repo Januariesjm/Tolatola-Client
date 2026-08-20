@@ -2,13 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AlertTriangle, Loader2, Trash2, UserPlus } from "lucide-react"
 import type { AgentManagementState } from "@/hooks/use-agent-management"
 
@@ -66,7 +60,7 @@ export function AgentDialogs({
               <Input
                 placeholder="e.g. John Mwakasege"
                 value={createForm.full_name}
-                onChange={(e) => setCreateForm(f => ({ ...f, full_name: e.target.value }))}
+                onChange={(e) => setCreateForm((f) => ({ ...f, full_name: e.target.value }))}
                 className="rounded-xl text-sm h-10"
               />
             </div>
@@ -78,7 +72,7 @@ export function AgentDialogs({
                 type="email"
                 placeholder="e.g. john@tolatola.co"
                 value={createForm.email}
-                onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))}
+                onChange={(e) => setCreateForm((f) => ({ ...f, email: e.target.value }))}
                 className="rounded-xl text-sm h-10"
               />
             </div>
@@ -90,7 +84,7 @@ export function AgentDialogs({
                 type="tel"
                 placeholder="e.g. +255712345678"
                 value={createForm.phone}
-                onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value }))}
+                onChange={(e) => setCreateForm((f) => ({ ...f, phone: e.target.value }))}
                 className="rounded-xl text-sm h-10"
               />
             </div>
@@ -101,7 +95,7 @@ export function AgentDialogs({
                 <label className="text-xs font-bold text-slate-600">Role</label>
                 <select
                   value={createForm.role_name}
-                  onChange={(e) => setCreateForm(f => ({ ...f, role_name: e.target.value }))}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, role_name: e.target.value }))}
                   className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white text-slate-700 outline-none"
                 >
                   <option value="Sales Agent">Sales Agent</option>
@@ -114,7 +108,7 @@ export function AgentDialogs({
                 <Input
                   placeholder="e.g. Dar es Salaam"
                   value={createForm.region}
-                  onChange={(e) => setCreateForm(f => ({ ...f, region: e.target.value }))}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, region: e.target.value }))}
                   className="rounded-xl text-sm h-10"
                 />
               </div>
@@ -127,7 +121,7 @@ export function AgentDialogs({
                 <Input
                   placeholder="e.g. Ilala"
                   value={createForm.district}
-                  onChange={(e) => setCreateForm(f => ({ ...f, district: e.target.value }))}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, district: e.target.value }))}
                   className="rounded-xl text-sm h-10"
                 />
               </div>
@@ -136,7 +130,7 @@ export function AgentDialogs({
                 <Input
                   placeholder="e.g. Kariakoo"
                   value={createForm.area}
-                  onChange={(e) => setCreateForm(f => ({ ...f, area: e.target.value }))}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, area: e.target.value }))}
                   className="rounded-xl text-sm h-10"
                 />
               </div>
@@ -144,12 +138,7 @@ export function AgentDialogs({
 
             {/* Submit */}
             <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-                disabled={isCreating}
-                className="rounded-xl text-xs h-9"
-              >
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)} disabled={isCreating} className="rounded-xl text-xs h-9">
                 Cancel
               </Button>
               <Button
@@ -175,7 +164,12 @@ export function AgentDialogs({
       </Dialog>
 
       {/* ── Delete Confirmation Dialog ── */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+      >
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-base font-black text-rose-700 flex items-center gap-2">
@@ -183,7 +177,8 @@ export function AgentDialogs({
               Delete Agent Permanently
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              This action cannot be undone. The agent account, all registrations, commissions, and login credentials will be permanently removed.
+              This action cannot be undone. The agent account, all registrations, commissions, and login credentials will be permanently
+              removed.
             </DialogDescription>
           </DialogHeader>
           {deleteTarget && (

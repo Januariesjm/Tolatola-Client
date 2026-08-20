@@ -11,10 +11,7 @@
  * rather than throw.
  */
 
-import {
-  generatePermanentVerifyToken,
-  verifyPermanentVerifyToken,
-} from "@/lib/tokenSigner"
+import { generatePermanentVerifyToken, verifyPermanentVerifyToken } from "@/lib/tokenSigner"
 
 const ORIGINAL_ENV = {
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -47,9 +44,7 @@ describe("generatePermanentVerifyToken", () => {
   })
 
   it("is deterministic for the same input and secret", () => {
-    expect(generatePermanentVerifyToken("user-1", "a@b.com")).toBe(
-      generatePermanentVerifyToken("user-1", "a@b.com"),
-    )
+    expect(generatePermanentVerifyToken("user-1", "a@b.com")).toBe(generatePermanentVerifyToken("user-1", "a@b.com"))
   })
 
   it("normalizes the email, so casing and padding do not change the token", () => {
@@ -59,9 +54,7 @@ describe("generatePermanentVerifyToken", () => {
   })
 
   it("differs when the user id differs", () => {
-    expect(generatePermanentVerifyToken("user-1", "a@b.com")).not.toBe(
-      generatePermanentVerifyToken("user-2", "a@b.com"),
-    )
+    expect(generatePermanentVerifyToken("user-1", "a@b.com")).not.toBe(generatePermanentVerifyToken("user-2", "a@b.com"))
   })
 
   it("differs when the secret changes", () => {
@@ -112,10 +105,7 @@ describe("verifyPermanentVerifyToken", () => {
   it("rejects a token whose payload was edited to escalate to another user", () => {
     const token = generatePermanentVerifyToken("user-1", "a@b.com")
     const [, hmac] = token.split(".")
-    const tamperedPayload = Buffer.from(
-      JSON.stringify({ u: "admin-1", e: "a@b.com" }),
-      "utf8",
-    ).toString("base64url")
+    const tamperedPayload = Buffer.from(JSON.stringify({ u: "admin-1", e: "a@b.com" }), "utf8").toString("base64url")
 
     expect(verifyPermanentVerifyToken(`${tamperedPayload}.${hmac}`)).toBeNull()
   })
@@ -141,12 +131,9 @@ describe("verifyPermanentVerifyToken", () => {
     expect(verifyPermanentVerifyToken(`${encoded}.deadbeef`)).toBeNull()
   })
 
-  it.each([[null], [undefined], [123], [{}]])(
-    "returns null for the non-string input %p",
-    (input) => {
-      expect(verifyPermanentVerifyToken(input as never)).toBeNull()
-    },
-  )
+  it.each([[null], [undefined], [123], [{}]])("returns null for the non-string input %p", (input) => {
+    expect(verifyPermanentVerifyToken(input as never)).toBeNull()
+  })
 
   it("rejects a signature of the wrong length without throwing", () => {
     // timingSafeEqual throws on mismatched buffer lengths, so the length guard

@@ -21,17 +21,12 @@ interface ShopLocationFormProps {
 
 export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
   // Check if location is ready (has coordinates and basic address)
-  const isLocationReady =
-    value.latitude &&
-    value.longitude &&
-    value.region &&
-    value.district &&
-    value.street
+  const isLocationReady = value.latitude && value.longitude && value.region && value.district && value.street
 
   const handleAddressChange = (addressData: any) => {
     onChange({
       ...value,
-      ...addressData
+      ...addressData,
     })
   }
 
@@ -40,7 +35,7 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
       ...value,
       address: fullAddress,
       latitude: coordinates?.lat || null,
-      longitude: coordinates?.lng || null
+      longitude: coordinates?.lng || null,
     })
   }
 
@@ -51,9 +46,7 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
           <MapPin className="h-5 w-5 text-primary" />
           Shop Location Details
         </Label>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 ml-7">
-          Logistics Engine Integration
-        </p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 ml-7">Logistics Engine Integration</p>
       </div>
 
       {isLocationReady ? (
@@ -67,12 +60,8 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
               {value.address || `${value.street}, ${value.ward}, ${value.district}, ${value.region}`}
             </p>
             <div className="flex gap-4">
-              <p className="text-[10px] font-black text-green-600/80 uppercase">
-                LAT: {value.latitude?.toFixed(6)}
-              </p>
-              <p className="text-[10px] font-black text-green-600/80 uppercase">
-                LNG: {value.longitude?.toFixed(6)}
-              </p>
+              <p className="text-[10px] font-black text-green-600/80 uppercase">LAT: {value.latitude?.toFixed(6)}</p>
+              <p className="text-[10px] font-black text-green-600/80 uppercase">LNG: {value.longitude?.toFixed(6)}</p>
             </div>
           </div>
         </div>
@@ -111,7 +100,7 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
             onChange({
               ...value,
               latitude: coords.lat,
-              longitude: coords.lng
+              longitude: coords.lng,
             })
           }}
           title="Verify Shop Location Pin"
@@ -120,4 +109,3 @@ export function ShopLocationForm({ value, onChange }: ShopLocationFormProps) {
     </div>
   )
 }
-

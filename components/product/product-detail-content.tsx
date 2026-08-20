@@ -22,7 +22,7 @@ import {
   MessageCircle,
   TrendingUp,
   Sparkles,
-  MapPin
+  MapPin,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -35,13 +35,7 @@ import { Check } from "lucide-react"
 import { useFavorites } from "@/hooks/use-favorites"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { logger } from "@/lib/logger"
-import type {
-  CartItem,
-  Product,
-  ProductColor,
-  RecommendedProduct,
-  Review,
-} from "@/lib/types/product"
+import type { CartItem, Product, ProductColor, RecommendedProduct, Review } from "@/lib/types/product"
 
 const log = logger.child("product.detail")
 
@@ -116,16 +110,18 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     return () => window.removeEventListener("cartUpdated", loadCart)
   }, [product.id])
 
-  const isFashion = product.categories?.name?.toLowerCase() === "fashion" ||
-                    product.category_name?.toLowerCase() === "fashion" ||
-                    ["men", "women", "kids"].includes(product.categories?.name?.toLowerCase() || "") ||
-                    ["men", "women", "kids"].includes(product.category_name?.toLowerCase() || "") ||
-                    (product.colors && product.colors.length > 0) ||
-                    (product.sizes && product.sizes.length > 0)
+  const isFashion =
+    product.categories?.name?.toLowerCase() === "fashion" ||
+    product.category_name?.toLowerCase() === "fashion" ||
+    ["men", "women", "kids"].includes(product.categories?.name?.toLowerCase() || "") ||
+    ["men", "women", "kids"].includes(product.category_name?.toLowerCase() || "") ||
+    (product.colors && product.colors.length > 0) ||
+    (product.sizes && product.sizes.length > 0)
 
-  const isService = product.categories?.slug === "services" ||
-                    product.categories?.name?.toLowerCase() === "services" ||
-                    product.category_name?.toLowerCase() === "services"
+  const isService =
+    product.categories?.slug === "services" ||
+    product.categories?.name?.toLowerCase() === "services" ||
+    product.category_name?.toLowerCase() === "services"
 
   useEffect(() => {
     if (isFashion) {
@@ -141,9 +137,12 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     }
   }, [product, isFashion, selectedColor, selectedSize])
 
-  const resolvedPrice = (isFashion && selectedSize && product.size_prices?.[selectedSize])
-    ? product.size_prices[selectedSize]
-    : ((isFashion && selectedColor?.price) ? selectedColor.price : product.price)
+  const resolvedPrice =
+    isFashion && selectedSize && product.size_prices?.[selectedSize]
+      ? product.size_prices[selectedSize]
+      : isFashion && selectedColor?.price
+        ? selectedColor.price
+        : product.price
 
   const handleLike = async () => {
     setIsLoading(true)
@@ -157,7 +156,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         toast({
           title: "Select Color",
           description: "Please select a color option.",
-          variant: "destructive"
+          variant: "destructive",
         })
         return
       }
@@ -165,19 +164,19 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         toast({
           title: "Select Size",
           description: "Please select a size option.",
-          variant: "destructive"
+          variant: "destructive",
         })
         return
       }
     }
 
     const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existingItem = cartItems.find((item: CartItem) => 
-      item.product_id === product.id &&
-      (!isFashion || (
-        (!item.selected_color || item.selected_color?.name === selectedColor?.name) &&
-        (!item.selected_size || item.selected_size === selectedSize)
-      ))
+    const existingItem = cartItems.find(
+      (item: CartItem) =>
+        item.product_id === product.id &&
+        (!isFashion ||
+          ((!item.selected_color || item.selected_color?.name === selectedColor?.name) &&
+            (!item.selected_size || item.selected_size === selectedSize))),
     )
 
     if (existingItem) {
@@ -214,19 +213,18 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   // `product.images?.[0] || selectedImageUrl` but the src read
   // `product.images[selectedImageIndex]`, so an out-of-range index rendered
   // src={undefined}.
-  const displayedImage =
-    selectedImageUrl || product.images?.[selectedImageIndex] || product.images?.[0] || null
+  const displayedImage = selectedImageUrl || product.images?.[selectedImageIndex] || product.images?.[0] || null
 
-  const productLocation = product.location || 
-    [product.shops?.ward, product.shops?.district, product.shops?.region].filter(Boolean).join(", ") || 
-    product.shops?.address || 
-    product.shops?.region || 
+  const productLocation =
+    product.location ||
+    [product.shops?.ward, product.shops?.district, product.shops?.region].filter(Boolean).join(", ") ||
+    product.shops?.address ||
+    product.shops?.region ||
     null
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
-
         {/* Product Gallery — Professional Ecommerce Size */}
         <div className="space-y-4">
           <div
@@ -239,10 +237,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 src={displayedImage}
                 alt={product.name}
                 fill
-                className={cn(
-                  "object-cover transition-transform duration-700 ease-out",
-                  isZoomed ? "scale-110" : "scale-100"
-                )}
+                className={cn("object-cover transition-transform duration-700 ease-out", isZoomed ? "scale-110" : "scale-100")}
                 priority
               />
             ) : (
@@ -267,7 +262,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     "relative h-16 w-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all duration-300",
                     selectedImageIndex === index && !selectedImageUrl
                       ? "border-primary ring-2 ring-primary/20 scale-105"
-                      : "border-transparent hover:border-stone-200 shadow-sm"
+                      : "border-transparent hover:border-stone-200 shadow-sm",
                   )}
                 >
                   <Image src={image} alt={`view-${index}`} fill className="object-cover" />
@@ -281,18 +276,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
         <div className="space-y-8">
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2 items-center">
-              <button 
-                onClick={scrollToTestimony} 
+              <button
+                onClick={scrollToTestimony}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-sm"
               >
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={cn(
-                        "h-3.5 w-3.5",
-                        i < Math.round(averageRating) ? "fill-amber-400 text-amber-400" : "text-stone-200"
-                      )}
+                      className={cn("h-3.5 w-3.5", i < Math.round(averageRating) ? "fill-amber-400 text-amber-400" : "text-stone-200")}
                     />
                   ))}
                 </div>
@@ -302,7 +294,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               </button>
 
               {product.quality_grade && (
-                <Badge variant="outline" className="rounded-full font-black text-[10px] uppercase tracking-wider px-3 py-1 border-primary/20 text-primary bg-primary/5">
+                <Badge
+                  variant="outline"
+                  className="rounded-full font-black text-[10px] uppercase tracking-wider px-3 py-1 border-primary/20 text-primary bg-primary/5"
+                >
                   Grade {product.quality_grade}
                 </Badge>
               )}
@@ -342,7 +337,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <div>
                   <p className="text-xs font-bold text-indigo-950">Service Provider Details Unlocked Upon Purchase</p>
                   <p className="text-[11px] text-indigo-700 mt-0.5 leading-relaxed">
-                    Once you purchase this service, the provider's direct phone number, email, address, and direct messaging will be instantly provided on your order confirmation page.
+                    Once you purchase this service, the provider's direct phone number, email, address, and direct messaging will be
+                    instantly provided on your order confirmation page.
                   </p>
                 </div>
               </div>
@@ -378,7 +374,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-black uppercase tracking-widest text-stone-400">Color Variation</span>
-                      <span className="text-xs font-bold text-stone-900">{selectedColor?.name || "Select a color"}{selectedColor?.price ? ` (TZS ${selectedColor.price.toLocaleString()})` : ""}</span>
+                      <span className="text-xs font-bold text-stone-900">
+                        {selectedColor?.name || "Select a color"}
+                        {selectedColor?.price ? ` (TZS ${selectedColor.price.toLocaleString()})` : ""}
+                      </span>
                     </div>
                     <div className="flex flex-wrap gap-3">
                       {product.colors.map((color: ProductColor, idx: number) => (
@@ -395,28 +394,23 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                             "group relative flex items-center justify-center p-0.5 rounded-full border-2 transition-all duration-300",
                             selectedColor?.name === color.name
                               ? "border-primary scale-110 shadow-md"
-                              : "border-transparent hover:border-stone-200"
+                              : "border-transparent hover:border-stone-200",
                           )}
                           title={color.name}
                           aria-label={`Select color ${color.name}`}
                         >
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-stone-100 bg-stone-50">
                             {color.image ? (
-                              <img
-                                src={color.image}
-                                alt={color.name}
-                                className="w-full h-full object-cover"
-                              />
+                              <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
                             ) : (
-                              <span 
-                                className="absolute inset-0 rounded-full" 
-                                style={{ backgroundColor: color.name.toLowerCase() }}
-                              />
+                              <span className="absolute inset-0 rounded-full" style={{ backgroundColor: color.name.toLowerCase() }} />
                             )}
-                            <div className={cn(
-                              "absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-300",
-                              selectedColor?.name === color.name ? "opacity-100" : "opacity-0 group-hover:opacity-10"
-                            )}>
+                            <div
+                              className={cn(
+                                "absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity duration-300",
+                                selectedColor?.name === color.name ? "opacity-100" : "opacity-0 group-hover:opacity-10",
+                              )}
+                            >
                               <Check className="h-4 w-4 text-white drop-shadow-md" />
                             </div>
                           </div>
@@ -443,15 +437,17 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                             "min-w-[3.5rem] h-12 px-4 rounded-xl border-2 text-xs font-black uppercase transition-all duration-300 flex flex-col items-center justify-center gap-0.5",
                             selectedSize === size
                               ? "border-stone-950 bg-stone-950 text-white shadow-md scale-105"
-                              : "border-stone-100 hover:border-stone-200 text-stone-900 bg-stone-50"
+                              : "border-stone-100 hover:border-stone-200 text-stone-900 bg-stone-50",
                           )}
                         >
                           <span>{size}</span>
                           {product.size_prices?.[size] && (
-                            <span className={cn(
-                              "text-[8px] font-bold block normal-case",
-                              selectedSize === size ? "text-stone-300" : "text-stone-500"
-                            )}>
+                            <span
+                              className={cn(
+                                "text-[8px] font-bold block normal-case",
+                                selectedSize === size ? "text-stone-300" : "text-stone-500",
+                              )}
+                            >
                               TZS {product.size_prices[size].toLocaleString()}
                             </span>
                           )}
@@ -471,7 +467,11 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     type="button"
                     className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Decrease quantity"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.max(product.moq || 1, quantity - 1)); }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setQuantity(Math.max(product.moq || 1, quantity - 1))
+                    }}
                     disabled={quantity <= (product.moq || 1)}
                   >
                     <Minus className="h-4 w-4" />
@@ -481,7 +481,11 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     type="button"
                     className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Increase quantity"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.min(Number(product.stock_quantity) || 999, quantity + 1)); }}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setQuantity(Math.min(Number(product.stock_quantity) || 999, quantity + 1))
+                    }}
                     disabled={quantity >= (Number(product.stock_quantity) || 999)}
                   >
                     <Plus className="h-4 w-4" />
@@ -493,7 +497,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   Min Order: {product.moq || 1} {product.weight_unit || product.unit || "Units"}
                 </p>
                 <p className="text-[10px] font-bold text-stone-400 italic">
-                  {product.stock_quantity || 'N/A'} {product.weight_unit || product.unit || "Units"} available
+                  {product.stock_quantity || "N/A"} {product.weight_unit || product.unit || "Units"} available
                 </p>
               </div>
             </div>
@@ -505,7 +509,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                     "flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all duration-300 active:scale-[0.98]",
                     isInCart
                       ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm shadow-emerald-500/5"
-                      : "bg-[#0B5ED7] hover:bg-[#094cb0] text-white shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5"
+                      : "bg-[#0B5ED7] hover:bg-[#094cb0] text-white shadow-lg shadow-blue-500/10 hover:shadow-xl hover:shadow-blue-500/20 hover:-translate-y-0.5",
                   )}
                   onClick={handleAddToCart}
                   disabled={product.stock_quantity === 0}
@@ -529,12 +533,14 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   size="icon"
                   className={cn(
                     "h-14 w-14 rounded-2xl border-stone-200 hover:border-primary/40 hover:text-primary transition-all duration-300 shadow-sm hover:shadow-md shrink-0",
-                    isLiked && "bg-rose-50 border-rose-100 text-rose-600 hover:text-rose-700 hover:border-rose-200"
+                    isLiked && "bg-rose-50 border-rose-100 text-rose-600 hover:text-rose-700 hover:border-rose-200",
                   )}
                   onClick={handleLike}
                   disabled={isLoading}
                 >
-                  <Heart className={cn("h-5.5 w-5.5 transition-transform duration-300", isLiked && "fill-rose-500 text-rose-500 scale-105")} />
+                  <Heart
+                    className={cn("h-5.5 w-5.5 transition-transform duration-300", isLiked && "fill-rose-500 text-rose-500 scale-105")}
+                  />
                 </Button>
               </div>
             </div>
@@ -588,7 +594,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                 <span className="text-primary font-black">Verified by TOLA</span>
               </div>
               <p className="p-4 rounded-2xl bg-stone-800/40 border border-stone-800 text-[11px] font-medium text-stone-400 leading-relaxed italic">
-                Seller details are hidden to prevent off-platform deals and ensure secure trade. Identity will be revealed after order placement.
+                Seller details are hidden to prevent off-platform deals and ensure secure trade. Identity will be revealed after order
+                placement.
               </p>
             </div>
           </div>
@@ -601,11 +608,15 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <div className="space-y-1">
               <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
                 <span className="text-xs font-medium text-stone-500">Identifier (SKU)</span>
-                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">{product.sku || "N/A"}</span>
+                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">
+                  {product.sku || "N/A"}
+                </span>
               </div>
               <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
                 <span className="text-xs font-medium text-stone-500">Category</span>
-                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">{product.categories?.name || "Inventory"}</span>
+                <span className="text-xs font-bold text-stone-900 uppercase tracking-wide bg-stone-100 px-2.5 py-1 rounded-md">
+                  {product.categories?.name || "Inventory"}
+                </span>
               </div>
               {productLocation && (
                 <div className="flex justify-between items-center py-3 px-1 hover:bg-stone-50/50 rounded-xl transition-colors duration-200">
@@ -752,7 +763,10 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
               </div>
             ) : (
               reviews.map((review) => (
-                <div key={review.id} className="p-8 rounded-[2rem] bg-white border border-stone-100 shadow-sm space-y-4 group hover:shadow-xl transition-all">
+                <div
+                  key={review.id}
+                  className="p-8 rounded-[2rem] bg-white border border-stone-100 shadow-sm space-y-4 group hover:shadow-xl transition-all"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-stone-50 flex items-center justify-center font-black text-xs text-stone-400">
@@ -775,7 +789,6 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             )}
           </div>
         </div>
-
       </div>
 
       {/* Cross-Selling Recommendations */}
@@ -786,13 +799,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <h3 className="text-2xl font-black tracking-tighter text-stone-950">You May Also Like</h3>
             <div className="h-px flex-1 bg-stone-100" />
           </div>
-          <div
-            role="status"
-            className="rounded-[1.5rem] border border-stone-100 bg-stone-50/60 p-8 text-center"
-          >
-            <p className="text-sm font-medium text-stone-600">
-              We couldn&apos;t load recommendations right now.
-            </p>
+          <div role="status" className="rounded-[1.5rem] border border-stone-100 bg-stone-50/60 p-8 text-center">
+            <p className="text-sm font-medium text-stone-600">We couldn&apos;t load recommendations right now.</p>
             <p className="mt-1 text-xs text-stone-500">
               Everything else on this page is up to date — try refreshing to see related products.
             </p>
@@ -835,7 +843,8 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   </div>
                   <h4 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-tight">{rec.name}</h4>
                   <p className="text-base font-bold text-[#0B5ED7] tracking-tight">
-                    {rec.price?.toLocaleString()} <span className="text-[10px] font-medium uppercase">TZS{rec.weight_unit ? ` / ${rec.weight_unit}` : ""}</span>
+                    {rec.price?.toLocaleString()}{" "}
+                    <span className="text-[10px] font-medium uppercase">TZS{rec.weight_unit ? ` / ${rec.weight_unit}` : ""}</span>
                   </p>
                 </div>
               </Link>

@@ -4,14 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -88,18 +81,20 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
 
   const selectedCategory = categories.find((c) => c.id === categoryId)
   const selectedParentCategory = selectedCategory?.parent_id
-    ? categories.find(c => c.id === selectedCategory.parent_id)
+    ? categories.find((c) => c.id === selectedCategory.parent_id)
     : selectedCategory
 
   const isFashion = selectedParentCategory?.name?.toLowerCase() === "fashion"
   const isAgriculture = selectedParentCategory?.name?.toLowerCase() === "agriculture"
-  const isVehicles = selectedParentCategory?.name?.toLowerCase() === "vehicles" ||
-                     selectedParentCategory?.name?.toLowerCase() === "motorcycles" ||
-                     selectedParentCategory?.name?.toLowerCase() === "motorcyles"
-  const isServices = selectedParentCategory?.name?.toLowerCase() === "services" ||
-                     selectedParentCategory?.slug === "services" ||
-                     selectedCategory?.name?.toLowerCase() === "services" ||
-                     selectedCategory?.slug === "services"
+  const isVehicles =
+    selectedParentCategory?.name?.toLowerCase() === "vehicles" ||
+    selectedParentCategory?.name?.toLowerCase() === "motorcycles" ||
+    selectedParentCategory?.name?.toLowerCase() === "motorcyles"
+  const isServices =
+    selectedParentCategory?.name?.toLowerCase() === "services" ||
+    selectedParentCategory?.slug === "services" ||
+    selectedCategory?.name?.toLowerCase() === "services" ||
+    selectedCategory?.slug === "services"
   const isReadyToEat = selectedParentCategory?.name?.toLowerCase() === "ready to eat" || selectedParentCategory?.slug === "ready-to-eat"
   const isDrinks = selectedParentCategory?.name?.toLowerCase() === "drinks" || selectedParentCategory?.slug === "drinks"
 
@@ -163,7 +158,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
       setSizes([...sizes, sizeFormatted])
       const parsedPrice = Number.parseFloat(newSizePrice)
       if (!isNaN(parsedPrice) && parsedPrice > 0) {
-        setSizePrices(prev => ({ ...prev, [sizeFormatted]: parsedPrice }))
+        setSizePrices((prev) => ({ ...prev, [sizeFormatted]: parsedPrice }))
       }
     }
     setNewSize("")
@@ -173,7 +168,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
   const handleRemoveSize = (index: number) => {
     const sizeToRemove = sizes[index]
     setSizes(sizes.filter((_, i) => i !== index))
-    setSizePrices(prev => {
+    setSizePrices((prev) => {
       const copy = { ...prev }
       delete copy[sizeToRemove]
       return copy
@@ -354,13 +349,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name *</Label>
-              <Input
-                id="name"
-                placeholder="Product name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <Input id="name" placeholder="Product name" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
@@ -379,12 +368,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   <div className="grid grid-cols-3 gap-4">
                     {images.map((url, index) => (
                       <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
-                        <Image
-                          src={url || "/placeholder.svg"}
-                          alt={`Product ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={url || "/placeholder.svg"} alt={`Product ${index + 1}`} fill className="object-cover" />
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(index)}
@@ -406,10 +390,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                     disabled={uploadingImage}
                     className="hidden"
                   />
-                  <Label
-                    htmlFor="images"
-                    className="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-accent"
-                  >
+                  <Label htmlFor="images" className="flex items-center gap-2 px-4 py-2 border rounded-md cursor-pointer hover:bg-accent">
                     {uploadingImage ? (
                       <>
                         <Upload className="h-4 w-4 animate-spin" />
@@ -469,14 +450,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
               </div>
               <div className="space-y-2">
                 <Label htmlFor="moq">Min Order Quantity (MOQ)</Label>
-                <Input
-                  id="moq"
-                  type="number"
-                  placeholder="1"
-                  value={moq}
-                  onChange={(e) => setMoq(e.target.value)}
-                  required
-                />
+                <Input id="moq" type="number" placeholder="1" value={moq} onChange={(e) => setMoq(e.target.value)} required />
               </div>
             </div>
             {isServices ? (
@@ -494,7 +468,8 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   </Label>
                 </div>
                 <p className="text-xs text-muted-foreground ml-6">
-                  Check this if your service includes home delivery or on-site visits to the customer's location. Uncheck if service is rendered at your business premises or remotely.
+                  Check this if your service includes home delivery or on-site visits to the customer's location. Uncheck if service is
+                  rendered at your business premises or remotely.
                 </p>
               </div>
             ) : (
@@ -517,7 +492,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                 value={parentCategoryId}
                 onValueChange={(val) => {
                   setParentCategoryId(val)
-                  const subs = categories.filter(c => c.parent_id === val)
+                  const subs = categories.filter((c) => c.parent_id === val)
                   if (subs.length > 0) {
                     setSubCategoryId(subs[0].id)
                     setCategoryId(subs[0].id)
@@ -531,16 +506,18 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.filter(c => !c.parent_id).map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+                  {categories
+                    .filter((c) => !c.parent_id)
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {categories.filter(c => c.parent_id === parentCategoryId).length > 0 && (
+            {categories.filter((c) => c.parent_id === parentCategoryId).length > 0 && (
               <div className="space-y-2 animate-in fade-in duration-300">
                 <Label htmlFor="subcategory">Subcategory *</Label>
                 <Select
@@ -549,18 +526,18 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                     setSubCategoryId(val)
                     setCategoryId(val)
                     // Auto-derive vehicle_section from subcategory slug
-                    const subCat = categories.find(c => c.id === val)
-                    if (subCat?.slug === 'spare-parts') {
-                      setVehicleSection('spare_part')
-                    } else if (subCat?.slug === 'vehicles-sub') {
-                      setVehicleSection('vehicle')
-                    } else if (subCat?.slug === 'non-alcoholic') {
-                      setDrinkSection('non_alcoholic')
-                    } else if (subCat?.slug === 'alcoholic') {
-                      setDrinkSection('alcoholic')
+                    const subCat = categories.find((c) => c.id === val)
+                    if (subCat?.slug === "spare-parts") {
+                      setVehicleSection("spare_part")
+                    } else if (subCat?.slug === "vehicles-sub") {
+                      setVehicleSection("vehicle")
+                    } else if (subCat?.slug === "non-alcoholic") {
+                      setDrinkSection("non_alcoholic")
+                    } else if (subCat?.slug === "alcoholic") {
+                      setDrinkSection("alcoholic")
                     } else {
                       // Reset vehicle section for subcategories that don't auto-derive
-                      setVehicleSection('')
+                      setVehicleSection("")
                     }
                   }}
                 >
@@ -569,7 +546,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   </SelectTrigger>
                   <SelectContent>
                     {categories
-                      .filter(c => c.parent_id === parentCategoryId)
+                      .filter((c) => c.parent_id === parentCategoryId)
                       .map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
@@ -596,19 +573,21 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
             )}
             {isVehicles && (
               <div className="border-t pt-4 mt-4 space-y-4 animate-in fade-in duration-300">
-                <h4 className="font-bold text-sm text-stone-900">{(() => {
-                  const subCatName = categories.find(c => c.id === subCategoryId)?.name
-                  const sectionLabel = vehicleSection === 'vehicle' ? 'Vehicle' : vehicleSection === 'spare_part' ? 'Spare Part' : ''
-                  if (subCatName && sectionLabel) return `${subCatName} / ${sectionLabel} Details`
-                  if (subCatName) return `${subCatName} Details`
-                  return 'Vehicles / Spare Parts Details'
-                })()}</h4>
+                <h4 className="font-bold text-sm text-stone-900">
+                  {(() => {
+                    const subCatName = categories.find((c) => c.id === subCategoryId)?.name
+                    const sectionLabel = vehicleSection === "vehicle" ? "Vehicle" : vehicleSection === "spare_part" ? "Spare Part" : ""
+                    if (subCatName && sectionLabel) return `${subCatName} / ${sectionLabel} Details`
+                    if (subCatName) return `${subCatName} Details`
+                    return "Vehicles / Spare Parts Details"
+                  })()}
+                </h4>
                 {/* Section is auto-derived from subcategory for the Vehicles category */}
                 {vehicleSection ? (
                   <div className="space-y-2">
                     <Label>Section</Label>
                     <div className="flex items-center gap-2 px-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-700">
-                      <span className="font-medium">{vehicleSection === 'vehicle' ? '🚗 Vehicle' : '🔧 Spare Part'}</span>
+                      <span className="font-medium">{vehicleSection === "vehicle" ? "🚗 Vehicle" : "🔧 Spare Part"}</span>
                       <span className="text-stone-400 text-xs">(derived from subcategory)</span>
                     </div>
                   </div>
@@ -711,7 +690,11 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                       </div>
                       <div className="space-y-2">
                         <Label>Compatible Vehicles</Label>
-                        <Input placeholder="e.g. Toyota Corolla 2015-2020" value={compatibility} onChange={(e) => setCompatibility(e.target.value)} />
+                        <Input
+                          placeholder="e.g. Toyota Corolla 2015-2020"
+                          value={compatibility}
+                          onChange={(e) => setCompatibility(e.target.value)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -763,7 +746,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   <Label>Section</Label>
                   {drinkSection ? (
                     <div className="flex items-center gap-2 px-3 py-2 bg-stone-50 border border-stone-200 rounded-md text-sm text-stone-700">
-                      <span className="font-medium">{drinkSection === 'alcoholic' ? '🍹 Alcoholic' : '🥤 Non-Alcoholic'}</span>
+                      <span className="font-medium">{drinkSection === "alcoholic" ? "🍹 Alcoholic" : "🥤 Non-Alcoholic"}</span>
                       <span className="text-stone-400 text-xs">(derived from subcategory)</span>
                     </div>
                   ) : (
@@ -824,9 +807,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                         >
                           {size}
                           {sizePrices[size] && (
-                            <span className="text-[10px] text-stone-500 font-normal ml-1">
-                              (TZS {sizePrices[size].toLocaleString()})
-                            </span>
+                            <span className="text-[10px] text-stone-500 font-normal ml-1">(TZS {sizePrices[size].toLocaleString()})</span>
                           )}
                           <button
                             type="button"
@@ -847,7 +828,9 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   <div className="p-4 border rounded-xl bg-stone-50/50 space-y-3">
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <Label htmlFor="color-name" className="text-xs text-stone-500">Color Name</Label>
+                        <Label htmlFor="color-name" className="text-xs text-stone-500">
+                          Color Name
+                        </Label>
                         <Input
                           id="color-name"
                           placeholder="e.g. Cherry Red"
@@ -856,7 +839,9 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="color-price" className="text-xs text-stone-500">Price (Optional)</Label>
+                        <Label htmlFor="color-price" className="text-xs text-stone-500">
+                          Price (Optional)
+                        </Label>
                         <Input
                           id="color-price"
                           placeholder="e.g. 15000"
@@ -904,10 +889,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                   {colors.length > 0 && (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       {colors.map((color, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-2 rounded-xl border bg-white shadow-sm"
-                        >
+                        <div key={idx} className="flex items-center justify-between p-2 rounded-xl border bg-white shadow-sm">
                           <div className="flex items-center gap-2 min-w-0">
                             <div className="relative w-8 h-8 rounded-full overflow-hidden border border-stone-100 flex-shrink-0 bg-stone-50">
                               {color.image ? (
@@ -919,9 +901,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
                             <span className="text-xs font-bold truncate text-stone-800">
                               {color.name}
                               {color.price && (
-                                <span className="text-[10px] text-stone-500 font-normal block">
-                                  TZS {color.price.toLocaleString()}
-                                </span>
+                                <span className="text-[10px] text-stone-500 font-normal block">TZS {color.price.toLocaleString()}</span>
                               )}
                             </span>
                           </div>

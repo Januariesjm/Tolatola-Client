@@ -15,12 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Verify vendor ownership
-    const { data: vendor } = await supabase
-      .from("vendors")
-      .select("id")
-      .eq("id", vendorId)
-      .eq("user_id", user.id)
-      .single()
+    const { data: vendor } = await supabase.from("vendors").select("id").eq("id", vendorId).eq("user_id", user.id).single()
 
     if (!vendor) {
       return NextResponse.json({ error: "Vendor not found" }, { status: 404 })

@@ -76,11 +76,7 @@ function LoginContent() {
         return
       }
 
-      const { data: profile } = await (supabase
-        .from("users")
-        .select("user_type")
-        .eq("id", userData.id) as any)
-        .maybeSingle()
+      const { data: profile } = await (supabase.from("users").select("user_type").eq("id", userData.id) as any).maybeSingle()
 
       if (profile?.user_type === "admin") {
         router.push("/admin")
@@ -107,12 +103,12 @@ function LoginContent() {
 
     try {
       const supabase = createClient()
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co"
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ""}`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -138,12 +134,12 @@ function LoginContent() {
 
     try {
       const supabase = createClient()
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co"
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
-          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''}`,
+          redirectTo: `${appUrl}/auth/callback${returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ""}`,
           scopes: "email,public_profile",
         },
       })
@@ -165,46 +161,41 @@ function LoginContent() {
       <div className="mx-auto flex w-full items-stretch justify-between gap-8 lg:gap-10">
         {/* Left hero panel */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center rounded-3xl bg-gradient-to-br from-primary/10 via-sky-50 to-white px-8 py-10 shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
-        <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
-        <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-sky-50 to-white" />
+          <div className="absolute -left-32 -top-32 h-72 w-72 rounded-full bg-primary/15 blur-3xl opacity-70" />
+          <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-emerald-200/40 blur-3xl opacity-70" />
 
-        <div className="relative z-10 max-w-md space-y-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative h-12 w-12 rounded-2xl bg-white shadow-md border border-primary/10 flex items-center justify-center">
-              <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
+          <div className="relative z-10 max-w-md space-y-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="relative h-12 w-12 rounded-2xl bg-white shadow-md border border-primary/10 flex items-center justify-center">
+                <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">TOLA DIGITAL TRADE</p>
+                <p className="text-lg font-semibold tracking-tight text-slate-900">Your Trade Partner</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-                TOLA DIGITAL TRADE
-              </p>
-              <p className="text-lg font-semibold tracking-tight text-slate-900">Your Trade Partner</p>
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            <h1 className="text-3xl xl:text-4xl font-black tracking-tight text-slate-900">
-              Manage every order in one smart dashboard.
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Track purchases, payouts, and logistics with live updates. Tola connects vendors, transporters,
-              and buyers into a single, secure ecosystem.
-            </p>
-          </div>
-
-          <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 px-5 py-4 flex items-start gap-4 shadow-sm">
-            <div className="mt-1 h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <ShoppingCart className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-semibold text-slate-900">Built for real commerce</p>
-              <p className="text-[12px] text-slate-600 leading-relaxed">
-                From wholesale to last‑mile delivery, authenticate once and manage your entire supply chain
-                journey.
+            <div className="space-y-4">
+              <h1 className="text-3xl xl:text-4xl font-black tracking-tight text-slate-900">Manage every order in one smart dashboard.</h1>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Track purchases, payouts, and logistics with live updates. Tola connects vendors, transporters, and buyers into a single,
+                secure ecosystem.
               </p>
             </div>
+
+            <div className="mt-6 rounded-2xl border border-emerald-200 bg-white/80 px-5 py-4 flex items-start gap-4 shadow-sm">
+              <div className="mt-1 h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                <ShoppingCart className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-900">Built for real commerce</p>
+                <p className="text-[12px] text-slate-600 leading-relaxed">
+                  From wholesale to last‑mile delivery, authenticate once and manage your entire supply chain journey.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
         </div>
 
         {/* Right form panel */}
@@ -219,9 +210,7 @@ function LoginContent() {
 
             <Card className="backdrop-blur-sm bg-white shadow-2xl border-slate-200">
               <CardHeader className="space-y-2 pb-4">
-                <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">
-                  Sign in to TOLA
-                </CardTitle>
+                <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">Sign in to TOLA</CardTitle>
                 <CardDescription className="text-xs text-slate-500">
                   Access your marketplace, logistics, and payouts in one place.
                 </CardDescription>
@@ -230,16 +219,16 @@ function LoginContent() {
               <CardContent className="space-y-6">
                 {urlError && (
                   <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                    <p className="text-sm text-destructive text-center">
-                      {decodeURIComponent(urlError)}
-                    </p>
+                    <p className="text-sm text-destructive text-center">{decodeURIComponent(urlError)}</p>
                   </div>
                 )}
 
                 {/* Email/Password Form */}
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -253,11 +242,10 @@ function LoginContent() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                      <Link
-                        href="/auth/forgot-password"
-                        className="text-xs text-primary hover:underline"
-                      >
+                      <Label htmlFor="password" className="text-sm font-medium">
+                        Password
+                      </Label>
+                      <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
                         Forgot your password? Reset it here
                       </Link>
                     </div>
@@ -283,9 +271,7 @@ function LoginContent() {
                         ) : (
                           <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
-                        <span className="sr-only">
-                          {showPassword ? "Hide password" : "Show password"}
-                        </span>
+                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                       </Button>
                     </div>
                   </div>
@@ -318,9 +304,7 @@ function LoginContent() {
                     <span className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-3 text-muted-foreground font-medium">
-                      Or sign in with
-                    </span>
+                    <span className="bg-card px-3 text-muted-foreground font-medium">Or sign in with</span>
                   </div>
                 </div>
 
@@ -399,11 +383,13 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   )

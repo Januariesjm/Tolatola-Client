@@ -55,9 +55,7 @@ describe("createNotification", () => {
   it("passes through a provided data payload", async () => {
     await createNotification({ ...params, data: { orderId: "o-1", amount: 5000 } })
 
-    expect(mockInsert).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { orderId: "o-1", amount: 5000 } }),
-    )
+    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ data: { orderId: "o-1", amount: 5000 } }))
   })
 
   it("returns false when the insert reports an error", async () => {
@@ -78,16 +76,12 @@ describe("createNotification", () => {
     await expect(createNotification(params)).resolves.toBe(false)
   })
 
-  it.each([
-    ["order_placed"],
-    ["order_assigned"],
-    ["order_status_update"],
-    ["stock_low"],
-  ])("accepts the %s notification type", async (type) => {
-    await expect(
-      createNotification({ ...params, type: type as typeof params.type }),
-    ).resolves.toBe(true)
+  it.each([["order_placed"], ["order_assigned"], ["order_status_update"], ["stock_low"]])(
+    "accepts the %s notification type",
+    async (type) => {
+      await expect(createNotification({ ...params, type: type as typeof params.type })).resolves.toBe(true)
 
-    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ type }))
-  })
+      expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ type }))
+    },
+  )
 })

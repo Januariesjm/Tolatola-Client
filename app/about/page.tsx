@@ -27,11 +27,7 @@ export default async function AboutPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -69,13 +65,16 @@ export default async function AboutPage() {
             <div className="mt-12 grid lg:grid-cols-2 gap-8 items-center">
               <div className="space-y-4 text-base text-muted-foreground leading-relaxed">
                 <p>
-                  We provide a secure and transparent platform that enables businesses to trade, manage supply chains, and access essential digital tools with confidence and efficiency.
+                  We provide a secure and transparent platform that enables businesses to trade, manage supply chains, and access essential
+                  digital tools with confidence and efficiency.
                 </p>
                 <p>
-                  TOLA is built with a strong focus on reliability, compliance, and trust, ensuring that every transaction and interaction is backed by a legally registered and operational business entity.
+                  TOLA is built with a strong focus on reliability, compliance, and trust, ensuring that every transaction and interaction
+                  is backed by a legally registered and operational business entity.
                 </p>
                 <p className="font-semibold text-foreground">
-                  Our mission is to strengthen local and regional trade by bridging gaps between buyers, suppliers, and logistics through modern digital infrastructure tailored for emerging markets.
+                  Our mission is to strengthen local and regional trade by bridging gaps between buyers, suppliers, and logistics through
+                  modern digital infrastructure tailored for emerging markets.
                 </p>
               </div>
 
@@ -84,7 +83,8 @@ export default async function AboutPage() {
                   <Target className="h-8 w-8 mb-4" />
                   <h3 className="text-xl font-black mb-2">Our Mission</h3>
                   <p className="text-primary-foreground/90 text-sm leading-snug">
-                    To create a trusted digital ecosystem that simplifies trade, enhances transparency, and empowers businesses to grow efficiently.
+                    To create a trusted digital ecosystem that simplifies trade, enhances transparency, and empowers businesses to grow
+                    efficiently.
                   </p>
                 </Card>
 
@@ -92,7 +92,8 @@ export default async function AboutPage() {
                   <Globe className="h-8 w-8 mb-4 text-primary" />
                   <h3 className="text-xl font-black mb-2">Our Vision</h3>
                   <p className="text-stone-400 text-sm leading-snug">
-                    To become a leading digital trade and supply chain platform in Africa, enabling seamless and secure commerce for businesses of all sizes.
+                    To become a leading digital trade and supply chain platform in Africa, enabling seamless and secure commerce for
+                    businesses of all sizes.
                   </p>
                 </Card>
               </div>
@@ -123,7 +124,9 @@ export default async function AboutPage() {
                   <div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Company Information</h3>
                     <p className="text-xl font-bold leading-tight">
-                      TOLA is owned and operated by <span className="underline decoration-primary/30 decoration-2 underline-offset-4">TOLA GLOBAL SYSTEMS LIMITED</span>, a legally registered company in the United Republic of Tanzania.
+                      TOLA is owned and operated by{" "}
+                      <span className="underline decoration-primary/30 decoration-2 underline-offset-4">TOLA GLOBAL SYSTEMS LIMITED</span>,
+                      a legally registered company in the United Republic of Tanzania.
                     </p>
                   </div>
 
@@ -133,7 +136,7 @@ export default async function AboutPage() {
                       { label: "Business Name", value: "TOLA" },
                       { label: "Company Registration (BRELA)", value: "REGISTRATION NO 207121622" },
                       { label: "TIN", value: "207121622" },
-                      { label: "Country of Incorporation", value: "United Republic of Tanzania" }
+                      { label: "Country of Incorporation", value: "United Republic of Tanzania" },
                     ].map((item, i) => (
                       <div key={i} className="space-y-0.5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{item.label}</p>
@@ -179,25 +182,26 @@ export default async function AboutPage() {
                   icon: <Phone className="h-5 w-5" />,
                   title: "Mikocheni Dar Es Salaam HQ",
                   detail: "+255 678 227 227",
-                  desc: "Head Office"
+                  desc: "Head Office",
                 },
                 {
                   icon: <Phone className="h-5 w-5" />,
                   title: "Kibaha Pwani Main Branch",
                   detail: "+255 625 377 978",
-                  desc: "Main Branch"
+                  desc: "Main Branch",
                 },
                 {
                   icon: <Mail className="h-5 w-5" />,
                   title: "Email Support",
                   detail: "support@tolatola.co",
-                  desc: "Available during business hours"
-                }
+                  desc: "Available during business hours",
+                },
               ].map((contact, i) => (
-                <div key={i} className="p-8 rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-center">
-                  <div className="inline-flex p-3 rounded-xl bg-primary/5 text-primary mb-4">
-                    {contact.icon}
-                  </div>
+                <div
+                  key={i}
+                  className="p-8 rounded-[2rem] border border-stone-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-center"
+                >
+                  <div className="inline-flex p-3 rounded-xl bg-primary/5 text-primary mb-4">{contact.icon}</div>
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">{contact.title}</h3>
                   <p className="text-lg font-bold mb-1">{contact.detail}</p>
                   <p className="text-xs text-muted-foreground">{contact.desc}</p>
@@ -214,9 +218,12 @@ export default async function AboutPage() {
           <div className="container mx-auto px-4 max-w-6xl relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight italic text-primary leading-none">Trust & Transparency</h2>
+                <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight italic text-primary leading-none">
+                  Trust & Transparency
+                </h2>
                 <p className="text-lg md:text-xl font-medium text-stone-300 leading-relaxed mb-6">
-                  At TOLA, trust is a core principle of our platform. We maintain operational systems designed to ensure reliability, security, and accountability.
+                  At TOLA, trust is a core principle of our platform. We maintain operational systems designed to ensure reliability,
+                  security, and accountability.
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -224,7 +231,7 @@ export default async function AboutPage() {
                     "Legally registered in Tanzania",
                     "Publicly available details",
                     "Security-focused systems",
-                    "Governed by clear policies"
+                    "Governed by clear policies",
                   ].map((text, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -240,7 +247,8 @@ export default async function AboutPage() {
                   <Shield className="h-16 w-16 text-primary mb-6" />
                   <h3 className="text-2xl font-black mb-4">Security First</h3>
                   <p className="text-stone-400 leading-relaxed text-base">
-                    Our platform is built to protect every stakeholder. From verified business entities to secure transaction protocols, we ensure that digital trade is as safe as it is efficient.
+                    Our platform is built to protect every stakeholder. From verified business entities to secure transaction protocols, we
+                    ensure that digital trade is as safe as it is efficient.
                   </p>
                 </Card>
               </div>
@@ -257,7 +265,8 @@ export default async function AboutPage() {
             <h2 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Legal Disclaimer</h2>
             <div className="space-y-4 text-muted-foreground/80 leading-relaxed text-xs">
               <p>
-                TOLA is a digital trade and supply chain ecosystem operated by TOLA GLOBAL SYSTEMS LIMITED. All information provided on this website is for general informational purposes only and does not constitute legal, financial, or professional advice.
+                TOLA is a digital trade and supply chain ecosystem operated by TOLA GLOBAL SYSTEMS LIMITED. All information provided on this
+                website is for general informational purposes only and does not constitute legal, financial, or professional advice.
               </p>
               <p className="font-bold underline underline-offset-2 decoration-primary/20">
                 Use of the platform is subject to our Terms of Service and Privacy Policy.

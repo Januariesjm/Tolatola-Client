@@ -34,12 +34,10 @@ export function CartContent() {
     setCartItems(items)
   }, [])
 
-  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ''}-${item.selected_size || ''}`
+  const getItemId = (item: any) => `${item.product_id}-${item.selected_color?.name || ""}-${item.selected_size || ""}`
 
   const updateQuantity = (itemId: string, newQuantity: number) => {
-    const updatedCart = cartItems.map((item) =>
-      getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item,
-    )
+    const updatedCart = cartItems.map((item) => (getItemId(item) === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item))
     localStorage.setItem("cart", JSON.stringify(updatedCart))
     setCartItems(updatedCart)
     window.dispatchEvent(new Event("cartUpdated"))
@@ -65,7 +63,9 @@ export function CartContent() {
       <div className="container mx-auto px-3 sm:px-4 py-4 md:py-8">
         <div className="mb-4 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">{t("cart.title")}</h1>
-          <p className="text-muted-foreground text-xs md:text-sm">{cartItems.length} {t("cart.items_in_cart")}</p>
+          <p className="text-muted-foreground text-xs md:text-sm">
+            {cartItems.length} {t("cart.items_in_cart")}
+          </p>
         </div>
 
         {cartItems.length === 0 ? (
@@ -91,7 +91,8 @@ export function CartContent() {
                         <div className="w-20 h-20 sm:w-24 sm:h-24 bg-muted rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
                           <img
                             src={
-                              item.selected_color?.image || (item.product.images && item.product.images.length > 0
+                              item.selected_color?.image ||
+                              (item.product.images && item.product.images.length > 0
                                 ? item.product.images[0]
                                 : `/placeholder.svg?height=100&width=100&query=${encodeURIComponent(item.product.name)}`)
                             }
@@ -101,7 +102,9 @@ export function CartContent() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start gap-2">
-                            <h3 className="font-bold text-sm md:text-base text-stone-900 leading-snug truncate pr-1">{item.product.name}</h3>
+                            <h3 className="font-bold text-sm md:text-base text-stone-900 leading-snug truncate pr-1">
+                              {item.product.name}
+                            </h3>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -112,16 +115,14 @@ export function CartContent() {
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
-                          <p className="text-[11px] md:text-xs text-muted-foreground mb-1.5 truncate">
-                            {t("cart.by_verified_vendor")}
-                          </p>
+                          <p className="text-[11px] md:text-xs text-muted-foreground mb-1.5 truncate">{t("cart.by_verified_vendor")}</p>
 
                           {/* Color & Size Variation Badge */}
                           {(item.selected_color || item.selected_size) && (
                             <div className="flex flex-wrap gap-1.5 mb-2">
                               {item.selected_color && (
                                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-semibold bg-stone-100 text-stone-700 border border-stone-200">
-                                  <span 
+                                  <span
                                     className="w-2.5 h-2.5 rounded-full border border-stone-300"
                                     style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
                                   />
@@ -170,7 +171,7 @@ export function CartContent() {
               })}
             </div>
 
-             {/* Order Summary */}
+            {/* Order Summary */}
             <div className="lg:col-span-1">
               <Card className="lg:sticky lg:top-24 rounded-2xl md:rounded-3xl border-stone-200 shadow-sm">
                 <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
@@ -197,7 +198,12 @@ export function CartContent() {
                       <span className="text-primary">TZS {total.toLocaleString()}</span>
                     </div>
                   </div>
-                  <Button className="w-full h-11 md:h-12 rounded-xl text-sm font-extrabold shadow-md shadow-primary/20" size="lg" onClick={handleCheckout} disabled={isCheckingAuth}>
+                  <Button
+                    className="w-full h-11 md:h-12 rounded-xl text-sm font-extrabold shadow-md shadow-primary/20"
+                    size="lg"
+                    onClick={handleCheckout}
+                    disabled={isCheckingAuth}
+                  >
                     {isCheckingAuth ? t("common.loading") : t("cart.proceed")}
                   </Button>
                   <Link href="/shop" className="block">

@@ -52,34 +52,13 @@ export function AgentDashboardContent({
           />
         )
       case "registrations":
-        return (
-          <AgentRegistrationsTab
-            initialRegistrations={registrations}
-            agent={agent}
-          />
-        )
+        return <AgentRegistrationsTab initialRegistrations={registrations} agent={agent} />
       case "commissions":
-        return (
-          <AgentCommissionTab
-            commissions={commissions}
-            summary={commissionSummary}
-            leaderboard={leaderboard}
-            myRank={myRank}
-          />
-        )
+        return <AgentCommissionTab commissions={commissions} summary={commissionSummary} leaderboard={leaderboard} myRank={myRank} />
       case "performance":
-        return (
-          <AgentPerformanceTab
-            agent={agent}
-            trend={trend}
-          />
-        )
+        return <AgentPerformanceTab agent={agent} trend={trend} />
       case "notifications":
-        return (
-          <AgentNotifications
-            agent={agent}
-          />
-        )
+        return <AgentNotifications agent={agent} />
       default:
         return (
           <AgentOverviewTab
@@ -125,9 +104,7 @@ export function AgentDashboardContent({
               <Menu className="h-5 w-5" />
             </button>
             <div className="flex flex-col">
-              <h1 className="text-base md:text-lg font-bold text-slate-900 capitalize">
-                {activeTab.replace("-", " ")}
-              </h1>
+              <h1 className="text-base md:text-lg font-bold text-slate-900 capitalize">{activeTab.replace("-", " ")}</h1>
             </div>
           </div>
 
@@ -148,9 +125,7 @@ export function AgentDashboardContent({
         </header>
 
         {/* Tab Content view container */}
-        <main className="flex-1 p-4 md:p-8 max-w-[1600px] w-full mx-auto">
-          {renderTabContent()}
-        </main>
+        <main className="flex-1 p-4 md:p-8 max-w-[1600px] w-full mx-auto">{renderTabContent()}</main>
       </div>
     </div>
   )

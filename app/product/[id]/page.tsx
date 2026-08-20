@@ -19,15 +19,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const rawImageUrl = typeof product.images?.[0] === "string"
-    ? product.images[0]
-    : (product.images?.[0]?.url || product.images?.[0])
+  const rawImageUrl = typeof product.images?.[0] === "string" ? product.images[0] : product.images?.[0]?.url || product.images?.[0]
   let imageUrl = rawImageUrl || product.image_url || "/logo-new.png"
   if (imageUrl.startsWith("/")) {
     imageUrl = `https://tolatola.co${imageUrl}`
   }
   const description = product.description
-    ? (product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description)
+    ? product.description.length > 160
+      ? product.description.substring(0, 157) + "..."
+      : product.description
     : `Buy ${product.name} on TOLA Tanzania. Verified vendors, secure checkout, M-Pesa & Tigo Pesa.`
 
   return {

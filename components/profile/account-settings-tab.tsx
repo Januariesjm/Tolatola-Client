@@ -175,7 +175,11 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
               <h4 className="font-medium text-gray-900 dark:text-gray-100">Sign out</h4>
               <p className="text-sm text-muted-foreground">Sign out of your account on this device.</p>
             </div>
-            <Button variant="outline" onClick={handleLogout} className="border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 dark:border-red-900 dark:hover:bg-red-900/20">
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 dark:border-red-900 dark:hover:bg-red-900/20"
+            >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
@@ -188,9 +192,17 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
               <h4 className="font-medium text-gray-900 dark:text-gray-100">Delete Account</h4>
               <p className="text-sm text-muted-foreground">Permanently delete your account and all data.</p>
             </div>
-            <AlertDialog open={showDeleteConfirm} onOpenChange={(open) => { setShowDeleteConfirm(open); if (!open) setDeleteConfirmText(""); }}>
+            <AlertDialog
+              open={showDeleteConfirm}
+              onOpenChange={(open) => {
+                setShowDeleteConfirm(open)
+                if (!open) setDeleteConfirmText("")
+              }}
+            >
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="bg-red-600 hover:bg-red-700">Delete Account</Button>
+                <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                  Delete Account
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

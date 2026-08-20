@@ -1,6 +1,6 @@
-const fs = require('fs');
-const file = '/home/januaries/Desktop/Tolatola/multivendor-marketplace-build/Tolatola-Client/components/payment/payment-content.tsx';
-let content = fs.readFileSync(file, 'utf8');
+const fs = require("fs")
+const file = "/home/januaries/Desktop/Tolatola/multivendor-marketplace-build/Tolatola-Client/components/payment/payment-content.tsx"
+let content = fs.readFileSync(file, "utf8")
 
 const replacement = `  useEffect(() => {
     if (paymentCompleted) {
@@ -17,15 +17,17 @@ const replacement = `  useEffect(() => {
         </div>
       </div>
     )
-  }`;
+  }`
 
-const startIndex = content.indexOf('  const handleConfirmDelivery = async () => {');
-const endIndex = content.indexOf('  return (\n    <div className="min-h-screen bg-[#FDFCFB] pb-20">\n      <div className="container mx-auto');
+const startIndex = content.indexOf("  const handleConfirmDelivery = async () => {")
+const endIndex = content.indexOf(
+  '  return (\n    <div className="min-h-screen bg-[#FDFCFB] pb-20">\n      <div className="container mx-auto',
+)
 
 if (startIndex !== -1 && endIndex !== -1) {
-  content = content.substring(0, startIndex) + replacement + '\n' + content.substring(endIndex);
-  fs.writeFileSync(file, content);
-  console.log("Success modifying payment-content.tsx");
+  content = content.substring(0, startIndex) + replacement + "\n" + content.substring(endIndex)
+  fs.writeFileSync(file, content)
+  console.log("Success modifying payment-content.tsx")
 } else {
-  console.log("Could not find blocks", startIndex, endIndex);
+  console.log("Could not find blocks", startIndex, endIndex)
 }

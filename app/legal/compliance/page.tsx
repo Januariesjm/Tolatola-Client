@@ -20,25 +20,18 @@ export default function LegalCompliancePage() {
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="space-y-4 text-center">
-            <Badge
-              variant="outline"
-              className="px-4 py-1 border-primary/20 text-primary bg-primary/5 mb-4"
-            >
+            <Badge variant="outline" className="px-4 py-1 border-primary/20 text-primary bg-primary/5 mb-4">
               LEGAL &amp; COMPLIANCE
             </Badge>
             <h1 className="text-3xl md:text-5xl font-black text-stone-900 tracking-tight">
               Legal Framework, Insurance Structure &amp; Risk Management
             </h1>
-            <p className="text-lg md:text-xl text-stone-600 font-medium">
-              TOLA Digital trade &amp; Supply Chain Ecosystem
-            </p>
+            <p className="text-lg md:text-xl text-stone-600 font-medium">TOLA Digital trade &amp; Supply Chain Ecosystem</p>
           </div>
 
           <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
             <CardHeader className="border-b border-stone-100 bg-white/50 pb-8">
-              <CardTitle className="text-xl text-primary font-bold">
-                TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM
-              </CardTitle>
+              <CardTitle className="text-xl text-primary font-bold">TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM</CardTitle>
             </CardHeader>
             <CardContent className="p-6 md:p-10 space-y-8 text-stone-700 leading-relaxed">
               {/* 1. Platform Legal Status & Liability Limitation */}
@@ -47,9 +40,8 @@ export default function LegalCompliancePage() {
                   1. Platform Legal Status &amp; Liability Limitation
                 </h2>
                 <p>
-                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM operates as a digital trade and
-                  supply chain coordination platform connecting Vendors, Buyers, and Licensed
-                  Transporters through its technology infrastructure. TOLA acts strictly as a{" "}
+                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM operates as a digital trade and supply chain coordination platform
+                  connecting Vendors, Buyers, and Licensed Transporters through its technology infrastructure. TOLA acts strictly as a{" "}
                   <span className="font-semibold">digital intermediary and logistics coordination ecosystem</span>.
                 </p>
                 <p className="font-semibold">TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM does NOT:</p>
@@ -60,9 +52,8 @@ export default function LegalCompliancePage() {
                   <li>Warehouse, store, or transport goods directly</li>
                 </ul>
                 <p>
-                  All goods transported through the platform remain under the custody, control, and legal
-                  responsibility of the contracted Transporter from the point of physical collection to final
-                  delivery.
+                  All goods transported through the platform remain under the custody, control, and legal responsibility of the contracted
+                  Transporter from the point of physical collection to final delivery.
                 </p>
                 <p className="font-semibold">However, TOLA participates actively in ensuring:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
@@ -72,10 +63,7 @@ export default function LegalCompliancePage() {
                   <li>Vendor payout processing</li>
                   <li>Transporter payout processing</li>
                 </ul>
-                <p>
-                  Despite active coordination, TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM shall not be
-                  liable for:
-                </p>
+                <p>Despite active coordination, TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM shall not be liable for:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
                   <li>Physical damage to goods</li>
                   <li>Theft or loss of cargo</li>
@@ -84,27 +72,22 @@ export default function LegalCompliancePage() {
                   <li>Force majeure events</li>
                 </ul>
                 <p>
-                  Liability for such events rests solely with the contracted Transporter in accordance with
-                  applicable transport and insurance laws under Tanzanian law.
+                  Liability for such events rests solely with the contracted Transporter in accordance with applicable transport and
+                  insurance laws under Tanzanian law.
                 </p>
               </section>
 
               {/* 2. Risk Transfer Policy */}
               <section className="space-y-3">
-                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">
-                  2. Risk Transfer Policy
-                </h2>
+                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">2. Risk Transfer Policy</h2>
                 <p>Risk of loss or damage shall transfer as follows:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
                   <li>
-                    Risk transfers from Vendor to Transporter at the point of physical collection and
-                    digital dispatch confirmation recorded within the TOLA system.
+                    Risk transfers from Vendor to Transporter at the point of physical collection and digital dispatch confirmation recorded
+                    within the TOLA system.
                   </li>
                   <li>The Transporter assumes full responsibility and liability for the cargo during transit.</li>
-                  <li>
-                    Upon confirmed digital proof of delivery to the Buyer, risk transfers from Transporter to
-                    Buyer.
-                  </li>
+                  <li>Upon confirmed digital proof of delivery to the Buyer, risk transfers from Transporter to Buyer.</li>
                 </ul>
                 <p>All risk transfer stages are digitally timestamped within the platform system.</p>
               </section>
@@ -115,8 +98,8 @@ export default function LegalCompliancePage() {
                   3. Mandatory Insurance Requirements for Transporters
                 </h2>
                 <p>
-                  All Transporters operating within TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM must
-                  maintain <span className="font-semibold">valid Goods-in-Transit Insurance</span>.
+                  All Transporters operating within TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM must maintain{" "}
+                  <span className="font-semibold">valid Goods-in-Transit Insurance</span>.
                 </p>
                 <p>The insurance must:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
@@ -126,10 +109,7 @@ export default function LegalCompliancePage() {
                   <li>Remain active throughout the transportation period</li>
                   <li>Be renewed annually</li>
                 </ul>
-                <p>
-                  Transporters must submit valid insurance certification annually to TOLA DIGITAL TRADE &amp;
-                  SUPPLY CHAIN ECOSYSTEM.
-                </p>
+                <p>Transporters must submit valid insurance certification annually to TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.</p>
                 <p className="font-semibold">Failure to maintain valid insurance may result in:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
                   <li>Immediate suspension from the ecosystem</li>
@@ -137,17 +117,14 @@ export default function LegalCompliancePage() {
                   <li>Contract termination where applicable</li>
                 </ul>
                 <p>
-                  In the event of cargo theft, accident, or loss, liability rests solely with the Transporter,
-                  and compensation shall be processed through the Transporter’s Goods-in-Transit Insurance
-                  provider.
+                  In the event of cargo theft, accident, or loss, liability rests solely with the Transporter, and compensation shall be
+                  processed through the Transporter’s Goods-in-Transit Insurance provider.
                 </p>
               </section>
 
               {/* 4. Insurance Structure */}
               <section className="space-y-3">
-                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">
-                  4. Insurance Structure
-                </h2>
+                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">4. Insurance Structure</h2>
                 <p>To ensure cargo protection within the ecosystem:</p>
                 <p className="font-semibold">Goods-in-Transit Insurance (Transporter Responsibility)</p>
                 <p>This insurance covers:</p>
@@ -158,9 +135,8 @@ export default function LegalCompliancePage() {
                   <li>In-transit loss</li>
                 </ul>
                 <p>
-                  The responsibility to obtain and maintain this insurance lies solely with the Transporter.
-                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM does not insure cargo directly and does not
-                  assume cargo liability.
+                  The responsibility to obtain and maintain this insurance lies solely with the Transporter. TOLA DIGITAL TRADE &amp; SUPPLY
+                  CHAIN ECOSYSTEM does not insure cargo directly and does not assume cargo liability.
                 </p>
               </section>
 
@@ -178,38 +154,31 @@ export default function LegalCompliancePage() {
                   <li>In case of dispute, funds may be temporarily held pending resolution.</li>
                 </ul>
                 <p>
-                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM ensures secure transaction monitoring and
-                  transparent payout procedures but does not assume cargo-related financial liability.
+                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM ensures secure transaction monitoring and transparent payout procedures
+                  but does not assume cargo-related financial liability.
                 </p>
               </section>
 
               {/* 6. Dispute Resolution Framework */}
               <section className="space-y-3">
-                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">
-                  6. Dispute Resolution Framework
-                </h2>
+                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">6. Dispute Resolution Framework</h2>
                 <p>In the event of a dispute:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
                   <li>A formal dispute must be lodged via the platform.</li>
                   <li>Digital investigation procedures will be initiated.</li>
-                  <li>
-                    Evidence including dispatch confirmation, GPS tracking, and proof of delivery will be
-                    reviewed.
-                  </li>
+                  <li>Evidence including dispatch confirmation, GPS tracking, and proof of delivery will be reviewed.</li>
                   <li>Liability determination will follow contractual and insurance obligations.</li>
                   <li>Where applicable, the Transporter shall initiate insurance claim procedures.</li>
                 </ul>
                 <p>
-                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM acts as a neutral digital dispute coordination
-                  facilitator and does not assume direct financial liability for cargo-related claims.
+                  TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM acts as a neutral digital dispute coordination facilitator and does not
+                  assume direct financial liability for cargo-related claims.
                 </p>
               </section>
 
               {/* 7. Risk Management Framework */}
               <section className="space-y-3">
-                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">
-                  7. Risk Management Framework
-                </h2>
+                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">7. Risk Management Framework</h2>
                 <p>TOLA implements structured risk management covering:</p>
                 <p className="font-semibold">Operational Risk</p>
                 <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
@@ -246,12 +215,9 @@ export default function LegalCompliancePage() {
 
               {/* 8. Governing Law */}
               <section className="space-y-3">
-                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">
-                  8. Governing Law
-                </h2>
+                <h2 className="text-2xl font-bold text-stone-900 border-l-4 border-primary pl-4">8. Governing Law</h2>
                 <p>
-                  This Legal Framework shall be governed and interpreted in accordance with the laws of the
-                  United Republic of Tanzania.
+                  This Legal Framework shall be governed and interpreted in accordance with the laws of the United Republic of Tanzania.
                 </p>
               </section>
             </CardContent>
@@ -261,4 +227,3 @@ export default function LegalCompliancePage() {
     </div>
   )
 }
-

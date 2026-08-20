@@ -23,12 +23,7 @@ interface PersonalInfoTabProps {
   onProfileUpdated?: () => void
 }
 
-export default function PersonalInfoTab({
-  profile,
-  kycStatus,
-  readOnlyFields,
-  onProfileUpdated,
-}: PersonalInfoTabProps) {
+export default function PersonalInfoTab({ profile, kycStatus, readOnlyFields, onProfileUpdated }: PersonalInfoTabProps) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
@@ -127,9 +122,7 @@ export default function PersonalInfoTab({
       if (!ok) {
         const errData = data as { error?: string; readOnlyFields?: string[] }
         const msg = errData?.error || "Couldn't update profile."
-        const readOnly = errData?.readOnlyFields?.length
-          ? ` You can't update: ${errData.readOnlyFields.join(", ")}.`
-          : ""
+        const readOnly = errData?.readOnlyFields?.length ? ` You can't update: ${errData.readOnlyFields.join(", ")}.` : ""
         toast({
           title: "Couldn't update profile",
           description: msg + readOnly,
@@ -226,7 +219,7 @@ export default function PersonalInfoTab({
             </div>
 
             {/* Read-only: address (backend does not allow editing via profile) */}
-            {(profile?.address != null && profile?.address !== "") && (
+            {profile?.address != null && profile?.address !== "" && (
               <div className="space-y-2">
                 <Label>Address / Location</Label>
                 <Input value={profile.address} disabled className="bg-muted/50 h-10" />

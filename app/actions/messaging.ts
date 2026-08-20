@@ -55,7 +55,7 @@ export async function getOrCreateConversation(
       }
 
       // Create new
-      const conversationData: any = { type: 'support' }
+      const conversationData: any = { type: "support" }
       if (user) {
         conversationData.customer_id = user.id
       } else if (guestId) {
@@ -63,21 +63,14 @@ export async function getOrCreateConversation(
       }
 
       // @ts-ignore
-      const { data: newConversation, error } = await (supabase as any)
-        .from("conversations")
-        .insert(conversationData)
-        .select()
-        .single()
+      const { data: newConversation, error } = await (supabase as any).from("conversations").insert(conversationData).select().single()
 
       if (error) {
         return { error: `Failed to create support conversation: ${error.message}` }
       }
 
       // Link
-      await (supabase as any)
-        .from("support_tickets")
-        .update({ conversation_id: newConversation.id })
-        .eq("id", ticketId)
+      await (supabase as any).from("support_tickets").update({ conversation_id: newConversation.id }).eq("id", ticketId)
 
       return { conversation: newConversation }
     }
@@ -156,9 +149,7 @@ export async function getOrCreateConversation(
       const { data: existingConversation } = await (supabase as any)
         .from("conversations")
         .select("*")
-        .or(
-          `and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`,
-        )
+        .or(`and(customer_id.eq.${user.id},vendor_id.eq.${receiverId}),and(customer_id.eq.${receiverId},vendor_id.eq.${user.id})`)
         .is("shop_id", null) // Distinguish from shop chats
         .eq("type", "direct")
         .maybeSingle()
@@ -203,7 +194,7 @@ export async function sendMessage(
   message: string,
   attachmentUrl?: string,
   attachmentType?: string,
-  senderType: string = "user"
+  senderType: string = "user",
 ) {
   // Always get user from standard client if available
   let user: any = null
@@ -225,11 +216,7 @@ export async function sendMessage(
   let customerId: string | null = null
   try {
     const checkClient = await createAdminClient()
-    const { data: conv } = await checkClient
-      .from("conversations")
-      .select("type, customer_id")
-      .eq("id", conversationId)
-      .single()
+    const { data: conv } = await checkClient.from("conversations").select("type, customer_id").eq("id", conversationId).single()
     if (conv?.type === "support") {
       isSupportConv = true
       customerId = conv.customer_id
@@ -272,11 +259,7 @@ export async function sendMessage(
   }
 
   // @ts-ignore
-  const { data, error } = await (dbClient as any)
-    .from("messages")
-    .insert(payload)
-    .select()
-    .single()
+  const { data, error } = await (dbClient as any).from("messages").insert(payload).select().single()
 
   if (error) {
     console.error("[Messaging] Error inserting message:", error)
@@ -324,14 +307,10 @@ export async function getConversationMessages(conversationId: string) {
     const adminClient = await createAdminClient()
 
     // Find if this is a support conversation to determine if we need admin client
-    const { data: conv } = await (adminClient as any)
-      .from("conversations")
-      .select("type")
-      .eq("id", conversationId)
-      .single()
+    const { data: conv } = await (adminClient as any).from("conversations").select("type").eq("id", conversationId).single()
 
     let supabase: any
-    if (conv?.type === 'support') {
+    if (conv?.type === "support") {
       supabase = adminClient
     } else {
       supabase = await createClient()
@@ -340,10 +319,12 @@ export async function getConversationMessages(conversationId: string) {
     // @ts-ignore
     let { data, error } = await (supabase as any)
       .from("messages")
-      .select(`
+      .select(
+        `
         *,
         sender:users!messages_sender_id_fkey(id, full_name, profile_image_url)
-      `)
+      `,
+      )
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true })
 
@@ -386,12 +367,14 @@ export async function getUserConversations() {
   // @ts-ignore
   const { data, error } = await (supabase as any)
     .from("conversations")
-    .select(`
+    .select(
+      `
       *,
       customer:users!conversations_customer_id_fkey(id, full_name, profile_image_url),
       vendor:users!conversations_vendor_id_fkey(id, full_name, profile_image_url),
       shop:shops(id, name, logo_url, phone)
-    `)
+    `,
+    )
     .or(`customer_id.eq.${user.id},vendor_id.eq.${user.id}`)
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })

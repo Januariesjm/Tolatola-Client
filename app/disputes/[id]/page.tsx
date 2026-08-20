@@ -100,24 +100,18 @@ export default function DisputeStatusPage() {
           <CardContent className="p-6 space-y-6">
             {data.description && (
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                  Description
-                </h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-2">Description</h3>
                 <p className="text-sm">{data.description}</p>
               </div>
             )}
             {data.timeline && data.timeline.length > 0 && (
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                  Timeline
-                </h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Timeline</h3>
                 <ul className="space-y-2">
                   {data.timeline.map((item, i) => (
                     <li key={i} className="flex justify-between items-start gap-4 text-sm">
                       <span>{item.action}</span>
-                      <span className="text-muted-foreground whitespace-nowrap">
-                        {new Date(item.at).toLocaleString()}
-                      </span>
+                      <span className="text-muted-foreground whitespace-nowrap">{new Date(item.at).toLocaleString()}</span>
                     </li>
                   ))}
                 </ul>

@@ -223,12 +223,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                       <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                         {product.images && product.images.length > 0 ? (
                           <div className="aspect-square relative bg-muted">
-                            <Image
-                              src={product.images[0] || "/placeholder.svg"}
-                              alt={product.name}
-                              fill
-                              className="object-cover"
-                            />
+                            <Image src={product.images[0] || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
                             {product.stock_quantity === 0 && (
                               <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs font-semibold">
                                 Out of Stock
@@ -242,9 +237,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
                         )}
                         <CardHeader>
                           <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
-                          <CardDescription className="line-clamp-2">
-                            {product.description || "No description"}
-                          </CardDescription>
+                          <CardDescription className="line-clamp-2">{product.description || "No description"}</CardDescription>
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
@@ -412,12 +405,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
       </div>
 
       {/* Standalone pages now handle shop create/edit */}
-      <AddProductDialog
-        open={showAddProduct}
-        onOpenChange={setShowAddProduct}
-        shopId={shop?.id}
-        onSuccess={() => router.refresh()}
-      />
+      <AddProductDialog open={showAddProduct} onOpenChange={setShowAddProduct} shopId={shop?.id} onSuccess={() => router.refresh()} />
       <EditProductDialog
         open={showEditProduct}
         onOpenChange={setShowEditProduct}
@@ -458,8 +446,8 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
               Shop Location Required
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You need to add your shop location before you can add products. The location is required to calculate
-              accurate delivery fees for your customers.
+              You need to add your shop location before you can add products. The location is required to calculate accurate delivery fees
+              for your customers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

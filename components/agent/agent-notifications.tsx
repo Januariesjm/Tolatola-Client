@@ -5,16 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
-import {
-  Bell,
-  UserPlus,
-  Coins,
-  TrendingUp,
-  CheckCircle,
-  AlertTriangle,
-  Loader2,
-  RefreshCw,
-} from "lucide-react"
+import { Bell, UserPlus, Coins, TrendingUp, CheckCircle, AlertTriangle, Loader2, RefreshCw } from "lucide-react"
 
 interface AgentNotificationsProps {
   agent: any
@@ -38,7 +29,9 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
 
   const getAuthHeaders = async () => {
     const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     return {
       "Content-Type": "application/json",
       ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
@@ -65,11 +58,9 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
     fetchNotifications()
   }, [])
 
-  const filteredNotifications = filter === "unread"
-    ? notifications.filter(n => !n.is_read)
-    : notifications
+  const filteredNotifications = filter === "unread" ? notifications.filter((n) => !n.is_read) : notifications
 
-  const unreadCount = notifications.filter(n => !n.is_read).length
+  const unreadCount = notifications.filter((n) => !n.is_read).length
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -123,20 +114,12 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
         <div>
           <h2 className="text-lg font-black text-slate-900">Notifications</h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            {unreadCount > 0
-              ? `You have ${unreadCount} new unread notification(s).`
-              : "No new notifications at this time."}
+            {unreadCount > 0 ? `You have ${unreadCount} new unread notification(s).` : "No new notifications at this time."}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchNotifications}
-            disabled={isLoading}
-            className="rounded-xl text-xs h-8"
-          >
+          <Button variant="outline" size="sm" onClick={fetchNotifications} disabled={isLoading} className="rounded-xl text-xs h-8">
             <RefreshCw className={`h-3.5 w-3.5 mr-1 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
@@ -148,9 +131,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
         <button
           onClick={() => setFilter("all")}
           className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-            filter === "all"
-              ? "bg-slate-900 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            filter === "all" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
           All ({notifications.length})
@@ -158,9 +139,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
         <button
           onClick={() => setFilter("unread")}
           className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-            filter === "unread"
-              ? "bg-emerald-600 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            filter === "unread" ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
           Unread ({unreadCount})
@@ -182,9 +161,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
               </div>
               <p className="text-xs text-slate-400 font-bold">No Notifications</p>
               <p className="text-[10px] text-slate-400">
-                {filter === "unread"
-                  ? "All notifications have been read."
-                  : "New notifications will appear here."}
+                {filter === "unread" ? "All notifications have been read." : "New notifications will appear here."}
               </p>
             </div>
           ) : (
@@ -211,14 +188,10 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
                       >
                         {notification.type}
                       </Badge>
-                      {!notification.is_read && (
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      )}
+                      {!notification.is_read && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />}
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">{notification.message}</p>
-                    <span className="text-[10px] text-slate-400 mt-1 block">
-                      {formatTimeAgo(notification.created_at)}
-                    </span>
+                    <span className="text-[10px] text-slate-400 mt-1 block">{formatTimeAgo(notification.created_at)}</span>
                   </div>
                 </div>
               ))}

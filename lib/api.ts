@@ -49,11 +49,8 @@ async function request<T>(
 export const api = {
   get: <T>(path: string, accessToken?: string, nextOptions?: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } }) =>
     request<T>(path, { method: "GET", accessToken, nextOptions }),
-  post: <T>(path: string, body?: any, accessToken?: string) =>
-    request<T>(path, { method: "POST", body, accessToken }),
-  patch: <T>(path: string, body?: any, accessToken?: string) =>
-    request<T>(path, { method: "PATCH", body, accessToken }),
+  post: <T>(path: string, body?: any, accessToken?: string) => request<T>(path, { method: "POST", body, accessToken }),
+  patch: <T>(path: string, body?: any, accessToken?: string) => request<T>(path, { method: "PATCH", body, accessToken }),
   put: <T>(path: string, body?: any, accessToken?: string) => request<T>(path, { method: "PUT", body, accessToken }),
   delete: <T>(path: string, accessToken?: string) => request<T>(path, { method: "DELETE", accessToken }),
 }
-

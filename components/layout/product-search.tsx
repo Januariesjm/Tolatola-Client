@@ -188,18 +188,17 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     }
   }
 
-  const activeFilterCount =
-    (locationFilter.trim() ? 1 : 0) +
-    (minPrice.trim() ? 1 : 0) +
-    (maxPrice.trim() ? 1 : 0)
+  const activeFilterCount = (locationFilter.trim() ? 1 : 0) + (minPrice.trim() ? 1 : 0) + (maxPrice.trim() ? 1 : 0)
 
   return (
     <div ref={searchRef} className="relative w-full max-w-2xl group">
       <div className="relative">
-        <div className={cn(
-          "absolute left-3.5 lg:left-4 top-1/2 -translate-y-1/2 transition-all duration-300",
-          isLoading ? "text-primary animate-pulse" : "text-stone-400 group-focus-within:text-primary"
-        )}>
+        <div
+          className={cn(
+            "absolute left-3.5 lg:left-4 top-1/2 -translate-y-1/2 transition-all duration-300",
+            isLoading ? "text-primary animate-pulse" : "text-stone-400 group-focus-within:text-primary",
+          )}
+        >
           {isLoading ? <Loader2 className="h-4 w-4 lg:h-5 lg:w-5 animate-spin" /> : <Search className="h-4 w-4 lg:h-5 lg:w-5" />}
         </div>
 
@@ -255,9 +254,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
             title="Search by Image"
           >
             <Camera className="h-3.5 w-3.5 lg:h-5 lg:w-5 text-amber-500" />
-            {isImageSearching && (
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500 animate-ping" />
-            )}
+            {isImageSearching && <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500 animate-ping" />}
           </Button>
           {/* Filter toggle */}
           <Button
@@ -267,7 +264,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
               "h-7 w-7 lg:h-10 lg:w-10 rounded-full transition-all duration-200 relative flex items-center justify-center",
               showFilters
                 ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
-                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white"
+                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white",
             )}
             onClick={(e) => {
               e.stopPropagation()
@@ -294,7 +291,6 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
           onClick={(e) => e.stopPropagation()}
         >
           <div className="max-h-[75vh] overflow-y-auto">
-
             {/* Inline Filter Controls */}
             {showFilters && !isImageSearching && (
               <div className="p-4 lg:p-5 border-b border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 space-y-3">
@@ -393,7 +389,12 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                     >
                       <div className="relative w-12 h-12 md:w-14 md:h-14 flex-shrink-0 rounded-xl overflow-hidden shadow-md border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900">
                         {product.images?.[0] ? (
-                          <Image src={product.images[0]} alt={product.name} fill className="object-cover transition-transform duration-500 group-hover/item:scale-110" />
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-stone-50 dark:bg-stone-900">
                             <ShoppingBag className="h-5 w-5 text-stone-200 dark:text-stone-700" />
@@ -433,24 +434,16 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
                 <div className="h-12 w-12 rounded-full bg-stone-100 dark:bg-stone-900 flex items-center justify-center mx-auto mb-3">
                   <Search className="h-5 w-5 text-stone-300 dark:text-stone-600" />
                 </div>
-                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">
-                  {`No products found for "${query}"`}
-                </p>
-                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">
-                  Try a different search term or adjust your filters
-                </p>
+                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">{`No products found for "${query}"`}</p>
+                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">Try a different search term or adjust your filters</p>
               </div>
             )}
 
             {/* Quick start hint when no query yet */}
             {!hasSearched && showFilters && (
               <div className="p-5 text-center">
-                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">
-                  Type a product name above to search
-                </p>
-                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">
-                  Use the location and price filters to narrow results
-                </p>
+                <p className="text-sm font-bold text-stone-400 dark:text-stone-400">Type a product name above to search</p>
+                <p className="text-xs text-stone-300 dark:text-stone-500 mt-1">Use the location and price filters to narrow results</p>
               </div>
             )}
 

@@ -6,18 +6,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, XCircle, Search, Store, Mail, Phone, MapPin, Building2, Calendar, User, Eye, Trash2, MessageSquare } from "lucide-react"
+import {
+  CheckCircle2,
+  XCircle,
+  Search,
+  Store,
+  Mail,
+  Phone,
+  MapPin,
+  Building2,
+  Calendar,
+  User,
+  Eye,
+  Trash2,
+  MessageSquare,
+} from "lucide-react"
 import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
 import { logger } from "@/lib/logger"
@@ -89,10 +96,10 @@ export function VendorManagementTab() {
             v.users?.email?.toLowerCase().includes(query) ||
             v.users?.full_name?.toLowerCase().includes(query) ||
             v.tin_number?.toLowerCase().includes(query) ||
-                            v.nida_number?.toLowerCase().includes(query) ||
-                            v.users?.phone?.toLowerCase().includes(query) ||
-                            v.phone?.toLowerCase().includes(query)
-        )
+            v.nida_number?.toLowerCase().includes(query) ||
+            v.users?.phone?.toLowerCase().includes(query) ||
+            v.phone?.toLowerCase().includes(query),
+        ),
       )
     }
   }, [searchQuery, vendors])
@@ -120,12 +127,12 @@ export function VendorManagementTab() {
       const currentStatus = vendor.is_active ?? true
       const newStatus = !currentStatus
       await clientApiPost(`admin/vendors/${vendor.id}/${newStatus ? "activate" : "deactivate"}`)
-      
+
       toast({
         title: newStatus ? "Vendor Activated" : "Vendor Deactivated",
         description: `${vendor.business_name} has been ${newStatus ? "activated" : "deactivated"}`,
       })
-      
+
       // Update local state
       setVendors(vendors.map((v) => (v.id === vendor.id ? { ...v, is_active: newStatus } : v)))
       setFilteredVendors(filteredVendors.map((v) => (v.id === vendor.id ? { ...v, is_active: newStatus } : v)))
@@ -214,23 +221,17 @@ export function VendorManagementTab() {
         <div className="relative overflow-hidden rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
           <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-emerald-400 to-emerald-500" />
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Active</p>
-          <p className="text-2xl font-bold text-emerald-600 tabular-nums">
-            {vendors.filter((v) => v.is_active ?? true).length}
-          </p>
+          <p className="text-2xl font-bold text-emerald-600 tabular-nums">{vendors.filter((v) => v.is_active ?? true).length}</p>
         </div>
         <div className="relative overflow-hidden rounded-xl border border-red-100 bg-white p-4 shadow-sm">
           <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-red-400 to-red-500" />
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Inactive</p>
-          <p className="text-2xl font-bold text-red-600 tabular-nums">
-            {vendors.filter((v) => !(v.is_active ?? true)).length}
-          </p>
+          <p className="text-2xl font-bold text-red-600 tabular-nums">{vendors.filter((v) => !(v.is_active ?? true)).length}</p>
         </div>
         <div className="relative overflow-hidden rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
           <div className="h-1 w-full absolute top-0 left-0 bg-gradient-to-r from-blue-400 to-blue-500" />
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">KYC Approved</p>
-          <p className="text-2xl font-bold text-blue-600 tabular-nums">
-            {vendors.filter((v) => v.kyc_status === "approved").length}
-          </p>
+          <p className="text-2xl font-bold text-blue-600 tabular-nums">{vendors.filter((v) => v.kyc_status === "approved").length}</p>
         </div>
       </div>
 
@@ -251,11 +252,7 @@ export function VendorManagementTab() {
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredVendors.map((vendor, idx) => {
             const isActive = vendor.is_active ?? true
-            const kycColor = vendor.kyc_status === "approved"
-              ? "emerald"
-              : vendor.kyc_status === "pending"
-                ? "amber"
-                : "red"
+            const kycColor = vendor.kyc_status === "approved" ? "emerald" : vendor.kyc_status === "pending" ? "amber" : "red"
 
             return (
               <div
@@ -265,25 +262,29 @@ export function VendorManagementTab() {
                 }`}
               >
                 {/* Top accent bar */}
-                <div className={`h-1 w-full ${
-                  vendor.kyc_status === "approved"
-                    ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                    : vendor.kyc_status === "pending"
-                      ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                      : "bg-gradient-to-r from-red-400 to-red-500"
-                }`} />
+                <div
+                  className={`h-1 w-full ${
+                    vendor.kyc_status === "approved"
+                      ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                      : vendor.kyc_status === "pending"
+                        ? "bg-gradient-to-r from-amber-400 to-amber-500"
+                        : "bg-gradient-to-r from-red-400 to-red-500"
+                  }`}
+                />
 
                 {/* Card Header */}
                 <div className="px-5 pt-4 pb-3">
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
-                    <div className={`h-11 w-11 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0 ${
-                      vendor.kyc_status === "approved"
-                        ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                        : vendor.kyc_status === "pending"
-                          ? "bg-gradient-to-br from-amber-500 to-amber-600"
-                          : "bg-gradient-to-br from-red-500 to-red-600"
-                    }`}>
+                    <div
+                      className={`h-11 w-11 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0 ${
+                        vendor.kyc_status === "approved"
+                          ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                          : vendor.kyc_status === "pending"
+                            ? "bg-gradient-to-br from-amber-500 to-amber-600"
+                            : "bg-gradient-to-br from-red-500 to-red-600"
+                      }`}
+                    >
                       {vendor.business_name?.charAt(0)?.toUpperCase() || "V"}
                     </div>
 
@@ -293,30 +294,32 @@ export function VendorManagementTab() {
                         <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
                           #{idx + 1}
                         </span>
-                        <h3 className="font-semibold text-slate-900 truncate text-sm leading-tight">
-                          {vendor.business_name}
-                        </h3>
+                        <h3 className="font-semibold text-slate-900 truncate text-sm leading-tight">{vendor.business_name}</h3>
                       </div>
                       <p className="text-xs text-slate-400 truncate mt-0.5">{vendor.users?.email}</p>
                     </div>
 
                     {/* Status badges */}
                     <div className="flex flex-col gap-1 shrink-0 items-end">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        isActive
-                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                          : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
-                      }`}>
+                      <span
+                        className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          isActive
+                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                            : "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
+                        }`}
+                      >
                         <span className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-slate-400"}`} />
                         {isActive ? "Active" : "Inactive"}
                       </span>
-                      <span className={`inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                        vendor.kyc_status === "approved"
-                          ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
-                          : vendor.kyc_status === "pending"
-                            ? "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
-                            : "bg-red-50 text-red-600 ring-1 ring-red-200"
-                      }`}>
+                      <span
+                        className={`inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                          vendor.kyc_status === "approved"
+                            ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                            : vendor.kyc_status === "pending"
+                              ? "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
+                              : "bg-red-50 text-red-600 ring-1 ring-red-200"
+                        }`}
+                      >
                         {vendor.kyc_status || "pending"}
                       </span>
                     </div>
@@ -351,7 +354,10 @@ export function VendorManagementTab() {
                   {vendor.shops && vendor.shops.length > 0 && (
                     <div className="flex items-center gap-2.5 text-xs text-slate-600">
                       <Store className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span><span className="font-semibold text-slate-700">{vendor.shops.length}</span> shop{vendor.shops.length !== 1 ? "s" : ""}</span>
+                      <span>
+                        <span className="font-semibold text-slate-700">{vendor.shops.length}</span> shop
+                        {vendor.shops.length !== 1 ? "s" : ""}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -385,9 +391,7 @@ export function VendorManagementTab() {
                     <Button
                       size="sm"
                       className={`flex-1 h-8 text-xs rounded-lg font-medium transition-colors ${
-                        isActive
-                          ? "bg-red-500 hover:bg-red-600 text-white"
-                          : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                        isActive ? "bg-red-500 hover:bg-red-600 text-white" : "bg-emerald-500 hover:bg-emerald-600 text-white"
                       }`}
                       onClick={() => handleToggleActive(vendor)}
                     >
@@ -410,7 +414,7 @@ export function VendorManagementTab() {
                       onClick={() => {
                         if (
                           confirm(
-                            `Are you absolutely sure you want to permanently delete "${vendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`
+                            `Are you absolutely sure you want to permanently delete "${vendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`,
                           )
                         ) {
                           handleDeleteVendor(vendor.id)
@@ -530,11 +534,7 @@ export function VendorManagementTab() {
                   <div className="md:col-span-2">
                     <Label className="text-muted-foreground">Business License</Label>
                     <div className="mt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewDocument(selectedVendor.business_license_url!)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleViewDocument(selectedVendor.business_license_url!)}>
                         <Eye className="h-4 w-4 mr-2" />
                         View Document
                       </Button>
@@ -552,7 +552,7 @@ export function VendorManagementTab() {
                   onClick={() => {
                     if (
                       confirm(
-                        `Are you absolutely sure you want to permanently delete "${selectedVendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`
+                        `Are you absolutely sure you want to permanently delete "${selectedVendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`,
                       )
                     ) {
                       handleDeleteVendor(selectedVendor.id)
@@ -613,9 +613,7 @@ export function VendorManagementTab() {
             <DialogTitle>Business License Document</DialogTitle>
           </DialogHeader>
           <div className="relative w-full h-[500px] bg-muted rounded-lg overflow-hidden">
-            {documentUrl && (
-              <Image src={documentUrl || "/placeholder.svg"} alt="Business License" fill className="object-contain" />
-            )}
+            {documentUrl && <Image src={documentUrl || "/placeholder.svg"} alt="Business License" fill className="object-contain" />}
           </div>
         </DialogContent>
       </Dialog>
@@ -631,4 +629,3 @@ export function VendorManagementTab() {
     </div>
   )
 }
-

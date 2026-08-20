@@ -7,14 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Check, Crown, Sparkles, Star, Zap, ShieldCheck, Building2, Loader2, Phone, CreditCard, Smartphone, ArrowRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -74,7 +67,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     const checkStatus = async () => {
       try {
         const res = await clientApiGet<{ data: { status: string; click_pesa_error?: string } }>(
-          `subscriptions/status/${subscriptionId}?type=vendor`
+          `subscriptions/status/${subscriptionId}?type=vendor`,
         )
         const { status } = res.data
 
@@ -132,7 +125,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
         ? "Generating your bank control number..."
         : paymentMethod.includes("visa") || paymentMethod.includes("master")
           ? "Authorizing your card securely..."
-          : "Sending payment request to your phone..."
+          : "Sending payment request to your phone...",
     )
     setIsAwaitingPayment(true)
 
@@ -142,11 +135,13 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
         vendorId,
         paymentMethod,
         paymentDetails: {
-          phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa", "tigo-pesa"].includes(paymentMethod) ? phoneNumber : undefined,
+          phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa", "tigo-pesa"].includes(paymentMethod)
+            ? phoneNumber
+            : undefined,
           cardNumber: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardNumber : undefined,
           expiryDate: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? expiryDate : undefined,
           cvv: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cvv : undefined,
-        }
+        },
       })
 
       if (result.success) {
@@ -159,7 +154,9 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
           }
           pollSubscriptionStatus(result.subscription.id)
         } else {
-          setPaymentStatusMessage("Payment initiated! Please confirm on your device. Your subscription will activate automatically once confirmed.")
+          setPaymentStatusMessage(
+            "Payment initiated! Please confirm on your device. Your subscription will activate automatically once confirmed.",
+          )
           pollSubscriptionStatus(result.subscription.id)
         }
       } else {
@@ -170,7 +167,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
       toast({
         title: "Payment Failed",
         description: error.message || "Failed to initiate payment. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       })
       setIsAwaitingPayment(false)
     } finally {
@@ -220,21 +217,13 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
           <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-300">
             <div className="bg-primary p-8 text-white text-center space-y-4">
               <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
-                {controlNumber ? (
-                  <Building2 className="h-8 w-8 animate-bounce" />
-                ) : (
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                )}
+                {controlNumber ? <Building2 className="h-8 w-8 animate-bounce" /> : <Loader2 className="h-8 w-8 animate-spin" />}
               </div>
-              <h2 className="text-2xl font-black tracking-tight">
-                {controlNumber ? "Bank Settlement" : "Confirming Payment"}
-              </h2>
+              <h2 className="text-2xl font-black tracking-tight">{controlNumber ? "Bank Settlement" : "Confirming Payment"}</h2>
             </div>
             <CardContent className="p-8 text-center space-y-6">
               <div className="space-y-2">
-                <p className="text-stone-600 font-medium leading-relaxed">
-                  {paymentStatusMessage}
-                </p>
+                <p className="text-stone-600 font-medium leading-relaxed">{paymentStatusMessage}</p>
                 {controlNumber && (
                   <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
                     {controlNumber.startsWith("http") ? (
@@ -252,9 +241,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                       <>
                         <div className="space-y-1">
                           <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">
-                            {controlNumber}
-                          </p>
+                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">{controlNumber}</p>
                         </div>
                         <Button
                           variant="outline"
@@ -303,9 +290,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                   </div>
                 )}
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                Do not refresh this page
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Do not refresh this page</p>
             </CardContent>
           </Card>
         </div>
@@ -321,9 +306,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                 <div>
                   <CardTitle>Current Plan: {currentSubscription.plan.name}</CardTitle>
                   <CardDescription className="text-inherit opacity-70">
-                    {currentSubscription.plan.price === 0
-                      ? "Free forever"
-                      : `${currentSubscription.plan.price.toLocaleString()} TZS/month`}
+                    {currentSubscription.plan.price === 0 ? "Free forever" : `${currentSubscription.plan.price.toLocaleString()} TZS/month`}
                   </CardDescription>
                 </div>
               </div>
@@ -464,7 +447,9 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                     </AccordionTrigger>
                     <AccordionContent className="p-4 mt-2 space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Phone Number</Label>
+                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                          Phone Number
+                        </Label>
                         <Input
                           id="phone"
                           type="tel"
@@ -488,21 +473,25 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                             className={cn(
                               "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
                               paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
-                              p.maintenance && "opacity-60 grayscale-[0.5]"
+                              p.maintenance && "opacity-60 grayscale-[0.5]",
                             )}
                           >
                             <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
-                            <div className={cn(
-                              "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                              paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
-                            )}>
+                            <div
+                              className={cn(
+                                "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                                paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
+                              )}
+                            >
                               <Smartphone className="h-4 w-4" />
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <p className="font-bold text-stone-900 text-sm">{p.name}</p>
                                 {p.maintenance && (
-                                  <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">Service Down</span>
+                                  <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">
+                                    Service Down
+                                  </span>
                                 )}
                               </div>
                               <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
@@ -523,15 +512,21 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                     <AccordionContent className="p-6 mt-4 space-y-6">
                       <div className="grid grid-cols-3 gap-2">
                         {["visa", "mastercard", "unionpay"].map((c) => (
-                          <Label key={c} htmlFor={c} className={cn(
-                            "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
-                            paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300"
-                          )}>
+                          <Label
+                            key={c}
+                            htmlFor={c}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
+                              paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
+                            )}
+                          >
                             <RadioGroupItem value={c} id={c} className="sr-only" />
-                            <div className={cn(
-                              "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
-                              paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500"
-                            )}>
+                            <div
+                              className={cn(
+                                "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
+                                paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
+                              )}
+                            >
                               <CreditCard className="h-5 w-5" />
                             </div>
                             <span className="font-bold uppercase tracking-wide text-[10px] text-stone-900">{c}</span>
@@ -540,7 +535,9 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                       </div>
                       <div className="space-y-3 pt-3 border-t border-stone-100">
                         <div className="space-y-2">
-                          <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Card Number</Label>
+                          <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                            Card Number
+                          </Label>
                           <Input
                             id="cardNumber"
                             value={cardNumber}
@@ -551,7 +548,9 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">Expiry</Label>
+                            <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                              Expiry
+                            </Label>
                             <Input
                               id="expiry"
                               value={expiryDate}
@@ -561,7 +560,9 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">CVV / CVC</Label>
+                            <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
+                              CVV / CVC
+                            </Label>
                             <Input
                               id="cvv"
                               value={cvv}
@@ -584,18 +585,24 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
                     </AccordionTrigger>
                     <AccordionContent className="p-6 space-y-3 mt-4">
                       {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
-                        <Label key={b} htmlFor={b} className={cn(
-                          "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                          paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300"
-                        )}>
+                        <Label
+                          key={b}
+                          htmlFor={b}
+                          className={cn(
+                            "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                            paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300",
+                          )}
+                        >
                           <RadioGroupItem value={b} id={b} className="sr-only" />
-                          <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                            paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400"
-                          )}>
+                          <div
+                            className={cn(
+                              "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                              paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400",
+                            )}
+                          >
                             <Building2 className="h-5 w-5" />
                           </div>
-                          <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, ' ')}</span>
+                          <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, " ")}</span>
                         </Label>
                       ))}
                     </AccordionContent>

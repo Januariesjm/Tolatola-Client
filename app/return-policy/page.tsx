@@ -1,12 +1,25 @@
 import { createClient } from "@/lib/supabase/server"
 import SiteHeader from "@/components/layout/site-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { RefreshCcw, CheckCircle2, XCircle, Truck, HelpCircle, Mail, Phone, Calendar, ClipboardCheck, ArrowRight, ShieldCheck } from "lucide-react"
+import {
+  RefreshCcw,
+  CheckCircle2,
+  XCircle,
+  Truck,
+  HelpCircle,
+  Mail,
+  Phone,
+  Calendar,
+  ClipboardCheck,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Return Policy | TOLA Tanzania - Marketplace & Ecommerce",
-  description: "Learn about Tola's hassle-free return policy. We protect our buyers with a secure payment system and clear return guidelines for every transaction.",
+  description:
+    "Learn about Tola's hassle-free return policy. We protect our buyers with a secure payment system and clear return guidelines for every transaction.",
   alternates: {
     canonical: "https://tolatola.co/return-policy",
   },
@@ -26,11 +39,7 @@ export default async function ReturnPolicyPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -39,7 +48,7 @@ export default async function ReturnPolicyPage() {
     { title: "Initiate Request", desc: "Start the process via your dashboard within 7 days.", icon: <Mail /> },
     { title: "Review & Verify", desc: "Vendors review photos and details of your claim.", icon: <ClipboardCheck /> },
     { title: "Secure Return", desc: "Ship the item back in its original condition.", icon: <RefreshCcw /> },
-    { title: "Instant Payout", desc: "Funds are released to your wallet.", icon: <CheckCircle2 /> }
+    { title: "Instant Payout", desc: "Funds are released to your wallet.", icon: <CheckCircle2 /> },
   ]
 
   return (
@@ -57,7 +66,9 @@ export default async function ReturnPolicyPage() {
               <ShieldCheck className="h-4 w-4" />
               <span className="text-xs font-black uppercase tracking-widest">Buyer Protection</span>
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">Hassle-Free <span className="text-primary underline decoration-primary decoration-4 underline-offset-8">Returns</span></h1>
+            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter">
+              Hassle-Free <span className="text-primary underline decoration-primary decoration-4 underline-offset-8">Returns</span>
+            </h1>
             <p className="text-stone-300 text-xl md:text-2xl max-w-3xl mx-auto font-medium leading-relaxed italic">
               Shopping on TOLA is risk-free. Our protected payment system guarantees your money is safe until you're satisfied.
             </p>
@@ -72,14 +83,19 @@ export default async function ReturnPolicyPage() {
                 <CheckCircle2 className="h-10 w-10" />
               </div>
               <h2 className="text-4xl font-black mb-6 tracking-tight">Return Eligibility</h2>
-              <p className="text-muted-foreground text-lg mb-8 italic">You can return items within <span className="text-foreground font-black underline underline-offset-4 decoration-green-500">7 days</span> if:</p>
+              <p className="text-muted-foreground text-lg mb-8 italic">
+                You can return items within{" "}
+                <span className="text-foreground font-black underline underline-offset-4 decoration-green-500">7 days</span> if:
+              </p>
               <ul className="space-y-4">
-                {["Defective or damaged items", "Description mismatch", "Incorrect item delivered", "Missing accessories"].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-lg font-bold group/item">
-                    <span className="h-2 w-2 rounded-full bg-green-500 group-hover/item:scale-150 transition-transform" />
-                    {item}
-                  </li>
-                ))}
+                {["Defective or damaged items", "Description mismatch", "Incorrect item delivered", "Missing accessories"].map(
+                  (item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-lg font-bold group/item">
+                      <span className="h-2 w-2 rounded-full bg-green-500 group-hover/item:scale-150 transition-transform" />
+                      {item}
+                    </li>
+                  ),
+                )}
               </ul>
             </Card>
 
@@ -109,7 +125,10 @@ export default async function ReturnPolicyPage() {
               <div className="hidden md:block absolute top-[60px] left-[10%] right-[10%] h-0.5 bg-stone-200 border-t border-dashed border-stone-300" />
 
               {steps.map((step, i) => (
-                <div key={i} className="relative z-10 flex flex-col items-center text-center p-8 bg-white border border-stone-100 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group">
+                <div
+                  key={i}
+                  className="relative z-10 flex flex-col items-center text-center p-8 bg-white border border-stone-100 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all group"
+                >
                   <div className="mb-8 w-20 h-20 rounded-3xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500 transform group-hover:rotate-12">
                     {step.icon}
                   </div>
@@ -129,7 +148,8 @@ export default async function ReturnPolicyPage() {
               <div>
                 <h2 className="text-5xl font-black text-white mb-8 tracking-tighter">Secure Payouts</h2>
                 <p className="text-stone-400 text-xl leading-relaxed mb-12 italic">
-                  Your refund isn't just a promise. It's built into our code. Once a return is verified, funds are automatically released back to your mobile money wallet.
+                  Your refund isn't just a promise. It's built into our code. Once a return is verified, funds are automatically released
+                  back to your mobile money wallet.
                 </p>
                 <div className="flex items-center gap-4 p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-md">
                   <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
@@ -147,7 +167,10 @@ export default async function ReturnPolicyPage() {
                   <RefreshCcw className="h-20 w-20 text-primary mx-auto mb-8 animate-spin-slow" />
                   <h3 className="text-3xl font-black text-white mb-4">Real-time Tracking</h3>
                   <p className="text-stone-500 mb-8 italic">Monitor your return status every step of the way in your TOLA dashboard.</p>
-                  <a href="/orders" className="inline-flex items-center gap-2 group-hover:text-primary transition-colors text-white font-bold uppercase tracking-widest text-xs">
+                  <a
+                    href="/orders"
+                    className="inline-flex items-center gap-2 group-hover:text-primary transition-colors text-white font-bold uppercase tracking-widest text-xs"
+                  >
                     Manage Orders <ArrowRight className="h-4 w-4" />
                   </a>
                 </div>
@@ -161,10 +184,24 @@ export default async function ReturnPolicyPage() {
           <div className="container mx-auto px-4 text-center">
             <HelpCircle className="h-16 w-16 text-primary mx-auto mb-8 opacity-50" />
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Need a customized solution?</h2>
-            <p className="text-muted-foreground text-xl mb-12 italic max-w-2xl mx-auto">Our support team handles complex disputes personally to ensure fair outcomes for all.</p>
+            <p className="text-muted-foreground text-xl mb-12 italic max-w-2xl mx-auto">
+              Our support team handles complex disputes personally to ensure fair outcomes for all.
+            </p>
             <div className="flex flex-wrap justify-center gap-6">
-              <a href="mailto:support@tolatola.co" className="px-10 py-5 bg-white border border-stone-200 rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"> support@tolatola.co </a>
-              <a href="/contact" className="px-10 py-5 bg-stone-900 text-white rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"> Open Support Ticket </a>
+              <a
+                href="mailto:support@tolatola.co"
+                className="px-10 py-5 bg-white border border-stone-200 rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"
+              >
+                {" "}
+                support@tolatola.co{" "}
+              </a>
+              <a
+                href="/contact"
+                className="px-10 py-5 bg-stone-900 text-white rounded-3xl font-black shadow-xl hover:-translate-y-1 transition-all"
+              >
+                {" "}
+                Open Support Ticket{" "}
+              </a>
             </div>
           </div>
         </section>

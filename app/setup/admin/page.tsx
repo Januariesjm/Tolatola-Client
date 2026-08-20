@@ -88,9 +88,7 @@ export default function AdminSetupPage() {
           {success ? (
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Admin account created successfully! Redirecting to login...
-              </AlertDescription>
+              <AlertDescription className="text-green-800">Admin account created successfully! Redirecting to login...</AlertDescription>
             </Alert>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,9 +162,7 @@ export default function AdminSetupPage() {
                 {loading ? "Creating Admin Account..." : "Create Admin Account"}
               </Button>
 
-              <p className="text-xs text-center text-muted-foreground">
-                This page can only be used once to create the first admin account
-              </p>
+              <p className="text-xs text-center text-muted-foreground">This page can only be used once to create the first admin account</p>
             </form>
           )}
         </CardContent>

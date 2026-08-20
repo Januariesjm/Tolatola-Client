@@ -1,6 +1,6 @@
-const fs = require('fs');
-const file = '/home/januaries/Desktop/Tolatola/multivendor-marketplace-build/Tolatola-Client/app/track/status/page.tsx';
-let content = fs.readFileSync(file, 'utf8');
+const fs = require("fs")
+const file = "/home/januaries/Desktop/Tolatola/multivendor-marketplace-build/Tolatola-Client/app/track/status/page.tsx"
+let content = fs.readFileSync(file, "utf8")
 
 const oldSteps = `const TIMELINE_STEPS: { id: OrderStatus; label: string }[] = [
   { id: "ORDER_RECEIVED", label: "Order Received" },
@@ -28,7 +28,7 @@ const STATUS_INDEX_MAP: Record<string, number> = {
   shipped: 4,
   DELIVERED: 5,
   delivered: 5,
-}`;
+}`
 
 const newSteps = `const TIMELINE_STEPS: { id: string; label: string }[] = [
   { id: "ORDER_RECEIVED", label: "Order Received" },
@@ -59,12 +59,15 @@ const STATUS_INDEX_MAP: Record<string, number> = {
   DELIVERED: 5,
   delivered: 5,
   completed: 5,
-}`;
+}`
 
-content = content.replace(oldSteps, newSteps);
+content = content.replace(oldSteps, newSteps)
 
 // Also need to fix the import of OrderStatus since we removed it from id signature or changed it to string to avoid typescript errors if enum isn't completely matched.
-content = content.replace('import type { OrderTrackingInfo, OrderStatus } from "../../../lib/types"', 'import type { OrderTrackingInfo } from "../../../lib/types"');
+content = content.replace(
+  'import type { OrderTrackingInfo, OrderStatus } from "../../../lib/types"',
+  'import type { OrderTrackingInfo } from "../../../lib/types"',
+)
 
-fs.writeFileSync(file, content);
-console.log("Success modifying timeline in page.tsx");
+fs.writeFileSync(file, content)
+console.log("Success modifying timeline in page.tsx")

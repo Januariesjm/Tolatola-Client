@@ -24,9 +24,7 @@ export async function fetchNotifications(opts?: { unreadOnly?: boolean; limit?: 
 }
 
 export async function fetchUnreadCount(): Promise<number> {
-  const res = await clientApiGet<{ unread_count?: number } | { data?: { unread_count?: number } }>(
-    "notifications/unread-count",
-  )
+  const res = await clientApiGet<{ unread_count?: number } | { data?: { unread_count?: number } }>("notifications/unread-count")
   const root = res as any
   if (typeof root.unread_count === "number") return root.unread_count
   if (root.data && typeof root.data.unread_count === "number") return root.data.unread_count
@@ -40,4 +38,3 @@ export async function markNotificationRead(id: string) {
 export async function markAllNotificationsRead() {
   await clientApiPost("notifications/read-all", {})
 }
-

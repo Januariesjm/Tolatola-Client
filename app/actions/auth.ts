@@ -7,11 +7,9 @@ import { redirect } from "next/navigation"
 export async function signInWithGoogle(returnUrl?: string) {
   const supabase = await createClient()
   const headersList = await headers()
-  const origin = (process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co').replace(/\/$/, '')
+  const origin = (process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co").replace(/\/$/, "")
 
-  const redirectTo = returnUrl
-    ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}`
-    : `${origin}/auth/callback`
+  const redirectTo = returnUrl ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}` : `${origin}/auth/callback`
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -38,11 +36,9 @@ export async function signInWithGoogle(returnUrl?: string) {
 
 export async function signInWithFacebook(returnUrl?: string) {
   const supabase = await createClient()
-  const origin = (process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co').replace(/\/$/, '')
+  const origin = (process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co").replace(/\/$/, "")
 
-  const redirectTo = returnUrl
-    ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}`
-    : `${origin}/auth/callback`
+  const redirectTo = returnUrl ? `${origin}/auth/callback?next=${encodeURIComponent(returnUrl)}` : `${origin}/auth/callback`
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "facebook",

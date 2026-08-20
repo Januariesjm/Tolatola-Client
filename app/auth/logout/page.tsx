@@ -37,9 +37,7 @@ export default function LogoutPage() {
           <CardTitle>Signing you out…</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Please wait a moment while we securely end your session.
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">Please wait a moment while we securely end your session.</p>
           <Button disabled className="w-full">
             Logging out…
           </Button>
@@ -48,4 +46,3 @@ export default function LogoutPage() {
     </div>
   )
 }
-

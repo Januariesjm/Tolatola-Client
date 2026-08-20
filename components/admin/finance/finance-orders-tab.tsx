@@ -39,7 +39,7 @@ interface FinanceOrdersTabProps {
 }
 
 // Revenue split constants (derive from order total)
-const TOLA_COMMISSION_RATE = 0.10
+const TOLA_COMMISSION_RATE = 0.1
 const DELIVERY_FEE_SHARE_RATE = 0.85 // 85% of delivery fee goes to transporter
 
 export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrdersTabProps) {
@@ -61,11 +61,7 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
         order.order_items?.[0]?.products?.shops?.name ||
         ""
       ).toLowerCase()
-      return (
-        orderNumber.includes(searchLower) ||
-        customerName.includes(searchLower) ||
-        vendorName.includes(searchLower)
-      )
+      return orderNumber.includes(searchLower) || customerName.includes(searchLower) || vendorName.includes(searchLower)
     })
   }, [dateFilteredOrders, searchQuery, statusFilter])
 
@@ -181,10 +177,16 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900">#{order.order_number}</span>
-                        <Badge variant="outline" className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold border ${statusColors[order.status] || "bg-slate-100 text-slate-600"}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold border ${statusColors[order.status] || "bg-slate-100 text-slate-600"}`}
+                        >
                           {order.status?.replace("_", " ")}
                         </Badge>
-                        <Badge variant="outline" className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold ${paymentStatusColors[order.payment_status] || "bg-slate-100 text-slate-600"}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold ${paymentStatusColors[order.payment_status] || "bg-slate-100 text-slate-600"}`}
+                        >
                           <CreditCard className="h-3 w-3 mr-1" />
                           {order.payment_status}
                         </Badge>
@@ -210,23 +212,39 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
                     {/* Identity & Parties */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="space-y-2">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><User className="h-3 w-3" /> Customer</p>
-                        <p className="font-semibold text-slate-900">{order.users?.full_name || order.shipping_address?.full_name || "Guest"}</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                          <User className="h-3 w-3" /> Customer
+                        </p>
+                        <p className="font-semibold text-slate-900">
+                          {order.users?.full_name || order.shipping_address?.full_name || "Guest"}
+                        </p>
                         <p className="text-sm text-slate-500">{order.users?.email || order.shipping_address?.email || "—"}</p>
-                        <p className="text-sm text-slate-500 flex items-center gap-1"><Phone className="h-3 w-3" />{order.users?.phone || order.shipping_address?.phone || "—"}</p>
+                        <p className="text-sm text-slate-500 flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {order.users?.phone || order.shipping_address?.phone || "—"}
+                        </p>
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Store className="h-3 w-3" /> Merchant</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                          <Store className="h-3 w-3" /> Merchant
+                        </p>
                         <p className="font-semibold text-slate-900">
-                          {order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A"}
+                          {order.order_items?.[0]?.products?.shops?.vendors?.business_name ||
+                            order.order_items?.[0]?.products?.shops?.name ||
+                            "N/A"}
                         </p>
                         <p className="text-sm text-slate-500">{order.order_items?.[0]?.products?.shops?.phone || "—"}</p>
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Truck className="h-3 w-3" /> Driver</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                          <Truck className="h-3 w-3" /> Driver
+                        </p>
                         {(() => {
                           const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
-                          const driverName = activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
+                          const driverName =
+                            activeAssignment?.transporters?.users?.full_name ||
+                            activeAssignment?.transporters?.business_name ||
+                            "Unassigned"
                           const driverPhone = activeAssignment?.transporters?.users?.phone || "—"
                           return (
                             <>
@@ -245,7 +263,9 @@ export function FinanceOrdersTab({ orders, transactions, payouts }: FinanceOrder
 
                     {/* Payment summary */}
                     <div className="space-y-2">
-                      <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><CreditCard className="h-3 w-3" /> Payment Summary</p>
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1">
+                        <CreditCard className="h-3 w-3" /> Payment Summary
+                      </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-3 rounded-xl bg-white border border-slate-200">
                           <p className="text-[11px] uppercase text-slate-400 font-bold tracking-wider">Method</p>

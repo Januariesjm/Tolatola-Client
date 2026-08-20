@@ -5,29 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { ClipboardCheck, Plus, Search, Trash2, Loader2, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
@@ -46,37 +27,53 @@ interface HRAttendance {
   hr_staff_records?: { full_name: string }
 }
 
-export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { attendance: HRAttendance[], staff: any[] }) {
+export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { attendance: HRAttendance[]; staff: any[] }) {
   const [attendance, setAttendance] = useState<HRAttendance[]>(initialAttendance)
   const [search, setSearch] = useState("")
-  const [dateFilter, setDateFilter] = useState(new Date().toISOString().split('T')[0])
+  const [dateFilter, setDateFilter] = useState(new Date().toISOString().split("T")[0])
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     staff_id: "",
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split("T")[0],
     check_in_time: "09:00",
     check_out_time: "17:00",
     status: "present",
     notes: "",
   })
 
-  const filtered = attendance.filter((a) =>
-    (!search || a.hr_staff_records?.full_name.toLowerCase().includes(search.toLowerCase())) &&
-    (!dateFilter || a.date === dateFilter)
+  const filtered = attendance.filter(
+    (a) =>
+      (!search || a.hr_staff_records?.full_name.toLowerCase().includes(search.toLowerCase())) && (!dateFilter || a.date === dateFilter),
   )
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "present":
-        return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200"><CheckCircle2 className="h-3 w-3 mr-1"/> Present</Badge>
+        return (
+          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+            <CheckCircle2 className="h-3 w-3 mr-1" /> Present
+          </Badge>
+        )
       case "absent":
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200"><XCircle className="h-3 w-3 mr-1"/> Absent</Badge>
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            <XCircle className="h-3 w-3 mr-1" /> Absent
+          </Badge>
+        )
       case "half-day":
-        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200"><AlertCircle className="h-3 w-3 mr-1"/> Half Day</Badge>
+        return (
+          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+            <AlertCircle className="h-3 w-3 mr-1" /> Half Day
+          </Badge>
+        )
       case "leave":
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200"><Clock className="h-3 w-3 mr-1"/> On Leave</Badge>
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Clock className="h-3 w-3 mr-1" /> On Leave
+          </Badge>
+        )
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -88,15 +85,15 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
     try {
       const payload = {
         ...formData,
-        check_in_time: formData.status === 'absent' || formData.status === 'leave' ? null : formData.check_in_time,
-        check_out_time: formData.status === 'absent' || formData.status === 'leave' ? null : formData.check_out_time,
+        check_in_time: formData.status === "absent" || formData.status === "leave" ? null : formData.check_in_time,
+        check_out_time: formData.status === "absent" || formData.status === "leave" ? null : formData.check_out_time,
       }
-      
+
       const res: any = await clientApiPost("admin/hr/attendance", payload)
       if (res.data) {
-        const staffObj = staff.find(s => s.id === formData.staff_id)
+        const staffObj = staff.find((s) => s.id === formData.staff_id)
         const newRecord = { ...res.data, hr_staff_records: staffObj }
-        setAttendance([newRecord, ...attendance.filter(a => a.id !== newRecord.id)])
+        setAttendance([newRecord, ...attendance.filter((a) => a.id !== newRecord.id)])
         setIsAddOpen(false)
         setFormData({
           ...formData,
@@ -144,25 +141,31 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
                   <Label>Employee</Label>
-                  <Select required value={formData.staff_id} onValueChange={(val) => setFormData({...formData, staff_id: val})}>
-                    <SelectTrigger><SelectValue placeholder="Select staff member"/></SelectTrigger>
+                  <Select required value={formData.staff_id} onValueChange={(val) => setFormData({ ...formData, staff_id: val })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select staff member" />
+                    </SelectTrigger>
                     <SelectContent>
-                      {staff.map(s => (
-                        <SelectItem key={s.id} value={s.id}>{s.full_name} ({s.department})</SelectItem>
+                      {staff.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.full_name} ({s.department})
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Date</Label>
-                  <Input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+                  <Input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(val) => setFormData({...formData, status: val})}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
+                  <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="present">Present</SelectItem>
                       <SelectItem value="absent">Absent</SelectItem>
@@ -171,26 +174,40 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
                     </SelectContent>
                   </Select>
                 </div>
-                
-                {(formData.status === 'present' || formData.status === 'half-day') && (
+
+                {(formData.status === "present" || formData.status === "half-day") && (
                   <>
                     <div className="space-y-2">
                       <Label>Check-in Time</Label>
-                      <Input type="time" required value={formData.check_in_time} onChange={e => setFormData({...formData, check_in_time: e.target.value})} />
+                      <Input
+                        type="time"
+                        required
+                        value={formData.check_in_time}
+                        onChange={(e) => setFormData({ ...formData, check_in_time: e.target.value })}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label>Check-out Time</Label>
-                      <Input type="time" required value={formData.check_out_time} onChange={e => setFormData({...formData, check_out_time: e.target.value})} />
+                      <Input
+                        type="time"
+                        required
+                        value={formData.check_out_time}
+                        onChange={(e) => setFormData({ ...formData, check_out_time: e.target.value })}
+                      />
                     </div>
                   </>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Notes (Optional)</Label>
-                <Textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Reason for absence or late arrival..." />
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Reason for absence or late arrival..."
+                />
               </div>
-              
+
               <Button type="submit" className="w-full rounded-xl" disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Save Record
@@ -211,19 +228,12 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
             />
           </div>
           <div className="w-full sm:w-[200px]">
-            <Input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="rounded-xl"
-            />
+            <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="rounded-xl" />
           </div>
         </div>
-        
+
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            No attendance records found for this date.
-          </div>
+          <div className="p-8 text-center text-slate-500">No attendance records found for this date.</div>
         ) : (
           <Table>
             <TableHeader className="bg-slate-50">
@@ -237,25 +247,24 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map(record => (
+              {filtered.map((record) => (
                 <TableRow key={record.id}>
-                  <TableCell className="font-medium">
-                    {record.hr_staff_records?.full_name || "Unknown"}
-                  </TableCell>
-                  <TableCell>
-                    {getStatusBadge(record.status)}
-                  </TableCell>
+                  <TableCell className="font-medium">{record.hr_staff_records?.full_name || "Unknown"}</TableCell>
+                  <TableCell>{getStatusBadge(record.status)}</TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     {record.check_in_time ? record.check_in_time.substring(0, 5) : "-"}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     {record.check_out_time ? record.check_out_time.substring(0, 5) : "-"}
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
-                    {record.notes || "-"}
-                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">{record.notes || "-"}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(record.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(record.id)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>

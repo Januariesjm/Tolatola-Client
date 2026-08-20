@@ -14,10 +14,5 @@ export function FAQJsonLd({ items }: { items: FAQItem[] }) {
       },
     })),
   }
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  )
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 }

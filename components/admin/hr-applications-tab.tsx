@@ -32,52 +32,50 @@ export function HRApplicationsTab({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Human Resources</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage staff, candidates, and company records.
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">Manage staff, candidates, and company records.</p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           <TabsList className="bg-slate-100/80 p-1 w-max sm:w-full justify-start h-auto rounded-xl">
-            <TabsTrigger 
-              value="applications" 
+            <TabsTrigger
+              value="applications"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Career Applications
             </TabsTrigger>
-            <TabsTrigger 
-              value="interviews" 
+            <TabsTrigger
+              value="interviews"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <CalendarDays className="h-4 w-4 mr-2" />
               Interviews
             </TabsTrigger>
-            <TabsTrigger 
-              value="staff" 
+            <TabsTrigger
+              value="staff"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <Users className="h-4 w-4 mr-2" />
               Staff Records
             </TabsTrigger>
-            <TabsTrigger 
-              value="contracts" 
+            <TabsTrigger
+              value="contracts"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <FileSignature className="h-4 w-4 mr-2" />
               Contracts
             </TabsTrigger>
-            <TabsTrigger 
-              value="attendance" 
+            <TabsTrigger
+              value="attendance"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Attendance
             </TabsTrigger>
-            <TabsTrigger 
-              value="payroll" 
+            <TabsTrigger
+              value="payroll"
               className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm py-2.5 px-4"
             >
               <CreditCard className="h-4 w-4 mr-2" />

@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Briefcase,
   Users,
@@ -202,15 +196,7 @@ const modeIcons: Record<string, string> = {
   FLEXIBLE: "🌍",
 }
 
-export default function CareersPageClient({
-  user,
-  profile,
-  kycStatus,
-}: {
-  user: any
-  profile: any
-  kycStatus: any
-}) {
+export default function CareersPageClient({ user, profile, kycStatus }: { user: any; profile: any; kycStatus: any }) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -250,25 +236,20 @@ export default function CareersPageClient({
     "image/webp",
   ]
 
-  const handleFileSelect = useCallback(
-    (file: File | undefined, setter: (f: File | null) => void, allowImages = false) => {
-      if (!file) return
-      if (file.size > 10 * 1024 * 1024) {
-        setFormError("File size must be less than 10MB")
-        return
-      }
-      const allowed = allowImages
-        ? docAllowedTypes
-        : docAllowedTypes.filter((t) => !t.startsWith("image/"))
-      if (!allowed.includes(file.type)) {
-        setFormError(allowImages ? "Please upload a PDF, Word document, or image" : "Please upload a PDF or Word document")
-        return
-      }
-      setter(file)
-      setFormError("")
-    },
-    [],
-  )
+  const handleFileSelect = useCallback((file: File | undefined, setter: (f: File | null) => void, allowImages = false) => {
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      setFormError("File size must be less than 10MB")
+      return
+    }
+    const allowed = allowImages ? docAllowedTypes : docAllowedTypes.filter((t) => !t.startsWith("image/"))
+    if (!allowed.includes(file.type)) {
+      setFormError(allowImages ? "Please upload a PDF, Word document, or image" : "Please upload a PDF or Word document")
+      return
+    }
+    setter(file)
+    setFormError("")
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFileSelect(e.target.files?.[0], setCvFile)
@@ -305,9 +286,7 @@ export default function CareersPageClient({
     setFormError("")
 
     try {
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
-      ).replace(/\/$/, "")
+      const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
 
       // Helper to upload a file
       const uploadFile = async (file: File, endpoint: string) => {
@@ -361,9 +340,7 @@ export default function CareersPageClient({
   }
 
   const scrollToJobs = () => {
-    document
-      .getElementById("job-listings")
-      ?.scrollIntoView({ behavior: "smooth" })
+    document.getElementById("job-listings")?.scrollIntoView({ behavior: "smooth" })
   }
 
   return (
@@ -379,24 +356,16 @@ export default function CareersPageClient({
           <div className="container mx-auto px-4 relative z-10 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 backdrop-blur-sm mb-6">
               <Sparkles className="h-4 w-4" />
-              <span className="text-xs font-bold uppercase tracking-widest">
-                We&apos;re Growing Fast
-              </span>
+              <span className="text-xs font-bold uppercase tracking-widest">We&apos;re Growing Fast</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
-              Careers at{" "}
-              <span className="text-primary italic">TOLA</span>
+              Careers at <span className="text-primary italic">TOLA</span>
             </h1>
             <p className="text-stone-400 text-xl max-w-2xl mx-auto leading-relaxed">
-              We&apos;re building the infrastructure of East African commerce.
-              Join our mission to empower local entrepreneurs.
+              We&apos;re building the infrastructure of East African commerce. Join our mission to empower local entrepreneurs.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Button
-                size="lg"
-                className="rounded-full px-8 h-12 font-bold group"
-                onClick={scrollToJobs}
-              >
+              <Button size="lg" className="rounded-full px-8 h-12 font-bold group" onClick={scrollToJobs}>
                 View Openings
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -437,15 +406,9 @@ export default function CareersPageClient({
               },
             ].map((perk, i) => (
               <div key={i} className="space-y-4 text-center md:text-left">
-                <div className="inline-flex p-3 rounded-2xl bg-primary/5 text-primary">
-                  {perk.icon}
-                </div>
-                <h3 className="text-xl font-bold tracking-tight">
-                  {perk.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {perk.desc}
-                </p>
+                <div className="inline-flex p-3 rounded-2xl bg-primary/5 text-primary">{perk.icon}</div>
+                <h3 className="text-xl font-bold tracking-tight">{perk.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{perk.desc}</p>
               </div>
             ))}
           </div>
@@ -456,14 +419,9 @@ export default function CareersPageClient({
           <div className="container mx-auto px-4 max-w-5xl">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
               <div>
-                <h2 className="text-4xl font-bold tracking-tighter mb-4">
-                  Open Positions
-                </h2>
+                <h2 className="text-4xl font-bold tracking-tighter mb-4">Open Positions</h2>
                 <p className="text-muted-foreground text-lg">
-                  Help us shape the future of African e-commerce.{" "}
-                  <span className="font-semibold text-primary">
-                    {jobs.length} roles
-                  </span>{" "}
+                  Help us shape the future of African e-commerce. <span className="font-semibold text-primary">{jobs.length} roles</span>{" "}
                   available.
                 </p>
               </div>
@@ -479,8 +437,7 @@ export default function CareersPageClient({
                     <div className="flex flex-wrap gap-2 mb-3">
                       <span
                         className={`px-2.5 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wider ${
-                          deptColors[job.dept] ||
-                          "bg-muted text-muted-foreground"
+                          deptColors[job.dept] || "bg-muted text-muted-foreground"
                         }`}
                       >
                         {job.dept}
@@ -492,18 +449,14 @@ export default function CareersPageClient({
                         {modeIcons[job.mode] || ""} {job.mode}
                       </span>
                     </div>
-                    <h3 className="text-xl font-black mb-1.5 group-hover:text-primary transition-colors">
-                      {job.title}
-                    </h3>
+                    <h3 className="text-xl font-black mb-1.5 group-hover:text-primary transition-colors">{job.title}</h3>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium mb-2">
                       <span className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" />
                         {job.location}
                       </span>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {job.desc}
-                    </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{job.desc}</p>
                   </div>
                   <Button
                     className="rounded-full px-8 py-5 font-black h-auto group-hover:scale-105 transition-transform shrink-0"
@@ -519,12 +472,9 @@ export default function CareersPageClient({
             {/* General Inquiry */}
             <div className="mt-20 p-12 rounded-[3rem] bg-primary text-primary-foreground text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <h3 className="text-3xl font-black mb-4">
-                Don&apos;t see the right role?
-              </h3>
+              <h3 className="text-3xl font-black mb-4">Don&apos;t see the right role?</h3>
               <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-                We&apos;re always on the lookout for exceptional talent. If
-                you&apos;re passionate about Digital trade and Supply Chain
+                We&apos;re always on the lookout for exceptional talent. If you&apos;re passionate about Digital trade and Supply Chain
                 Ecosystems, send us your resume.
               </p>
               <a
@@ -547,31 +497,19 @@ export default function CareersPageClient({
               <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
                 <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               </div>
-              <h3 className="text-2xl font-black">
-                Application Submitted!
-              </h3>
+              <h3 className="text-2xl font-black">Application Submitted!</h3>
               <p className="text-muted-foreground max-w-sm mx-auto">
-                Thank you for applying for{" "}
-                <span className="font-semibold text-foreground">
-                  {selectedJob?.title}
-                </span>
-                . We&apos;ll review your application and get back to you
-                soon.
+                Thank you for applying for <span className="font-semibold text-foreground">{selectedJob?.title}</span>. We&apos;ll review
+                your application and get back to you soon.
               </p>
-              <Button
-                variant="outline"
-                className="mt-4 rounded-full"
-                onClick={() => setIsDialogOpen(false)}
-              >
+              <Button variant="outline" className="mt-4 rounded-full" onClick={() => setIsDialogOpen(false)}>
                 Close
               </Button>
             </div>
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl font-black">
-                  Apply for {selectedJob?.title}
-                </DialogTitle>
+                <DialogTitle className="text-xl font-black">Apply for {selectedJob?.title}</DialogTitle>
                 <DialogDescription className="flex items-center gap-3 text-sm">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
@@ -597,9 +535,7 @@ export default function CareersPageClient({
                     id="full_name"
                     placeholder="John Doe"
                     value={formData.full_name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, full_name: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     required
                     className="rounded-xl"
                   />
@@ -614,9 +550,7 @@ export default function CareersPageClient({
                     type="email"
                     placeholder="john@example.com"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
                     className="rounded-xl"
                   />
@@ -631,19 +565,14 @@ export default function CareersPageClient({
                     type="tel"
                     placeholder="+255 xxx xxx xxx"
                     value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="cover_letter" className="font-semibold">
-                    Cover Letter{" "}
-                    <span className="text-muted-foreground font-normal">
-                      (optional)
-                    </span>
+                    Cover Letter <span className="text-muted-foreground font-normal">(optional)</span>
                   </Label>
                   <Textarea
                     id="cover_letter"
@@ -666,29 +595,17 @@ export default function CareersPageClient({
                   </Label>
                   <div
                     className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-                      cvFile
-                        ? "border-primary/40 bg-primary/5"
-                        : "border-muted-foreground/20 hover:border-primary/30 hover:bg-muted/30"
+                      cvFile ? "border-primary/40 bg-primary/5" : "border-muted-foreground/20 hover:border-primary/30 hover:bg-muted/30"
                     }`}
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
+                    <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" onChange={handleFileChange} className="hidden" />
                     {cvFile ? (
                       <div className="flex items-center justify-center gap-3">
                         <FileText className="h-8 w-8 text-primary" />
                         <div className="text-left">
-                          <p className="font-semibold text-sm">
-                            {cvFile.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {(cvFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
+                          <p className="font-semibold text-sm">{cvFile.name}</p>
+                          <p className="text-xs text-muted-foreground">{(cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
                         </div>
                         <Button
                           type="button"
@@ -698,8 +615,7 @@ export default function CareersPageClient({
                           onClick={(e) => {
                             e.stopPropagation()
                             setCvFile(null)
-                            if (fileInputRef.current)
-                              fileInputRef.current.value = ""
+                            if (fileInputRef.current) fileInputRef.current.value = ""
                           }}
                         >
                           <X className="h-4 w-4" />
@@ -708,12 +624,8 @@ export default function CareersPageClient({
                     ) : (
                       <>
                         <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm font-medium">
-                          Click to upload your CV
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          PDF or Word document (max 10MB)
-                        </p>
+                        <p className="text-sm font-medium">Click to upload your CV</p>
+                        <p className="text-xs text-muted-foreground mt-1">PDF or Word document (max 10MB)</p>
                       </>
                     )}
                   </div>
@@ -743,9 +655,7 @@ export default function CareersPageClient({
                         <FileText className="h-8 w-8 text-primary" />
                         <div className="text-left">
                           <p className="font-semibold text-sm">{certificatesFile.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {(certificatesFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
+                          <p className="text-xs text-muted-foreground">{(certificatesFile.size / 1024 / 1024).toFixed(2)} MB</p>
                         </div>
                         <Button
                           type="button"
@@ -765,9 +675,7 @@ export default function CareersPageClient({
                       <>
                         <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm font-medium">Click to upload Certificates &amp; IDs</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          PDF, Word document, or image (max 10MB)
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">PDF, Word document, or image (max 10MB)</p>
                       </>
                     )}
                   </div>
@@ -797,9 +705,7 @@ export default function CareersPageClient({
                         <FileText className="h-8 w-8 text-primary" />
                         <div className="text-left">
                           <p className="font-semibold text-sm">{applicationLetterFile.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {(applicationLetterFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
+                          <p className="text-xs text-muted-foreground">{(applicationLetterFile.size / 1024 / 1024).toFixed(2)} MB</p>
                         </div>
                         <Button
                           type="button"
@@ -819,25 +725,17 @@ export default function CareersPageClient({
                       <>
                         <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                         <p className="text-sm font-medium">Click to upload Letter of Application</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          PDF or Word document (max 10MB)
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">PDF or Word document (max 10MB)</p>
                       </>
                     )}
                   </div>
                 </div>
 
                 {formError && (
-                  <div className="text-destructive text-sm font-medium bg-destructive/10 px-4 py-2.5 rounded-xl">
-                    {formError}
-                  </div>
+                  <div className="text-destructive text-sm font-medium bg-destructive/10 px-4 py-2.5 rounded-xl">{formError}</div>
                 )}
 
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-12 rounded-xl font-bold text-base"
-                >
+                <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold text-base">
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -66,28 +66,29 @@ export function ServerLogsTab() {
   const [methodFilter, setMethodFilter] = useState<string>("")
   const [pathSearch, setPathSearch] = useState<string>("")
 
-  const fetchLogs = useCallback(async (page = 1, isRefresh = false) => {
-    try {
-      if (isRefresh) setRefreshing(true)
-      else setLoading(true)
+  const fetchLogs = useCallback(
+    async (page = 1, isRefresh = false) => {
+      try {
+        if (isRefresh) setRefreshing(true)
+        else setLoading(true)
 
-      const params = new URLSearchParams({ page: String(page), limit: "50" })
-      if (severityFilter) params.set("severity", severityFilter)
-      if (methodFilter) params.set("method", methodFilter)
-      if (pathSearch) params.set("path", pathSearch)
+        const params = new URLSearchParams({ page: String(page), limit: "50" })
+        if (severityFilter) params.set("severity", severityFilter)
+        if (methodFilter) params.set("method", methodFilter)
+        if (pathSearch) params.set("path", pathSearch)
 
-      const res = await clientApiGet<{ logs: ApiLog[]; pagination: Pagination }>(
-        `admin/api-logs?${params.toString()}`
-      )
-      setLogs(res.logs || [])
-      setPagination(res.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 })
-    } catch (err) {
-      log.error("error fetching API logs", err)
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }, [severityFilter, methodFilter, pathSearch])
+        const res = await clientApiGet<{ logs: ApiLog[]; pagination: Pagination }>(`admin/api-logs?${params.toString()}`)
+        setLogs(res.logs || [])
+        setPagination(res.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 })
+      } catch (err) {
+        log.error("error fetching API logs", err)
+      } finally {
+        setLoading(false)
+        setRefreshing(false)
+      }
+    },
+    [severityFilter, methodFilter, pathSearch],
+  )
 
   const fetchStats = useCallback(async () => {
     try {
@@ -118,30 +119,44 @@ export function ServerLogsTab() {
 
   const severityIcon = (severity: string) => {
     switch (severity) {
-      case "ERROR": return <XCircle className="h-3.5 w-3.5" />
-      case "WARN": return <AlertTriangle className="h-3.5 w-3.5" />
-      case "INFO": return <Info className="h-3.5 w-3.5" />
-      default: return <Terminal className="h-3.5 w-3.5" />
+      case "ERROR":
+        return <XCircle className="h-3.5 w-3.5" />
+      case "WARN":
+        return <AlertTriangle className="h-3.5 w-3.5" />
+      case "INFO":
+        return <Info className="h-3.5 w-3.5" />
+      default:
+        return <Terminal className="h-3.5 w-3.5" />
     }
   }
 
   const severityColor = (severity: string) => {
     switch (severity) {
-      case "ERROR": return "bg-red-500/10 text-red-400 border-red-500/20"
-      case "WARN": return "bg-amber-500/10 text-amber-400 border-amber-500/20"
-      case "INFO": return "bg-blue-500/10 text-blue-400 border-blue-500/20"
-      default: return "bg-slate-500/10 text-slate-400 border-slate-500/20"
+      case "ERROR":
+        return "bg-red-500/10 text-red-400 border-red-500/20"
+      case "WARN":
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20"
+      case "INFO":
+        return "bg-blue-500/10 text-blue-400 border-blue-500/20"
+      default:
+        return "bg-slate-500/10 text-slate-400 border-slate-500/20"
     }
   }
 
   const methodColor = (method: string) => {
     switch (method) {
-      case "GET": return "bg-emerald-500/15 text-emerald-400"
-      case "POST": return "bg-blue-500/15 text-blue-400"
-      case "PUT": return "bg-amber-500/15 text-amber-400"
-      case "PATCH": return "bg-purple-500/15 text-purple-400"
-      case "DELETE": return "bg-red-500/15 text-red-400"
-      default: return "bg-slate-500/15 text-slate-400"
+      case "GET":
+        return "bg-emerald-500/15 text-emerald-400"
+      case "POST":
+        return "bg-blue-500/15 text-blue-400"
+      case "PUT":
+        return "bg-amber-500/15 text-amber-400"
+      case "PATCH":
+        return "bg-purple-500/15 text-purple-400"
+      case "DELETE":
+        return "bg-red-500/15 text-red-400"
+      default:
+        return "bg-slate-500/15 text-slate-400"
     }
   }
 
@@ -241,7 +256,10 @@ export function ServerLogsTab() {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => { fetchLogs(pagination.page, true); fetchStats() }}
+              onClick={() => {
+                fetchLogs(pagination.page, true)
+                fetchStats()
+              }}
               disabled={refreshing}
               className="h-8 text-xs text-slate-400 hover:text-white ml-auto"
             >
@@ -293,12 +311,13 @@ export function ServerLogsTab() {
                       key={log.id}
                       onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
                       className={`border-b border-[#1a1a2e] cursor-pointer transition-colors hover:bg-[#1a1a2e] ${
-                        log.severity === "ERROR" ? "bg-red-950/20" :
-                        log.severity === "WARN" ? "bg-amber-950/10" : ""
+                        log.severity === "ERROR" ? "bg-red-950/20" : log.severity === "WARN" ? "bg-amber-950/10" : ""
                       }`}
                     >
                       <td className="px-4 py-2.5">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${severityColor(log.severity)}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${severityColor(log.severity)}`}
+                        >
                           {severityIcon(log.severity)}
                           {log.severity}
                         </span>
@@ -314,15 +333,13 @@ export function ServerLogsTab() {
                       <td className="px-4 py-2.5 text-slate-300 max-w-[300px] truncate" title={log.path}>
                         {log.path}
                       </td>
-                      <td className={`px-4 py-2.5 font-bold ${statusColor(log.status_code)}`}>
-                        {log.status_code}
-                      </td>
-                      <td className={`px-4 py-2.5 ${log.response_time_ms > 1000 ? "text-red-400" : log.response_time_ms > 300 ? "text-amber-400" : "text-slate-400"}`}>
+                      <td className={`px-4 py-2.5 font-bold ${statusColor(log.status_code)}`}>{log.status_code}</td>
+                      <td
+                        className={`px-4 py-2.5 ${log.response_time_ms > 1000 ? "text-red-400" : log.response_time_ms > 300 ? "text-amber-400" : "text-slate-400"}`}
+                      >
                         {log.response_time_ms}ms
                       </td>
-                      <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap">
-                        {log.ip || "-"}
-                      </td>
+                      <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap">{log.ip || "-"}</td>
                     </tr>
                     {expandedLog === log.id && (
                       <tr key={`${log.id}-detail`} className="bg-[#12121f]">
@@ -338,9 +355,7 @@ export function ServerLogsTab() {
                             </div>
                             <div>
                               <p className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Error</p>
-                              <p className={`${log.error_message ? "text-red-400" : "text-slate-500"}`}>
-                                {log.error_message || "None"}
-                              </p>
+                              <p className={`${log.error_message ? "text-red-400" : "text-slate-500"}`}>{log.error_message || "None"}</p>
                             </div>
                             <div>
                               <p className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider mb-1">Full Timestamp</p>
@@ -361,7 +376,8 @@ export function ServerLogsTab() {
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-[#2a2a4a]">
             <p className="text-xs text-slate-500">
-              Showing {((pagination.page - 1) * pagination.limit) + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total.toLocaleString()} entries
+              Showing {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+              {pagination.total.toLocaleString()} entries
             </p>
             <div className="flex items-center gap-1">
               <Button

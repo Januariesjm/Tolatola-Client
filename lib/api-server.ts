@@ -9,7 +9,7 @@ async function getSessionToken() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return undefined
-  
+
   // Get the session to retrieve the access token
   const {
     data: { session },
@@ -17,10 +17,7 @@ async function getSessionToken() {
   return session?.access_token
 }
 
-export async function serverApiGet<T>(
-  path: string,
-  fetchOptions?: { next?: { revalidate?: number | false; tags?: string[] } }
-) {
+export async function serverApiGet<T>(path: string, fetchOptions?: { next?: { revalidate?: number | false; tags?: string[] } }) {
   const token = await getSessionToken()
   return api.get<T>(path, token || undefined, fetchOptions)
 }
@@ -39,4 +36,3 @@ export async function serverApiPut<T>(path: string, body?: any) {
   const token = await getSessionToken()
   return api.put<T>(path, body, token || undefined)
 }
-

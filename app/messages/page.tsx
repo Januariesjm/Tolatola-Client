@@ -24,23 +24,21 @@ export default async function MessagesPage() {
 
   const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
 
-  const { data: kycData } = await supabase
-    .from("customer_kyc")
-    .select("kyc_status")
-    .eq("user_id", user.id)
-    .maybeSingle()
+  const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader user={user} profile={profile} kycStatus={kycData?.kyc_status} />
-      <Suspense fallback={
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Messages</h1>
-            <p className="text-muted-foreground">Loading conversations...</p>
+      <Suspense
+        fallback={
+          <div className="container mx-auto px-4 py-8">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-3xl font-bold mb-6">Messages</h1>
+              <p className="text-muted-foreground">Loading conversations...</p>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <MessagesContent />
       </Suspense>
     </div>

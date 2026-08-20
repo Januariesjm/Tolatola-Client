@@ -5,16 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Search,
-  Filter,
-  ShieldCheck,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  Lock,
-  Unlock,
-} from "lucide-react"
+import { Search, Filter, ShieldCheck, Clock, CheckCircle2, AlertTriangle, Lock, Unlock } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,13 +30,13 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
 
   const groupedTransactions = useMemo(() => {
     const map = new Map<string, any>()
-    dateFilteredTransactions.forEach(t => {
+    dateFilteredTransactions.forEach((t) => {
       const key = t.order_id || t.id
       if (!map.has(key)) {
         map.set(key, { ...t, amount: t.amount || 0, shops: [t.shops?.name].filter(Boolean) })
       } else {
         const existing = map.get(key)
-        existing.amount += (t.amount || 0)
+        existing.amount += t.amount || 0
         if (t.shops?.name && !existing.shops.includes(t.shops.name)) {
           existing.shops.push(t.shops.name)
         }
@@ -53,9 +44,9 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
         if (t.status === "held") existing.status = "held"
       }
     })
-    return Array.from(map.values()).map(t => ({
+    return Array.from(map.values()).map((t) => ({
       ...t,
-      shopNames: t.shops.join(", ") || "N/A"
+      shopNames: t.shops.join(", ") || "N/A",
     }))
   }, [dateFilteredTransactions])
 
@@ -90,7 +81,9 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h3 className="text-2xl font-bold text-slate-900">Settlements</h3>
-          <p className="text-slate-500 text-sm mt-1">Funds held securely in the TOLA system, awaiting delivery confirmation before distribution.</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Funds held securely in the TOLA system, awaiting delivery confirmation before distribution.
+          </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <DateRangeFilter value={period} onChange={setPeriod} />
@@ -113,10 +106,18 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
             <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
               <DropdownMenuLabel>Settlement Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked={statusFilter === "all"} onCheckedChange={() => setStatusFilter("all")}>All</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "held"} onCheckedChange={() => setStatusFilter("held")}>Pending</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "released"} onCheckedChange={() => setStatusFilter("released")}>Settled</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={statusFilter === "refunded"} onCheckedChange={() => setStatusFilter("refunded")}>Refunded</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "all"} onCheckedChange={() => setStatusFilter("all")}>
+                All
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "held"} onCheckedChange={() => setStatusFilter("held")}>
+                Pending
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "released"} onCheckedChange={() => setStatusFilter("released")}>
+                Settled
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem checked={statusFilter === "refunded"} onCheckedChange={() => setStatusFilter("refunded")}>
+                Refunded
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -182,20 +183,27 @@ export function FinanceSettlementsTab({ transactions }: FinanceSettlementsTabPro
               <CardContent className="p-5">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-                      t.status === "held" ? "bg-yellow-100" : t.status === "released" ? "bg-emerald-100" : "bg-rose-100"
-                    }`}>
-                      {t.status === "held" ? <Lock className="h-5 w-5 text-yellow-600" /> :
-                       t.status === "released" ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> :
-                       <AlertTriangle className="h-5 w-5 text-rose-600" />}
+                    <div
+                      className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
+                        t.status === "held" ? "bg-yellow-100" : t.status === "released" ? "bg-emerald-100" : "bg-rose-100"
+                      }`}
+                    >
+                      {t.status === "held" ? (
+                        <Lock className="h-5 w-5 text-yellow-600" />
+                      ) : t.status === "released" ? (
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      ) : (
+                        <AlertTriangle className="h-5 w-5 text-rose-600" />
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
-                          #{idx + 1}
-                        </span>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">#{idx + 1}</span>
                         <span className="font-bold text-slate-900">Order #{t.orders?.order_number || "—"}</span>
-                        <Badge variant="outline" className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[t.status] || ""}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusColors[t.status] || ""}`}
+                        >
                           {statusLabel[t.status] || t.status}
                         </Badge>
                       </div>

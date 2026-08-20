@@ -35,7 +35,7 @@ export function useAgentManagement(initialAgents: AdminAgent[]) {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isActionLoading, setIsActionLoading] = useState<string | null>(null)
-  
+
   // Filter States
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -59,7 +59,9 @@ export function useAgentManagement(initialAgents: AdminAgent[]) {
   // Helper to get auth headers
   const getAuthHeaders = async () => {
     const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     return {
       "Content-Type": "application/json",
       ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
@@ -75,10 +77,18 @@ export function useAgentManagement(initialAgents: AdminAgent[]) {
       const headers = await getAuthHeaders()
 
       const [statsRes, agentsRes, commsRes, ratesRes] = await Promise.all([
-        fetch(`${apiBase}/admin/agents/stats`, { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiBase}/admin/agents`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-        fetch(`${apiBase}/admin/agents/commissions`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-        fetch(`${apiBase}/admin/agents/commission-rates`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
+        fetch(`${apiBase}/admin/agents/stats`, { headers })
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null),
+        fetch(`${apiBase}/admin/agents`, { headers })
+          .then((r) => (r.ok ? r.json() : { data: [] }))
+          .catch(() => ({ data: [] })),
+        fetch(`${apiBase}/admin/agents/commissions`, { headers })
+          .then((r) => (r.ok ? r.json() : { data: [] }))
+          .catch(() => ({ data: [] })),
+        fetch(`${apiBase}/admin/agents/commission-rates`, { headers })
+          .then((r) => (r.ok ? r.json() : { data: [] }))
+          .catch(() => ({ data: [] })),
       ])
 
       if (statsRes?.stats) setStats(statsRes.stats)
@@ -129,7 +139,7 @@ export function useAgentManagement(initialAgents: AdminAgent[]) {
   }
 
   const handleRateAmountChange = (type: string, amount: string) => {
-    setRates(prev => prev.map(r => r.registration_type === type ? { ...r, amount: Number(amount) || 0 } : r))
+    setRates((prev) => prev.map((r) => (r.registration_type === type ? { ...r, amount: Number(amount) || 0 } : r)))
   }
 
   useEffect(() => {
@@ -311,9 +321,7 @@ export function useAgentManagement(initialAgents: AdminAgent[]) {
   const filteredAgents = agents.filter((agent) => {
     const name = agent.users?.full_name || ""
     const code = agent.agent_code || ""
-    const matchesSearch =
-      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      code.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || code.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || agent.status === statusFilter
     return matchesSearch && matchesStatus
   })

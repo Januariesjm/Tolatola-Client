@@ -108,9 +108,7 @@ function OtpPageContent() {
               </div>
               <div>
                 <CardTitle className="text-xl font-bold">Verify your phone</CardTitle>
-                <CardDescription>
-                  Add a one-time verification to keep your account secure.
-                </CardDescription>
+                <CardDescription>Add a one-time verification to keep your account secure.</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -131,16 +129,8 @@ function OtpPageContent() {
               <form onSubmit={handleRequestCode} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+2557..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Use your active mobile number (e.g. +2557…).
-                  </p>
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+2557..." />
+                  <p className="text-xs text-muted-foreground">Use your active mobile number (e.g. +2557…).</p>
                 </div>
                 <Button type="submit" disabled={sending || !phone.trim()} className="w-full">
                   {sending ? (
@@ -159,13 +149,7 @@ function OtpPageContent() {
               <form onSubmit={handleVerify} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+2557..."
-                  />
+                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+2557..." />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="code">Verification code</Label>
@@ -178,11 +162,7 @@ function OtpPageContent() {
                     placeholder="6‑digit code"
                   />
                 </div>
-                <Button
-                  type="submit"
-                  disabled={verifying || codeDisabled}
-                  className="w-full"
-                >
+                <Button type="submit" disabled={verifying || codeDisabled} className="w-full">
                   {verifying ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -203,11 +183,13 @@ function OtpPageContent() {
 
 export default function OtpPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center px-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }
+    >
       <OtpPageContent />
     </Suspense>
   )

@@ -84,5 +84,3 @@ async function getToken() {
   } = await supabase.auth.getSession()
   return session?.access_token
 }
-
-

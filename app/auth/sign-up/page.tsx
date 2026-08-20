@@ -39,7 +39,7 @@ function SignUpContent() {
   const [countryCode, setCountryCode] = useState("+255")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [userType, setUserType] = useState<"customer" | "vendor" | "transporter">(
-    userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam) ? userTypeParam : "customer"
+    userTypeParam && ["customer", "vendor", "transporter"].includes(userTypeParam) ? userTypeParam : "customer",
   )
   const [vendorType, setVendorType] = useState<VendorType | "">("")
   const [error, setError] = useState<string | null>(null)
@@ -100,7 +100,130 @@ function SignUpContent() {
         const savedPhone = data.phone as string
         if (savedPhone.startsWith("+")) {
           // Find matching country code (try longest match first)
-          const matchedCode = ["+1876","+880","+886","+852","+855","+998","+995","+994","+993","+977","+976","+975","+974","+973","+972","+971","+968","+966","+965","+964","+962","+961","+960","+593","+509","+421","+420","+386","+385","+381","+380","+374","+372","+371","+370","+359","+358","+354","+353","+351","+291","+269","+268","+267","+266","+265","+264","+263","+261","+260","+258","+257","+256","+255","+254","+253","+252","+251","+250","+249","+248","+244","+237","+235","+234","+233","+230","+227","+226","+225","+223","+221","+218","+216","+213","+212","+211","+98","+95","+94","+93","+92","+91","+90","+86","+84","+82","+81","+66","+65","+64","+63","+62","+61","+58","+57","+56","+55","+54","+53","+52","+51","+49","+48","+47","+46","+45","+44","+43","+41","+40","+39","+36","+34","+33","+32","+31","+30","+27","+20","+7","+1"].find(c => savedPhone.startsWith(c))
+          const matchedCode = [
+            "+1876",
+            "+880",
+            "+886",
+            "+852",
+            "+855",
+            "+998",
+            "+995",
+            "+994",
+            "+993",
+            "+977",
+            "+976",
+            "+975",
+            "+974",
+            "+973",
+            "+972",
+            "+971",
+            "+968",
+            "+966",
+            "+965",
+            "+964",
+            "+962",
+            "+961",
+            "+960",
+            "+593",
+            "+509",
+            "+421",
+            "+420",
+            "+386",
+            "+385",
+            "+381",
+            "+380",
+            "+374",
+            "+372",
+            "+371",
+            "+370",
+            "+359",
+            "+358",
+            "+354",
+            "+353",
+            "+351",
+            "+291",
+            "+269",
+            "+268",
+            "+267",
+            "+266",
+            "+265",
+            "+264",
+            "+263",
+            "+261",
+            "+260",
+            "+258",
+            "+257",
+            "+256",
+            "+255",
+            "+254",
+            "+253",
+            "+252",
+            "+251",
+            "+250",
+            "+249",
+            "+248",
+            "+244",
+            "+237",
+            "+235",
+            "+234",
+            "+233",
+            "+230",
+            "+227",
+            "+226",
+            "+225",
+            "+223",
+            "+221",
+            "+218",
+            "+216",
+            "+213",
+            "+212",
+            "+211",
+            "+98",
+            "+95",
+            "+94",
+            "+93",
+            "+92",
+            "+91",
+            "+90",
+            "+86",
+            "+84",
+            "+82",
+            "+81",
+            "+66",
+            "+65",
+            "+64",
+            "+63",
+            "+62",
+            "+61",
+            "+58",
+            "+57",
+            "+56",
+            "+55",
+            "+54",
+            "+53",
+            "+52",
+            "+51",
+            "+49",
+            "+48",
+            "+47",
+            "+46",
+            "+45",
+            "+44",
+            "+43",
+            "+41",
+            "+40",
+            "+39",
+            "+36",
+            "+34",
+            "+33",
+            "+32",
+            "+31",
+            "+30",
+            "+27",
+            "+20",
+            "+7",
+            "+1",
+          ].find((c) => savedPhone.startsWith(c))
           if (matchedCode) {
             setCountryCode(matchedCode)
             setPhoneNumber(savedPhone.slice(matchedCode.length))
@@ -117,7 +240,7 @@ function SignUpContent() {
   })
 
   // Auto-save on field changes
-  const fullPhone = phoneNumber ? `${countryCode}${phoneNumber.replace(/^0+/, '')}` : ""
+  const fullPhone = phoneNumber ? `${countryCode}${phoneNumber.replace(/^0+/, "")}` : ""
 
   useEffect(() => {
     if (fullName || email) {
@@ -151,7 +274,7 @@ function SignUpContent() {
         throw new Error("API base URL is not configured")
       }
 
-      if (!phoneNumber.trim() || phoneNumber.replace(/\D/g, '').length < 7) {
+      if (!phoneNumber.trim() || phoneNumber.replace(/\D/g, "").length < 7) {
         setError("Please enter a valid phone number (at least 7 digits)")
         setIsLoading(false)
         return
@@ -202,9 +325,7 @@ function SignUpContent() {
       // Mark registration as completed in recovery system
       await markCompleted()
 
-      const successUrl = returnUrl
-        ? `/auth/sign-up-success?returnUrl=${encodeURIComponent(returnUrl)}`
-        : "/auth/sign-up-success"
+      const successUrl = returnUrl ? `/auth/sign-up-success?returnUrl=${encodeURIComponent(returnUrl)}` : "/auth/sign-up-success"
       router.push(successUrl)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred"
@@ -228,11 +349,11 @@ function SignUpContent() {
 
     try {
       const supabase = createClient()
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co"
       const activeRefCode = (referralCode.trim() || refCode || "").trim()
-      
-      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''
-      const refQuery = activeRefCode ? `${nextQuery ? '&' : '?'}ref=${encodeURIComponent(activeRefCode)}` : ''
+
+      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ""
+      const refQuery = activeRefCode ? `${nextQuery ? "&" : "?"}ref=${encodeURIComponent(activeRefCode)}` : ""
       const redirectToUrl = `${appUrl}/auth/callback${nextQuery}${refQuery}`
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -264,11 +385,11 @@ function SignUpContent() {
 
     try {
       const supabase = createClient()
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tolatola.co'
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tolatola.co"
       const activeRefCode = (referralCode.trim() || refCode || "").trim()
 
-      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ''
-      const refQuery = activeRefCode ? `${nextQuery ? '&' : '?'}ref=${encodeURIComponent(activeRefCode)}` : ''
+      const nextQuery = returnUrl ? `?next=${encodeURIComponent(returnUrl)}` : ""
+      const refQuery = activeRefCode ? `${nextQuery ? "&" : "?"}ref=${encodeURIComponent(activeRefCode)}` : ""
       const redirectToUrl = `${appUrl}/auth/callback${nextQuery}${refQuery}`
 
       const { error } = await supabase.auth.signInWithOAuth({
@@ -305,9 +426,7 @@ function SignUpContent() {
                 <Image src="/logo-new.png" alt="TOLA" fill className="object-contain p-1.5" />
               </div>
               <div>
-                <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-                  TOLA DIGITAL TRADE
-                </p>
+                <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">TOLA DIGITAL TRADE</p>
                 <p className="text-lg font-semibold tracking-tight text-slate-900">Grow your trade footprint</p>
               </div>
             </div>
@@ -317,8 +436,8 @@ function SignUpContent() {
                 Join a logistics‑ready marketplace designed for real businesses.
               </h1>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Whether you&apos;re a buyer, vendor, or transporter, Tola connects you to secure payments, verified
-                partners, and live delivery tracking.
+                Whether you&apos;re a buyer, vendor, or transporter, Tola connects you to secure payments, verified partners, and live
+                delivery tracking.
               </p>
             </div>
 
@@ -349,9 +468,7 @@ function SignUpContent() {
 
             <Card className="backdrop-blur-sm bg-white shadow-2xl border-slate-200">
               <CardHeader className="space-y-2 pb-4">
-                <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">
-                  Join TOLA
-                </CardTitle>
+                <CardTitle className="text-2xl font-semibold tracking-tight text-slate-900">Join TOLA</CardTitle>
                 <CardDescription className="text-xs text-slate-500">
                   Create your account to shop, sell, or deliver across the TOLA ecosystem.
                 </CardDescription>
@@ -360,9 +477,7 @@ function SignUpContent() {
               <CardContent className="space-y-6">
                 {urlError && (
                   <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                    <p className="text-sm text-destructive text-center">
-                      {decodeURIComponent(urlError)}
-                    </p>
+                    <p className="text-sm text-destructive text-center">{decodeURIComponent(urlError)}</p>
                   </div>
                 )}
 
@@ -370,12 +485,19 @@ function SignUpContent() {
                   <div className="rounded-2xl bg-emerald-50 border border-emerald-200/60 p-4 flex items-center gap-3 animate-fade-in shadow-sm">
                     <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                        />
                       </svg>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-emerald-800">You've been referred!</p>
-                      <p className="text-[11px] text-emerald-600 font-medium leading-tight">Referred by TOLA agent <span className="font-bold underline">{referredByAgent}</span></p>
+                      <p className="text-[11px] text-emerald-600 font-medium leading-tight">
+                        Referred by TOLA agent <span className="font-bold underline">{referredByAgent}</span>
+                      </p>
                     </div>
                   </div>
                 )}
@@ -383,7 +505,9 @@ function SignUpContent() {
                 {/* Email/Password Form */}
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+                    <Label htmlFor="fullName" className="text-sm font-medium">
+                      Full Name
+                    </Label>
                     <Input
                       id="fullName"
                       type="text"
@@ -396,7 +520,9 @@ function SignUpContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -414,18 +540,14 @@ function SignUpContent() {
                       Phone Number
                     </Label>
                     <div className="flex gap-2">
-                      <CountryCodeSelect
-                        value={countryCode}
-                        onChange={setCountryCode}
-                        disabled={isLoading || isOAuthLoading !== null}
-                      />
+                      <CountryCodeSelect value={countryCode} onChange={setCountryCode} disabled={isLoading || isOAuthLoading !== null} />
                       <Input
                         id="phoneNumber"
                         type="tel"
                         placeholder="712 345 678"
                         required
                         value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9\s-]/g, ''))}
+                        onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9\s-]/g, ""))}
                         className="h-11 flex-1 transition-all focus:scale-[1.01] focus:ring-2"
                       />
                     </div>
@@ -433,7 +555,9 @@ function SignUpContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Label htmlFor="password" className="text-sm font-medium">
+                      Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -456,9 +580,7 @@ function SignUpContent() {
                         ) : (
                           <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
-                        <span className="sr-only">
-                          {showPassword ? "Hide password" : "Show password"}
-                        </span>
+                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                       </Button>
                     </div>
                   </div>
@@ -495,8 +617,11 @@ function SignUpContent() {
                           }}
                           onBlur={() => validateReferralCode(referralCode)}
                           className={`h-11 transition-all focus:scale-[1.01] focus:ring-2 pr-10 uppercase tracking-wider font-mono text-sm ${
-                            referredByAgent ? "border-emerald-400 ring-1 ring-emerald-200" :
-                            referralError ? "border-red-300 ring-1 ring-red-100" : ""
+                            referredByAgent
+                              ? "border-emerald-400 ring-1 ring-emerald-200"
+                              : referralError
+                                ? "border-red-300 ring-1 ring-red-100"
+                                : ""
                           }`}
                           disabled={!!refCode}
                         />
@@ -516,9 +641,7 @@ function SignUpContent() {
                           Referred by agent: <span className="font-bold">{referredByAgent}</span>
                         </p>
                       )}
-                      {referralError && (
-                        <p className="text-[11px] text-red-500 font-medium">{referralError}</p>
-                      )}
+                      {referralError && <p className="text-[11px] text-red-500 font-medium">{referralError}</p>}
                     </div>
                   )}
 
@@ -585,22 +708,15 @@ function SignUpContent() {
                         className="mt-1 border-primary/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <div className="space-y-1 text-xs text-muted-foreground leading-relaxed">
-                        <label
-                          htmlFor="accepted-policies"
-                          className="font-medium text-foreground text-[13px] leading-snug"
-                        >
+                        <label htmlFor="accepted-policies" className="font-medium text-foreground text-[13px] leading-snug">
                           I confirm that I have read and agree to the{" "}
-                          <Link
-                            href="/legal/compliance"
-                            className="text-primary underline-offset-2 hover:underline font-semibold"
-                          >
+                          <Link href="/legal/compliance" className="text-primary underline-offset-2 hover:underline font-semibold">
                             Legal &amp; Risk Policies
                           </Link>{" "}
                           of TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
                         </label>
                         <p className="italic text-[11px]">
-                          Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY
-                          CHAIN ECOSYSTEM.
+                          Unakubaliana na sera za kisheria, bima na usimamizi wa hatari za TOLA DIGITAL TRADE &amp; SUPPLY CHAIN ECOSYSTEM.
                         </p>
                       </div>
                     </div>
@@ -634,9 +750,7 @@ function SignUpContent() {
                     <span className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-card px-3 text-muted-foreground font-medium">
-                      Or sign up with
-                    </span>
+                    <span className="bg-card px-3 text-muted-foreground font-medium">Or sign up with</span>
                   </div>
                 </div>
 
@@ -715,11 +829,13 @@ function SignUpContent() {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      }
+    >
       <SignUpContent />
     </Suspense>
   )

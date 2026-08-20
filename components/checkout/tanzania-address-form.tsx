@@ -17,11 +17,37 @@ declare global {
 }
 
 const TANZANIA_REGIONS = [
-  "Arusha", "Dar es Salaam", "Dodoma", "Geita", "Iringa", "Kagera", "Katavi", "Kigoma",
-  "Kilimanjaro", "Lindi", "Manyara", "Mara", "Mbeya", "Morogoro", "Mtwara", "Mwanza",
-  "Njombe", "Pemba North", "Pemba South", "Pwani", "Rukwa", "Ruvuma", "Shinyanga",
-  "Simiyu", "Singida", "Songwe", "Tabora", "Tanga", "Zanzibar North",
-  "Zanzibar South and Central", "Zanzibar West"
+  "Arusha",
+  "Dar es Salaam",
+  "Dodoma",
+  "Geita",
+  "Iringa",
+  "Kagera",
+  "Katavi",
+  "Kigoma",
+  "Kilimanjaro",
+  "Lindi",
+  "Manyara",
+  "Mara",
+  "Mbeya",
+  "Morogoro",
+  "Mtwara",
+  "Mwanza",
+  "Njombe",
+  "Pemba North",
+  "Pemba South",
+  "Pwani",
+  "Rukwa",
+  "Ruvuma",
+  "Shinyanga",
+  "Simiyu",
+  "Singida",
+  "Songwe",
+  "Tabora",
+  "Tanga",
+  "Zanzibar North",
+  "Zanzibar South and Central",
+  "Zanzibar West",
 ]
 
 interface AddressData {
@@ -146,7 +172,11 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
             onAddressComplete(place.formatted_address || "", coords)
             toast({ title: "Address Found", description: "Location synced and fields auto-filled." })
           } else {
-            toast({ title: "Location Warning", description: "Coordinates not found. Delivery calculation may be unavailable.", variant: "destructive" })
+            toast({
+              title: "Location Warning",
+              description: "Coordinates not found. Delivery calculation may be unavailable.",
+              variant: "destructive",
+            })
           }
         })
       } catch (err) {
@@ -157,8 +187,6 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
     const timer = setTimeout(initAutocomplete, 200)
     return () => clearTimeout(timer)
   }, [isGoogleLoaded, onChange, toast])
-
-
 
   const handleFieldChange = (field: keyof AddressData, fieldValue: string) => {
     onChange({ ...value, [field]: fieldValue })
@@ -173,7 +201,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
             <Search className="h-5 w-5" />
           </div>
           <div className="space-y-0.5">
-            <Label htmlFor="address-search" className="text-sm font-bold text-stone-900 tracking-tight">Address Search</Label>
+            <Label htmlFor="address-search" className="text-sm font-bold text-stone-900 tracking-tight">
+              Address Search
+            </Label>
             <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Search for your location</p>
           </div>
         </div>
@@ -213,7 +243,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-3">
-            <Label htmlFor="region" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Region *</Label>
+            <Label htmlFor="region" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">
+              Region *
+            </Label>
             <Select value={value.region} onValueChange={(val) => handleFieldChange("region", val)}>
               <SelectTrigger id="region" className="h-12 rounded-xl border-stone-200 bg-white font-medium text-stone-900 px-4">
                 <SelectValue placeholder="Select Region" />
@@ -229,7 +261,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="district" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">District *</Label>
+            <Label htmlFor="district" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">
+              District *
+            </Label>
             <Input
               id="district"
               placeholder="e.g., Kinondoni"
@@ -241,7 +275,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="ward" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Ward *</Label>
+            <Label htmlFor="ward" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">
+              Ward *
+            </Label>
             <Input
               id="ward"
               placeholder="e.g., Masaki"
@@ -253,7 +289,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="street" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Street / Building *</Label>
+            <Label htmlFor="street" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">
+              Street / Building *
+            </Label>
             <Input
               id="street"
               placeholder="e.g., Samora Ave"
@@ -265,7 +303,9 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           </div>
 
           <div className="space-y-3 md:col-span-2">
-            <Label htmlFor="village" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">Village / Mtaa / Notes</Label>
+            <Label htmlFor="village" className="text-[10px] font-bold uppercase tracking-wide text-stone-500 ml-1">
+              Village / Mtaa / Notes
+            </Label>
             <Input
               id="village"
               placeholder="Additional delivery instructions"

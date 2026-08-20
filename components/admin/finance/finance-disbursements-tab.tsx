@@ -13,15 +13,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
-import {
-  Store,
-  Truck,
-  DollarSign,
-  PieChart,
-  TrendingUp,
-  Search,
-  Filter,
-} from "lucide-react"
+import { Store, Truck, DollarSign, PieChart, TrendingUp, Search, Filter } from "lucide-react"
 import { format } from "date-fns"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
 
@@ -30,7 +22,7 @@ interface FinanceDisbursementsTabProps {
 }
 
 // Revenue split constants
-const TOLA_COMMISSION_RATE = 0.10
+const TOLA_COMMISSION_RATE = 0.1
 const DELIVERY_FEE_TRANSPORTER_SHARE = 0.85
 
 export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps) {
@@ -61,7 +53,8 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
           id: order.id,
           orderNumber: order.order_number,
           orderStatus: order.status,
-          vendorName: order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
+          vendorName:
+            order.order_items?.[0]?.products?.shops?.vendors?.business_name || order.order_items?.[0]?.products?.shops?.name || "N/A",
           driverName: (() => {
             const activeAssignment = order.transporter_assignments?.find((a: any) => a.status !== "cancelled")
             return activeAssignment?.transporters?.users?.full_name || activeAssignment?.transporters?.business_name || "Unassigned"
@@ -84,11 +77,7 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
         const vendor = (d.vendorName || "").toLowerCase()
         const driver = (d.driverName || "").toLowerCase()
 
-        return (
-          orderNumber.includes(searchLower) ||
-          vendor.includes(searchLower) ||
-          driver.includes(searchLower)
-        )
+        return orderNumber.includes(searchLower) || vendor.includes(searchLower) || driver.includes(searchLower)
       })
   }, [paidOrders, searchQuery, statusFilter])
 
@@ -100,7 +89,7 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
         tolaCommission: acc.tolaCommission + d.tolaCommission,
         total: acc.total + d.total,
       }),
-      { vendorShare: 0, transporterShare: 0, tolaCommission: 0, total: 0 }
+      { vendorShare: 0, transporterShare: 0, tolaCommission: 0, total: 0 },
     )
   }, [disbursements])
 
@@ -109,7 +98,9 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h3 className="text-2xl font-bold text-slate-900">Disbursements</h3>
-          <p className="text-slate-500 text-sm mt-1">Revenue split breakdown per order — Vendor share, Transporter share, and TOLA commission.</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Revenue split breakdown per order — Vendor share, Transporter share, and TOLA commission.
+          </p>
         </div>
         <DateRangeFilter value={period} onChange={setPeriod} />
       </div>
@@ -138,7 +129,9 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-700">TZS {totals.vendorShare.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{totals.total > 0 ? ((totals.vendorShare / totals.total) * 100).toFixed(1) : 0}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {totals.total > 0 ? ((totals.vendorShare / totals.total) * 100).toFixed(1) : 0}% of total
+            </p>
           </CardContent>
         </Card>
 
@@ -151,7 +144,9 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-indigo-700">TZS {totals.transporterShare.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{totals.total > 0 ? ((totals.transporterShare / totals.total) * 100).toFixed(1) : 0}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {totals.total > 0 ? ((totals.transporterShare / totals.total) * 100).toFixed(1) : 0}% of total
+            </p>
           </CardContent>
         </Card>
 
@@ -164,7 +159,9 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-700">TZS {totals.tolaCommission.toLocaleString()}</div>
-            <p className="text-xs text-slate-500 mt-1">{totals.total > 0 ? ((totals.tolaCommission / totals.total) * 100).toFixed(1) : 0}% of total</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {totals.total > 0 ? ((totals.tolaCommission / totals.total) * 100).toFixed(1) : 0}% of total
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -222,7 +219,10 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
             <p className="text-slate-500 mt-1 text-sm">No disbursements match your search or filter criteria.</p>
             <Button
               variant="link"
-              onClick={() => { setSearchQuery(""); setStatusFilter("all"); }}
+              onClick={() => {
+                setSearchQuery("")
+                setStatusFilter("all")
+              }}
               className="mt-4 text-primary font-medium"
             >
               Clear all filters
@@ -250,12 +250,12 @@ export function FinanceDisbursementsTab({ orders }: FinanceDisbursementsTabProps
                 <tbody>
                   {disbursements.map((d, idx) => (
                     <tr key={d.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">
-                        {idx + 1}
-                      </td>
+                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">{idx + 1}</td>
                       <td className="py-3 px-4">
                         <span className="font-bold text-slate-900">#{d.orderNumber}</span>
-                        <Badge variant="outline" className="ml-2 text-[10px] rounded px-1.5 py-0">{d.orderStatus}</Badge>
+                        <Badge variant="outline" className="ml-2 text-[10px] rounded px-1.5 py-0">
+                          {d.orderStatus}
+                        </Badge>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5">

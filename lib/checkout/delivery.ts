@@ -10,12 +10,7 @@ export interface TransportMethodRate {
   rate_per_kg?: number | string | null
 }
 
-export function calculateFee(
-  method: TransportMethodRate | undefined,
-  distanceKm: number,
-  weightKg: number,
-  isAvailable: boolean
-): number {
+export function calculateFee(method: TransportMethodRate | undefined, distanceKm: number, weightKg: number, isAvailable: boolean): number {
   if (!isAvailable) return 0
   if (distanceKm < 0.1) return 0
 

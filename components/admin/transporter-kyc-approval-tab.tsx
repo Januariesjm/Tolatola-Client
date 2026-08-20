@@ -9,14 +9,7 @@ import { CheckCircle, XCircle, Eye, Truck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
@@ -69,7 +62,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
 
     try {
       await clientApiPost(`admin/transporters/${selectedTransporter.id}/reject`, {
-        reason: rejectionReason
+        reason: rejectionReason,
       })
 
       setRejectDialogOpen(false)
@@ -124,9 +117,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                     <Truck className="h-5 w-5 text-blue-600 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 min-w-0 w-full">
-                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">
-                          #{idx + 1}
-                        </span>
+                        <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md shrink-0">#{idx + 1}</span>
                         <CardTitle className="truncate flex-1 min-w-0">{transporter.users?.full_name || "Unnamed"}</CardTitle>
                       </div>
                       <CardDescription className="mt-1 truncate">{transporter.users?.email}</CardDescription>
@@ -155,8 +146,8 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Location:</span>
                     <span className="font-medium">
-                      {(transporter.region || transporter.district)
-                        ? `${transporter.region || ''}${transporter.region && transporter.district ? ', ' : ''}${transporter.district || ''}`
+                      {transporter.region || transporter.district
+                        ? `${transporter.region || ""}${transporter.region && transporter.district ? ", " : ""}${transporter.district || ""}`
                         : "N/A"}
                     </span>
                   </div>
@@ -182,7 +173,9 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                           variant="link"
                           size="sm"
                           className="h-auto p-0"
-                          onClick={() => handleViewDocument(transporter.driver_license_url || transporter.license_document_url, "Driver's License")}
+                          onClick={() =>
+                            handleViewDocument(transporter.driver_license_url || transporter.license_document_url, "Driver's License")
+                          }
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View
@@ -197,7 +190,10 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                           size="sm"
                           className="h-auto p-0"
                           onClick={() =>
-                            handleViewDocument(transporter.id_document_url || transporter.vehicle_registration_document_url, "Identification Document")
+                            handleViewDocument(
+                              transporter.id_document_url || transporter.vehicle_registration_document_url,
+                              "Identification Document",
+                            )
                           }
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -225,9 +221,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
                 <div className="flex gap-2 pt-4 border-t">
                   <Button
                     className="flex-1 bg-green-600 hover:bg-green-700"
-                    onClick={() =>
-                      handleApprove(transporter.id, transporter.users?.email, transporter.users?.full_name)
-                    }
+                    onClick={() => handleApprove(transporter.id, transporter.users?.email, transporter.users?.full_name)}
                     disabled={isSubmitting}
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
@@ -255,8 +249,8 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
           <DialogHeader>
             <DialogTitle>Reject Transporter Application</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting {selectedTransporter?.users?.full_name}'s application. An email will
-              be sent with this reason.
+              Please provide a reason for rejecting {selectedTransporter?.users?.full_name}'s application. An email will be sent with this
+              reason.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -276,11 +270,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleRejectConfirm}
-              disabled={isSubmitting || !rejectionReason.trim()}
-            >
+            <Button variant="destructive" onClick={handleRejectConfirm} disabled={isSubmitting || !rejectionReason.trim()}>
               Confirm Rejection
             </Button>
           </DialogFooter>
@@ -293,17 +283,10 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
           <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
               <DialogTitle>{documentTitle}</DialogTitle>
-              <DialogDescription>
-                Full size preview of the uploaded document
-              </DialogDescription>
+              <DialogDescription>Full size preview of the uploaded document</DialogDescription>
             </div>
             <div className="flex gap-2 mr-6">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9"
-                onClick={() => window.open(documentUrl, '_blank')}
-              >
+              <Button variant="outline" size="sm" className="h-9" onClick={() => window.open(documentUrl, "_blank")}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Open Original
               </Button>
@@ -311,19 +294,11 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
           </DialogHeader>
           <div className="relative flex-1 bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
             {documentUrl ? (
-              documentUrl.toLowerCase().endsWith('.pdf') ? (
-                <iframe
-                  src={`${documentUrl}#toolbar=0`}
-                  className="w-full h-full border-none"
-                  title="PDF Document Viewer"
-                />
+              documentUrl.toLowerCase().endsWith(".pdf") ? (
+                <iframe src={`${documentUrl}#toolbar=0`} className="w-full h-full border-none" title="PDF Document Viewer" />
               ) : (
                 <div className="w-full h-full overflow-auto flex items-center justify-center p-4">
-                  <img
-                    src={documentUrl}
-                    alt="Document"
-                    className="max-w-full h-auto shadow-2xl rounded-sm"
-                  />
+                  <img src={documentUrl} alt="Document" className="max-w-full h-auto shadow-2xl rounded-sm" />
                 </div>
               )
             ) : (

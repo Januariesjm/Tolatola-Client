@@ -120,9 +120,7 @@ const CONSOLE_METHOD: Record<LogLevel, "log" | "warn" | "error"> = {
 function emit(record: LogRecord): void {
   if (LEVEL_WEIGHT[record.level] < LEVEL_WEIGHT[minLevel()]) return
 
-  const prefix = record.scope
-    ? `[${record.level}] ${record.scope}:`
-    : `[${record.level}]`
+  const prefix = record.scope ? `[${record.level}] ${record.scope}:` : `[${record.level}]`
 
   const details: unknown[] = []
   if (record.error) details.push(record.error)

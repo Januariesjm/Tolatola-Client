@@ -5,16 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Search,
-  Filter,
-  DollarSign,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  Smartphone,
-  ArrowDownRight,
-} from "lucide-react"
+import { Search, Filter, DollarSign, CheckCircle2, Clock, XCircle, Smartphone, ArrowDownRight } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -195,9 +186,7 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
                 <tbody>
                   {filtered.map((c, idx) => (
                     <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">
-                        {idx + 1}
-                      </td>
+                      <td className="py-3 px-4 text-slate-500 font-semibold text-xs">{idx + 1}</td>
                       <td className="py-3 px-4">
                         <span className="font-bold text-slate-900">#{c.orderNumber}</span>
                       </td>
@@ -212,18 +201,17 @@ export function FinanceCollectionsTab({ orders }: FinanceCollectionsTabProps) {
                           <span className="capitalize text-xs font-medium">{c.paymentMethod.replace("-", " ")}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-right font-bold text-slate-900">
-                        TZS {c.amount.toLocaleString()}
-                      </td>
+                      <td className="py-3 px-4 text-right font-bold text-slate-900">TZS {c.amount.toLocaleString()}</td>
                       <td className="py-3 px-4 text-center">
-                        <Badge variant="outline" className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusBadge(c.paymentStatus)}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg px-2.5 py-0.5 text-[11px] font-semibold border ${statusBadge(c.paymentStatus)}`}
+                        >
                           <span className="mr-1">{statusIcon(c.paymentStatus)}</span>
                           {c.paymentStatus === "paid" ? "Success" : c.paymentStatus.charAt(0).toUpperCase() + c.paymentStatus.slice(1)}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-slate-500 text-xs">
-                        {format(new Date(c.createdAt), "MMM d, yyyy")}
-                      </td>
+                      <td className="py-3 px-4 text-slate-500 text-xs">{format(new Date(c.createdAt), "MMM d, yyyy")}</td>
                     </tr>
                   ))}
                 </tbody>

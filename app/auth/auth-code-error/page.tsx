@@ -46,14 +46,10 @@ function AuthCodeErrorContent() {
           <AlertCircle className="h-6 w-6 text-destructive" />
         </div>
         <CardTitle className="text-2xl">Verification Link Invalid</CardTitle>
-        <CardDescription>
-          The verification link has expired or is invalid.
-        </CardDescription>
+        <CardDescription>The verification link has expired or is invalid.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground text-center">
-          Don&apos;t worry — you can request a new verification email below.
-        </p>
+        <p className="text-sm text-muted-foreground text-center">Don&apos;t worry — you can request a new verification email below.</p>
 
         {resendState === "success" ? (
           <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-900 dark:bg-green-950">
@@ -75,11 +71,7 @@ function AuthCodeErrorContent() {
                 disabled={resendState === "loading"}
               />
             </div>
-            <Button
-              className="w-full"
-              onClick={handleResend}
-              disabled={resendState === "loading" || !email.trim()}
-            >
+            <Button className="w-full" onClick={handleResend} disabled={resendState === "loading" || !email.trim()}>
               {resendState === "loading" ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -92,9 +84,7 @@ function AuthCodeErrorContent() {
                 </>
               )}
             </Button>
-            {resendState === "error" && (
-              <p className="text-sm text-destructive text-center">{resendMessage}</p>
-            )}
+            {resendState === "error" && <p className="text-sm text-destructive text-center">{resendMessage}</p>}
           </div>
         )}
 
@@ -117,13 +107,15 @@ function AuthCodeErrorContent() {
 export default function AuthCodeErrorPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <Suspense fallback={
-        <Card className="w-full max-w-md">
-          <CardContent className="flex items-center justify-center p-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </CardContent>
-        </Card>
-      }>
+      <Suspense
+        fallback={
+          <Card className="w-full max-w-md">
+            <CardContent className="flex items-center justify-center p-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+        }
+      >
         <AuthCodeErrorContent />
       </Suspense>
     </div>

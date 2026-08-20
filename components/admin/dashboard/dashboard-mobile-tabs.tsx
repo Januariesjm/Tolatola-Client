@@ -16,11 +16,7 @@ export function DashboardMobileTabs({ navContext }: DashboardMobileTabsProps) {
     <div className="overflow-x-auto pb-2 md:hidden">
       <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
         {getMobileNavItems(navContext).map((item) => (
-          <TabsTrigger
-            key={item.key}
-            value={item.key}
-            className="px-5 rounded-full text-xs font-semibold"
-          >
+          <TabsTrigger key={item.key} value={item.key} className="px-5 rounded-full text-xs font-semibold">
             {getMobileLabel(item, navContext)}
           </TabsTrigger>
         ))}

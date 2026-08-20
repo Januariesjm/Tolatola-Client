@@ -8,12 +8,12 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
 
 const FloatingSupportWidget = dynamic(
   () => import("@/components/support/floating-support-widget").then((m) => ({ default: m.FloatingSupportWidget })),
-  { ssr: false }
+  { ssr: false },
 )
 
 const CookieConsentBanner = dynamic(
   () => import("@/components/layout/cookie-consent-banner").then((m) => ({ default: m.CookieConsentBanner })),
-  { ssr: false }
+  { ssr: false },
 )
 
 interface AppShellProps {
@@ -36,4 +36,3 @@ export function AppShell({ children }: AppShellProps) {
     </>
   )
 }
-

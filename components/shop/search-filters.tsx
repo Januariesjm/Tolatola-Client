@@ -33,22 +33,12 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
 
   // Get category from URL - it's a slug, find the matching category ID
   const categorySlug = searchParams.get("category")
-  const categoryFromSlug = categorySlug
-    ? categories.find(c => c.slug === categorySlug)
-    : null
+  const categoryFromSlug = categorySlug ? categories.find((c) => c.slug === categorySlug) : null
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    categoryFromSlug ? [categoryFromSlug.id] : []
-  )
-  const [minPriceInput, setMinPriceInput] = useState<string>(
-    searchParams.get("minPrice") || ""
-  )
-  const [maxPriceInput, setMaxPriceInput] = useState<string>(
-    searchParams.get("maxPrice") || ""
-  )
-  const [sortBy, setSortBy] = useState<FilterState["sortBy"]>(
-    (searchParams.get("sort") as FilterState["sortBy"]) || "name"
-  )
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(categoryFromSlug ? [categoryFromSlug.id] : [])
+  const [minPriceInput, setMinPriceInput] = useState<string>(searchParams.get("minPrice") || "")
+  const [maxPriceInput, setMaxPriceInput] = useState<string>(searchParams.get("maxPrice") || "")
+  const [sortBy, setSortBy] = useState<FilterState["sortBy"]>((searchParams.get("sort") as FilterState["sortBy"]) || "name")
 
   const handleCategoryToggle = (categoryId: string) => {
     const newCategories = selectedCategories.includes(categoryId)
@@ -84,7 +74,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     // Update URL params
     const params = new URLSearchParams(searchParams.toString())
     if (newFilters.categories.length > 0) {
-      const category = categories.find(c => c.id === newFilters.categories[0])
+      const category = categories.find((c) => c.id === newFilters.categories[0])
       if (category) {
         params.set("category", category.slug)
       } else {
@@ -119,11 +109,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     <>
       {/* Mobile Filter Toggle */}
       <div className="lg:hidden mb-4">
-        <Button
-          variant="outline"
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full justify-between"
-        >
+        <Button variant="outline" onClick={() => setIsOpen(!isOpen)} className="w-full justify-between">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
             <span>Filters</span>
@@ -133,10 +119,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
       </div>
 
       {/* Filters Panel */}
-      <div
-        className={`${isOpen ? "block" : "hidden"
-          } lg:block bg-white border border-gray-200 rounded-lg p-6 space-y-6`}
-      >
+      <div className={`${isOpen ? "block" : "hidden"} lg:block bg-white border border-gray-200 rounded-lg p-6 space-y-6`}>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Filters</h3>
           <Button variant="ghost" size="sm" onClick={clearFilters} className="text-sm">
@@ -159,10 +142,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
                   checked={selectedCategories.includes(category.id)}
                   onCheckedChange={() => handleCategoryToggle(category.id)}
                 />
-                <label
-                  htmlFor={`category-${category.id}`}
-                  className="text-sm cursor-pointer flex-1"
-                >
+                <label htmlFor={`category-${category.id}`} className="text-sm cursor-pointer flex-1">
                   {category.name}
                 </label>
               </div>
@@ -195,11 +175,7 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
                 className="h-9 px-3 text-sm rounded-md border border-stone-200"
               />
             </div>
-            <Button
-              size="sm"
-              onClick={handlePriceApply}
-              className="w-full h-8 rounded-md text-xs font-bold"
-            >
+            <Button size="sm" onClick={handlePriceApply} className="w-full h-8 rounded-md text-xs font-bold">
               Apply Price
             </Button>
           </CollapsibleContent>
@@ -237,4 +213,3 @@ export function SearchFilters({ categories, onFiltersChange }: SearchFiltersProp
     </>
   )
 }
-

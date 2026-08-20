@@ -18,11 +18,7 @@ export default async function KYCRejectedPage() {
   }
 
   // Get vendor information with rejection reason
-  const { data: vendor } = await supabase
-    .from("vendors")
-    .select("kyc_status, kyc_notes, business_name")
-    .eq("user_id", user.id)
-    .single()
+  const { data: vendor } = await supabase.from("vendors").select("kyc_status, kyc_notes, business_name").eq("user_id", user.id).single()
 
   // If not rejected, redirect to appropriate page
   if (!vendor || vendor.kyc_status !== "rejected") {

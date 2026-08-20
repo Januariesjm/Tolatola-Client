@@ -13,21 +13,7 @@ import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { format } from "date-fns"
-import { 
-  Send, 
-  Loader2, 
-  Search, 
-  User, 
-  Store, 
-  Truck, 
-  Mail, 
-  MessageSquare, 
-  Clock, 
-  CheckCircle2, 
-  XCircle,
-  X,
-  History
-} from "lucide-react"
+import { Send, Loader2, Search, User, Store, Truck, Mail, MessageSquare, Clock, CheckCircle2, XCircle, X, History } from "lucide-react"
 import { logger } from "@/lib/logger"
 
 const log = logger.child("admin.messaging-tab")
@@ -67,7 +53,7 @@ interface ActivityLog {
 
 export function MessagingTab() {
   const { toast } = useToast()
-  
+
   // Compose message state
   const [role, setRole] = useState<RecipientRole>("customer")
   const [searchQuery, setSearchQuery] = useState("")
@@ -113,7 +99,7 @@ export function MessagingTab() {
           name: c.full_name || "Unnamed Customer",
           email: c.email,
           phone: c.phone || "",
-          recipientId: c.id
+          recipientId: c.id,
         }))
         setCustomers(list)
       } else if (targetRole === "vendor") {
@@ -123,7 +109,7 @@ export function MessagingTab() {
           name: v.business_name || v.users?.full_name || "Unnamed Vendor",
           email: v.users?.email || "",
           phone: v.phone || v.users?.phone || "",
-          recipientId: v.user_id || v.id
+          recipientId: v.user_id || v.id,
         }))
         setVendors(list)
       } else if (targetRole === "transporter") {
@@ -133,7 +119,7 @@ export function MessagingTab() {
           name: t.users?.full_name || t.business_name || "Unnamed Transporter",
           email: t.users?.email || "",
           phone: t.phone || t.users?.phone || "",
-          recipientId: t.user_id
+          recipientId: t.user_id,
         }))
         setTransporters(list)
       }
@@ -142,7 +128,7 @@ export function MessagingTab() {
       toast({
         title: "Error",
         description: `Failed to load ${targetRole}s list.`,
-        variant: "destructive"
+        variant: "destructive",
       })
     } finally {
       setLoadingUsers(false)
@@ -153,22 +139,24 @@ export function MessagingTab() {
     try {
       setLoadingLogs(true)
       const supabase = createClient()
-      
+
       const { data, error } = await supabase
         .from("admin_activity_logs")
-        .select(`
+        .select(
+          `
           *,
           admin:admin_id (full_name, email)
-        `)
+        `,
+        )
         .eq("action", "send_message")
         .order("created_at", { ascending: false })
         .limit(50)
 
       if (error) throw error
-      
-      const formattedData = (data || []).map(log => ({
+
+      const formattedData = (data || []).map((log) => ({
         ...log,
-        admin: Array.isArray(log.admin) ? log.admin[0] : (log.admin || { full_name: "Unknown Admin", email: "" })
+        admin: Array.isArray(log.admin) ? log.admin[0] : log.admin || { full_name: "Unknown Admin", email: "" },
       })) as ActivityLog[]
 
       setLogs(formattedData)
@@ -230,13 +218,13 @@ export function MessagingTab() {
         title: "Success",
         description: response?.message || "Direct message sent successfully.",
       })
-      
+
       // Reset composer fields
       setSubject("")
       setMessage("")
       setSelectedRecipient(null)
       setSearchQuery("")
-      
+
       // Refresh history
       fetchLogs()
     } catch (error: any) {
@@ -258,18 +246,16 @@ export function MessagingTab() {
   }
 
   // Filter users based on query
-  const filteredUsers = getActiveUsers().filter(u => {
-    if (!searchQuery.trim()) return false // Don't show options if search query is empty
-    const query = searchQuery.toLowerCase()
-    return (
-      u.name.toLowerCase().includes(query) ||
-      u.email.toLowerCase().includes(query) ||
-      u.phone?.toLowerCase().includes(query)
-    )
-  }).slice(0, 5) // limit to top 5 matches
+  const filteredUsers = getActiveUsers()
+    .filter((u) => {
+      if (!searchQuery.trim()) return false // Don't show options if search query is empty
+      const query = searchQuery.toLowerCase()
+      return u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query) || u.phone?.toLowerCase().includes(query)
+    })
+    .slice(0, 5) // limit to top 5 matches
 
   // Filter logs based on query
-  const filteredLogs = logs.filter(log => {
+  const filteredLogs = logs.filter((log) => {
     if (!logSearchQuery.trim()) return true
     const query = logSearchQuery.toLowerCase()
     return (
@@ -282,9 +268,12 @@ export function MessagingTab() {
 
   const getRoleIcon = (roleType: string) => {
     switch (roleType) {
-      case "vendor": return <Store className="h-4 w-4 text-emerald-500" />
-      case "transporter": return <Truck className="h-4 w-4 text-blue-500" />
-      default: return <User className="h-4 w-4 text-purple-500" />
+      case "vendor":
+        return <Store className="h-4 w-4 text-emerald-500" />
+      case "transporter":
+        return <Truck className="h-4 w-4 text-blue-500" />
+      default:
+        return <User className="h-4 w-4 text-purple-500" />
     }
   }
 
@@ -305,17 +294,14 @@ export function MessagingTab() {
               <Send className="h-5 w-5 text-primary" />
               Compose Direct Message
             </CardTitle>
-            <CardDescription>
-              Write a message and dispatch it through email, in-app notifications, or both.
-            </CardDescription>
+            <CardDescription>Write a message and dispatch it through email, in-app notifications, or both.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            
             {/* Role Selection */}
             <div className="space-y-2">
               <Label>Select Recipient Group</Label>
-              <Select 
-                value={role} 
+              <Select
+                value={role}
                 onValueChange={(val) => {
                   setRole(val as RecipientRole)
                   setSelectedRecipient(null)
@@ -340,17 +326,15 @@ export function MessagingTab() {
               {selectedRecipient ? (
                 <div className="flex items-center justify-between border border-slate-200 rounded-lg p-3 bg-slate-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
-                      {getRoleIcon(role)}
-                    </div>
+                    <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">{getRoleIcon(role)}</div>
                     <div>
                       <div className="font-semibold text-sm text-slate-800">{selectedRecipient.name}</div>
                       <div className="text-xs text-slate-500">{selectedRecipient.email}</div>
                     </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 text-slate-400 hover:text-slate-600 rounded-full"
                     onClick={() => {
                       setSelectedRecipient(null)
@@ -365,16 +349,14 @@ export function MessagingTab() {
                 <>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input 
+                    <Input
                       placeholder={`Type name, email, or phone of ${role}...`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9"
                       disabled={isSending || loadingUsers}
                     />
-                    {loadingUsers && (
-                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" />
-                    )}
+                    {loadingUsers && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" />}
                   </div>
 
                   {/* Search Results Dropdown */}
@@ -382,7 +364,7 @@ export function MessagingTab() {
                     <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-[200px] overflow-y-auto divide-y divide-slate-100">
                       {filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
-                          <div 
+                          <div
                             key={user.id}
                             className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
                             onClick={() => {
@@ -398,9 +380,7 @@ export function MessagingTab() {
                           </div>
                         ))
                       ) : (
-                        <div className="p-4 text-center text-sm text-slate-500">
-                          No matching {role}s found.
-                        </div>
+                        <div className="p-4 text-center text-sm text-slate-500">No matching {role}s found.</div>
                       )}
                     </div>
                   )}
@@ -465,7 +445,11 @@ export function MessagingTab() {
 
             {/* Submit Button */}
             <div className="pt-2">
-              <Button onClick={handleSend} disabled={isSending} className="w-full h-11 bg-primary text-white font-medium shadow-sm hover:bg-primary/95">
+              <Button
+                onClick={handleSend}
+                disabled={isSending}
+                className="w-full h-11 bg-primary text-white font-medium shadow-sm hover:bg-primary/95"
+              >
                 {isSending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -479,7 +463,6 @@ export function MessagingTab() {
                 )}
               </Button>
             </div>
-
           </CardContent>
         </Card>
 
@@ -495,9 +478,7 @@ export function MessagingTab() {
                 <Clock className="h-4 w-4" />
               </Button>
             </div>
-            <CardDescription>
-              History of direct messages dispatched by admins.
-            </CardDescription>
+            <CardDescription>History of direct messages dispatched by admins.</CardDescription>
             <div className="relative mt-3">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
               <Input
@@ -517,9 +498,7 @@ export function MessagingTab() {
                   <p className="mt-2 text-xs text-slate-500">Loading delivery history...</p>
                 </div>
               ) : filteredLogs.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-sm">
-                  No messaging activity logs found.
-                </div>
+                <div className="p-8 text-center text-slate-500 text-sm">No messaging activity logs found.</div>
               ) : (
                 filteredLogs.map((log) => {
                   const details = log.details || {}

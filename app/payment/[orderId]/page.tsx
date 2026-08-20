@@ -14,7 +14,6 @@ export default async function PaymentPage({ params }: { params: Promise<{ orderI
     data: { user },
   } = await supabase.auth.getUser()
 
-
   try {
     // Fetch order details from backend API
     const orderRes = await serverApiGet<{ data: any }>(`orders/${orderId}`)

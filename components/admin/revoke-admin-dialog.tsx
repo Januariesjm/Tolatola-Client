@@ -2,14 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { AlertTriangle } from "lucide-react"
@@ -23,14 +16,7 @@ interface RevokeAdminDialogProps {
   isLoading?: boolean
 }
 
-export function RevokeAdminDialog({
-  open,
-  onOpenChange,
-  adminName,
-  adminEmail,
-  onConfirm,
-  isLoading = false,
-}: RevokeAdminDialogProps) {
+export function RevokeAdminDialog({ open, onOpenChange, adminName, adminEmail, onConfirm, isLoading = false }: RevokeAdminDialogProps) {
   const [reason, setReason] = useState("")
 
   const handleConfirm = () => {
@@ -51,8 +37,8 @@ export function RevokeAdminDialog({
             Revoke Admin Access
           </DialogTitle>
           <DialogDescription>
-            You are about to revoke admin access for <strong>{adminName}</strong> ({adminEmail}). This action will be
-            logged and cannot be undone.
+            You are about to revoke admin access for <strong>{adminName}</strong> ({adminEmail}). This action will be logged and cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
 

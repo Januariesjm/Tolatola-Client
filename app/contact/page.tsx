@@ -31,11 +31,7 @@ export default async function ContactPage() {
     profile = profileData
 
     if (profileData) {
-      const { data: kycData } = await supabase
-        .from("customer_kyc")
-        .select("kyc_status")
-        .eq("user_id", user.id)
-        .maybeSingle()
+      const { data: kycData } = await supabase.from("customer_kyc").select("kyc_status").eq("user_id", user.id).maybeSingle()
       kycStatus = kycData?.kyc_status
     }
   }
@@ -59,7 +55,6 @@ export default async function ContactPage() {
         {/* Main Contact Section (Floating Cards) */}
         <section className="container mx-auto px-4 -mt-32 relative z-20 pb-24">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-8">
-
             {/* Contact Form */}
             <Card className="lg:col-span-3 border-none shadow-2xl rounded-[2.5rem] bg-white p-4 md:p-8">
               <CardHeader className="pb-8">
@@ -71,27 +66,62 @@ export default async function ContactPage() {
               <CardContent>
                 <form className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
-                    <Input id="name" placeholder="John Doe" className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12" />
+                    <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder="John Doe"
+                      className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12" />
+                    <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Phone Number</Label>
-                    <Input id="phone" placeholder="+255 XXX XXX XXX" className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12" />
+                    <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      placeholder="+255 XXX XXX XXX"
+                      className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Subject</Label>
-                    <Input id="subject" placeholder="Partner Inquiry" className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12" />
+                    <Label htmlFor="subject" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                      Subject
+                    </Label>
+                    <Input
+                      id="subject"
+                      placeholder="Partner Inquiry"
+                      className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 h-12"
+                    />
                   </div>
                   <div className="sm:col-span-2 space-y-2">
-                    <Label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Your Message</Label>
-                    <Textarea id="message" placeholder="How can we help you?" rows={6} className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 p-4 resize-none" />
+                    <Label htmlFor="message" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                      Your Message
+                    </Label>
+                    <Textarea
+                      id="message"
+                      placeholder="How can we help you?"
+                      rows={6}
+                      className="rounded-xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 p-4 resize-none"
+                    />
                   </div>
                   <div className="sm:col-span-2 pt-4">
-                    <Button type="submit" className="w-full rounded-2xl h-14 font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
+                    <Button
+                      type="submit"
+                      className="w-full rounded-2xl h-14 font-black text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform"
+                    >
                       Send Message
                       <Send className="ml-2 h-5 w-5" />
                     </Button>
@@ -105,7 +135,9 @@ export default async function ContactPage() {
               {/* Information Card */}
               <Card className="border-none shadow-xl rounded-[2.5rem] bg-stone-900 text-stone-100 p-8">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-2xl font-black underline decoration-primary decoration-4 underline-offset-8 mb-4">Contact Info</CardTitle>
+                  <CardTitle className="text-2xl font-black underline decoration-primary decoration-4 underline-offset-8 mb-4">
+                    Contact Info
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="px-0 pb-0 space-y-10">
                   <div className="flex gap-4 group">

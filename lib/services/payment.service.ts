@@ -26,11 +26,7 @@ export class PaymentService {
       const supabase = await createClient()
 
       // Get order details
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .select("*, users(email)")
-        .eq("id", orderId)
-        .single()
+      const { data: order, error: orderError } = await supabase.from("orders").select("*, users(email)").eq("id", orderId).single()
 
       if (orderError || !order) {
         throw new Error("Order not found")
@@ -92,22 +88,19 @@ export class PaymentService {
       // Bank payments
       else if (["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].includes(paymentMethod)) {
         const token = await this.clickpesa.getAuthToken()
-        const response = await fetch(
-          `${process.env.CLICKPESA_API_URL || "https://api.clickpesa.com"}/bill-pay/create-order`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              amount: order.total_amount,
-              merchant_reference: merchantReference,
-              callback_url: callbackUrl,
-              customer_email: order.users.email,
-            }),
+        const response = await fetch(`${process.env.CLICKPESA_API_URL || "https://api.clickpesa.com"}/bill-pay/create-order`, {
+          method: "POST",
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
           },
-        )
+          body: JSON.stringify({
+            amount: order.total_amount,
+            merchant_reference: merchantReference,
+            callback_url: callbackUrl,
+            customer_email: order.users.email,
+          }),
+        })
 
         if (!response.ok) {
           throw new Error("Failed to create bank payment control number")

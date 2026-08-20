@@ -64,8 +64,8 @@ export default async function TransporterKYCPendingPage() {
 
               <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  Our admin team is reviewing your documents. This typically takes 1-3 business days. You'll receive an
-                  email notification once your account is verified.
+                  Our admin team is reviewing your documents. This typically takes 1-3 business days. You'll receive an email notification
+                  once your account is verified.
                 </p>
               </div>
             </CardContent>

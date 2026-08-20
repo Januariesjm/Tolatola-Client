@@ -8,13 +8,7 @@ import { Button } from "../../../components/ui/button"
 import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { Textarea } from "../../../components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Alert, AlertDescription } from "../../../components/ui/alert"
 import { Upload, Loader2 } from "lucide-react"
 import { clientApiPostPublic } from "../../../lib/api-client"
@@ -101,10 +95,7 @@ function RaiseComplaintInner() {
       <SiteHeader user={null} profile={null} kycStatus={null} />
       <main className="container max-w-lg mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link
-            href={`/track/status?token=${encodeURIComponent(token)}`}
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
+          <Link href={`/track/status?token=${encodeURIComponent(token)}`} className="text-sm text-muted-foreground hover:text-primary">
             ← Back to order status
           </Link>
         </div>
@@ -153,12 +144,7 @@ function RaiseComplaintInner() {
               <div className="space-y-2">
                 <Label>Photo (optional)</Label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="rounded-xl"
-                    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                  />
+                  <Input type="file" accept="image/*" className="rounded-xl" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
                   <Upload className="h-5 w-5 text-muted-foreground" />
                 </div>
               </div>

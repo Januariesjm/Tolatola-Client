@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+coverage/
+public/
+package-lock.json
+next-env.d.ts
+
+# Docs are hand-wrapped; reflowing them churns diffs without improving them.
+*.md

@@ -21,7 +21,7 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
   // Map product_id -> complete product object (initialized from server data)
   const [productMap, setProductMap] = useState<Record<string, any>>(() => {
     const map: Record<string, any> = {}
-    initialLikes.forEach(like => {
+    initialLikes.forEach((like) => {
       if (like.products) {
         map[like.products.id] = like.products
       }
@@ -36,18 +36,18 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
   useEffect(() => {
     const syncFavorites = async () => {
       // 1. Identify which favorites we already have data for vs missing
-      const missingIds = favorites.filter(id => !productMap[id])
+      const missingIds = favorites.filter((id) => !productMap[id])
 
       if (missingIds.length > 0) {
         setIsLoading(true)
         try {
-          const productPromises = missingIds.map(id => clientApiGet<{ data: any }>(`products/${id}`))
+          const productPromises = missingIds.map((id) => clientApiGet<{ data: any }>(`products/${id}`))
           const results = await Promise.allSettled(productPromises)
 
           const newProductsMap = { ...productMap }
 
-          results.forEach(r => {
-            if (r.status === 'fulfilled') {
+          results.forEach((r) => {
+            if (r.status === "fulfilled") {
               newProductsMap[r.value.data.id] = r.value.data
             }
           })
@@ -56,13 +56,12 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
           // Update display list: Map current favorites IDs to objects derived from our map
           // We use the same structure { id: '...', products: productObj } to match existing render
           const newDisplayList = favorites
-            .filter(id => newProductsMap[id]) // Ensure we have the product
-            .map(id => ({
+            .filter((id) => newProductsMap[id]) // Ensure we have the product
+            .map((id) => ({
               id: id, // or generated ID
-              products: newProductsMap[id]
+              products: newProductsMap[id],
             }))
           setDisplayLikes(newDisplayList)
-
         } catch (error) {
           console.error("Error syncing favorites:", error)
         } finally {
@@ -71,10 +70,10 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
       } else {
         // We have all data, just filter/re-order based on 'favorites' list
         const newDisplayList = favorites
-          .filter(id => productMap[id])
-          .map(id => ({
+          .filter((id) => productMap[id])
+          .map((id) => ({
             id: id,
-            products: productMap[id]
+            products: productMap[id],
           }))
         setDisplayLikes(newDisplayList)
       }
@@ -85,15 +84,14 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
 
   // Update map if initialLikes changes (e.g. fresh server navigation)
   useEffect(() => {
-    setProductMap(prev => {
+    setProductMap((prev) => {
       const next = { ...prev }
-      initialLikes.forEach(like => {
+      initialLikes.forEach((like) => {
         if (like.products) next[like.products.id] = like.products
       })
       return next
     })
   }, [initialLikes])
-
 
   const handleRemove = async (e: React.MouseEvent, productId: string) => {
     e.preventDefault() // Prevent navigation if on card link
@@ -130,7 +128,7 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
             Saved Creations
           </h1>
           <p className="text-stone-500 font-medium text-base">
-            You have {displayLikes.length} {displayLikes.length === 1 ? 'masterpiece' : 'masterpieces'} curated in your wishlist
+            You have {displayLikes.length} {displayLikes.length === 1 ? "masterpiece" : "masterpieces"} curated in your wishlist
           </p>
         </div>
 
@@ -150,7 +148,10 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
               Explore the marketplace, discover incredible unique products, and tap the heart icon to save them here for later.
             </p>
             <Link href="/shop">
-              <Button size="lg" className="rounded-full px-10 py-6 bg-stone-950 text-white hover:bg-stone-900 transition-all duration-300 shadow-lg hover:shadow-stone-950/20 font-bold uppercase tracking-wider text-xs">
+              <Button
+                size="lg"
+                className="rounded-full px-10 py-6 bg-stone-950 text-white hover:bg-stone-900 transition-all duration-300 shadow-lg hover:shadow-stone-950/20 font-bold uppercase tracking-wider text-xs"
+              >
                 Start Curation <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -160,12 +161,12 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
             {displayLikes.map((like) => {
               const product = like.products
               if (!product) return null
-              const imageUrl = product.images?.[0] || product.primary_image_url || "/placeholder-product.png";
-              
-              const hasDiscount = product.compare_at_price && Number(product.compare_at_price) > Number(product.price);
-              const discountPercent = hasDiscount 
+              const imageUrl = product.images?.[0] || product.primary_image_url || "/placeholder-product.png"
+
+              const hasDiscount = product.compare_at_price && Number(product.compare_at_price) > Number(product.price)
+              const discountPercent = hasDiscount
                 ? Math.round(((Number(product.compare_at_price) - Number(product.price)) / Number(product.compare_at_price)) * 100)
-                : 0;
+                : 0
 
               return (
                 <Link href={`/products/${product.id}`} key={like.id || product.id} className="group block h-full">
@@ -177,10 +178,11 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://placehold.co/400x300?text=${encodeURIComponent(product.name.substring(0, 2))}`
+                          ;(e.target as HTMLImageElement).src =
+                            `https://placehold.co/400x300?text=${encodeURIComponent(product.name.substring(0, 2))}`
                         }}
                       />
-                      
+
                       {/* Glassmorphic Actions */}
                       <div className="absolute top-4 right-4 z-10">
                         <Button
@@ -204,7 +206,10 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
 
                       {product.stock_quantity <= 0 && (
                         <div className="absolute inset-0 bg-white/70 flex items-center justify-center backdrop-blur-[2px]">
-                          <Badge variant="secondary" className="bg-stone-900 text-white border-transparent px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-lg">
+                          <Badge
+                            variant="secondary"
+                            className="bg-stone-900 text-white border-transparent px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-lg"
+                          >
                             Out of Stock
                           </Badge>
                         </div>
@@ -218,9 +223,7 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
                         </h3>
 
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="text-xl font-black text-stone-950">
-                            TZS {product.price?.toLocaleString()}
-                          </span>
+                          <span className="text-xl font-black text-stone-950">TZS {product.price?.toLocaleString()}</span>
                           {hasDiscount && (
                             <span className="text-xs text-stone-400 line-through font-semibold">
                               TZS {Number(product.compare_at_price).toLocaleString()}

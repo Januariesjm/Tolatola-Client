@@ -68,7 +68,7 @@ export function AdminMessageDialog({ isOpen, onClose, recipientId, recipientName
         title: "Success",
         description: response?.message || "Message sent successfully.",
       })
-      
+
       // Reset form and close
       setSubject("")
       setMessage("")
@@ -127,24 +127,14 @@ export function AdminMessageDialog({ isOpen, onClose, recipientId, recipientName
             <Label>Communication Channels</Label>
             <div className="flex flex-row gap-6">
               <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="sendEmail"
-                  checked={sendEmail}
-                  onCheckedChange={(checked) => setSendEmail(!!checked)}
-                  disabled={isSending}
-                />
+                <Checkbox id="sendEmail" checked={sendEmail} onCheckedChange={(checked) => setSendEmail(!!checked)} disabled={isSending} />
                 <Label htmlFor="sendEmail" className="font-normal cursor-pointer select-none">
                   Send Email
                 </Label>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="sendInApp"
-                  checked={sendInApp}
-                  onCheckedChange={(checked) => setSendInApp(!!checked)}
-                  disabled={isSending}
-                />
+                <Checkbox id="sendInApp" checked={sendInApp} onCheckedChange={(checked) => setSendInApp(!!checked)} disabled={isSending} />
                 <Label htmlFor="sendInApp" className="font-normal cursor-pointer select-none">
                   In-App Notification
                 </Label>

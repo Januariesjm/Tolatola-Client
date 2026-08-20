@@ -66,9 +66,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
       }
 
       // Calculate stats
-      const { data: statsData } = await supabase
-        .from("vendor_subscriptions")
-        .select("plan_id, subscription_plans(name)")
+      const { data: statsData } = await supabase.from("vendor_subscriptions").select("plan_id, subscription_plans(name)")
 
       if (statsData) {
         const planCounts = statsData.reduce((acc: any, sub: any) => {
@@ -170,9 +168,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
             <TableBody>
               {subscriptions.map((subscription, idx) => (
                 <TableRow key={subscription.id}>
-                  <TableCell className="font-semibold text-xs text-slate-500">
-                    {idx + 1}
-                  </TableCell>
+                  <TableCell className="font-semibold text-xs text-slate-500">{idx + 1}</TableCell>
                   <TableCell>
                     <div>
                       <p className="font-medium">{subscription.vendor?.business_name}</p>
@@ -186,14 +182,10 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={subscription.status === "active" ? "default" : "secondary"}>
-                      {subscription.status}
-                    </Badge>
+                    <Badge variant={subscription.status === "active" ? "default" : "secondary"}>{subscription.status}</Badge>
                   </TableCell>
                   <TableCell>{new Date(subscription.started_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    {subscription.expires_at ? new Date(subscription.expires_at).toLocaleDateString() : "Never"}
-                  </TableCell>
+                  <TableCell>{subscription.expires_at ? new Date(subscription.expires_at).toLocaleDateString() : "Never"}</TableCell>
                   <TableCell>
                     <span className="font-medium">{subscription.plan?.price?.toLocaleString()} TZS</span>
                   </TableCell>
@@ -232,9 +224,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Plan</p>
-                  <Badge className={getPlanBadgeColor(selectedSubscription.plan?.name)}>
-                    {selectedSubscription.plan?.name}
-                  </Badge>
+                  <Badge className={getPlanBadgeColor(selectedSubscription.plan?.name)}>{selectedSubscription.plan?.name}</Badge>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Monthly Cost</p>
@@ -242,9 +232,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Status</p>
-                  <Badge variant={selectedSubscription.status === "active" ? "default" : "secondary"}>
-                    {selectedSubscription.status}
-                  </Badge>
+                  <Badge variant={selectedSubscription.status === "active" ? "default" : "secondary"}>{selectedSubscription.status}</Badge>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Auto Renew</p>
@@ -257,9 +245,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Expires</p>
                   <p className="text-sm">
-                    {selectedSubscription.expires_at
-                      ? new Date(selectedSubscription.expires_at).toLocaleDateString()
-                      : "Never"}
+                    {selectedSubscription.expires_at ? new Date(selectedSubscription.expires_at).toLocaleDateString() : "Never"}
                   </p>
                 </div>
               </div>
@@ -273,9 +259,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
                     <p>• Unlimited products</p>
                   )}
                   {selectedSubscription.plan?.has_verification_badge && <p>• Verification badge</p>}
-                  {selectedSubscription.plan?.has_analytics && (
-                    <p>• {selectedSubscription.plan.analytics_level} analytics</p>
-                  )}
+                  {selectedSubscription.plan?.has_analytics && <p>• {selectedSubscription.plan.analytics_level} analytics</p>}
                   {selectedSubscription.plan?.has_promotions && <p>• Promotions & discounts</p>}
                   {selectedSubscription.plan?.has_consultation && <p>• Business consultation</p>}
                   <p>• {selectedSubscription.plan?.support_level} support</p>
