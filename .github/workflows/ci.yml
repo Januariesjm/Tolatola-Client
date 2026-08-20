@@ -68,6 +68,30 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      # Hard gate. Any critical advisory fails the build.
+      - name: Fail on critical advisories
+        run: npm audit --audit-level=critical
+      # Visibility only. There are currently 5 high advisories (next, postcss,
+      # glob, eslint-config-next, @next/eslint-plugin-next) and every one of
+      # them is only fixable by upgrading Next 14 -> 16, a breaking change that
+      # needs its own planned migration. Gating on `high` here would leave CI
+      # permanently red, so the findings are reported instead.
+      # Raise this to a gate as part of the Next 16 upgrade.
+      - name: Report high advisories (non-blocking)
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
   build:
     name: Build
     runs-on: ubuntu-latest
