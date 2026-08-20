@@ -30,29 +30,33 @@ import {
   Mail,
   AlertTriangle,
 } from "lucide-react"
+import {
+  EMPTY_AGENT_STATS,
+  type AdminAgent,
+  type AgentCommission,
+  type AgentCommissionRate,
+  type AgentStats,
+} from "@/lib/admin/agent-types"
+import { logger, normalizeError } from "@/lib/logger"
+
+const log = logger.child("admin.agent-management")
 
 interface AgentManagementTabProps {
-  initialAgents: any[]
+  initialAgents: AdminAgent[]
 }
 
 export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [activeSubTab, setActiveSubTab] = useState<"agents" | "commissions" | "rates">("agents")
-  
+
   // Loading & Data States
-  const [agents, setAgents] = useState<any[]>(initialAgents || [])
-  const [commissions, setCommissions] = useState<any[]>([])
-  const [rates, setRates] = useState<any[]>([])
+  const [agents, setAgents] = useState<AdminAgent[]>(initialAgents || [])
+  const [commissions, setCommissions] = useState<AgentCommission[]>([])
+  const [rates, setRates] = useState<AgentCommissionRate[]>([])
   const [isUpdatingRates, setIsUpdatingRates] = useState(false)
-  const [stats, setStats] = useState<any>({
-    totalAgents: 0,
-    activeAgents: 0,
-    suspendedAgents: 0,
-    totalRegistrations: 0,
-    totalCommission: 0,
-  })
-  
+  const [stats, setStats] = useState<AgentStats>(EMPTY_AGENT_STATS)
+
   const [isLoading, setIsLoading] = useState(false)
   const [isActionLoading, setIsActionLoading] = useState<string | null>(null)
   
@@ -106,7 +110,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       if (commsRes) setCommissions(commsRes.data || [])
       if (ratesRes?.data) setRates(ratesRes.data || [])
     } catch (err) {
-      console.error("[ADMIN AGENTS] Fetch failed:", err)
+      log.error("failed to load agent data", err)
       toast({
         title: "Loading Failed",
         description: "Failed to load agent data.",
@@ -136,10 +140,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
         description: "Agent referral commission rates have been saved.",
       })
       fetchAllData()
-    } catch (err: any) {
+    } catch (err) {
+      log.error("failed to update commission rates", err)
       toast({
         title: "Update Failed",
-        description: err.message || "Could not update commission rates.",
+        description: normalizeError(err).message || "Could not update commission rates.",
         variant: "destructive",
       })
     } finally {
@@ -175,6 +180,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       })
       fetchAllData()
     } catch (err) {
+      log.error("failed to update agent status", err, { agentId, nextStatus })
       toast({
         title: "Failed",
         description: "Could not update agent status.",
@@ -202,10 +208,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       })
       setDeleteTarget(null)
       fetchAllData()
-    } catch (err: any) {
+    } catch (err) {
+      log.error("failed to delete agent", err, { agentId })
       toast({
         title: "Delete Failed",
-        description: err.message || "Could not delete agent.",
+        description: normalizeError(err).message || "Could not delete agent.",
         variant: "destructive",
       })
     } finally {
@@ -228,10 +235,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
         title: "Email Sent",
         description: result.message || "Activation email has been resent.",
       })
-    } catch (err: any) {
+    } catch (err) {
+      log.error("failed to resend agent invitation", err, { agentId })
       toast({
         title: "Resend Failed",
-        description: err.message || "Could not resend the invitation email.",
+        description: normalizeError(err).message || "Could not resend the invitation email.",
         variant: "destructive",
       })
     } finally {
@@ -258,6 +266,7 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
       })
       fetchAllData()
     } catch (err) {
+      log.error("failed to update commission status", err, { commissionId: commId, status })
       toast({
         title: "Failed",
         description: "Could not approve commission.",
@@ -310,10 +319,11 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
         area: "",
       })
       fetchAllData()
-    } catch (err: any) {
+    } catch (err) {
+      log.error("failed to create agent", err, { email: createForm.email })
       toast({
         title: "Failed",
-        description: err.message || "Could not create new agent.",
+        description: normalizeError(err).message || "Could not create new agent.",
         variant: "destructive",
       })
     } finally {
