@@ -1,25 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/components/ui/use-toast"
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import {
-  Users,
-  MapPin,
   Loader2,
   Coins,
+  MapPin,
   Search,
   CheckCircle,
   XCircle,
@@ -28,324 +17,50 @@ import {
   EyeOff,
   Trash2,
   Mail,
-  AlertTriangle,
 } from "lucide-react"
-import {
-  EMPTY_AGENT_STATS,
-  type AdminAgent,
-  type AgentCommission,
-  type AgentCommissionRate,
-  type AgentStats,
-} from "@/lib/admin/agent-types"
-import { logger, normalizeError } from "@/lib/logger"
-
-const log = logger.child("admin.agent-management")
+import { useAgentManagement } from "@/hooks/use-agent-management"
+import { AgentDialogs } from "./agents/agent-dialogs"
+import type { AdminAgent } from "@/lib/admin/agent-types"
 
 interface AgentManagementTabProps {
   initialAgents: AdminAgent[]
 }
 
 export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
-  const router = useRouter()
-  const { toast } = useToast()
   const [activeSubTab, setActiveSubTab] = useState<"agents" | "commissions" | "rates">("agents")
 
-  // Loading & Data States
-  const [agents, setAgents] = useState<AdminAgent[]>(initialAgents || [])
-  const [commissions, setCommissions] = useState<AgentCommission[]>([])
-  const [rates, setRates] = useState<AgentCommissionRate[]>([])
-  const [isUpdatingRates, setIsUpdatingRates] = useState(false)
-  const [stats, setStats] = useState<AgentStats>(EMPTY_AGENT_STATS)
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [isActionLoading, setIsActionLoading] = useState<string | null>(null)
-  
-  // Filter States
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-
-  // Create Agent Dialog States
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isCreating, setIsCreating] = useState(false)
-  const [createForm, setCreateForm] = useState({
-    email: "",
-    full_name: "",
-    phone: "",
-    role_name: "Sales Agent",
-    region: "",
-    district: "",
-    area: "",
-  })
-
-  // Delete confirmation dialog
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; code: string } | null>(null)
-
-  // Helper to get auth headers
-  const getAuthHeaders = async () => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    return {
-      "Content-Type": "application/json",
-      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-    }
-  }
-
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
-
-  // Fetch stats & lists
-  const fetchAllData = async () => {
-    setIsLoading(true)
-    try {
-      const headers = await getAuthHeaders()
-
-      const [statsRes, agentsRes, commsRes, ratesRes] = await Promise.all([
-        fetch(`${apiBase}/admin/agents/stats`, { headers }).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${apiBase}/admin/agents`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-        fetch(`${apiBase}/admin/agents/commissions`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-        fetch(`${apiBase}/admin/agents/commission-rates`, { headers }).then(r => r.ok ? r.json() : { data: [] }).catch(() => ({ data: [] })),
-      ])
-
-      if (statsRes?.stats) setStats(statsRes.stats)
-      if (agentsRes) setAgents(agentsRes.data || [])
-      if (commsRes) setCommissions(commsRes.data || [])
-      if (ratesRes?.data) setRates(ratesRes.data || [])
-    } catch (err) {
-      log.error("failed to load agent data", err)
-      toast({
-        title: "Loading Failed",
-        description: "Failed to load agent data.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleUpdateRates = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsUpdatingRates(true)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents/commission-rates`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({ rates }),
-      })
-
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || "Failed to update rates")
-
-      toast({
-        title: "Rates Updated Successfully",
-        description: "Agent referral commission rates have been saved.",
-      })
-      fetchAllData()
-    } catch (err) {
-      log.error("failed to update commission rates", err)
-      toast({
-        title: "Update Failed",
-        description: normalizeError(err).message || "Could not update commission rates.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdatingRates(false)
-    }
-  }
-
-  const handleRateAmountChange = (type: string, amount: string) => {
-    setRates(prev => prev.map(r => r.registration_type === type ? { ...r, amount: Number(amount) || 0 } : r))
-  }
-
-  useEffect(() => {
-    fetchAllData()
-  }, [])
-
-  // Action: Toggle agent status
-  const handleToggleStatus = async (agentId: string, currentStatus: string) => {
-    const nextStatus = currentStatus === "active" ? "suspended" : "active"
-    setIsActionLoading(`status-${agentId}`)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents/${agentId}/activate`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ status: nextStatus }),
-      })
-
-      if (!response.ok) throw new Error("Failed to update agent status")
-
-      toast({
-        title: "Agent Status Updated",
-        description: `Agent is now ${nextStatus}.`,
-      })
-      fetchAllData()
-    } catch (err) {
-      log.error("failed to update agent status", err, { agentId, nextStatus })
-      toast({
-        title: "Failed",
-        description: "Could not update agent status.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsActionLoading(null)
-    }
-  }
-
-  // Action: Delete agent permanently
-  const handleDeleteAgent = async (agentId: string) => {
-    setIsActionLoading(`delete-${agentId}`)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents/${agentId}`, {
-        method: "DELETE",
-        headers,
-      })
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || "Failed to delete agent")
-      toast({
-        title: "Agent Deleted",
-        description: result.message || "Agent has been permanently removed.",
-      })
-      setDeleteTarget(null)
-      fetchAllData()
-    } catch (err) {
-      log.error("failed to delete agent", err, { agentId })
-      toast({
-        title: "Delete Failed",
-        description: normalizeError(err).message || "Could not delete agent.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsActionLoading(null)
-    }
-  }
-
-  // Action: Resend activation email
-  const handleResendInvitation = async (agentId: string) => {
-    setIsActionLoading(`resend-${agentId}`)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents/${agentId}/resend-invitation`, {
-        method: "POST",
-        headers,
-      })
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || "Failed to resend invitation")
-      toast({
-        title: "Email Sent",
-        description: result.message || "Activation email has been resent.",
-      })
-    } catch (err) {
-      log.error("failed to resend agent invitation", err, { agentId })
-      toast({
-        title: "Resend Failed",
-        description: normalizeError(err).message || "Could not resend the invitation email.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsActionLoading(null)
-    }
-  }
-
-  // Action: Approve commission payout
-  const handleApproveCommission = async (commId: string, status: "approved" | "paid" | "rejected") => {
-    setIsActionLoading(`comm-${commId}`)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents/commissions/${commId}/approve`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ status }),
-      })
-
-      if (!response.ok) throw new Error("Failed to update commission")
-
-      toast({
-        title: "Commission Updated",
-        description: `Commission status has been changed to ${status}.`,
-      })
-      fetchAllData()
-    } catch (err) {
-      log.error("failed to update commission status", err, { commissionId: commId, status })
-      toast({
-        title: "Failed",
-        description: "Could not approve commission.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsActionLoading(null)
-    }
-  }
-
-  // Create Agent handler
-  const handleCreateAgent = async () => {
-    if (!createForm.email || !createForm.full_name || !createForm.phone) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in email, full name, and phone number.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsCreating(true)
-    try {
-      const headers = await getAuthHeaders()
-      const response = await fetch(`${apiBase}/admin/agents`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(createForm),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to create agent")
-      }
-
-      toast({
-        title: "Agent Created!",
-        description: result.message || `Agent ${createForm.full_name} has been created successfully.`,
-      })
-
-      setIsCreateOpen(false)
-      setCreateForm({
-        email: "",
-        full_name: "",
-        phone: "",
-        role_name: "Sales Agent",
-        region: "",
-        district: "",
-        area: "",
-      })
-      fetchAllData()
-    } catch (err) {
-      log.error("failed to create agent", err, { email: createForm.email })
-      toast({
-        title: "Failed",
-        description: normalizeError(err).message || "Could not create new agent.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsCreating(false)
-    }
-  }
-
-  // Filters application
-  const filteredAgents = agents.filter((agent) => {
-    const name = agent.users?.full_name || ""
-    const code = agent.agent_code || ""
-    const matchesSearch =
-      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      code.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || agent.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const {
+    agents,
+    filteredAgents,
+    commissions,
+    rates,
+    stats,
+    isLoading,
+    isActionLoading,
+    isUpdatingRates,
+    isCreating,
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    isCreateOpen,
+    setIsCreateOpen,
+    createForm,
+    setCreateForm,
+    deleteTarget,
+    setDeleteTarget,
+    handleUpdateRates,
+    handleRateAmountChange,
+    handleToggleStatus,
+    handleDeleteAgent,
+    handleResendInvitation,
+    handleApproveCommission,
+    handleCreateAgent,
+  } = useAgentManagement(initialAgents)
 
   const formatTzs = (amount: number) => {
     return `TZS ${(amount || 0).toLocaleString()}`
   }
-
   return (
     <div className="space-y-6">
       {/* Top dashboard metrics row */}
@@ -767,184 +482,18 @@ export function AgentManagementTab({ initialAgents }: AgentManagementTabProps) {
         </Card>
       )}
 
-      {/* ── Create Agent Dialog ── */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-lg rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-emerald-600" />
-              Create New Agent
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500">
-              Fill in the new agent's details. A secure email with an activation link will be sent so the agent can set their own password.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 mt-2">
-            {/* Full Name */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Full Name *</label>
-              <Input
-                placeholder="e.g. John Mwakasege"
-                value={createForm.full_name}
-                onChange={(e) => setCreateForm(f => ({ ...f, full_name: e.target.value }))}
-                className="rounded-xl text-sm h-10"
-              />
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Email Address *</label>
-              <Input
-                type="email"
-                placeholder="e.g. john@tolatola.co"
-                value={createForm.email}
-                onChange={(e) => setCreateForm(f => ({ ...f, email: e.target.value }))}
-                className="rounded-xl text-sm h-10"
-              />
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Phone Number *</label>
-              <Input
-                type="tel"
-                placeholder="e.g. +255712345678"
-                value={createForm.phone}
-                onChange={(e) => setCreateForm(f => ({ ...f, phone: e.target.value }))}
-                className="rounded-xl text-sm h-10"
-              />
-            </div>
-
-            {/* Role + Region Row */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Role</label>
-                <select
-                  value={createForm.role_name}
-                  onChange={(e) => setCreateForm(f => ({ ...f, role_name: e.target.value }))}
-                  className="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white text-slate-700 outline-none"
-                >
-                  <option value="Sales Agent">Sales Agent</option>
-                  <option value="Regional Supervisor">Regional Supervisor</option>
-                  <option value="Sales Manager">Sales Manager</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Region</label>
-                <Input
-                  placeholder="e.g. Dar es Salaam"
-                  value={createForm.region}
-                  onChange={(e) => setCreateForm(f => ({ ...f, region: e.target.value }))}
-                  className="rounded-xl text-sm h-10"
-                />
-              </div>
-            </div>
-
-            {/* District + Area Row */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">District</label>
-                <Input
-                  placeholder="e.g. Ilala"
-                  value={createForm.district}
-                  onChange={(e) => setCreateForm(f => ({ ...f, district: e.target.value }))}
-                  className="rounded-xl text-sm h-10"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Area</label>
-                <Input
-                  placeholder="e.g. Kariakoo"
-                  value={createForm.area}
-                  onChange={(e) => setCreateForm(f => ({ ...f, area: e.target.value }))}
-                  className="rounded-xl text-sm h-10"
-                />
-              </div>
-            </div>
-
-            {/* Submit */}
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsCreateOpen(false)}
-                disabled={isCreating}
-                className="rounded-xl text-xs h-9"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreateAgent}
-                disabled={isCreating}
-                className="rounded-xl text-xs h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
-              >
-                {isCreating ? (
-                  <>
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-                    Create Agent
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Delete Confirmation Dialog ── */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-base font-black text-rose-700 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Delete Agent Permanently
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500">
-              This action cannot be undone. The agent account, all registrations, commissions, and login credentials will be permanently removed.
-            </DialogDescription>
-          </DialogHeader>
-          {deleteTarget && (
-            <div className="space-y-4 mt-2">
-              <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
-                <p className="text-sm font-bold text-slate-800">{deleteTarget.name}</p>
-                <p className="text-xs font-mono text-rose-700 mt-1">{deleteTarget.code}</p>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setDeleteTarget(null)}
-                  disabled={isActionLoading === `delete-${deleteTarget.id}`}
-                  className="rounded-xl text-xs h-9"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteAgent(deleteTarget.id)}
-                  disabled={isActionLoading === `delete-${deleteTarget.id}`}
-                  className="rounded-xl text-xs h-9"
-                >
-                  {isActionLoading === `delete-${deleteTarget.id}` ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                      Delete Permanently
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AgentDialogs
+        isCreateOpen={isCreateOpen}
+        setIsCreateOpen={setIsCreateOpen}
+        createForm={createForm}
+        setCreateForm={setCreateForm}
+        isCreating={isCreating}
+        handleCreateAgent={handleCreateAgent}
+        deleteTarget={deleteTarget}
+        setDeleteTarget={setDeleteTarget}
+        isActionLoading={isActionLoading}
+        handleDeleteAgent={handleDeleteAgent}
+      />
     </div>
   )
 }
