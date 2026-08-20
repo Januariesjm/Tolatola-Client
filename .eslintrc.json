@@ -34,7 +34,6 @@
         "components/admin/hr-staff-subtab.tsx",
         "components/admin/messaging-tab.tsx",
         "components/admin/product-management-tab.tsx",
-        "components/admin/validation-surveys-tab.tsx",
         "components/admin/vendor-management-tab.tsx",
         "components/agent/agent-commission-tab.tsx",
         "components/checkout/checkout-content.tsx",
