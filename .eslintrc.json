@@ -1,0 +1,78 @@
+// ESLint parses .eslintrc.json as JSON-with-comments, so the notes below are legal.
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "out/",
+    "coverage/",
+    "public/",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    // Hard cap on file size so no new god files can land. Existing offenders are
+    // listed in the legacy override below.
+    "max-lines": [
+      "error",
+      { "max": 500, "skipBlankLines": true, "skipComments": true }
+    ],
+    // Purely stylistic: React escapes text children, so a literal apostrophe in
+    // copy is safe. Not worth churning ~90 user-facing strings over.
+    "react/no-unescaped-entities": "off"
+  },
+  "overrides": [
+    // Surfaces existing `any` debt without blocking the build. Tighten to
+    // "error" once the remaining occurrences are typed.
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "plugins": ["@typescript-eslint"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
+    },
+    // LEGACY god files. max-lines is disabled here ONLY so the rule can be
+    // enforced as an error everywhere else. This list must only ever shrink:
+    // when you touch one of these files, split it and delete its entry.
+    // Do not add new entries.
+    {
+      "files": [
+        "app/auth/sign-up/page.tsx",
+        "app/careers/careers-page-client.tsx",
+        "components/admin/admin-dashboard-content.tsx",
+        "components/admin/agent-management-tab.tsx",
+        "components/admin/blog-management-tab.tsx",
+        "components/admin/hr-applications-subtab.tsx",
+        "components/admin/hr-payroll-subtab.tsx",
+        "components/admin/hr-staff-subtab.tsx",
+        "components/admin/messaging-tab.tsx",
+        "components/admin/product-management-tab.tsx",
+        "components/admin/validation-surveys-tab.tsx",
+        "components/admin/vendor-management-tab.tsx",
+        "components/agent/agent-commission-tab.tsx",
+        "components/checkout/checkout-content.tsx",
+        "components/checkout/checkout-success-content.tsx",
+        "components/orders/order-detail-content.tsx",
+        "components/product/product-detail-content.tsx",
+        "components/support/floating-support-widget.tsx",
+        "components/transporter/transporter-subscription-tab.tsx",
+        "components/ui/sidebar.tsx",
+        "components/vendor/add-product-dialog.tsx",
+        "components/vendor/edit-product-dialog.tsx",
+        "components/vendor/vendor-subscription-tab.tsx",
+        "lib/i18n/translations.ts"
+      ],
+      "rules": {
+        "max-lines": "off"
+      }
+    },
+    // Test files may be long: table-driven cases read better kept together.
+    {
+      "files": ["__tests__/**/*.[jt]s?(x)", "**/*.test.[jt]s?(x)"],
+      "rules": {
+        "max-lines": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}
