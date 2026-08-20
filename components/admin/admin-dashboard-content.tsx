@@ -1,1152 +1,164 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  LogOut,
-  Users,
-  Package,
-  ShoppingCart,
-  DollarSign,
-  MessageSquare,
-  ShieldCheck,
-  BarChart3,
-  Truck,
-  Store,
-  UserCircle2,
-  Landmark,
-  CreditCard,
-  LifeBuoy,
-  Percent,
-  Briefcase,
-  Server,
-  Network,
-  ShieldAlert,
-  Activity,
-  UserPlus,
-  ClipboardList,
-  Mail,
-  PackageSearch,
-} from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Tabs } from "@/components/ui/tabs"
 import { createClient } from "@/lib/supabase/client"
-import { Badge } from "@/components/ui/badge"
-import { NotificationPopover } from "../layout/notification-popover"
-
-import { AnalyticsTab } from "./analytics-tab"
-import { ActivityLogsTab } from "./activity-logs-tab"
-import { KYCApprovalTab } from "./kyc-approval-tab"
-import { TransporterKYCApprovalTab } from "./transporter-kyc-approval-tab"
-import { ProductApprovalTab } from "./product-approval-tab"
-import { ProductManagementTab } from "./product-management-tab"
-import { OrdersManagementTab } from "./orders-management-tab"
-import { SecureFundsManagementTab } from "./secure-funds-tab"
-import { PayoutApprovalTab } from "./payout-approval-tab"
-import { FinanceHubTab } from "./finance/finance-hub-tab"
-import { SupportTicketsTab } from "./support-tickets-tab"
-import { PromotionsManagementTab } from "./promotions-management-tab"
-import { VendorManagementTab } from "./vendor-management-tab"
-import { TransporterManagementTab } from "./transporter-management-tab"
-import { CustomerManagementTab } from "./customer-management-tab"
-import { CustomerKYCApprovalTab } from "./customer-kyc-approval-tab"
-import { VendorSubscriptionsTab } from "./vendor-subscriptions-tab"
-import { AdminUsersManagementTab } from "./admin-users-management-tab"
-import { HRApplicationsTab } from "./hr-applications-tab"
-import { ServerLogsTab } from "./server-logs-tab"
-import { SystemHealthTab } from "./system-health-tab"
-import { MessagingTab } from "./messaging-tab"
-import { InfrastructureTab } from "./infrastructure-tab"
-import { IncompleteRegistrationsTab } from "./incomplete-registrations-tab"
-import { AgentManagementTab } from "./agent-management-tab"
-import { ValidationSurveysTab } from "./validation-surveys-tab"
-import { BlogManagementTab } from "./blog-management-tab"
-import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
+import { logger } from "@/lib/logger"
 import type { AdminDashboardContentProps } from "@/lib/types/admin"
 import {
+  filterTicketsByDepartment,
+  getDepartmentForRole,
   getInitialTab,
   isSuperAdminRole,
-  getDepartmentForRole,
-  filterTicketsByDepartment,
 } from "@/lib/admin/dashboard-utils"
+import { filterByDateRange, type DatePeriod } from "./date-range-filter"
+import { DashboardHeader } from "./dashboard/dashboard-header"
+import { DashboardMobileTabs } from "./dashboard/dashboard-mobile-tabs"
+import { DashboardPanels } from "./dashboard/dashboard-panels"
+import { DashboardSidebarNav } from "./dashboard/dashboard-sidebar-nav"
+import { DashboardStatCards } from "./dashboard/dashboard-stat-cards"
+import type { AdminNavContext } from "./dashboard/nav-items"
 
-export function AdminDashboardContent({
-  adminRole,
-  pendingVendors,
-  pendingTransporters,
-  pendingCustomerKyc,
-  pendingProducts,
-  allProducts = [],
-  orders,
-  transactions,
-  tickets,
-  payouts,
-  stats,
-  promotions,
-  subscriptions,
-  vendorTypesAnalytics = {},
-  careerApplications = [],
-  hrInterviews = [],
-  hrStaffRecords = [],
-  hrContracts = [],
-  hrAttendance = [],
-  incompleteRegistrations = [],
-  initialAgents = [],
-}: AdminDashboardContentProps) {
+const log = logger.child("admin.dashboard")
+
+/**
+ * Admin dashboard shell: owns the active tab and the overview date filter, and
+ * composes the header, metric cards, navigation and tab panels.
+ *
+ * The pieces live in ./dashboard/: navigation is driven by the shared
+ * ADMIN_NAV_ITEMS config so the sidebar and mobile tab strip cannot drift.
+ */
+export function AdminDashboardContent(props: AdminDashboardContentProps) {
+  const {
+    adminRole,
+    pendingVendors,
+    pendingTransporters,
+    pendingCustomerKyc,
+    pendingProducts,
+    orders,
+    tickets,
+    payouts,
+    stats,
+    promotions,
+    careerApplications = [],
+    incompleteRegistrations = [],
+    initialAgents = [],
+  } = props
+
   const router = useRouter()
-  
-  const initialTab = getInitialTab(adminRole?.permissions)
 
-  const [activeTab, setActiveTab] = useState(initialTab)
+  const [activeTab, setActiveTab] = useState(getInitialTab(adminRole?.permissions))
   const [overviewPeriod, setOverviewPeriod] = useState<DatePeriod>("all")
 
-  // Filtered data for overview stats
-  const filteredOrders = useMemo(() => filterByDateRange(orders, overviewPeriod), [orders, overviewPeriod])
-  const filteredPayouts = useMemo(() => filterByDateRange(payouts, overviewPeriod), [payouts, overviewPeriod])
+  // Overview metrics respect the date filter; the tab panels show unfiltered data.
+  const filteredOrders = useMemo(
+    () => filterByDateRange(orders, overviewPeriod),
+    [orders, overviewPeriod],
+  )
+  const filteredPayouts = useMemo(
+    () => filterByDateRange(payouts, overviewPeriod),
+    [payouts, overviewPeriod],
+  )
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+    } catch (error) {
+      // Still send the admin to the login page: leaving them on an
+      // authenticated-looking dashboard is worse than a stale local session.
+      log.error("sign out failed", error)
+    }
     router.push("/auth/login")
   }
 
   const roleName = adminRole?.role?.role_name || ""
+  const permissions = adminRole?.permissions ?? []
   const isSuperAdmin = isSuperAdminRole(roleName)
-  const showAdminManagement = isSuperAdmin || adminRole?.permissions?.includes("manage_admins")
-  const canManageAgents = isSuperAdmin || adminRole?.permissions?.includes("manage_agents")
+  const showAdminManagement = isSuperAdmin || permissions.includes("manage_admins")
+  const canManageAgents = isSuperAdmin || permissions.includes("manage_agents")
   const userDepartment = isSuperAdmin ? undefined : getDepartmentForRole(roleName)
   const pendingTickets = filterTicketsByDepartment(tickets, isSuperAdmin, userDepartment)
 
-  // Filter out the meta-info added to promotions array if present
-  const actualPromotions = promotions.filter(p => !p._adminUsers && !p.id?.includes('_'))
+  // Strip the meta-info entry the promotions query appends, if present.
+  const actualPromotions = promotions.filter((p) => !p._adminUsers && !p.id?.includes("_"))
+
+  const pendingRecovery = incompleteRegistrations.filter(
+    (r) => r.recovery_status === "pending",
+  ).length
+  const pendingHr = careerApplications.filter((a) => a.status === "pending").length
+  const pendingPayouts = filteredPayouts.filter((p) => p.status === "pending").length
+
+  const navContext: AdminNavContext = {
+    permissions,
+    isSuperAdmin,
+    hasAnyRole: Boolean(adminRole?.role),
+    showAdminManagement,
+    canManageAgents,
+    counts: {
+      pendingVendors: pendingVendors.length,
+      pendingTransporters: pendingTransporters.length,
+      pendingCustomerKyc: pendingCustomerKyc.length,
+      pendingProducts: pendingProducts.length,
+      // The sidebar badge counts every pending payout, not just the filtered range.
+      pendingPayouts: payouts.filter((p) => p.status === "pending").length,
+      pendingTickets: pendingTickets.length,
+      pendingRecovery,
+      pendingHr,
+    },
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/40">
-      {/* Header */}
-      <header className="border-b bg-white/90 backdrop-blur sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-primary/20 bg-white">
-                <Image
-                  src="/logo-new.png"
-                  alt="TolaTola"
-                  fill
-                  className="object-contain p-1.5"
-                  priority
-                />
-              </div>
-              <span className="text-2xl font-semibold tracking-tight text-slate-900 uppercase flex items-center">
-                TOLA ADMIN 
-                <span className="ml-4 pl-4 border-l-2 border-slate-200 text-primary">
-                  {adminRole?.role?.role_name || "Administrator"}
-                </span>
-              </span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationPopover />
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        roleName={adminRole?.role?.role_name || "Administrator"}
+        onSignOut={handleLogout}
+      />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Stats Overview */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-bold tracking-tight text-slate-800">Overview</h2>
-            <DateRangeFilter value={overviewPeriod} onChange={setOverviewPeriod} />
-          </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {adminRole?.permissions.includes("manage_transactions") && (
-            <Card className="shadow-sm rounded-xl border border-primary/20 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Total GMV
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                  <DollarSign className="h-4 w-4 text-emerald-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  TZS {filteredOrders.filter(o => o.payment_status === "paid").reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0).toLocaleString()}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_payouts") && (
-            <Card className="shadow-sm rounded-xl border border-indigo-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Pending Payouts
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center">
-                  <CreditCard className="h-4 w-4 text-indigo-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {filteredPayouts.filter(p => p.status === "pending").length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_orders") && (
-            <Card className="shadow-sm rounded-xl border border-primary/15 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Active Orders
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center">
-                  <ShoppingCart className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {filteredOrders.filter(o => !["delivered", "cancelled"].includes(o.status)).length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_kyc") && (
-            <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Pending Vendor KYC
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
-                  <Store className="h-4 w-4 text-amber-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {pendingVendors.length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_transporters") && (
-            <Card className="shadow-sm rounded-xl border border-amber-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Pending Transporter KYC
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center">
-                  <Truck className="h-4 w-4 text-amber-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {pendingTransporters.length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_customers") && (
-            <Card className="shadow-sm rounded-xl border border-blue-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Total Customers
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
-                  <Users className="h-4 w-4 text-blue-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {stats.totalCustomers?.toLocaleString() || 0}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_support") && (
-            <Card className="shadow-sm rounded-xl border border-red-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Open Tickets
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
-                  <MessageSquare className="h-4 w-4 text-red-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {pendingTickets.length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {(adminRole?.permissions.includes("manage_admins") || adminRole?.permissions.includes("manage_system")) && (
-            <Card className="shadow-sm rounded-xl border border-purple-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  System Admins
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
-                  <ShieldCheck className="h-4 w-4 text-purple-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {stats.totalAdmins?.toLocaleString() || 0}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {adminRole?.permissions.includes("manage_hr") && (
-            <Card className="shadow-sm rounded-xl border border-pink-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Pending Jobs
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-pink-50 flex items-center justify-center">
-                  <Briefcase className="h-4 w-4 text-pink-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {careerApplications.filter(a => a.status === "pending").length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-          {canManageAgents && (
-            <Card className="shadow-sm rounded-xl border border-teal-100 bg-white">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                  Sales Agents
-                </CardTitle>
-                <div className="h-8 w-8 rounded-full bg-teal-50 flex items-center justify-center">
-                  <Users className="h-4 w-4 text-teal-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">
-                  {initialAgents.length}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-        </div>
+        <DashboardStatCards
+          permissions={permissions}
+          canManageAgents={canManageAgents}
+          period={overviewPeriod}
+          onPeriodChange={setOverviewPeriod}
+          metrics={{
+            grossMerchandiseValue: filteredOrders
+              .filter((o) => o.payment_status === "paid")
+              .reduce((sum: number, o) => sum + Number(o.total_amount || 0), 0),
+            pendingPayouts,
+            activeOrders: filteredOrders.filter(
+              (o) => !["delivered", "cancelled"].includes(o.status),
+            ).length,
+            pendingVendorKyc: pendingVendors.length,
+            pendingTransporterKyc: pendingTransporters.length,
+            totalCustomers: stats.totalCustomers,
+            openTickets: pendingTickets.length,
+            totalAdmins: stats.totalAdmins,
+            pendingJobs: pendingHr,
+            salesAgents: initialAgents.length,
+          }}
+        />
 
         <div className="flex gap-6 items-start">
-          {/* Sidebar navigation (desktop) */}
-          <aside className="hidden md:block w-60 shrink-0">
-            <div className="sticky top-24 space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Dashboard Sections
-              </p>
-              <div className="space-y-1">
-                {adminRole?.permissions.includes("view_analytics") && (
-                  <Button
-                    variant={activeTab === "analytics" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "analytics"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("analytics")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Analytics</span>
-                    </span>
-                  </Button>
-                )}
+          <DashboardSidebarNav
+            navContext={navContext}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
 
-                {adminRole?.permissions.includes("manage_kyc") && (
-                  <Button
-                    variant={activeTab === "kyc" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "kyc"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("kyc")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Vendor KYC</span>
-                    </span>
-                    {pendingVendors.length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {pendingVendors.length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_transporters") && (
-                  <Button
-                    variant={activeTab === "transporter-kyc" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "transporter-kyc"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("transporter-kyc")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Truck className="h-4 w-4" />
-                      <span>Transporter KYC</span>
-                    </span>
-                    {pendingTransporters.length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {pendingTransporters.length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_customers") && (
-                  <Button
-                    variant={activeTab === "customer-kyc" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "customer-kyc"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("customer-kyc")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <UserCircle2 className="h-4 w-4" />
-                      <span>User KYC</span>
-                    </span>
-                    {pendingCustomerKyc.length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {pendingCustomerKyc.length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_products") && (
-                  <>
-                    <Button
-                      variant={activeTab === "products" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "products"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("products")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <Package className="h-4 w-4" />
-                        <span>Product Approvals</span>
-                      </span>
-                      {pendingProducts.length > 0 && (
-                        <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                          {pendingProducts.length}
-                        </span>
-                      )}
-                    </Button>
-
-                    <Button
-                      variant={activeTab === "all-products" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "all-products"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("all-products")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <PackageSearch className="h-4 w-4" />
-                        <span>Search & Delete Products</span>
-                      </span>
-                    </Button>
-                  </>
-                )}
-
-                {adminRole?.permissions.includes("manage_orders") && (
-                  <Button
-                    variant={activeTab === "orders" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "orders"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("orders")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <ShoppingCart className="h-4 w-4" />
-                      <span>Orders</span>
-                    </span>
-                  </Button>
-                )}
-
-                {(adminRole?.permissions.includes("manage_transactions") || adminRole?.permissions.includes("manage_payouts")) && (
-                  <Button
-                    variant={activeTab === "finance" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "finance"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("finance")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Landmark className="h-4 w-4" />
-                      <span>Finance Hub</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_payouts") && (
-                  <Button
-                    variant={activeTab === "payouts" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "payouts"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("payouts")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Payout Approvals</span>
-                    </span>
-                    {payouts.filter(p => p.status === "pending").length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {payouts.filter(p => p.status === "pending").length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {(adminRole?.permissions.includes("manage_support") || isSuperAdmin || Boolean(adminRole?.role)) && (
-                  <Button
-                    variant={activeTab === "support" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "support"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("support")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <LifeBuoy className="h-4 w-4" />
-                      <span>Support</span>
-                    </span>
-                    {pendingTickets.length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {pendingTickets.length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_support") && (
-                  <Button
-                    variant={activeTab === "recovery" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "recovery"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("recovery")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <UserPlus className="h-4 w-4" />
-                      <span>Incomplete Registrations</span>
-                    </span>
-                    {incompleteRegistrations.filter(r => r.recovery_status === "pending").length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {incompleteRegistrations.filter(r => r.recovery_status === "pending").length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_promotions") && (
-                  <Button
-                    variant={activeTab === "promotions" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "promotions"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("promotions")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Percent className="h-4 w-4" />
-                      <span>Promotions</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_blog") && (
-                  <Button
-                    variant={activeTab === "blog" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "blog"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("blog")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Mail className="h-4 w-4" />
-                      <span>TOLA Journal</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_vendors") && (
-                  <Button
-                    variant={activeTab === "vendors" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "vendors"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("vendors")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Store className="h-4 w-4" />
-                      <span>Vendors</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_transporters") && (
-                  <Button
-                    variant={activeTab === "transporters" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "transporters"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("transporters")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Truck className="h-4 w-4" />
-                      <span>Transporters</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_customers") && (
-                  <Button
-                    variant={activeTab === "customers" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "customers"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("customers")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Users className="h-4 w-4" />
-                      <span>Customers</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_subscriptions") && (
-                  <Button
-                    variant={activeTab === "subscriptions" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "subscriptions"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("subscriptions")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Subscriptions</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_hr") && (
-                  <Button
-                    variant={activeTab === "hr" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "hr"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("hr")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Briefcase className="h-4 w-4" />
-                      <span>Human Resource</span>
-                    </span>
-                    {careerApplications.filter(a => a.status === "pending").length > 0 && (
-                      <span className="text-xs font-semibold rounded-full bg-amber-100 text-amber-700 px-2 py-0.5">
-                        {careerApplications.filter(a => a.status === "pending").length}
-                      </span>
-                    )}
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("manage_system") && (
-                  <>
-                    <Button
-                      variant={activeTab === "infrastructure" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "infrastructure"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("infrastructure")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <Server className="h-4 w-4" />
-                        <span>Infrastructure</span>
-                      </span>
-                    </Button>
-
-                    <Button
-                      variant={activeTab === "api-integrations" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "api-integrations"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("api-integrations")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <Network className="h-4 w-4" />
-                        <span>API & Integrations</span>
-                      </span>
-                    </Button>
-
-                    <Button
-                      variant={activeTab === "security-access" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "security-access"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("security-access")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <ShieldAlert className="h-4 w-4" />
-                        <span>Security & Access</span>
-                      </span>
-                    </Button>
-
-                    <Button
-                      variant={activeTab === "system-health" ? "default" : "ghost"}
-                      size="sm"
-                      className={`w-full justify-between rounded-xl ${activeTab === "system-health"
-                          ? "bg-primary text-white"
-                          : "text-slate-700 hover:bg-slate-100"
-                        }`}
-                      onClick={() => setActiveTab("system-health")}
-                    >
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        <Activity className="h-4 w-4" />
-                        <span>System Health</span>
-                      </span>
-                    </Button>
-                  </>
-                )}
-
-                {adminRole?.permissions.includes("view_logs") && (
-                  <Button
-                    variant={activeTab === "logs" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "logs"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("logs")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Activity Logs</span>
-                    </span>
-                  </Button>
-                )}
-
-                {(adminRole?.permissions.includes("manage_vendors") ||
-                  adminRole?.permissions.includes("manage_customers") ||
-                  adminRole?.permissions.includes("manage_transporters")) && (
-                  <Button
-                    variant={activeTab === "messaging" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "messaging"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("messaging")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Mail className="h-4 w-4" />
-                      <span>Direct Messaging</span>
-                    </span>
-                  </Button>
-                )}
-
-                {adminRole?.permissions.includes("view_analytics") && (
-                  <Button
-                    variant={activeTab === "validation" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "validation"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("validation")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <ClipboardList className="h-4 w-4" />
-                      <span>Market Validation</span>
-                    </span>
-                  </Button>
-                )}
-
-                {canManageAgents && (
-                  <Button
-                    variant={activeTab === "agents" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "agents"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("agents")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <Users className="h-4 w-4" />
-                      <span>Sales Agents</span>
-                    </span>
-                  </Button>
-                )}
-
-                {showAdminManagement && (
-                  <Button
-                    variant={activeTab === "admins" ? "default" : "ghost"}
-                    size="sm"
-                    className={`w-full justify-between rounded-xl ${activeTab === "admins"
-                        ? "bg-primary text-white"
-                        : "text-slate-700 hover:bg-slate-100"
-                      }`}
-                    onClick={() => setActiveTab("admins")}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <UserCircle2 className="h-4 w-4" />
-                      <span>Admin Users</span>
-                    </span>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </aside>
-
-          {/* Main tab content */}
           <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              {/* Mobile nav: keep horizontal tabs for small screens */}
-              <div className="overflow-x-auto pb-2 md:hidden">
-                <TabsList className="inline-flex whitespace-nowrap bg-white/80 border border-slate-200 rounded-full px-1 py-1 h-auto shadow-sm">
-                  {adminRole?.permissions.includes("view_analytics") && (
-                    <TabsTrigger value="analytics" className="px-5 rounded-full text-xs font-semibold">
-                      Analytics
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_kyc") && (
-                    <TabsTrigger value="kyc" className="px-5 rounded-full text-xs font-semibold">
-                      Vendor KYC ({pendingVendors.length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_transporters") && (
-                    <TabsTrigger value="transporter-kyc" className="px-5 rounded-full text-xs font-semibold">
-                      Transporter KYC ({pendingTransporters.length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_customers") && (
-                    <TabsTrigger value="customer-kyc" className="px-5 rounded-full text-xs font-semibold">
-                      User KYC ({pendingCustomerKyc.length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_products") && (
-                    <>
-                      <TabsTrigger value="products" className="px-5 rounded-full text-xs font-semibold">
-                        Approvals ({pendingProducts.length})
-                      </TabsTrigger>
-                      <TabsTrigger value="all-products" className="px-5 rounded-full text-xs font-semibold">
-                        Search & Delete Products
-                      </TabsTrigger>
-                    </>
-                  )}
-                  {adminRole?.permissions.includes("manage_orders") && (
-                    <TabsTrigger value="orders" className="px-5 rounded-full text-xs font-semibold">
-                      Orders
-                    </TabsTrigger>
-                  )}
-                  {(adminRole?.permissions.includes("manage_transactions") || adminRole?.permissions.includes("manage_payouts")) && (
-                    <TabsTrigger value="finance" className="px-5 rounded-full text-xs font-semibold">
-                      Finance Hub
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_payouts") && (
-                    <TabsTrigger value="payouts" className="px-5 rounded-full text-xs font-semibold">
-                      Payouts ({payouts.filter(p => p.status === "pending").length})
-                    </TabsTrigger>
-                  )}
-                  {(adminRole?.permissions.includes("manage_support") || isSuperAdmin || Boolean(adminRole?.role)) && (
-                    <TabsTrigger value="support" className="px-5 rounded-full text-xs font-semibold">
-                      Support ({pendingTickets.length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_support") && (
-                    <TabsTrigger value="recovery" className="px-5 rounded-full text-xs font-semibold">
-                      Incomplete Reg ({incompleteRegistrations.filter(r => r.recovery_status === "pending").length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_promotions") && (
-                    <TabsTrigger value="promotions" className="px-5 rounded-full text-xs font-semibold">
-                      Promotions
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_blog") && (
-                    <TabsTrigger value="blog" className="px-5 rounded-full text-xs font-semibold">
-                      Journal
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_vendors") && (
-                    <TabsTrigger value="vendors" className="px-5 rounded-full text-xs font-semibold">
-                      Vendors
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_transporters") && (
-                    <TabsTrigger value="transporters" className="px-5 rounded-full text-xs font-semibold">
-                      Transporters
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_customers") && (
-                    <TabsTrigger value="customers" className="px-5 rounded-full text-xs font-semibold">
-                      Customers
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_subscriptions") && (
-                    <TabsTrigger value="subscriptions" className="px-5 rounded-full text-xs font-semibold">
-                      Subscriptions
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_hr") && (
-                    <TabsTrigger value="hr" className="px-5 rounded-full text-xs font-semibold">
-                      HR ({careerApplications.filter(a => a.status === "pending").length})
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("manage_system") && (
-                    <>
-                      <TabsTrigger value="infrastructure" className="px-5 rounded-full text-xs font-semibold">
-                        Infrastructure
-                      </TabsTrigger>
-                      <TabsTrigger value="api-integrations" className="px-5 rounded-full text-xs font-semibold">
-                        API & Integrations
-                      </TabsTrigger>
-                      <TabsTrigger value="security-access" className="px-5 rounded-full text-xs font-semibold">
-                        Security & Access
-                      </TabsTrigger>
-                      <TabsTrigger value="system-health" className="px-5 rounded-full text-xs font-semibold">
-                        System Health
-                      </TabsTrigger>
-                    </>
-                  )}
-                  {(adminRole?.permissions.includes("manage_vendors") ||
-                    adminRole?.permissions.includes("manage_customers") ||
-                    adminRole?.permissions.includes("manage_transporters")) && (
-                    <TabsTrigger value="messaging" className="px-5 rounded-full text-xs font-semibold">
-                      Direct Messaging
-                    </TabsTrigger>
-                  )}
-                  {adminRole?.permissions.includes("view_analytics") && (
-                    <TabsTrigger value="validation" className="px-5 rounded-full text-xs font-semibold">
-                      Validation
-                    </TabsTrigger>
-                  )}
-                  {canManageAgents && (
-                    <TabsTrigger value="agents" className="px-5 rounded-full text-xs font-semibold">
-                      Sales Agents
-                    </TabsTrigger>
-                  )}
-                  {showAdminManagement && (
-                    <TabsTrigger value="admins" className="px-5 rounded-full text-xs font-semibold">
-                      Admin Users
-                    </TabsTrigger>
-                  )}
-                </TabsList>
-              </div>
+              <DashboardMobileTabs navContext={navContext} />
 
-              <TabsContent value="analytics" className="border-none p-0 outline-none">
-                <AnalyticsTab stats={stats} vendorTypesAnalytics={vendorTypesAnalytics} orders={orders} payouts={payouts} />
-              </TabsContent>
-
-              <TabsContent value="kyc" className="border-none p-0 outline-none">
-                <KYCApprovalTab vendors={pendingVendors} />
-              </TabsContent>
-
-              <TabsContent value="transporter-kyc" className="border-none p-0 outline-none">
-                <TransporterKYCApprovalTab transporters={pendingTransporters} />
-              </TabsContent>
-
-              <TabsContent value="customer-kyc" className="border-none p-0 outline-none">
-                <CustomerKYCApprovalTab customers={pendingCustomerKyc} />
-              </TabsContent>
-
-              <TabsContent value="products" className="border-none p-0 outline-none">
-                <ProductApprovalTab products={pendingProducts} />
-              </TabsContent>
-
-              <TabsContent value="all-products" className="border-none p-0 outline-none">
-                <ProductManagementTab initialProducts={allProducts} />
-              </TabsContent>
-
-              <TabsContent value="orders" className="border-none p-0 outline-none">
-                <OrdersManagementTab orders={orders} />
-              </TabsContent>
-
-              <TabsContent value="transactions" className="border-none p-0 outline-none">
-                <SecureFundsManagementTab transactions={transactions} />
-              </TabsContent>
-
-              <TabsContent value="payouts" className="border-none p-0 outline-none">
-                <PayoutApprovalTab payouts={payouts} />
-              </TabsContent>
-
-              <TabsContent value="finance" className="border-none p-0 outline-none">
-                <FinanceHubTab orders={orders} transactions={transactions} payouts={payouts} stats={stats} />
-              </TabsContent>
-
-              <TabsContent value="support" className="border-none p-0 outline-none">
-                <SupportTicketsTab
-                  tickets={tickets}
-                  department={userDepartment}
-                  roleName={adminRole?.role?.role_name || "Administrator"}
-                  isSuperAdmin={isSuperAdmin}
-                />
-              </TabsContent>
-
-              <TabsContent value="recovery" className="border-none p-0 outline-none">
-                <IncompleteRegistrationsTab registrations={incompleteRegistrations} />
-              </TabsContent>
-
-              <TabsContent value="promotions" className="border-none p-0 outline-none">
-                <PromotionsManagementTab promotions={actualPromotions} />
-              </TabsContent>
-
-              {adminRole?.permissions.includes("manage_blog") && (
-                <TabsContent value="blog" className="border-none p-0 outline-none">
-                  <BlogManagementTab />
-                </TabsContent>
-              )}
-
-              <TabsContent value="vendors" className="border-none p-0 outline-none">
-                <VendorManagementTab />
-              </TabsContent>
-
-              <TabsContent value="transporters" className="border-none p-0 outline-none">
-                <TransporterManagementTab />
-              </TabsContent>
-
-              <TabsContent value="customers" className="border-none p-0 outline-none">
-                <CustomerManagementTab />
-              </TabsContent>
-
-              <TabsContent value="subscriptions" className="border-none p-0 outline-none">
-                <VendorSubscriptionsTab subscriptions={subscriptions} />
-              </TabsContent>
-
-              <TabsContent value="hr" className="border-none p-0 outline-none">
-                <HRApplicationsTab 
-                  applications={careerApplications} 
-                  interviews={hrInterviews}
-                  staff={hrStaffRecords}
-                  contracts={hrContracts}
-                  attendance={hrAttendance}
-                />
-              </TabsContent>
-
-              {adminRole?.permissions.includes("manage_system") && (
-                <>
-                  <TabsContent value="infrastructure" className="border-none p-0 outline-none">
-                    <InfrastructureTab />
-                  </TabsContent>
-
-                  <TabsContent value="api-integrations" className="border-none p-0 outline-none">
-                    <Card className="border-none shadow-none bg-slate-50/50">
-                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
-                        <div className="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center mb-6">
-                          <Network className="h-10 w-10 text-indigo-600 opacity-80" />
-                        </div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">API & Integrations</h2>
-                        <p className="text-slate-500 max-w-md">Manage 3rd-party services, webhooks, and API keys here.</p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="security-access" className="border-none p-0 outline-none">
-                    <Card className="border-none shadow-none bg-slate-50/50">
-                      <CardContent className="flex flex-col items-center justify-center h-[60vh] text-center">
-                        <div className="h-20 w-20 rounded-full bg-rose-100 flex items-center justify-center mb-6">
-                          <ShieldAlert className="h-10 w-10 text-rose-600 opacity-80" />
-                        </div>
-                        <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">Security & Access</h2>
-                        <p className="text-slate-500 max-w-md">Monitor security systems and user access controls here.</p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="system-health" className="border-none p-0 outline-none">
-                    <SystemHealthTab />
-                  </TabsContent>
-                </>
-              )}
-
-              {adminRole?.permissions.includes("view_logs") && (
-                <TabsContent value="logs" className="border-none p-0 outline-none">
-                  <ServerLogsTab />
-                </TabsContent>
-              )}
-
-              {(adminRole?.permissions.includes("manage_vendors") ||
-                adminRole?.permissions.includes("manage_customers") ||
-                adminRole?.permissions.includes("manage_transporters")) && (
-                <TabsContent value="messaging" className="border-none p-0 outline-none">
-                  <MessagingTab />
-                </TabsContent>
-              )}
-
-              {adminRole?.permissions.includes("view_analytics") && (
-                <TabsContent value="validation" className="border-none p-0 outline-none">
-                  <ValidationSurveysTab />
-                </TabsContent>
-              )}
-
-              {canManageAgents && (
-                <TabsContent value="agents" className="border-none p-0 outline-none">
-                  <AgentManagementTab initialAgents={initialAgents} />
-                </TabsContent>
-              )}
-
-              {showAdminManagement && (
-                <TabsContent value="admins" className="border-none p-0 outline-none">
-                  <AdminUsersManagementTab />
-                </TabsContent>
-              )}
+              <DashboardPanels
+                {...props}
+                actualPromotions={actualPromotions}
+                isSuperAdmin={isSuperAdmin}
+                showAdminManagement={showAdminManagement}
+                canManageAgents={canManageAgents}
+                userDepartment={userDepartment}
+              />
             </Tabs>
           </div>
         </div>

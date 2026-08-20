@@ -39,7 +39,6 @@
       "files": [
         "app/auth/sign-up/page.tsx",
         "app/careers/careers-page-client.tsx",
-        "components/admin/admin-dashboard-content.tsx",
         "components/admin/agent-management-tab.tsx",
         "components/admin/blog-management-tab.tsx",
         "components/admin/hr-applications-subtab.tsx",
