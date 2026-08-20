@@ -29,8 +29,7 @@ import { useRouter } from "next/navigation"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import { calculateDeliveryDistance, calculateDeliveryDistanceByCoords } from "@/app/actions/maps"
-import type { TransportMethod } from "@/app/actions/maps"
+import { useCheckoutDelivery } from "@/hooks/use-checkout-delivery"
 import { useToast } from "@/hooks/use-toast"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
 import { WebMapPicker } from "@/components/checkout/web-map-picker"
@@ -38,16 +37,30 @@ import { clientApiGet, clientApiPost } from "@/lib/api-client"
 
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { CheckoutContentProps, CartItem } from "@/lib/types/checkout"
-import { calculateFee } from "@/lib/checkout/delivery"
-import { groupCartByShop, repriceShopDeliveries, shopWeights } from "@/lib/checkout/delivery-grouping"
 
 export function CheckoutContent({ user }: CheckoutContentProps) {
   const { t } = useLanguage()
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const {
+    cartItems,
+    latitude,
+    longitude,
+    fullAddress,
+    transportMethods,
+    selectedTransportId,
+    setSelectedTransportId,
+    shopDeliveries,
+    isCalculatingDelivery,
+    deliveryError,
+    isNavigatingAway,
+    handleAddressComplete,
+    subtotal,
+    deliveryFee,
+    insuranceFee,
+    total,
+  } = useCheckoutDelivery()
+
   const [fullName, setFullName] = useState(user?.full_name || "")
   const [phone, setPhone] = useState(user?.phone || "")
-  const [latitude, setLatitude] = useState<number | null>(null)
-  const [longitude, setLongitude] = useState<number | null>(null)
   const [addressData, setAddressData] = useState({
     country: "Tanzania",
     region: "",
@@ -57,7 +70,6 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     street: "",
   })
   const [guestEmail, setGuestEmail] = useState("")
-  const [fullAddress, setFullAddress] = useState("")
 
   const [paymentMethod, setPaymentMethod] = useState<string>("airtel-money")
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
@@ -66,116 +78,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     expiry: "",
     cvv: "",
   })
-  const [transportMethods, setTransportMethods] = useState<TransportMethod[]>([])
-  const [selectedTransportId, setSelectedTransportId] = useState<string>("")
-  const [shopDeliveries, setShopDeliveries] = useState<
-    Record<
-      string,
-      {
-        distanceKm: number
-        deliveryFee: number
-        duration?: string
-        transportMethod?: string
-        transportMethodId?: string | null
-        shopName: string
-        shopLat: number
-        shopLng: number
-        deliveryAvailable?: boolean
-      }
-    >
-  >({})
-  const [isCalculatingDelivery, setIsCalculatingDelivery] = useState(false)
-  const [deliveryError, setDeliveryError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
-  const isNavigatingAway = useRef(false)
-
-  useEffect(() => {
-    const items = JSON.parse(localStorage.getItem("cart") || "[]")
-    if (items.length === 0 && !isNavigatingAway.current) {
-      router.push("/cart")
-    }
-    setCartItems(items)
-
-    clientApiGet<{ data: TransportMethod[] }>("transport-methods")
-      .then((res) => {
-        const methods = res.data || []
-        setTransportMethods(methods)
-        if (methods.length > 0 && !selectedTransportId) {
-          setSelectedTransportId(methods[0].id)
-        }
-      })
-      .catch(() => {
-        setTransportMethods([])
-      })
-  }, [router])
-
-  const handleAddressComplete = async (address: string, coordinates?: { lat: number; lng: number }) => {
-    setFullAddress(address)
-    setDeliveryError(null)
-
-    if (!coordinates) return
-    setLatitude(coordinates.lat)
-    setLongitude(coordinates.lng)
-
-    setIsCalculatingDelivery(true)
-
-    const newShopDeliveries: Record<string, any> = {}
-
-    try {
-      const shopsData = groupCartByShop(cartItems)
-
-      const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
-
-      for (const sId in shopsData) {
-        const shop = shopsData[sId]
-        const result = await calculateDeliveryDistanceByCoords(coordinates.lat, coordinates.lng, shop.lat, shop.lng)
-
-        if (result) {
-          const fee = calculateFee(method, result.distanceKm, shop.weight, shop.deliveryAvailable !== false)
-
-          newShopDeliveries[sId] = {
-            ...result,
-            lat: coordinates.lat,
-            lng: coordinates.lng,
-            deliveryFee: fee,
-            transportMethod: shop.deliveryAvailable ? method?.name : "Store Pickup",
-            transportMethodId: shop.deliveryAvailable ? method?.id : null,
-            shopName: shop.name,
-            shopLat: shop.lat,
-            shopLng: shop.lng,
-            deliveryAvailable: shop.deliveryAvailable,
-          }
-        }
-      }
-
-      if (Object.keys(newShopDeliveries).length > 0) {
-        setShopDeliveries(newShopDeliveries)
-      } else {
-        setDeliveryError("Logistics Engine could not determine routes to your location from the shops.")
-      }
-    } catch (error) {
-      setDeliveryError("Logistics calculation failed. Please retry location selection.")
-      setShopDeliveries({})
-    } finally {
-      setIsCalculatingDelivery(false)
-    }
-  }
-
-  useEffect(() => {
-    if (Object.keys(shopDeliveries).length > 0 && selectedTransportId && cartItems.length > 0) {
-      const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
-
-      setShopDeliveries(repriceShopDeliveries(shopDeliveries, shopWeights(cartItems), method))
-    }
-  }, [selectedTransportId, cartItems])
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-  const deliveryFee = Object.values(shopDeliveries).reduce((sum, d) => sum + d.deliveryFee, 0)
-  const insuranceFee = Math.round((subtotal + deliveryFee) * 0.015)
-  const total = subtotal + deliveryFee + insuranceFee
 
   const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
 
@@ -509,8 +415,9 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
                           latitude={latitude}
                           longitude={longitude}
                           onLocationSelect={(coords) => {
-                            setLatitude(coords.lat)
-                            setLongitude(coords.lng)
+                            // handleAddressComplete sets latitude/longitude from
+                            // these same coords, so setting them here too was a
+                            // redundant duplicate write.
                             const dummyAddress =
                               [addressData.street, addressData.ward, addressData.district, addressData.region].filter(Boolean).join(", ") ||
                               "Selected Pin"
