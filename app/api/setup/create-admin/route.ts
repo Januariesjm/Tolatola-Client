@@ -1,15 +1,38 @@
+import { createHash, timingSafeEqual } from "crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-// Setup key - In production, this should be an environment variable
-const SETUP_KEY = process.env.ADMIN_SETUP_KEY || "tolamarketplace-admin-setup-2025"
+/**
+ * Constant-time comparison of two secrets of arbitrary length.
+ *
+ * Both sides are hashed first so the buffers handed to timingSafeEqual are
+ * always the same size, which keeps it from throwing on a length mismatch and
+ * stops the comparison from leaking the expected key's length.
+ */
+function secretsMatch(provided: string, expected: string): boolean {
+  const a = createHash("sha256").update(provided).digest()
+  const b = createHash("sha256").update(expected).digest()
+  return timingSafeEqual(a, b)
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // No fallback: an unset ADMIN_SETUP_KEY disables this route entirely rather
+    // than leaving admin creation behind a key that is public in the source.
+    const setupKeySecret = process.env.ADMIN_SETUP_KEY
+
+    if (!setupKeySecret) {
+      console.error("[setup/create-admin] ADMIN_SETUP_KEY is not set; refusing request")
+      return NextResponse.json(
+        { error: "Admin setup is not configured on this deployment." },
+        { status: 503 },
+      )
+    }
+
     const { email, password, fullName, setupKey } = await request.json()
 
     // Verify setup key
-    if (setupKey !== SETUP_KEY) {
+    if (typeof setupKey !== "string" || !secretsMatch(setupKey, setupKeySecret)) {
       return NextResponse.json({ error: "Invalid setup key" }, { status: 403 })
     }
 

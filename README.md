@@ -79,7 +79,7 @@ Create a `.env.local` file in the project root. These are the main variables use
 | `CLICKPESA_CLIENT_ID` | No | ClickPesa client ID |
 | `CLICKPESA_API_KEY` | No | ClickPesa API key |
 | `STORAGE_BUCKET` | No | Supabase storage bucket name (default: `uploads`) |
-| `ADMIN_SETUP_KEY` | No | Secret for initial admin setup (default value in code) |
+| `ADMIN_SETUP_KEY` | Only for initial admin setup | Secret guarding `POST /api/setup/create-admin`. There is **no** fallback: when unset, that route returns 503 and admin creation is disabled. Generate with `openssl rand -hex 32`. |
 
 - **Never** commit `.env.local` or any file containing real secrets.
 - For deployment (Vercel, Docker, etc.), set these in the platform’s environment/config.
