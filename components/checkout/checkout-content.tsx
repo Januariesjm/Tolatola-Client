@@ -39,6 +39,7 @@ import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { CheckoutContentProps, CartItem } from "@/lib/types/checkout"
 import { calculateFee } from "@/lib/checkout/delivery"
+import { groupCartByShop, repriceShopDeliveries, shopWeights } from "@/lib/checkout/delivery-grouping"
 
 export function CheckoutContent({ user }: CheckoutContentProps) {
   const { t } = useLanguage()
@@ -124,28 +125,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     const newShopDeliveries: Record<string, any> = {}
 
     try {
-      // Group items and weight by shop
-      const shopsData: Record<string, { weight: number; lat: number; lng: number; name: string; deliveryAvailable?: boolean }> = {}
-
-      cartItems.forEach((item) => {
-        const sId = item.product.shop_id || "default_shop"
-        if (!shopsData[sId]) {
-          const shop = item.product.shops
-          shopsData[sId] = {
-            weight: 0,
-            lat: shop?.latitude || -6.7924, // Default to Dar if missing
-            lng: shop?.longitude || 39.2083,
-            name: shop?.name || "Unknown Shop",
-            deliveryAvailable: true, // Start with true
-          }
-        }
-        shopsData[sId].weight += (item.product.weight || 1) * item.quantity
-
-        // If any product in this shop's cart items doesn't allow delivery, the whole shop portion is pickup only
-        if (item.product.delivery_available === false) {
-          shopsData[sId].deliveryAvailable = false
-        }
-      })
+      const shopsData = groupCartByShop(cartItems)
 
       const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
 
@@ -188,26 +168,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
     if (Object.keys(shopDeliveries).length > 0 && selectedTransportId && cartItems.length > 0) {
       const method = transportMethods.find((m) => m.id === selectedTransportId || m.name === selectedTransportId) || transportMethods[0]
 
-      const updatedDeliveries = { ...shopDeliveries }
-      const shopsWeight: Record<string, number> = {}
-
-      cartItems.forEach((item) => {
-        const sId = item.product.shop_id || "default_shop"
-        shopsWeight[sId] = (shopsWeight[sId] || 0) + (item.product.weight || 1) * item.quantity
-      })
-
-      for (const sId in updatedDeliveries) {
-        const isDeliverable = updatedDeliveries[sId].deliveryAvailable !== false
-        const fee = calculateFee(method, updatedDeliveries[sId].distanceKm, shopsWeight[sId] || 0, isDeliverable)
-
-        updatedDeliveries[sId] = {
-          ...updatedDeliveries[sId],
-          deliveryFee: fee,
-          transportMethod: isDeliverable ? method?.name : "Store Pickup",
-          transportMethodId: isDeliverable ? method?.id : null,
-        }
-      }
-      setShopDeliveries(updatedDeliveries)
+      setShopDeliveries(repriceShopDeliveries(shopDeliveries, shopWeights(cartItems), method))
     }
   }, [selectedTransportId, cartItems])
 
