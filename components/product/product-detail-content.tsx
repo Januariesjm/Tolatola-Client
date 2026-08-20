@@ -34,10 +34,20 @@ import { useToast } from "@/hooks/use-toast"
 import { Check } from "lucide-react"
 import { useFavorites } from "@/hooks/use-favorites"
 import { useLanguage } from "@/lib/i18n/language-context"
+import { logger } from "@/lib/logger"
+import type {
+  CartItem,
+  Product,
+  ProductColor,
+  RecommendedProduct,
+  Review,
+} from "@/lib/types/product"
+
+const log = logger.child("product.detail")
 
 interface ProductDetailContentProps {
-  product: any
-  reviews: any[]
+  product: Product
+  reviews: Review[]
   isLiked: boolean
 }
 
@@ -50,24 +60,34 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
-  const [selectedColor, setSelectedColor] = useState<any>(null)
+  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
-  const [recommendations, setRecommendations] = useState<any[]>([])
+  const [recommendations, setRecommendations] = useState<RecommendedProduct[]>([])
+  const [recommendationsFailed, setRecommendationsFailed] = useState(false)
   const testimonyRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
     const fetchRecommendations = async () => {
+      const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
       try {
-        const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
         const res = await fetch(`${baseUrl}/products/${product.id}/recommendations`)
-        if (res.ok) {
-          const json = await res.json()
-          setRecommendations(json.data || [])
+        if (!res.ok) {
+          // A non-OK response used to be swallowed silently along with thrown
+          // errors, so a broken recommendations endpoint looked identical to a
+          // product that simply has no recommendations.
+          throw new Error(`recommendations request failed with ${res.status}`)
         }
-      } catch {}
+        const json = await res.json()
+        setRecommendations(json.data || [])
+        setRecommendationsFailed(false)
+      } catch (error) {
+        log.error("failed to load recommendations", error, { productId: product.id })
+        setRecommendations([])
+        setRecommendationsFailed(true)
+      }
     }
     fetchRecommendations()
   }, [product.id])
@@ -82,14 +102,14 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     // Initial check for cart
     if (typeof window !== "undefined") {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]")
-      setIsInCart(cart.some((item: any) => item.product_id === product.id))
+      setIsInCart(cart.some((item: CartItem) => item.product_id === product.id))
     }
   })
 
   useEffect(() => {
     const loadCart = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]")
-      setIsInCart(cart.some((item: any) => item.product_id === product.id))
+      setIsInCart(cart.some((item: CartItem) => item.product_id === product.id))
     }
 
     window.addEventListener("cartUpdated", loadCart)
@@ -152,7 +172,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     }
 
     const cartItems = JSON.parse(localStorage.getItem("cart") || "[]")
-    const existingItem = cartItems.find((item: any) => 
+    const existingItem = cartItems.find((item: CartItem) => 
       item.product_id === product.id &&
       (!isFashion || (
         (!item.selected_color || item.selected_color?.name === selectedColor?.name) &&
@@ -190,6 +210,13 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
     })
   }
 
+  // Single source of truth for the hero image. Previously the guard checked
+  // `product.images?.[0] || selectedImageUrl` but the src read
+  // `product.images[selectedImageIndex]`, so an out-of-range index rendered
+  // src={undefined}.
+  const displayedImage =
+    selectedImageUrl || product.images?.[selectedImageIndex] || product.images?.[0] || null
+
   const productLocation = product.location || 
     [product.shops?.ward, product.shops?.district, product.shops?.region].filter(Boolean).join(", ") || 
     product.shops?.address || 
@@ -207,9 +234,9 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
           >
-            {product.images?.[0] || selectedImageUrl ? (
+            {displayedImage ? (
               <Image
-                src={selectedImageUrl || product.images[selectedImageIndex]}
+                src={displayedImage}
                 alt={product.name}
                 fill
                 className={cn(
@@ -354,7 +381,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                       <span className="text-xs font-bold text-stone-900">{selectedColor?.name || "Select a color"}{selectedColor?.price ? ` (TZS ${selectedColor.price.toLocaleString()})` : ""}</span>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      {product.colors.map((color: any, idx: number) => (
+                      {product.colors.map((color: ProductColor, idx: number) => (
                         <button
                           key={idx}
                           type="button"
@@ -371,6 +398,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                               : "border-transparent hover:border-stone-200"
                           )}
                           title={color.name}
+                          aria-label={`Select color ${color.name}`}
                         >
                           <div className="relative w-12 h-12 rounded-full overflow-hidden border border-stone-100 bg-stone-50">
                             {color.image ? (
@@ -410,6 +438,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                           key={idx}
                           type="button"
                           onClick={() => setSelectedSize(size)}
+                          aria-label={`Select size ${size}`}
                           className={cn(
                             "min-w-[3.5rem] h-12 px-4 rounded-xl border-2 text-xs font-black uppercase transition-all duration-300 flex flex-col items-center justify-center gap-0.5",
                             selectedSize === size
@@ -441,6 +470,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   <button
                     type="button"
                     className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Decrease quantity"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.max(product.moq || 1, quantity - 1)); }}
                     disabled={quantity <= (product.moq || 1)}
                   >
@@ -450,6 +480,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
                   <button
                     type="button"
                     className="h-10 w-10 rounded-xl bg-white border border-stone-200 shadow-sm hover:bg-stone-50 hover:border-stone-300 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Increase quantity"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuantity(Math.min(Number(product.stock_quantity) || 999, quantity + 1)); }}
                     disabled={quantity >= (Number(product.stock_quantity) || 999)}
                   >
@@ -748,6 +779,27 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
       </div>
 
       {/* Cross-Selling Recommendations */}
+      {recommendationsFailed && (
+        <div className="mt-24">
+          <div className="flex items-center gap-4 mb-8">
+            <TrendingUp className="h-6 w-6 text-primary" />
+            <h3 className="text-2xl font-black tracking-tighter text-stone-950">You May Also Like</h3>
+            <div className="h-px flex-1 bg-stone-100" />
+          </div>
+          <div
+            role="status"
+            className="rounded-[1.5rem] border border-stone-100 bg-stone-50/60 p-8 text-center"
+          >
+            <p className="text-sm font-medium text-stone-600">
+              We couldn&apos;t load recommendations right now.
+            </p>
+            <p className="mt-1 text-xs text-stone-500">
+              Everything else on this page is up to date — try refreshing to see related products.
+            </p>
+          </div>
+        </div>
+      )}
+
       {recommendations.length > 0 && (
         <div className="mt-24">
           <div className="flex items-center gap-4 mb-8">
@@ -756,7 +808,7 @@ export function ProductDetailContent({ product, reviews, isLiked: initialIsLiked
             <div className="h-px flex-1 bg-stone-100" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {recommendations.map((rec: any) => (
+            {recommendations.map((rec: RecommendedProduct) => (
               <Link
                 key={rec.id}
                 href={`/product/${rec.id}`}
