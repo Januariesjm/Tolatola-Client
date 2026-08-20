@@ -21,7 +21,7 @@ god-file and `any` debt. No user-facing feature changes.
   interactive setup prompt, so it could never run unattended.
 - **`max-lines` (500) enforced as an error**, with a documented shrink-only
   allowlist for existing offenders, so no new god file can land.
-- **Coverage floor** (`coverageThreshold` in `jest.config.ts`), enforced by
+- **Coverage floor** (`coverageThreshold` in `jest.config.js`), enforced by
   `npm test` and therefore by CI and the deploy gate.
 - **Structured logger** (`lib/logger.ts`): level-tagged, scoped output with
   structured context, error normalization for `Error`/string/Supabase-shaped
@@ -79,6 +79,13 @@ god-file and `any` debt. No user-facing feature changes.
 
 ### Fixed
 
+- **`npm test` failed on Node >= 22.6.** Jest could not load `jest.config.ts`:
+  that Node strips TS types natively, so Jest imports a `.ts` config through
+  native ESM rather than ts-node, and the extensionless `next/jest` specifier is
+  not resolvable under ESM. It only worked on Node 20 because ts-node loaded the
+  file as CommonJS. The config is now `jest.config.js` (CommonJS, typed via
+  JSDoc), which loads identically on every Node version. Verified on Node 20.9,
+  20.20 and 23.7.
 - **Security: `ADMIN_SETUP_KEY` no longer has a hardcoded fallback.**
   `app/api/setup/create-admin` fell back to a literal key that is public in this
   repository, so any deployment that had not set the variable would hand the

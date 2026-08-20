@@ -54,7 +54,7 @@ npm run build
 ```
 
 - `npm test` enforces a **coverage floor** (`coverageThreshold` in
-  `jest.config.ts`). If your change lowers coverage below it, the job fails.
+  `jest.config.js`). If your change lowers coverage below it, the job fails.
   Raise the floor when you add substantial coverage; never lower it.
 - `npm run build` must not require real credentials. If it starts needing a
   secret or a live service, that is a regression — the build has to work in a

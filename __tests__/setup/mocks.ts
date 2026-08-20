@@ -1,7 +1,7 @@
 /**
  * Shared test fixtures.
  *
- * NOT a test file -- excluded via testPathIgnorePatterns in jest.config.ts.
+ * NOT a test file -- excluded via testPathIgnorePatterns in jest.config.js.
  *
  * These exist so no individual test has to hand-roll a Supabase client or a
  * fetch stub, and so no test can accidentally reach a live service. The global
