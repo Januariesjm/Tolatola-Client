@@ -1,5 +1,5 @@
 # Install dependencies only when needed
-FROM node:22-slim AS deps
+FROM node:26-slim AS deps
 RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npm ci
 
 
 # Rebuild the source code only when needed
-FROM node:22-slim AS builder
+FROM node:26-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -39,7 +39,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:22-slim AS runner
+FROM node:26-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
