@@ -36,6 +36,9 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { clientApiGet, clientApiPost, clientApiPut, clientApiDelete } from "@/lib/api-client"
+import { logger, normalizeError } from "@/lib/logger"
+
+const log = logger.child("admin.blog-management")
 
 interface Category {
   id: string
@@ -106,7 +109,7 @@ export function BlogManagementTab() {
       setPosts(postsRes.data || [])
       setCategories(categoriesRes.data || [])
     } catch (error) {
-      console.error("[BLOG ADMIN] Error fetching blog data:", error)
+      log.error("failed to fetch blog data", error)
     } finally {
       setIsLoading(false)
     }
@@ -152,7 +155,7 @@ export function BlogManagementTab() {
         }
       }
     } catch (error) {
-      console.error("[BLOG ADMIN] Image upload failed:", error)
+      log.error("image upload failed", error)
       alert("Failed to upload image. Please try again.")
     } finally {
       setUploadingImage(false)
@@ -202,7 +205,7 @@ export function BlogManagementTab() {
       setPosts(prev => prev.filter(p => p.id !== id))
       alert("Article deleted successfully.")
     } catch (error) {
-      console.error("[BLOG ADMIN] Delete post failed:", error)
+      log.error("failed to delete post", error)
       alert("Failed to delete article.")
     }
   }
@@ -236,7 +239,7 @@ export function BlogManagementTab() {
       setIsEditing(false)
       setEditingPost(null)
     } catch (error) {
-      console.error("[BLOG ADMIN] Save post failed:", error)
+      log.error("failed to save post", error)
       alert("Failed to save article.")
     } finally {
       setIsLoading(false)
@@ -274,7 +277,7 @@ export function BlogManagementTab() {
       setCategoryDesc("")
       setIsAddingCategory(false)
     } catch (error) {
-      console.error("[BLOG ADMIN] Save category failed:", error)
+      log.error("failed to save category", error)
       alert("Failed to save category.")
     } finally {
       setIsLoading(false)
@@ -287,8 +290,9 @@ export function BlogManagementTab() {
       await clientApiDelete(`admin/blog/categories/${id}`)
       setCategories(prev => prev.filter(c => c.id !== id))
       alert("Category deleted successfully.")
-    } catch (error: any) {
-      alert(error?.message || "Failed to delete category.")
+    } catch (error) {
+      log.error("failed to delete category", error, { categoryId: id })
+      alert(normalizeError(error).message || "Failed to delete category.")
     }
   }
 

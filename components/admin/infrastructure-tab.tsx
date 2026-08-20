@@ -25,6 +25,9 @@ import {
   Terminal,
 } from "lucide-react"
 import { clientApiGet } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.infrastructure-tab")
 
 interface ServiceInfo {
   name: string
@@ -148,7 +151,7 @@ export function InfrastructureTab() {
       const res = await clientApiGet<InfraData>("admin/infrastructure")
       setData(res)
     } catch (err) {
-      console.error("Error fetching infrastructure data:", err)
+      log.error("error fetching infrastructure data", err)
     } finally {
       setLoading(false)
       setRefreshing(false)

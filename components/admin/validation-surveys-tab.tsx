@@ -13,6 +13,9 @@ import {
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from "recharts"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.validation-surveys-tab")
 
 interface ValidationSurvey {
   id: string; full_name: string; phone: string; email: string
@@ -113,7 +116,7 @@ export function ValidationSurveysTab({ initialSurveys = [], initialStats }: Prop
         setStats(json.stats || defaultStats)
       }
     } catch (e) {
-      console.error("Failed to fetch surveys:", e)
+      log.error("failed to fetch surveys", e)
     } finally {
       setLoading(false)
     }

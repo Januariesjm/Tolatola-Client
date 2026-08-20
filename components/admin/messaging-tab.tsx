@@ -28,6 +28,9 @@ import {
   X,
   History
 } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.messaging-tab")
 
 type RecipientRole = "customer" | "vendor" | "transporter"
 
@@ -135,7 +138,7 @@ export function MessagingTab() {
         setTransporters(list)
       }
     } catch (error) {
-      console.error("Error loading recipients:", error)
+      log.error("error loading recipients", error)
       toast({
         title: "Error",
         description: `Failed to load ${targetRole}s list.`,
@@ -170,7 +173,7 @@ export function MessagingTab() {
 
       setLogs(formattedData)
     } catch (err) {
-      console.error("Error fetching admin messaging logs:", err)
+      log.error("error fetching admin messaging logs", err)
     } finally {
       setLoadingLogs(false)
     }

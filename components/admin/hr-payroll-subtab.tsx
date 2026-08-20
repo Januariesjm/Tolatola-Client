@@ -35,6 +35,9 @@ import {
   Eye,
 } from "lucide-react"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-payroll-subtab")
 
 interface HRStaff {
   id: string
@@ -122,7 +125,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
         setProfiles(res.data)
       }
     } catch (err) {
-      console.error("Failed to fetch profiles:", err)
+      log.error("failed to fetch profiles", err)
     }
   }
 
@@ -134,7 +137,7 @@ export function HRPayrollSubtab({ staff }: { staff: HRStaff[] }) {
         setRecords(res.data)
       }
     } catch (err) {
-      console.error("Failed to fetch records:", err)
+      log.error("failed to fetch records", err)
     }
   }
 

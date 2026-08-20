@@ -13,6 +13,9 @@ import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.promotions-management-tab")
 
 interface Promotion {
   id: string
@@ -75,14 +78,14 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        console.error("Upload failed details:", errorData)
+        log.error("upload failed details", errorData)
         throw new Error(errorData.details || errorData.error || "Upload failed")
       }
 
       const data = await response.json()
       setFormData((prev) => ({ ...prev, image_url: data.url }))
     } catch (error) {
-      console.error("Error uploading image:", error)
+      log.error("error uploading image", error)
       alert(`Failed to upload image: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setUploading(false)
@@ -124,7 +127,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
       setEditingId(null)
       router.refresh()
     } catch (error) {
-      console.error("Error saving promotion:", error)
+      log.error("error saving promotion", error)
       alert("Failed to save promotion")
     }
   }
@@ -152,7 +155,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
     const { error } = await supabase.from("promotions").delete().eq("id", id)
 
     if (error) {
-      console.error("Error deleting promotion:", error)
+      log.error("error deleting promotion", error)
       alert("Failed to delete promotion")
       return
     }
@@ -166,7 +169,7 @@ export function PromotionsManagementTab({ promotions: initialPromotions }: Promo
     const { error } = await supabase.from("promotions").update({ is_active: !currentStatus }).eq("id", id)
 
     if (error) {
-      console.error("Error toggling promotion:", error)
+      log.error("error toggling promotion", error)
       alert("Failed to update promotion status")
       return
     }

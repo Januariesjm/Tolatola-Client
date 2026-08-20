@@ -6,6 +6,9 @@ import { CheckCircle, XCircle, Clock, Loader2, RefreshCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "./date-range-filter"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.payout-approval-tab")
 
 interface PayoutApprovalTabProps {
   payouts: any[]
@@ -49,7 +52,7 @@ export function PayoutApprovalTab({ payouts }: PayoutApprovalTabProps) {
             }
           }
         } catch (e) {
-          console.error("Failed to poll payout status", e)
+          log.error("failed to poll payout status", e)
         }
       }
     }

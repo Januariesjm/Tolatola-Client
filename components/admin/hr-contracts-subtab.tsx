@@ -31,6 +31,9 @@ import {
 import { FileSignature, Plus, Search, Trash2, Loader2, Download, CheckCircle2, Clock } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { createClient } from "@/lib/supabase/client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-contracts-subtab")
 
 interface HRContract {
   id: string
@@ -85,7 +88,7 @@ export function HRContractsSubtab({ contracts: initialContracts, staff }: { cont
           const { data: urlData } = supabase.storage.from("uploads").getPublicUrl(fileName)
           documentUrl = urlData.publicUrl
         } else {
-          console.error("File upload error:", uploadError)
+          log.error("file upload error", uploadError)
         }
       }
       
@@ -113,7 +116,7 @@ export function HRContractsSubtab({ contracts: initialContracts, staff }: { cont
         })
       }
     } catch (err) {
-      console.error("Failed to add contract:", err)
+      log.error("failed to add contract", err)
     } finally {
       setLoading(false)
     }
@@ -125,7 +128,7 @@ export function HRContractsSubtab({ contracts: initialContracts, staff }: { cont
       await clientApiDelete(`admin/hr/contracts/${id}`)
       setContracts(contracts.filter((c) => c.id !== id))
     } catch (err) {
-      console.error("Failed to delete:", err)
+      log.error("failed to delete", err)
     }
   }
 

@@ -44,6 +44,9 @@ import {
   Phone
 } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-staff-subtab")
 
 export interface HRStaff {
   id: string
@@ -228,7 +231,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
         setError("Failed to save employee: Invalid response from server.")
       }
     } catch (err: any) {
-      console.error("Failed to save staff:", err)
+      log.error("failed to save staff", err)
       setError(err?.message || "Failed to save staff record.")
     } finally {
       setLoading(false)
@@ -242,7 +245,7 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
       await clientApiDelete(`admin/hr/staff/${id}`)
       setStaffList(staffList.filter((s) => s.id !== id))
     } catch (err) {
-      console.error("Failed to delete staff:", err)
+      log.error("failed to delete staff", err)
     }
   }
 

@@ -32,6 +32,9 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../date-range-filter"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.finance.finance-payouts-tab")
 
 interface FinancePayoutsTabProps {
   payouts: any[]
@@ -74,7 +77,7 @@ export function FinancePayoutsTab({ payouts }: FinancePayoutsTabProps) {
             }
           }
         } catch (e) {
-          console.error("Failed to poll payout status", e)
+          log.error("failed to poll payout status", e)
         }
       }
     }

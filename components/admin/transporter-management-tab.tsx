@@ -20,6 +20,9 @@ import {
 } from "@/components/ui/dialog"
 import Image from "next/image"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.transporter-management-tab")
 
 interface Transporter {
     id: string
@@ -89,7 +92,7 @@ export function TransporterManagementTab() {
             setTransporters(response.data || [])
             setFilteredTransporters(response.data || [])
         } catch (error) {
-            console.error("Error fetching transporters:", error)
+            log.error("error fetching transporters", error)
             toast({
                 title: "Error",
                 description: "Failed to load transporters",
@@ -118,7 +121,7 @@ export function TransporterManagementTab() {
                 setSelectedTransporter({ ...selectedTransporter, is_active: newStatus })
             }
         } catch (error) {
-            console.error("Error toggling transporter status:", error)
+            log.error("error toggling transporter status", error)
             toast({
                 title: "Error",
                 description: "Failed to update transporter status",
@@ -139,7 +142,7 @@ export function TransporterManagementTab() {
             setFilteredTransporters(filteredTransporters.filter((t) => t.id !== transporterId))
             setViewDialogOpen(false)
         } catch (error) {
-            console.error("Error deleting transporter:", error)
+            log.error("error deleting transporter", error)
             toast({
                 title: "Error",
                 description: "Failed to delete transporter account",

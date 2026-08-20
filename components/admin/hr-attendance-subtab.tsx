@@ -31,6 +31,9 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { ClipboardCheck, Plus, Search, Trash2, Loader2, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-attendance-subtab")
 
 interface HRAttendance {
   id: string
@@ -102,7 +105,7 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
         })
       }
     } catch (err) {
-      console.error("Failed to save attendance:", err)
+      log.error("failed to save attendance", err)
       alert("Failed to save. This employee might already have a record for this date.")
     } finally {
       setLoading(false)
@@ -115,7 +118,7 @@ export function HRAttendanceSubtab({ attendance: initialAttendance, staff }: { a
       await clientApiDelete(`admin/hr/attendance/${id}`)
       setAttendance(attendance.filter((a) => a.id !== id))
     } catch (err) {
-      console.error("Failed to delete:", err)
+      log.error("failed to delete", err)
     }
   }
 

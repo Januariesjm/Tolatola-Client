@@ -7,6 +7,9 @@ import { Badge } from "../ui/badge"
 import { Loader2, Search, Filter } from "lucide-react"
 import { Input } from "../ui/input"
 import { format } from "date-fns"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.activity-logs-tab")
 
 interface ActivityLog {
   id: string
@@ -54,7 +57,7 @@ export function ActivityLogsTab() {
 
       setLogs(formattedData)
     } catch (err) {
-      console.error("Error fetching logs:", err)
+      log.error("error fetching logs", err)
     } finally {
       setLoading(false)
     }

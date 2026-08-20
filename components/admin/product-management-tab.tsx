@@ -45,6 +45,9 @@ import {
 } from "lucide-react"
 import { clientApiDelete, clientApiGet } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.product-management-tab")
 
 interface ProductManagementTabProps {
   initialProducts?: any[]
@@ -84,7 +87,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
         setProducts(res.data)
       }
     } catch (err) {
-      console.error("[PRODUCT MANAGEMENT] Failed to refresh products:", err)
+      log.error("failed to refresh products", err)
     } finally {
       setLoading(false)
     }
@@ -177,7 +180,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
         setDeleteSuccess(null)
       }, 5000)
     } catch (err: any) {
-      console.error("[DELETE PRODUCT ERROR]", err)
+      log.error("error", err)
       setDeleteError(err?.message || "Failed to delete product. Please try again.")
     } finally {
       setIsDeleting(false)

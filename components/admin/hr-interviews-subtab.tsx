@@ -31,6 +31,9 @@ import {
 } from "@/components/ui/select"
 import { CalendarDays, Plus, Search, Trash2, CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-interviews-subtab")
 
 interface HRInterview {
   id: string
@@ -101,7 +104,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
         })
       }
     } catch (err) {
-      console.error("Failed to add interview:", err)
+      log.error("failed to add interview", err)
     } finally {
       setLoading(false)
     }
@@ -113,7 +116,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
       await clientApiDelete(`admin/hr/interviews/${id}`)
       setInterviews(interviews.filter((i) => i.id !== id))
     } catch (err) {
-      console.error("Failed to delete:", err)
+      log.error("failed to delete", err)
     }
   }
 
@@ -124,7 +127,7 @@ export function HRInterviewsSubtab({ interviews: initialInterviews }: { intervie
         setInterviews(interviews.map(i => i.id === id ? res.data : i))
       }
     } catch (err) {
-      console.error("Failed to update status:", err)
+      log.error("failed to update status", err)
     }
   }
 

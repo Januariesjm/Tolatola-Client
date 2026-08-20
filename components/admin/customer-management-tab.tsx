@@ -18,6 +18,9 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.customer-management-tab")
 
 interface Customer {
     id: string
@@ -65,7 +68,7 @@ export function CustomerManagementTab() {
             setCustomers(response.data || [])
             setFilteredCustomers(response.data || [])
         } catch (error) {
-            console.error("Error fetching customers:", error)
+            log.error("error fetching customers", error)
             toast({
                 title: "Error",
                 description: "Failed to load customers",
@@ -88,7 +91,7 @@ export function CustomerManagementTab() {
             setFilteredCustomers(filteredCustomers.filter((c) => c.id !== customerId))
             setViewDialogOpen(false)
         } catch (error) {
-            console.error("Error deleting customer:", error)
+            log.error("error deleting customer", error)
             toast({
                 title: "Error",
                 description: "Failed to delete customer account",

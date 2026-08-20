@@ -21,6 +21,9 @@ import Image from "next/image"
 import { ExternalLink, FileText, Download } from "lucide-react"
 
 import { clientApiPost } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.kyc-approval-tab")
 
 interface KYCApprovalTabProps {
   vendors: any[]
@@ -42,7 +45,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
       await clientApiPost(`admin/vendors/${vendorId}/activate`)
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error approving vendor:", error)
+      log.error("error approving vendor", error)
       alert("Failed to approve vendor. Please try again.")
     }
 
@@ -73,7 +76,7 @@ export function KYCApprovalTab({ vendors }: KYCApprovalTabProps) {
       setRejectionReason("")
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error rejecting vendor:", error)
+      log.error("error rejecting vendor", error)
       alert("Failed to reject vendor. Please try again.")
     }
 

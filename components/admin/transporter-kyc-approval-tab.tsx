@@ -21,6 +21,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { ExternalLink, FileText } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.transporter-kyc-approval-tab")
 
 interface TransporterKYCApprovalTabProps {
   transporters: any[]
@@ -43,7 +46,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
       await clientApiPost(`admin/transporters/${transporterId}/approve`)
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error approving transporter:", error)
+      log.error("error approving transporter", error)
       alert("Failed to approve transporter. Please try again.")
     }
 
@@ -74,7 +77,7 @@ export function TransporterKYCApprovalTab({ transporters }: TransporterKYCApprov
       setRejectionReason("")
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error rejecting transporter:", error)
+      log.error("error rejecting transporter", error)
       alert("Failed to reject transporter. Please try again.")
     }
     setIsSubmitting(false)

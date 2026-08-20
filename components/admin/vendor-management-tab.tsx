@@ -20,6 +20,9 @@ import {
 } from "@/components/ui/dialog"
 import Image from "next/image"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.vendor-management-tab")
 
 interface Vendor {
   id: string
@@ -101,7 +104,7 @@ export function VendorManagementTab() {
       setVendors(response.data || [])
       setFilteredVendors(response.data || [])
     } catch (error) {
-      console.error("Error fetching vendors:", error)
+      log.error("error fetching vendors", error)
       toast({
         title: "Error",
         description: "Failed to load vendors",
@@ -130,7 +133,7 @@ export function VendorManagementTab() {
         setSelectedVendor({ ...selectedVendor, is_active: newStatus })
       }
     } catch (error) {
-      console.error("Error toggling vendor status:", error)
+      log.error("error toggling vendor status", error)
       toast({
         title: "Error",
         description: "Failed to update vendor status",
@@ -151,7 +154,7 @@ export function VendorManagementTab() {
       setFilteredVendors(filteredVendors.filter((v) => v.id !== vendorId))
       setViewDialogOpen(false)
     } catch (error) {
-      console.error("Error deleting vendor:", error)
+      log.error("error deleting vendor", error)
       toast({
         title: "Error",
         description: "Failed to delete vendor account",

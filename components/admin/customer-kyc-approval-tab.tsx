@@ -19,6 +19,9 @@ import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { ExternalLink, FileText } from "lucide-react"
 import { clientApiPost } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.customer-kyc-approval-tab")
 
 interface CustomerKYCApprovalTabProps {
     customers: any[]
@@ -40,7 +43,7 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
             await clientApiPost(`admin/customers-kyc/${kycId}/approve`)
             router.refresh()
         } catch (error) {
-            console.error("Error approving customer KYC:", error)
+            log.error("error approving customer KYC", error)
             alert("Failed to approve KYC. Please try again.")
         }
 
@@ -71,7 +74,7 @@ export function CustomerKYCApprovalTab({ customers }: CustomerKYCApprovalTabProp
             setRejectionReason("")
             router.refresh()
         } catch (error) {
-            console.error("Error rejecting customer KYC:", error)
+            log.error("error rejecting customer KYC", error)
             alert("Failed to reject KYC. Please try again.")
         }
 

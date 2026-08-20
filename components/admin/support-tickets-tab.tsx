@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,11 +18,15 @@ import {
 } from "@/components/ui/alert-dialog"
 import { CheckCircle, MessageSquare, Search, Sparkles, Clock, AlertCircle, User, MessageCircle, Trash2, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { useTicketMessageCounts } from "@/hooks/use-ticket-message-counts"
 import { useRouter } from "next/navigation"
 import { ChatDialog } from "@/components/messaging/chat-dialog"
 import { getOrCreateConversation } from "@/app/actions/messaging"
 import { deleteAllResolvedTickets, deleteTicketPermanently } from "@/app/actions/support"
 import { toast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.support-tickets-tab")
 
 interface SupportTicketsTabProps {
   tickets: any[]
@@ -38,8 +42,7 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all")
   const [departmentFilter, setDepartmentFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [ticketMessageCounts, setTicketMessageCounts] = useState<Record<string, number>>({})
-  const [unreadCount, setUnreadCount] = useState<Record<string, boolean>>({})
+  const { counts: ticketMessageCounts, unread: unreadCount, markRead } = useTicketMessageCounts(tickets)
   const [deletingAllResolved, setDeletingAllResolved] = useState(false)
   const [deletingTicketId, setDeletingTicketId] = useState<string | null>(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -47,73 +50,6 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
   const supabase = createClient()
 
   // Fetch message counts for conversations linked to tickets
-  const fetchMessageCounts = useCallback(async () => {
-    try {
-      const convIds = tickets
-        .map((t) => t.conversation_id)
-        .filter(Boolean)
-
-      if (convIds.length === 0) return
-
-      const { data, error } = await supabase
-        .from("messages")
-        .select("conversation_id, sender_type")
-        .in("conversation_id", convIds)
-
-      if (data) {
-        const counts: Record<string, number> = {}
-        const unreads: Record<string, boolean> = {}
-
-        data.forEach((msg: any) => {
-          counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1
-          if (msg.sender_type === "user" || msg.sender_type === "guest") {
-            unreads[msg.conversation_id] = true
-          }
-        })
-
-        setTicketMessageCounts(counts)
-        setUnreadCount(unreads)
-      }
-    } catch (e) {
-      console.error("[SupportTicketsTab] Error fetching message counts:", e)
-    }
-  }, [tickets, supabase])
-
-  useEffect(() => {
-    fetchMessageCounts()
-
-    // Listen for realtime incoming messages across tickets
-    const channel = supabase
-      .channel("support_tickets_messages_counter")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload: any) => {
-          const newMsg = payload.new
-          if (newMsg?.conversation_id) {
-            setTicketMessageCounts((prev) => ({
-              ...prev,
-              [newMsg.conversation_id]: (prev[newMsg.conversation_id] || 0) + 1,
-            }))
-            if (newMsg.sender_type === "user" || newMsg.sender_type === "guest") {
-              setUnreadCount((prev) => ({
-                ...prev,
-                [newMsg.conversation_id]: true,
-              }))
-            }
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [fetchMessageCounts, supabase])
 
   const handleResolve = async (ticketId: string) => {
     await supabase.from("support_tickets").update({ status: "resolved" }).eq("id", ticketId)
@@ -191,13 +127,13 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
           ticket.conversation_id = activeConvId
         }
       } catch (e) {
-        console.error("Failed to auto-link conversation for ticket:", e)
+        log.error("failed to auto-link conversation for ticket", e)
       }
     }
     setSelectedTicket({ ...ticket, conversation_id: activeConvId })
     setChatOpen(true)
     if (activeConvId) {
-      setUnreadCount((prev) => ({ ...prev, [activeConvId]: false }))
+      markRead(activeConvId)
     }
   }
 

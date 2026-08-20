@@ -8,6 +8,9 @@ import { createClient } from "@/lib/supabase/client"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Crown, Eye, Sparkles, Star, Zap } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.vendor-subscriptions-tab")
 
 interface VendorSubscriptionsTabProps {
   subscriptions: any[]
@@ -77,7 +80,7 @@ export function VendorSubscriptionsTab({ subscriptions: initialSubscriptions }: 
         setStats(planCounts)
       }
     } catch (error) {
-      console.error("Error loading subscriptions:", error)
+      log.error("error loading subscriptions", error)
     } finally {
       setLoading(false)
     }

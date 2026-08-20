@@ -12,6 +12,9 @@ import { useRouter } from "next/navigation"
 import { RevokeAdminDialog } from "./revoke-admin-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.admin-users-management-tab")
 
 export function AdminUsersManagementTab() {
   const { toast } = useToast()
@@ -54,7 +57,7 @@ export function AdminUsersManagementTab() {
       setAllUsers(usersRes.data || [])
       setRevokedHistory(historyRes.data || [])
     } catch (error) {
-      console.error("[v0] Error fetching data:", error)
+      log.error("error fetching data", error)
       toast({ title: "Error", description: "Failed to load admin users", variant: "destructive" })
     } finally {
       setLoading(false)

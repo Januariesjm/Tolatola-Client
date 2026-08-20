@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle } from "lucide-react"
 import { clientApiPost } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.product-approval-tab")
 
 interface ProductApprovalTabProps {
   products: any[]
@@ -19,7 +22,7 @@ export function ProductApprovalTab({ products }: ProductApprovalTabProps) {
       await clientApiPost(`admin/products/${productId}/approve`)
       router.refresh()
     } catch (error) {
-      console.error("Error approving product:", error)
+      log.error("error approving product", error)
       alert("Failed to approve product")
     }
   }
@@ -29,7 +32,7 @@ export function ProductApprovalTab({ products }: ProductApprovalTabProps) {
       await clientApiPost(`admin/products/${productId}/reject`)
       router.refresh()
     } catch (error) {
-      console.error("Error rejecting product:", error)
+      log.error("error rejecting product", error)
       alert("Failed to reject product")
     }
   }

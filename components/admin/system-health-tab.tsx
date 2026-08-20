@@ -20,6 +20,9 @@ import {
   Activity,
 } from "lucide-react"
 import { clientApiGet } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.system-health-tab")
 
 interface HealthData {
   status: string
@@ -136,7 +139,7 @@ export function SystemHealthTab() {
       setHealth(res)
       setLastRefresh(new Date())
     } catch (err) {
-      console.error("Error fetching system health:", err)
+      log.error("error fetching system health", err)
     } finally {
       setLoading(false)
       setRefreshing(false)

@@ -21,6 +21,9 @@ import {
 } from "lucide-react"
 import { clientApiGet } from "@/lib/api-client"
 import { format } from "date-fns"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.server-logs-tab")
 
 interface ApiLog {
   id: string
@@ -79,7 +82,7 @@ export function ServerLogsTab() {
       setLogs(res.logs || [])
       setPagination(res.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 })
     } catch (err) {
-      console.error("Error fetching API logs:", err)
+      log.error("error fetching API logs", err)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -91,7 +94,7 @@ export function ServerLogsTab() {
       const res = await clientApiGet<LogStats>("admin/api-logs/stats")
       setStats(res)
     } catch (err) {
-      console.error("Error fetching log stats:", err)
+      log.error("error fetching log stats", err)
     }
   }, [])
 

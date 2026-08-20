@@ -46,6 +46,9 @@ import {
   Paperclip,
 } from "lucide-react"
 import { clientApiPost, clientApiDelete, clientApiGet } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("admin.hr-applications-subtab")
 
 interface CareerApplication {
   id: string
@@ -158,7 +161,7 @@ export function HRApplicationsSubtab({
         )
       )
     } catch (e) {
-      console.error("Failed to update status:", e)
+      log.error("failed to update status", e)
     } finally {
       setLoadingId(null)
     }
@@ -175,7 +178,7 @@ export function HRApplicationsSubtab({
         setSelectedApp(null)
       }
     } catch (e) {
-      console.error("Failed to delete application:", e)
+      log.error("failed to delete application", e)
     } finally {
       setLoadingId(null)
     }
