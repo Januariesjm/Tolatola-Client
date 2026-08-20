@@ -7,6 +7,58 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Order schemas** (`lib/schemas/order.ts`) — zod, so the same definitions type
+  the order detail page *and* validate the confirm-delivery request body. This
+  is the first API boundary in the repo with runtime input validation.
+- **`lib/orders/status-colors.ts`**, `lib/checkout/delivery-grouping.ts`,
+  `hooks/use-blog-editor.ts` — pure/extracted logic lifted out of god files.
+- **`jest.coverage-threshold.js`** plus a test that asserts the floor exists and
+  is non-zero, so deleting coverage enforcement now fails the suite instead of
+  passing quietly.
+- **139 more tests** (328 → 467).
+
+### Changed
+
+- **`blog-management-tab.tsx` 1022 → 766** and **`checkout-content.tsx`
+  1039 → 1000** lines.
+- **`order-detail-content.tsx`** no longer takes `order: any`.
+- **213 + 20 `console.error`/`console.warn` calls** across app/, components/,
+  hooks/ and lib/ now go through the scoped logger. Zero remain outside
+  `lib/logger.ts` and the deliberate console wrapper in
+  `components/utils/global-error-logger.tsx`.
+- **Coverage floor** raised to 14 / 10 / 7 / 14 (from 13 / 8 / 7 / 13).
+
+### Fixed
+
+- **Confirm-delivery failures were invisible.** `handleConfirmDelivery` only
+  refreshed on `response.ok` and ignored every other outcome, so a 409 or 500
+  looked exactly like success — on the action that finalises payments and closes
+  escrow. It now logs and shows a retryable error.
+- **A null order status crashed the order page.** `getStatusColor` called
+  `.toLowerCase()` on the raw value; both mappers now fall back to a grey badge.
+- **Unguarded reads on the order page**: `order.order_items[0].products.shops.*`
+  and several `order.shipping_address.*` accesses would throw for an order with
+  no items, while the same fields were optional-chained elsewhere in the file.
+- **Unvalidated API input**: `POST /api/orders/confirm-delivery` destructured
+  `orderId` straight out of `request.json()`. A missing or non-string id reached
+  the Supabase query and surfaced as a confusing 404; it is now a 400 that says
+  why, and a non-JSON body no longer causes an unhandled rejection.
+- **Duplicated delivery weight arithmetic.** checkout-content.tsx derived
+  per-shop weights in two places — the address handler and the transport-method
+  effect. Both now come from `shopWeights`.
+
+### Known issues
+
+- The Next 14 → 16 upgrade is still outstanding, so the 5 high-severity
+  advisories remain and the CI audit job still gates on critical only.
+- Statement coverage is 14.5%. The `lib/` modules are at or near 100%; the gap
+  is the remaining large UI components.
+- 21 files remain in the `max-lines` allowlist.
+- 77 `console.log` calls remain (deliberate traces, not error paths).
+
+
 ## [1.1.0] - 2026-08-21
 
 Second engineering-quality pass, on top of the CI/observability work below.
