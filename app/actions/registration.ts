@@ -1,6 +1,9 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.actions.registration")
 
 export async function logFailedRegistration(data: {
   email: string
@@ -22,6 +25,6 @@ export async function logFailedRegistration(data: {
   })
 
   if (error) {
-    console.error("[v0] Error logging failed registration:", error)
+    log.error("error logging failed registration", error)
   }
 }

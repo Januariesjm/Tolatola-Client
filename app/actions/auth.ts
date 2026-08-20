@@ -3,6 +3,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.actions.auth")
 
 export async function signInWithGoogle(returnUrl?: string) {
   const supabase = await createClient()
@@ -23,7 +26,7 @@ export async function signInWithGoogle(returnUrl?: string) {
   })
 
   if (error) {
-    console.error("Error signing in with Google:", error)
+    log.error("error signing in with Google", error)
     return redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
   }
 
@@ -49,7 +52,7 @@ export async function signInWithFacebook(returnUrl?: string) {
   })
 
   if (error) {
-    console.error("Error signing in with Facebook:", error)
+    log.error("error signing in with Facebook", error)
     return redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
   }
 

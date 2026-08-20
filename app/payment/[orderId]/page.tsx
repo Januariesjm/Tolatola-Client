@@ -5,6 +5,9 @@ import { PaymentContent } from "@/components/payment/payment-content"
 import { serverApiGet } from "@/lib/api-server"
 import type { Database } from "@/lib/types"
 import SiteHeader from "@/components/layout/site-header"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.payment.[orderId]")
 
 export default async function PaymentPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params
@@ -39,7 +42,7 @@ export default async function PaymentPage({ params }: { params: Promise<{ orderI
       </div>
     )
   } catch (error) {
-    console.error("Error fetching order:", error)
+    log.error("error fetching order", error)
     redirect("/")
   }
 }

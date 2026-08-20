@@ -19,6 +19,9 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { sendMessage as sendLiveMessage, uploadChatFile } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("support.floating-support-widget")
 
 const MOUREEN_AVATAR = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.tolatola.co"
@@ -369,7 +372,7 @@ export function FloatingSupportWidget() {
           })
         }
       } catch (e) {
-        console.error("Error sending live message:", e)
+        log.error("error sending live message", e)
       }
       return
     }
@@ -543,7 +546,7 @@ export function FloatingSupportWidget() {
             break
           }
         } catch (fetchErr) {
-          console.warn("[Support Escalation] Failed endpoint:", url, fetchErr)
+          log.warn("support escalation endpoint failed", fetchErr, { url })
         }
       }
 
@@ -571,7 +574,7 @@ export function FloatingSupportWidget() {
         return [...filtered, connectedMsg]
       })
     } catch (e: any) {
-      console.error("[Support Escalation Error]", e)
+      log.error("error", e)
       setMessages((prev) => {
         const filtered = prev.filter((m) => m.id !== connectingMsg.id)
         const errorMsg: ChatMessage = {

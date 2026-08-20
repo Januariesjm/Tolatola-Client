@@ -1,6 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("hooks.use-registration-recovery")
 
 const SESSION_KEY = "tola_reg_session_id"
 const DEBOUNCE_MS = 5000 // Auto-save every 5 seconds of inactivity
@@ -57,7 +60,7 @@ export function useRegistrationRecovery({ userType, onResumeData }: Registration
           onResumeData?.(result.data)
         }
       } catch (err) {
-        console.error("[RegRecovery] Resume check failed:", err)
+        log.error("resume check failed", err)
       }
     }
 
@@ -84,7 +87,7 @@ export function useRegistrationRecovery({ userType, onResumeData }: Registration
           }),
         })
       } catch (err) {
-        console.error("[RegRecovery] Save failed:", err)
+        log.error("save failed", err)
       }
     },
     [sessionId, userType],
@@ -111,7 +114,7 @@ export function useRegistrationRecovery({ userType, onResumeData }: Registration
         body: JSON.stringify({ session_id: sessionId }),
       })
     } catch (err) {
-      console.error("[RegRecovery] Complete marking failed:", err)
+      log.error("complete marking failed", err)
     }
     clearSessionId()
   }, [sessionId])

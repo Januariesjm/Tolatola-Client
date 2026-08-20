@@ -1,4 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.supabase.middleware")
 
 export async function updateSession(request: NextRequest) {
   // The runtime will inject these at build time
@@ -38,7 +41,7 @@ export async function updateSession(request: NextRequest) {
 
     return supabaseResponse
   } catch (error) {
-    console.error("[v0] Middleware error:", error)
+    log.error("middleware error", error)
     return NextResponse.next({
       request,
     })

@@ -11,6 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Upload, CheckCircle2, Info } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { clientApiPatchProfile, clientApiPostProfileAvatar } from "@/lib/api-client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("profile.personal-info-tab")
 
 const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024 // 2MB
 const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"]
@@ -98,7 +101,7 @@ export default function PersonalInfoTab({ profile, kycStatus, readOnlyFields, on
       onProfileUpdated?.()
       if ((data as any)?.profile_image_url) setPreviewImage((data as any).profile_image_url)
     } catch (err) {
-      console.error("Error uploading image:", err)
+      log.error("error uploading image", err)
       toast({ title: "Error", description: "Failed to upload image. Please try again.", variant: "destructive" })
     } finally {
       setIsUploadingImage(false)
@@ -134,7 +137,7 @@ export default function PersonalInfoTab({ profile, kycStatus, readOnlyFields, on
       setIsEditing(false)
       onProfileUpdated?.()
     } catch (err) {
-      console.error("Error updating profile:", err)
+      log.error("error updating profile", err)
       toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" })
     } finally {
       setIsLoading(false)

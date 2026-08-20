@@ -9,6 +9,9 @@ import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("layout.product-search")
 
 interface Product {
   id: string
@@ -112,7 +115,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
         setIsOpen(true)
         setShowFilters(true) // Show filters alongside results
       } catch (err) {
-        console.error("[Search error]:", err)
+        log.error("error", err)
       } finally {
         setIsLoading(false)
       }
@@ -182,7 +185,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
       // Navigate to shop page with imageSearch flag — results load there
       router.push("/shop?imageSearch=pending")
     } catch (err) {
-      console.error("[Image Search Error]", err)
+      log.error("error", err)
       setIsImageSearching(false)
       setIsLoading(false)
     }

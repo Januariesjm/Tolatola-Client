@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react"
 import { MapPin, Locate, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("checkout.web-map-picker")
 
 interface WebMapPickerProps {
   latitude: number | null
@@ -126,7 +129,7 @@ export function WebMapPicker({ latitude, longitude, onLocationSelect, title = "P
           description: "Could not fetch GPS location. Please choose manually.",
           variant: "destructive",
         })
-        console.error("GPS Error:", error)
+        log.error("gPS Error", error)
       },
       { enableHighAccuracy: true, timeout: 10000 },
     )

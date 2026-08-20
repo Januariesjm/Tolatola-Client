@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ShieldCheck, AlertCircle, CheckCircle, Upload, Camera, X } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("profile.kyc-verification-tab")
 
 interface KycVerificationTabProps {
   kyc: any
@@ -63,7 +66,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
         [`${documentType}_url`]: data.url,
       }))
     } catch (error) {
-      console.error("Error uploading file:", error)
+      log.error("error uploading file", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to upload file. Please try again."
       alert(errorMessage)
     } finally {
@@ -86,7 +89,7 @@ export default function KycVerificationTab({ kyc, userId }: KycVerificationTabPr
         router.refresh()
       }
     } catch (error) {
-      console.error("Error submitting KYC:", error)
+      log.error("error submitting KYC", error)
     } finally {
       setIsLoading(false)
     }

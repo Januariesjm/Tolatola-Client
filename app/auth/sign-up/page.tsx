@@ -21,6 +21,9 @@ const logFailedRegistration = async (_payload: unknown) => {
 }
 import { Eye, EyeOff, ShoppingCart, Gift, CheckCircle2, XCircle, Phone } from "lucide-react"
 import { CountryCodeSelect } from "../../../components/ui/country-code-select"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.auth.sign-up")
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
 
@@ -76,7 +79,7 @@ function SignUpContent() {
         setReferralError("Invalid referral code. Please check and try again.")
       }
     } catch (err) {
-      console.error("Error validating referral code:", err)
+      log.error("error validating referral code", err)
       setReferredByAgent(null)
     } finally {
       setReferralValidating(false)
@@ -368,12 +371,12 @@ function SignUpContent() {
       })
 
       if (error) {
-        console.error("Google signup error:", error)
+        log.error("google signup error", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
     } catch (err) {
-      console.error("Google signup exception:", err)
+      log.error("google signup exception", err)
       setError("Unable to sign up with Google. Please try again.")
       setIsOAuthLoading(null)
     }
@@ -401,12 +404,12 @@ function SignUpContent() {
       })
 
       if (error) {
-        console.error("Facebook signup error:", error)
+        log.error("facebook signup error", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
     } catch (err) {
-      console.error("Facebook signup exception:", err)
+      log.error("facebook signup exception", err)
       setError("Unable to sign up with Facebook. Please try again.")
       setIsOAuthLoading(null)
     }

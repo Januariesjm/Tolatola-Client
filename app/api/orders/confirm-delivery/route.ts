@@ -64,7 +64,7 @@ export async function POST(request: Request) {
           const res = await api.post(`assignments/${assignment.id}/verify`, {}, token)
           results.push(res)
         } catch (err) {
-          console.error(`Failed to verify assignment ${assignment.id}:`, err)
+          log.error("failed to verify transporter assignment", err, { assignmentId: assignment.id })
         }
       }
     }

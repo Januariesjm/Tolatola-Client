@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.revoke-history")
 
 export const dynamic = "force-dynamic"
 
@@ -25,7 +28,7 @@ export async function GET() {
     const { data: history, error } = await supabase.from("admin_revoke_history").select("*").order("revoked_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching revoke history:", error.message)
+      log.error("error fetching revoke history", error.message)
       if (error.code === "42P01" || error.code === "PGRST204" || error.code === "PGRST205") {
         return NextResponse.json({ history: [], tableExists: false })
       }
@@ -34,7 +37,7 @@ export async function GET() {
 
     return NextResponse.json({ history: history || [], tableExists: true })
   } catch (error: any) {
-    console.error("[v0] Error fetching revoke history:", error)
+    log.error("error fetching revoke history", error)
     return NextResponse.json({ error: error.message, history: [], tableExists: false }, { status: 200 })
   }
 }

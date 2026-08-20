@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.notifications.transporter-kyc-approved")
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +25,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Error sending approval email:", error)
+    log.error("error sending approval email", error)
     return NextResponse.json({ error: "Failed to send email" }, { status: 500 })
   }
 }

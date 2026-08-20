@@ -26,6 +26,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { NotificationPopover } from "../layout/notification-popover"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("vendor.vendor-dashboard-content")
 
 interface VendorDashboardContentProps {
   vendor: any
@@ -67,10 +70,10 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
         await clientApiPost("auth/logout")
       } catch (apiError) {
         // Backend logout failed, but we've already cleared local session
-        console.error("Backend logout error:", apiError)
+        log.error("backend logout error", apiError)
       }
     } catch (error) {
-      console.error("Logout error:", error)
+      log.error("logout error", error)
     } finally {
       // Force redirect to home page
       window.location.href = "/"
@@ -98,7 +101,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
       setProductToDelete(null)
       router.refresh()
     } catch (error) {
-      console.error("Error deleting product:", error)
+      log.error("error deleting product", error)
     } finally {
       setIsDeleting(false)
     }
@@ -111,7 +114,7 @@ export function VendorDashboardContent({ vendor, shop, products }: VendorDashboa
       await clientApiPost("products/update-stock", { productId: product.id, quantity: newStockQuantity })
       router.refresh()
     } catch (error) {
-      console.error("Error updating stock:", error)
+      log.error("error updating stock", error)
     }
   }
 

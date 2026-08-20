@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.roles.list")
 
 export async function GET() {
   try {
@@ -19,7 +22,7 @@ export async function GET() {
       .order("access_level", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching admin roles:", error.message)
+      log.error("error fetching admin roles", error.message)
       return NextResponse.json({
         roles: [],
         error: "Admin roles table not set up yet. Please run migration script 018.",
@@ -28,7 +31,7 @@ export async function GET() {
 
     return NextResponse.json({ roles: roles || [] })
   } catch (error: any) {
-    console.error("[v0] Error fetching admin roles:", error)
+    log.error("error fetching admin roles", error)
     return NextResponse.json({ roles: [], error: error.message }, { status: 500 })
   }
 }

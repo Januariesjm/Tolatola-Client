@@ -1,3 +1,6 @@
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.api")
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 async function request<T>(
@@ -34,7 +37,7 @@ async function request<T>(
   if (!res.ok) {
     const errorBody = await res.text()
     const errorMessage = `API ${res.status}: ${errorBody}`
-    console.error("[API Error]", {
+    log.error("API request failed", undefined, {
       url,
       method: options.method || "GET",
       status: res.status,

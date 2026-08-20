@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { getOrCreateConversation, sendMessage } from "./messaging"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.actions.support")
 
 export async function createSupportTicket(
   subject: string,
@@ -38,7 +41,7 @@ export async function createSupportTicket(
     const { data: ticket, error: ticketError } = await (supabase as any).from("support_tickets").insert(ticketData).select().single()
 
     if (ticketError) {
-      console.error("Error creating ticket:", ticketError)
+      log.error("error creating ticket", ticketError)
       return { error: `Failed to create ticket: ${ticketError.message}` }
     }
 
@@ -46,7 +49,7 @@ export async function createSupportTicket(
     const conversationResult = await getOrCreateConversation(undefined, undefined, undefined, undefined, ticket.id, guestInfo?.guestId)
 
     if (conversationResult.error) {
-      console.error("Error creating conversation for ticket:", conversationResult.error)
+      log.error("error creating conversation for ticket", conversationResult.error)
       return { ticket, warning: "Ticket created but chat initialization failed." }
     }
 
@@ -57,7 +60,7 @@ export async function createSupportTicket(
 
     return { ticket, conversation: conversationResult.conversation }
   } catch (err: any) {
-    console.error("Panic createSupportTicket:", err)
+    log.error("panic createSupportTicket", err)
     return { error: err.message }
   }
 }
@@ -96,7 +99,7 @@ export async function deleteAllResolvedTickets() {
       .in("status", ["resolved", "completed", "closed"])
 
     if (fetchError) {
-      console.error("[deleteAllResolvedTickets] Fetch error:", fetchError)
+      log.error("fetch error", fetchError)
       return { error: fetchError.message }
     }
 
@@ -119,13 +122,13 @@ export async function deleteAllResolvedTickets() {
     const { error: deleteError } = await (adminSupabase as any).from("support_tickets").delete().in("id", ticketIds)
 
     if (deleteError) {
-      console.error("[deleteAllResolvedTickets] Delete error:", deleteError)
+      log.error("delete error", deleteError)
       return { error: deleteError.message }
     }
 
     return { success: true, count: ticketIds.length }
   } catch (err: any) {
-    console.error("[deleteAllResolvedTickets] Exception:", err)
+    log.error("exception", err)
     return { error: err.message }
   }
 }

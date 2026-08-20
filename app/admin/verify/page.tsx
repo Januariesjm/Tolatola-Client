@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.admin.verify")
 
 export default function AdminVerifyPage() {
   const [status, setStatus] = useState<any>(null)
@@ -13,7 +16,7 @@ export default function AdminVerifyPage() {
       const data = await response.json()
       setStatus(data)
     } catch (error) {
-      console.error("Error verifying setup:", error)
+      log.error("error verifying setup", error)
       setStatus({ setup: { status: "error", message: "Failed to verify setup" } })
     } finally {
       setLoading(false)

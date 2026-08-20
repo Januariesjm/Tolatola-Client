@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.payouts.approve")
 
 export async function POST(request: Request) {
   try {
@@ -25,7 +28,7 @@ export async function POST(request: Request) {
 
     if (!backendRes.ok) {
       const errBody = await backendRes.text()
-      console.error("[v0] Backend payout approval error:", errBody)
+      log.error("backend payout approval error", errBody)
       let errorMessage = "Failed to approve payout"
       try {
         const parsed = JSON.parse(errBody)
@@ -40,7 +43,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Payout approval error:", error)
+    log.error("payout approval error", error)
     return NextResponse.json({ error: "Failed to approve payout" }, { status: 500 })
   }
 }

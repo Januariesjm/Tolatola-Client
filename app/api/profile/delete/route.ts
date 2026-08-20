@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { createClient as createServerClient } from "@/lib/supabase/server"
 import { serverApiPost } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.profile.delete")
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response)
   } catch (error: any) {
-    console.error("Error deleting account:", error)
+    log.error("error deleting account", error)
     return NextResponse.json({ error: error?.message || "Failed to delete account" }, { status: 500 })
   }
 }

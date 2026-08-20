@@ -1,5 +1,8 @@
 // Admin system initialization and verification utilities
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.admin.initialization")
 
 export async function verifyAdminSetup() {
   const supabase = await createClient()
@@ -11,7 +14,7 @@ export async function verifyAdminSetup() {
     const { data: roles, error: rolesError } = await supabase.from("admin_roles").select("id, role_name").limit(1)
 
     if (rolesError) {
-      console.error("[v0] Admin roles table not found:", rolesError.message)
+      log.error("admin roles table not found", rolesError.message)
       return {
         status: "error",
         message: "Admin roles table not found. Run script 015 first.",
@@ -22,7 +25,7 @@ export async function verifyAdminSetup() {
     const { data: permissions, error: permissionsError } = await supabase.from("admin_permissions").select("id, permission_key").limit(1)
 
     if (permissionsError) {
-      console.error("[v0] Admin permissions table not found:", permissionsError.message)
+      log.error("admin permissions table not found", permissionsError.message)
       return {
         status: "error",
         message: "Admin permissions table not found. Run script 015 first.",
@@ -34,7 +37,7 @@ export async function verifyAdminSetup() {
 
     if (userError) {
       if (userError.message.includes("admin_role_id")) {
-        console.error("[v0] admin_role_id column not found in users table")
+        log.error("admin_role_id column not found in users table")
         return {
           status: "error",
           message: "admin_role_id column missing. Run script 017 first.",
@@ -48,7 +51,7 @@ export async function verifyAdminSetup() {
       message: "Admin system is properly set up",
     }
   } catch (error) {
-    console.error("[v0] Error verifying admin setup:", error)
+    log.error("error verifying admin setup", error)
     return {
       status: "error",
       message: "Error verifying admin setup",
@@ -96,7 +99,7 @@ export async function getAdminStatistics() {
       admins: admins || [],
     }
   } catch (error) {
-    console.error("[v0] Error getting admin statistics:", error)
+    log.error("error getting admin statistics", error)
     return {
       totalRoles: 0,
       totalAdmins: 0,

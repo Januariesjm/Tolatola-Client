@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, ShieldCheck, Eye, EyeOff, KeyRound, Check } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.agent.setup")
 
 export default function AgentSetupPage() {
   const router = useRouter()
@@ -85,7 +88,7 @@ export default function AgentSetupPage() {
         setError("Your session has expired or does not exist. Please click the link in your email again, or contact your administrator.")
         setIsVerifying(false)
       } catch (err) {
-        console.error("Setup session check error:", err)
+        log.error("setup session check error", err)
         setError("Failed to verify your session.")
         setIsVerifying(false)
       }

@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { createNotification } from "@/lib/notifications"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.orders.[id].assign")
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       .eq("id", orderId)
 
     if (updateError) {
-      console.error("Error assigning transporter:", updateError)
+      log.error("error assigning transporter", updateError)
       return NextResponse.json({ error: "Failed to assign transporter" }, { status: 500 })
     }
 
@@ -60,7 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("Assignment error:", error)
+    log.error("assignment error", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

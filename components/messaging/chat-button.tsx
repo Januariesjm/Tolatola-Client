@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { ChatDialog } from "./chat-dialog"
 import { getOrCreateConversation } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("messaging.chat-button")
 
 interface ChatButtonProps {
   shopId?: string
@@ -30,7 +33,7 @@ export function ChatButton({ shopId, shopName, productId, productName, receiverI
       console.log("[ChatButton] getOrCreateConversation result:", result)
 
       if (result.error) {
-        console.error("[ChatButton] Error in getOrCreateConversation:", result.error)
+        log.error("error in getOrCreateConversation", result.error)
         toast({
           title: "Error",
           description: result.error,
@@ -41,10 +44,10 @@ export function ChatButton({ shopId, shopName, productId, productName, receiverI
         setConversationId(result.conversation.id)
         setOpen(true)
       } else {
-        console.warn("[ChatButton] No error but no conversation returned")
+        log.warn("no error but no conversation returned")
       }
     } catch (err: any) {
-      console.error("[ChatButton] Panic in handleOpenChat:", err)
+      log.error("panic in handleOpenChat", err)
       toast({
         title: "Unexpected Error",
         description: err.message || "Failed to open chat",

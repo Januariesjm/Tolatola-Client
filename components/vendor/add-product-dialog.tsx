@@ -12,6 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { Upload, X, ImageIcon } from "lucide-react"
 import Image from "next/image"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("vendor.add-product-dialog")
 
 interface AddProductDialogProps {
   open: boolean
@@ -331,7 +334,7 @@ export function AddProductDialog({ open, onOpenChange, shopId, onSuccess }: AddP
       setPrepTime("")
       setDrinkSection("")
     } catch (error: unknown) {
-      console.error("[v0] Product creation failed:", error)
+      log.error("product creation failed", error)
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)

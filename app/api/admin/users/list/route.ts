@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.users.list")
 
 export const dynamic = "force-dynamic"
 
@@ -29,7 +32,7 @@ export async function GET() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching users:", error)
+      log.error("error fetching users", error)
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
@@ -60,7 +63,7 @@ export async function GET() {
 
     return NextResponse.json({ users: usersWithRoles || [] })
   } catch (error: any) {
-    console.error("[v0] Error in list users endpoint:", error)
+    log.error("error in list users endpoint", error)
     return NextResponse.json({ users: [], error: error.message }, { status: 500 })
   }
 }

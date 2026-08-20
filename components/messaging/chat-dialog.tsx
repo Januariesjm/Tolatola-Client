@@ -14,6 +14,9 @@ import { getConversationMessages, sendMessage, markMessagesAsRead, uploadChatFil
 import { toast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { CallDialog } from "./call-dialog"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("messaging.chat-dialog")
 
 interface ChatDialogProps {
   open: boolean
@@ -142,7 +145,7 @@ export function ChatDialog({
     console.log("[ChatDialog] Loading messages for:", conversationId)
     const result = await getConversationMessages(conversationId)
     if (result.error) {
-      console.error("[ChatDialog] Error loading messages:", result.error)
+      log.error("error loading messages", result.error)
     }
     if (result.messages) {
       console.log(`[ChatDialog] Loaded ${result.messages.length} messages`)

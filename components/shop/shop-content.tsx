@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast"
 import { useFavorites } from "@/hooks/use-favorites"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { Camera, Loader2, Sparkles, X } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("shop.shop-content")
 
 interface ShopContentProps {
   products: any[]
@@ -73,7 +76,7 @@ export function ShopContent({ products, categories, trendingProducts, searchQuer
         if (data.analysis) setImageAnalysis(data.analysis)
         if (data.keywords) setImageSearchKeywords(data.keywords)
       } catch (err) {
-        console.error("[Image Search Error]", err)
+        log.error("error", err)
         setImageSearchResults([])
         toast({
           title: "Image search failed",

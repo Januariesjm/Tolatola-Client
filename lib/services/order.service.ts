@@ -1,4 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.services.order.service")
 
 /**
  * Order Service - Handles all order-related business logic
@@ -96,7 +99,7 @@ export class OrderService {
 
       return { success: true, order }
     } catch (error: any) {
-      console.error("[OrderService] Order creation error:", error)
+      log.error("order creation error", error)
       return { success: false, error: error.message }
     }
   }
@@ -208,7 +211,7 @@ export class OrderService {
 
       return { success: true, transporter: bestTransporter }
     } catch (error: any) {
-      console.error("[OrderService] Transporter assignment error:", error)
+      log.error("transporter assignment error", error)
       return { success: false, error: error.message }
     }
   }

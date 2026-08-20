@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.kyc.upload-document")
 
 const BUCKET_NAME = "kyc-documents"
 
@@ -37,7 +40,7 @@ export async function POST(request: Request) {
     })
 
     if (uploadError) {
-      console.error("Upload error:", uploadError)
+      log.error("upload error", uploadError)
       return NextResponse.json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 })
     }
 
@@ -53,7 +56,7 @@ export async function POST(request: Request) {
       type: file.type,
     })
   } catch (error) {
-    console.error("Upload error:", error)
+    log.error("upload error", error)
     return NextResponse.json({ error: `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}` }, { status: 500 })
   }
 }

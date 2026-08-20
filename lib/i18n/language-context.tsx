@@ -3,6 +3,9 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { translations, type LanguageCode, type TranslationKey } from "./translations"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.i18n.language-context")
 
 interface LanguageContextType {
   language: LanguageCode
@@ -25,7 +28,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLanguageState(saved)
       }
     } catch (err) {
-      console.error("Failed to load language", err)
+      log.error("failed to load language", err)
     }
   }, [])
 
@@ -39,7 +42,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.lang = language
       document.documentElement.dir = language === "ar" ? "rtl" : "ltr"
     } catch (err) {
-      console.error("Failed to persist language", err)
+      log.error("failed to persist language", err)
     }
   }, [language])
 

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.validation-surveys")
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,7 +39,7 @@ export async function GET(req: NextRequest) {
     const json = await res.json()
     return NextResponse.json(json)
   } catch (error: any) {
-    console.error("[VALIDATION SURVEYS API] Error:", error)
+    log.error("error", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -11,6 +11,9 @@ import { Badge } from "@/components/ui/badge"
 import { DollarSign, CheckCircle, Clock, XCircle } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("transporter.transporter-withdrawals-tab")
 
 interface TransporterWithdrawalsTabProps {
   withdrawals: any[]
@@ -55,7 +58,7 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
       setPaymentMethod("")
       router.refresh()
     } catch (error) {
-      console.error("Withdrawal error:", error)
+      log.error("withdrawal error", error)
       alert(error instanceof Error ? error.message : "Failed to submit withdrawal request")
     } finally {
       setIsSubmitting(false)

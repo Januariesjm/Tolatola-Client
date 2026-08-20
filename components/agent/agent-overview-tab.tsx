@@ -5,6 +5,9 @@ import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/da
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Users, Store, Truck, TrendingUp, Award, Plus, ArrowRight, ShieldCheck, Clock, Coins } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("agent.agent-overview-tab")
 
 interface AgentOverviewTabProps {
   stats: any
@@ -44,7 +47,7 @@ export function AgentOverviewTab({ stats, agent, setActiveTab, registrations, co
           setReferralCode(data.referral_code)
         }
       } catch (err) {
-        console.error("Failed to load referral details:", err)
+        log.error("failed to load referral details", err)
       } finally {
         setIsLoadingReferral(false)
       }

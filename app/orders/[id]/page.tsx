@@ -3,6 +3,9 @@ import { OrderDetailContent } from "@/components/orders/order-detail-content"
 import { redirect, notFound } from "next/navigation"
 import SiteHeader from "@/components/layout/site-header"
 import { Metadata } from "next"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.orders.[id]")
 
 export const dynamic = "force-dynamic"
 
@@ -87,9 +90,9 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     .single()
 
   if (error || !order) {
-    console.error("Error fetching order:", error)
-    console.error("Order ID:", id)
-    console.error("User ID:", user.id)
+    log.error("error fetching order", error)
+    log.error("order ID", id)
+    log.error("user ID", user.id)
     notFound()
   }
 

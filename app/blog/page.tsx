@@ -6,6 +6,9 @@ import { Calendar, User, ArrowRight, BookOpen, Clock, Tag, Search, Eye } from "l
 import type { Metadata } from "next"
 import Link from "next/link"
 import { serverApiGet } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.blog")
 
 interface Category {
   id: string
@@ -96,7 +99,7 @@ export default async function BlogPage({
     const featuredRes = await serverApiGet<{ data: BlogPost[] }>("blog/posts/featured?limit=1")
     featuredPosts = featuredRes.data || []
   } catch (error) {
-    console.error("[BLOG PUBLIC] Error loading blog server data:", error)
+    log.error("error loading blog server data", error)
   }
 
   // Get the featured post (fallback to first latest post if no explicitly featured post exists)

@@ -14,6 +14,9 @@ import { fetchUnreadCount } from "@/lib/services/notifications.service"
 
 import { useLanguage } from "@/lib/i18n/language-context"
 import { getCategoryTranslation } from "@/lib/i18n/translations"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("layout.mobile-bottom-nav")
 
 const categoryImageMap: Record<string, string> = {
   "fast-moving-consumer-goods": "/category-fmcg.jpg",
@@ -65,7 +68,7 @@ export function MobileBottomNav() {
       const unreadConvs = (convResult.conversations || []).reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0)
       setUnreadCount(globalUnread + unreadConvs)
     } catch (error) {
-      console.error("Error fetching unread count for bottom nav:", error)
+      log.error("error fetching unread count for bottom nav", error)
     }
   }, [supabase])
 
@@ -75,7 +78,7 @@ export function MobileBottomNav() {
         const res = await clientApiGet<{ data: any[] }>("categories")
         setCategories(res.data || [])
       } catch (error) {
-        console.error("Error fetching categories for mobile nav:", error)
+        log.error("error fetching categories for mobile nav", error)
       }
     }
 

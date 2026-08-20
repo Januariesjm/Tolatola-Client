@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.assign-role")
 
 export async function POST(request: Request) {
   try {
@@ -51,7 +54,7 @@ export async function POST(request: Request) {
       .eq("id", userId)
 
     if (error) {
-      console.error("[v0] Error assigning role:", error)
+      log.error("error assigning role", error)
       throw error
     }
 
@@ -71,7 +74,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: "Admin role assigned successfully" })
   } catch (error: any) {
-    console.error("[v0] Error assigning role:", error)
+    log.error("error assigning role", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

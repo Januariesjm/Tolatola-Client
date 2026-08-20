@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { ClickPesaClient, type PaymentMethod } from "@/lib/clickpesa"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.services.payment.service")
 
 /**
  * Payment Service - Handles all payment-related business logic
@@ -127,7 +130,7 @@ export class PaymentService {
         controlNumber: result.control_number,
       }
     } catch (error: any) {
-      console.error("[PaymentService] Payment initiation error:", error)
+      log.error("payment initiation error", error)
       return {
         success: false,
         error: error.message || "Failed to initiate payment",
@@ -144,7 +147,7 @@ export class PaymentService {
         data: result,
       }
     } catch (error: any) {
-      console.error("[PaymentService] Payment verification error:", error)
+      log.error("payment verification error", error)
       return {
         success: false,
         error: error.message || "Failed to verify payment",
@@ -174,7 +177,7 @@ export class PaymentService {
 
       return { success: true, message: "Webhook processed successfully" }
     } catch (error: any) {
-      console.error("[PaymentService] Webhook processing error:", error)
+      log.error("webhook processing error", error)
       return { success: false, error: error.message }
     }
   }

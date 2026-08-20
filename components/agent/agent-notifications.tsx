@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { Bell, UserPlus, Coins, TrendingUp, CheckCircle, AlertTriangle, Loader2, RefreshCw } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("agent.agent-notifications")
 
 interface AgentNotificationsProps {
   agent: any
@@ -48,7 +51,7 @@ export function AgentNotifications({ agent }: AgentNotificationsProps) {
         setNotifications(data.data || [])
       }
     } catch (err) {
-      console.error("[AGENT NOTIFICATIONS] Fetch failed:", err)
+      log.error("fetch failed", err)
     } finally {
       setIsLoading(false)
     }

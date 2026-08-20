@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("hooks.use-favorites")
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>([])
@@ -84,7 +87,7 @@ export function useFavorites() {
 
       return !isLiked
     } catch (error) {
-      console.error("Error toggling favorite:", error)
+      log.error("error toggling favorite", error)
       // Revert changes on error (reload from source)
       loadFavorites()
       toast({

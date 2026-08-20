@@ -8,6 +8,9 @@ import { MapPin, Loader2, Search, Info, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getGoogleMapsScriptUrl } from "@/app/actions/maps"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("checkout.tanzania-address-form")
 
 declare global {
   interface Window {
@@ -180,7 +183,7 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
           }
         })
       } catch (err) {
-        console.error(err)
+        log.error("address lookup failed", err)
       }
     }
 

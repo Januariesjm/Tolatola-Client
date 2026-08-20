@@ -1,6 +1,9 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { type NextRequest, NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.upload")
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.storage.from("promotions").upload(filePath, file)
 
     if (error) {
-      console.error("Supabase storage upload error object:", JSON.stringify(error, null, 2))
+      log.error("supabase storage upload failed", error)
       return NextResponse.json(
         {
           error: "Upload to Supabase failed",
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       type: file.type,
     })
   } catch (error) {
-    console.error("Upload handler caught exception:", error)
+    log.error("upload handler caught exception", error)
     return NextResponse.json(
       {
         error: "Internal Server Error in Upload Handler",

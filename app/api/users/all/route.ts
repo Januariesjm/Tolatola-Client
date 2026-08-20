@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { checkAdminAccess } from "@/lib/admin/middleware"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.users.all")
 
 export async function GET(request: Request) {
   try {
@@ -28,7 +31,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ data: users })
   } catch (error: any) {
-    console.error("[v0] Error fetching users:", error)
+    log.error("error fetching users", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

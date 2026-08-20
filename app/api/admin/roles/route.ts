@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { checkAdminAccess } from "@/lib/admin/middleware"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.roles")
 
 export async function GET(request: Request) {
   try {
@@ -24,7 +27,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ data: roles })
   } catch (error: any) {
-    console.error("[v0] Error fetching roles:", error)
+    log.error("error fetching roles", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

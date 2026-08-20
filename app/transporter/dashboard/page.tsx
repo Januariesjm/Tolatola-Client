@@ -3,6 +3,9 @@ import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { TransporterDashboardContent } from "@/components/transporter/transporter-dashboard-content"
 import { serverApiGet } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.transporter.dashboard")
 
 export const dynamic = "force-dynamic"
 
@@ -62,7 +65,7 @@ export default async function TransporterDashboardPage() {
       </Suspense>
     )
   } catch (error) {
-    console.error("Error loading transporter dashboard:", error)
+    log.error("error loading transporter dashboard", error)
     redirect("/transporter/register")
   }
 }

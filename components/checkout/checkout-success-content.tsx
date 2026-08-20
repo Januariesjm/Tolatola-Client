@@ -23,6 +23,9 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("checkout.checkout-success-content")
 
 interface CheckoutSuccessContentProps {
   order: any
@@ -222,7 +225,7 @@ export function CheckoutSuccessContent({ order: initialOrder, user }: CheckoutSu
       })
       setOrder({ ...order, status: "delivered" })
     } catch (err) {
-      console.error("Error confirming delivery:", err)
+      log.error("error confirming delivery", err)
       toast({
         title: "Error",
         description: "Failed to confirm delivery. Please try again.",

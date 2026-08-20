@@ -11,6 +11,9 @@ import { useState, useEffect } from "react"
 import { clientApiGet } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("favorites.favorites-content")
 
 interface FavoritesContentProps {
   likes: any[]
@@ -63,7 +66,7 @@ export function FavoritesContent({ likes: initialLikes }: FavoritesContentProps)
             }))
           setDisplayLikes(newDisplayList)
         } catch (error) {
-          console.error("Error syncing favorites:", error)
+          log.error("error syncing favorites", error)
         } finally {
           setIsLoading(false)
         }

@@ -23,6 +23,9 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("agent.agent-commission-tab")
 
 interface AgentCommissionTabProps {
   commissions: any[]
@@ -84,7 +87,7 @@ export function AgentCommissionTab({
         }
       }
     } catch (err) {
-      console.error("Failed to load wallet stats:", err)
+      log.error("failed to load wallet stats", err)
     } finally {
       setIsLoading(false)
     }
@@ -201,7 +204,7 @@ export function AgentCommissionTab({
         })
       }
     } catch (err) {
-      console.error("Error submitting withdrawal:", err)
+      log.error("error submitting withdrawal", err)
       toast({
         variant: "destructive",
         title: "Hitilafu Imefanyika",

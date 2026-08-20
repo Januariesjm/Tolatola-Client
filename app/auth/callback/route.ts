@@ -2,6 +2,9 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { verifyPermanentVerifyToken } from "@/lib/tokenSigner"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.auth.callback")
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -28,7 +31,7 @@ export async function GET(request: Request) {
 
   // Check if OAuth provider returned an error
   if (error_param) {
-    console.error("[AUTH CALLBACK] OAuth provider error:", { error_param, error_description })
+    log.error("OAuth provider returned an error", undefined, { error_param, error_description })
     return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=${encodeURIComponent(error_description || error_param)}`)
   }
 
@@ -40,7 +43,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error("[AUTH CALLBACK] OAuth code exchange error:", {
+      log.error("OAuth code exchange failed", undefined, {
         message: error.message,
         status: error.status,
         name: error.name,
@@ -60,7 +63,7 @@ export async function GET(request: Request) {
       ).maybeSingle()
 
       if (profileError) {
-        console.error("[AUTH CALLBACK] Error fetching user profile:", profileError)
+        log.error("error fetching user profile", profileError)
       }
 
       const typedProfile = profile as { user_type: string } | null
@@ -94,7 +97,7 @@ export async function GET(request: Request) {
               })
               console.log("[AUTH CALLBACK] Backend rebinding triggered successfully")
             } catch (fetchError) {
-              console.error("[AUTH CALLBACK] Failed to trigger backend rebinding:", fetchError)
+              log.error("failed to trigger backend rebinding", fetchError)
             }
           }
 
@@ -149,7 +152,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(redirectTo)
     }
 
-    console.error("[AUTH CALLBACK] No session returned from code exchange")
+    log.error("no session returned from code exchange")
     return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=NoSessionReturned`)
   }
 
@@ -173,7 +176,7 @@ export async function GET(request: Request) {
             body: JSON.stringify({ userId: targetUserId, email: targetEmail }),
           })
         } catch (e) {
-          console.error("[AUTH CALLBACK] Error calling backend confirm-verify:", e)
+          log.error("error calling backend confirm-verify", e)
         }
       }
 
@@ -239,7 +242,7 @@ export async function GET(request: Request) {
       try {
         await (supabase.from("users") as any).update({ is_verified: true }).eq("id", user.id)
       } catch (dbErr) {
-        console.error("[AUTH CALLBACK] Failed to update is_verified in public.users:", dbErr)
+        log.error("failed to update is_verified in public.users", dbErr)
       }
 
       // 2. Mark incomplete registration recovery record as completed
@@ -253,7 +256,7 @@ export async function GET(request: Request) {
               body: JSON.stringify({ email: user.email }),
             })
           } catch (recErr) {
-            console.error("[AUTH CALLBACK] Failed to mark incomplete registration completed:", recErr)
+            log.error("failed to mark incomplete registration completed", recErr)
           }
         }
       }
@@ -274,7 +277,7 @@ export async function GET(request: Request) {
     }
 
     if (error) {
-      console.error("[AUTH CALLBACK] Email verification error:", error)
+      log.error("email verification error", error)
 
       // Fallback: Check if session user is already confirmed (e.g. link pre-fetched by email scanner)
       const {
@@ -295,7 +298,7 @@ export async function GET(request: Request) {
   }
 
   // No valid parameters provided
-  console.error("[AUTH CALLBACK] No valid parameters provided")
+  log.error("no valid parameters provided")
   const fallbackEmail = requestUrl.searchParams.get("email") || ""
   const fallbackEmailQuery = fallbackEmail ? `&email=${encodeURIComponent(fallbackEmail)}` : ""
   return NextResponse.redirect(`${appUrl}/auth/auth-code-error?error=MissingParameters${fallbackEmailQuery}`)

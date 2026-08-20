@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.profile.upload-image")
 
 export async function POST(request: Request) {
   try {
@@ -31,13 +34,13 @@ export async function POST(request: Request) {
     const { error: updateError } = await supabase.from("users").update({ profile_image_url: dataUrl }).eq("id", user.id)
 
     if (updateError) {
-      console.error("Error updating profile image:", updateError)
+      log.error("error updating profile image", updateError)
       return NextResponse.json({ error: "Failed to update profile image" }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, imageUrl: dataUrl })
   } catch (error) {
-    console.error("Error uploading image:", error)
+    log.error("error uploading image", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

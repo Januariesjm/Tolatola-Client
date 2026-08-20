@@ -6,6 +6,9 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { serverApiGet } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.blog.[slug]")
 
 interface Category {
   id: string
@@ -105,7 +108,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       relatedPosts = relatedRes.data || []
     }
   } catch (error) {
-    console.error("[BLOG PUBLIC] Error fetching single article:", error)
+    log.error("error fetching single article", error)
   }
 
   if (!post) {

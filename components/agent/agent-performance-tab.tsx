@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/client"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts"
 import { Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("agent.agent-performance-tab")
 
 interface AgentPerformanceTabProps {
   agent: any
@@ -39,7 +42,7 @@ export function AgentPerformanceTab({ agent, trend }: AgentPerformanceTabProps) 
       const res = await response.json()
       setAnalytics(res)
     } catch (err) {
-      console.error("[PERFORMANCE TAB] Fetch failed:", err)
+      log.error("fetch failed", err)
       toast({
         title: "Error",
         description: "Failed to load performance report.",

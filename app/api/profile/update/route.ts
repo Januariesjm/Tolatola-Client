@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.profile.update")
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +32,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error updating profile:", error)
+    log.error("error updating profile", error)
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 })
   }
 }

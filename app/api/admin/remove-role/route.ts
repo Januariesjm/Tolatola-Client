@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.remove-role")
 
 export async function POST(request: Request) {
   try {
@@ -50,10 +53,10 @@ export async function POST(request: Request) {
       })
 
       if (historyError) {
-        console.warn("[v0] Failed to save revoke history (table may not exist):", historyError.message)
+        log.warn("failed to save revoke history (table may not exist)", historyError.message)
       }
     } catch (historyError) {
-      console.warn("[v0] Revoke history table doesn't exist yet. Run script 020 to enable tracking.")
+      log.warn("revoke history table doesn't exist yet. Run script 020 to enable tracking.")
     }
 
     // Revoke admin access by changing user_type back to customer
@@ -68,7 +71,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: "Admin access revoked" })
   } catch (error: any) {
-    console.error("[v0] Error removing role:", error)
+    log.error("error removing role", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

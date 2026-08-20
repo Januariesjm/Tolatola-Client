@@ -12,6 +12,9 @@ import { useState, Suspense } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
 import { Eye, EyeOff, ShoppingCart } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.auth.login")
 
 function LoginContent() {
   const [email, setEmail] = useState("")
@@ -117,12 +120,12 @@ function LoginContent() {
       })
 
       if (error) {
-        console.error("Google login error:", error)
+        log.error("google login error", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
     } catch (err) {
-      console.error("Google login exception:", err)
+      log.error("google login exception", err)
       setError("Unable to sign in with Google. Please try again.")
       setIsOAuthLoading(null)
     }
@@ -145,12 +148,12 @@ function LoginContent() {
       })
 
       if (error) {
-        console.error("Facebook login error:", error)
+        log.error("facebook login error", error)
         setError(error.message)
         setIsOAuthLoading(null)
       }
     } catch (err) {
-      console.error("Facebook login exception:", err)
+      log.error("facebook login exception", err)
       setError("Unable to sign in with Facebook. Please try again.")
       setIsOAuthLoading(null)
     }

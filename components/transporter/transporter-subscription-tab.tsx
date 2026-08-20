@@ -30,6 +30,9 @@ import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("transporter.transporter-subscription-tab")
 
 interface TransporterSubscriptionTabProps {
   transporterId: string
@@ -70,7 +73,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
       const transRes = await clientApiGet<{ transporter: any }>(`transporters/me`)
       setCurrentSubscription(transRes.transporter?.current_subscription || null)
     } catch (error) {
-      console.error("Error loading subscription data:", error)
+      log.error("error loading subscription data", error)
     } finally {
       setLoading(false)
     }
@@ -115,7 +118,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
 
         return false
       } catch (err) {
-        console.error("Polling error:", err)
+        log.error("polling error", err)
         return false
       }
     }
@@ -184,7 +187,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
         throw new Error(result.message || "Payment initiation failed")
       }
     } catch (error: any) {
-      console.error("Error upgrading subscription:", error)
+      log.error("error upgrading subscription", error)
       toast({
         title: "Payment Failed",
         description: error.message || "Failed to initiate payment. Please try again.",

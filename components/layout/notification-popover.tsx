@@ -18,6 +18,9 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/lib/services/notifications.service"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("layout.notification-popover")
 
 export interface NotificationPopoverProps {
   userType?: string
@@ -47,15 +50,15 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
       setLoading(true)
       const [notifList, convResult, globalUnreadNotes] = await Promise.all([
         fetchNotifications({ limit: 20 }).catch((err) => {
-          console.error("Error fetching notifications:", err)
+          log.error("error fetching notifications", err)
           return []
         }),
         getUserConversations().catch((err) => {
-          console.error("Error fetching conversations:", err)
+          log.error("error fetching conversations", err)
           return { conversations: [] }
         }),
         fetchUnreadCount().catch((err) => {
-          console.error("Error fetching unread count:", err)
+          log.error("error fetching unread count", err)
           return 0
         }),
       ])
@@ -69,7 +72,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
       const unreadConvs = (convResult.conversations || []).reduce((acc: number, c: any) => acc + (c.unread_count || 0), 0)
       setUnreadCount(globalUnreadNotes + unreadConvs)
     } catch (error) {
-      console.error("Critical error in loadData:", error)
+      log.error("critical error in loadData", error)
     } finally {
       setLoading(false)
     }
@@ -82,7 +85,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
       // Recalculate unread count
       setUnreadCount((prev) => Math.max(0, prev - 1))
     } catch (error) {
-      console.error("Error marking notification as read:", error)
+      log.error("error marking notification as read", error)
     }
   }
 
@@ -94,7 +97,7 @@ export function NotificationPopover({ userType }: NotificationPopoverProps) {
       const unreadConvs = conversations.reduce((acc, c) => acc + (c.unread_count || 0), 0)
       setUnreadCount(unreadConvs)
     } catch (error) {
-      console.error("Error marking all notifications as read:", error)
+      log.error("error marking all notifications as read", error)
     }
   }
 

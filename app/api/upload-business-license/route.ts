@@ -2,6 +2,9 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.upload-business-license")
 
 export async function POST(request: Request) {
   try {
@@ -46,13 +49,13 @@ export async function POST(request: Request) {
           usingServiceKey = true
           console.log("Using Supabase Service Role Client for upload (RLS Bypassed)")
         } catch (e) {
-          console.error("Failed to initialize Supabase with Service Key:", e)
+          log.error("failed to initialize Supabase with Service Key", e)
         }
       } else {
-        console.warn("SUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.")
+        log.warn("sUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.")
       }
     } else {
-      console.warn("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.")
+      log.warn("sUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.")
     }
 
     if (!usingServiceKey) {
@@ -77,7 +80,7 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      console.error("Supabase storage upload error details:", error)
+      log.error("supabase storage upload error details", error)
       const errorMsg = usingServiceKey
         ? `Upload failed with Service Key: ${error.message}`
         : `Upload failed (User Session): ${error.message}. Likely RLS or Permission issue.`
@@ -92,7 +95,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: publicUrl })
   } catch (error: any) {
-    console.error("Upload error catch:", error)
+    log.error("upload error catch", error)
     return NextResponse.json({ error: `Failed to process upload request: ${error.message || error}` }, { status: 500 })
   }
 }

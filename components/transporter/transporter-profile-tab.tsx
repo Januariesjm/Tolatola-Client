@@ -11,6 +11,9 @@ import { Upload, CheckCircle2, Truck, User } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("transporter.transporter-profile-tab")
 
 interface TransporterProfileTabProps {
   user: any
@@ -83,7 +86,7 @@ export function TransporterProfileTab({ user, transporter }: TransporterProfileT
         throw new Error("Upload failed")
       }
     } catch (error) {
-      console.error("Error uploading image:", error)
+      log.error("error uploading image", error)
       toast({
         title: "Error",
         description: "Failed to upload image. Please try again.",
@@ -122,7 +125,7 @@ export function TransporterProfileTab({ user, transporter }: TransporterProfileT
       setIsEditing(false)
       router.refresh()
     } catch (error) {
-      console.error("Error updating profile:", error)
+      log.error("error updating profile", error)
       toast({
         title: "Error",
         description: "Failed to save changes. Please try again.",

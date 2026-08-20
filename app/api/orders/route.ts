@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { createNotification } from "@/lib/notifications"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.orders")
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +37,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (orderError) {
-      console.error("Error creating order:", orderError)
+      log.error("error creating order", orderError)
       return NextResponse.json({ error: "Failed to create order" }, { status: 500 })
     }
 
@@ -54,7 +57,7 @@ export async function POST(request: NextRequest) {
     const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
     if (itemsError) {
-      console.error("Error creating order items:", itemsError)
+      log.error("error creating order items", itemsError)
       // Ideally we should rollback here, but Supabase doesn't support transactions via client easily
       return NextResponse.json({ error: "Failed to create order items" }, { status: 500 })
     }
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ order, success: true })
   } catch (error: any) {
-    console.error("Order creation error:", error)
+    log.error("order creation error", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

@@ -10,6 +10,9 @@ import { Wallet, TrendingUp, Clock, CheckCircle, XCircle, DollarSign } from "luc
 import { useToast } from "@/hooks/use-toast"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("vendor.vendor-wallet-tab")
 
 interface VendorWalletTabProps {
   vendorId: string
@@ -40,7 +43,7 @@ export function VendorWalletTab({ vendorId }: VendorWalletTabProps) {
       setPendingBalance(res.pendingBalance || 0)
       setPayouts(res.payouts || [])
     } catch (err) {
-      console.error("Failed to load wallet data", err)
+      log.error("failed to load wallet data", err)
       toast({
         title: "Error",
         description: "Could not load wallet data",

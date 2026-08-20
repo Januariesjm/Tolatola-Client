@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { getGoogleMapsScriptUrl } from "@/app/actions/maps"
 import { Loader2 } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("orders.tracking-map")
 
 interface Location {
   lat: number
@@ -171,7 +174,7 @@ export function OrderTrackingMap({ origin, destination, transporterLocation, cla
         if (status === google.maps.DirectionsStatus.OK) {
           directionsRenderer.setDirections(result)
         } else {
-          console.error(`Directions request failed due to ${status}`)
+          log.error("directions request failed", undefined, { status })
         }
       },
     )

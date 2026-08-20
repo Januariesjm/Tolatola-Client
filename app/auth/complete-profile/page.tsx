@@ -13,6 +13,9 @@ import { useState, useEffect, Suspense } from "react"
 import Image from "next/image"
 import { HeaderAnimatedText } from "../../../components/layout/header-animated-text"
 import Link from "next/link"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.auth.complete-profile")
 
 type VendorType = "producer" | "manufacturer" | "supplier" | "wholesaler" | "retail_trader"
 
@@ -91,7 +94,7 @@ function CompleteProfileContent() {
       })
 
       if (updateError) {
-        console.error("Auth metadata update warning:", updateError)
+        log.error("auth metadata update warning", updateError)
         // We'll continue because the database update is more important
       }
 

@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { Search, RefreshCw, Store, Users, Truck, MapPin, Calendar, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("agent.agent-registrations-tab")
 
 interface AgentRegistrationsTabProps {
   initialRegistrations: any[]
@@ -49,7 +52,7 @@ export function AgentRegistrationsTab({ initialRegistrations, agent }: AgentRegi
       const res = await response.json()
       setRegistrations(res?.data || [])
     } catch (err) {
-      console.error("[REGISTRATIONS TAB] Fetch failed:", err)
+      log.error("fetch failed", err)
       toast({
         title: "Load Error",
         description: "Failed to fetch registrations list.",

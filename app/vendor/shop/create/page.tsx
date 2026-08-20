@@ -13,6 +13,9 @@ import { ShopLocationForm } from "@/components/vendor/shop-location-form"
 import { AlertCircle, Store, ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.vendor.shop.create")
 
 export default function CreateShopPage() {
   const router = useRouter()
@@ -50,7 +53,7 @@ export default function CreateShopPage() {
           router.push("/vendor/register")
         }
       } catch (err) {
-        console.error("Failed to load vendor", err)
+        log.error("failed to load vendor", err)
       } finally {
         setIsInitializing(false)
       }

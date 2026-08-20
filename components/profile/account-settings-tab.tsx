@@ -23,6 +23,9 @@ import {
 import { Settings, LogOut, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("profile.account-settings-tab")
 
 interface AccountSettingsTabProps {
   user: any
@@ -62,7 +65,7 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
       alert("Password updated successfully")
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
     } catch (error) {
-      console.error("Error updating password:", error)
+      log.error("error updating password", error)
       alert("Failed to update password")
     } finally {
       setIsLoading(false)
@@ -84,7 +87,7 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
         alert("Failed to delete account. Please try again or contact support.")
       }
     } catch (error) {
-      console.error("Error deleting account:", error)
+      log.error("error deleting account", error)
       alert("An error occurred while deleting your account.")
     } finally {
       setIsDeleting(false)
@@ -102,10 +105,10 @@ export default function AccountSettingsTab({ user, profile }: AccountSettingsTab
         await clientApiPost("auth/logout")
       } catch (apiError) {
         // Backend logout failed, but we've already cleared local session
-        console.error("Backend logout error:", apiError)
+        log.error("backend logout error", apiError)
       }
     } catch (error) {
-      console.error("Logout error:", error)
+      log.error("logout error", error)
     } finally {
       // Force redirect to home page
       window.location.href = "/"

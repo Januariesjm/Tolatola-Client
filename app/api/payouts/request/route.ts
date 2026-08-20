@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.payouts.request")
 
 export async function POST(request: Request) {
   try {
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, payout })
   } catch (error) {
-    console.error("[v0] Payout request error:", error)
+    log.error("payout request error", error)
     return NextResponse.json({ error: "Failed to request payout" }, { status: 500 })
   }
 }

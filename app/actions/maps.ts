@@ -1,5 +1,9 @@
 "use server"
 
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.actions.maps")
+
 interface DistanceResult {
   distanceKm: number
   deliveryFee: number
@@ -34,7 +38,7 @@ export async function getGoogleMapsScriptUrl(): Promise<string | null> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
-    console.error("[v0] Google Maps API key not found. Make sure GOOGLE_MAPS_API_KEY is set.")
+    log.error("google Maps API key not found; set GOOGLE_MAPS_API_KEY")
     return null
   }
 
@@ -47,7 +51,7 @@ export async function calculateDeliveryDistance(region: string, district?: strin
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
-    console.error("[v0] Google Maps API key not found")
+    log.error("google Maps API key not found")
     return null
   }
 
@@ -64,7 +68,7 @@ export async function calculateDeliveryDistance(region: string, district?: strin
     } else if (region) {
       destinationAddress = `${region} Region, Tanzania`
     } else {
-      console.error("[v0] No location data provided")
+      log.error("no location data provided")
       return null
     }
 
@@ -134,10 +138,10 @@ export async function calculateDeliveryDistance(region: string, district?: strin
       return calculateDeliveryDistance(region)
     }
 
-    console.error("[v0] All fallback attempts failed")
+    log.error("all distance fallback attempts failed")
     return null
   } catch (error) {
-    console.error("[v0] Distance calculation error:", error)
+    log.error("distance calculation failed", error)
     return null
   }
 }
@@ -151,7 +155,7 @@ export async function calculateDeliveryDistanceByCoords(
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
-    console.error("[v0] Google Maps API key not found")
+    log.error("google Maps API key not found")
     return null
   }
 
@@ -160,7 +164,7 @@ export async function calculateDeliveryDistanceByCoords(
 
   console.log(`[MAPS] Calculating delivery from origin: ${origin} to destination: ${lat},${lng}`)
   if (!originLat || !originLng) {
-    console.warn("[MAPS] Shop coordinates (origin) missing, falling back to base location.")
+    log.warn("shop origin coordinates missing; falling back to base location")
   }
 
   try {
@@ -195,7 +199,7 @@ export async function calculateDeliveryDistanceByCoords(
       duration: estimateDeliveryTime(estimatedRoadDistance),
     }
   } catch (error) {
-    console.error("[v0] Distance calculation via coords error:", error)
+    log.error("distance calculation by coordinates failed", error)
     return null
   }
 }
@@ -204,7 +208,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
   const apiKey = process.env.GOOGLE_MAPS_API_KEY
 
   if (!apiKey) {
-    console.error("[v0] Google Maps API key not found")
+    log.error("google Maps API key not found")
     return null
   }
 
@@ -226,10 +230,10 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
       }
     }
 
-    console.error("[v0] Geocoding failed:", geocodeData.status)
+    log.error("geocoding failed", undefined, { status: geocodeData.status })
     return null
   } catch (error) {
-    console.error("[v0] Geocoding error:", error)
+    log.error("geocoding request failed", error)
     return null
   }
 }
@@ -286,7 +290,7 @@ export async function getTransportMethods(): Promise<TransportMethod[]> {
     .order("rate_per_km", { ascending: true, nullsFirst: false })
 
   if (error) {
-    console.error("[v0] Error fetching transport methods:", error)
+    log.error("failed to fetch transport methods", error)
     return []
   }
 

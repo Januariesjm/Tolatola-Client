@@ -1,6 +1,9 @@
 // Admin authentication middleware
 import { getUserAdminRole, hasPermission } from "./roles"
 import { createClient } from "../supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.admin.middleware")
 
 export async function checkAdminAccess(userId: string, requiredPermission: string) {
   try {
@@ -16,7 +19,7 @@ export async function checkAdminAccess(userId: string, requiredPermission: strin
 
     return { allowed: true, adminRole }
   } catch (error) {
-    console.error("[v0] Error checking admin access:", error)
+    log.error("error checking admin access", error)
     return { allowed: false, reason: "Error checking admin access" }
   }
 }
@@ -45,13 +48,13 @@ export async function getAllAdminUsers() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching admin users:", error)
+      log.error("error fetching admin users", error)
       throw error
     }
 
     return admins || []
   } catch (error) {
-    console.error("[v0] Error in getAllAdminUsers:", error)
+    log.error("error in getAllAdminUsers", error)
     throw error
   }
 }

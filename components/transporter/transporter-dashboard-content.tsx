@@ -18,6 +18,9 @@ import { TransporterSubscriptionTab } from "./transporter-subscription-tab"
 import { TransporterProfileTab } from "./transporter-profile-tab"
 import { NotificationPopover } from "@/components/layout/notification-popover"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("transporter.transporter-dashboard-content")
 
 interface TransporterDashboardContentProps {
   transporter: any
@@ -68,7 +71,7 @@ export function TransporterDashboardContent({ transporter, assignments, payments
         prevAvailableCountRef.current = newAvailableCount
         setLocalAssignments(allAssignments)
       } catch (err) {
-        console.error("Failed to load transporter assignments", err)
+        log.error("failed to load transporter assignments", err)
       } finally {
         setIsRefreshing(false)
       }
@@ -108,14 +111,14 @@ export function TransporterDashboardContent({ transporter, assignments, payments
           setLocationStatus("updated")
           router.refresh()
         } catch (error) {
-          console.error("Error updating location:", error)
+          log.error("error updating location", error)
           setLocationStatus("error")
         } finally {
           setIsUpdatingLocation(false)
         }
       },
       (error) => {
-        console.error("Geolocation error:", error)
+        log.error("geolocation error", error)
         setLocationStatus("error")
         setIsUpdatingLocation(false)
       },
@@ -135,10 +138,10 @@ export function TransporterDashboardContent({ transporter, assignments, payments
         await clientApiPost("auth/logout")
       } catch (apiError) {
         // Backend logout failed, but we've already cleared local session
-        console.error("Backend logout error:", apiError)
+        log.error("backend logout error", apiError)
       }
     } catch (error) {
-      console.error("Logout error:", error)
+      log.error("logout error", error)
     } finally {
       // Force redirect to home page
       window.location.href = "/"

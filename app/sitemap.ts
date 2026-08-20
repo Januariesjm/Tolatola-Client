@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next"
 import { serverApiGet } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.sitemap")
 
 interface BlogPost {
   slug: string
@@ -194,7 +197,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       return [...staticRoutes, ...blogRoutes]
     }
   } catch (error) {
-    console.error("[SITEMAP] Error fetching blog posts dynamically:", error)
+    log.error("error fetching blog posts dynamically", error)
   }
 
   return staticRoutes

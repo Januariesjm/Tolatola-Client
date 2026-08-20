@@ -14,6 +14,9 @@ import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("vendor.vendor-subscription-tab")
 
 interface VendorSubscriptionTabProps {
   vendorId: string
@@ -49,7 +52,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
       const plansRes = await clientApiGet<{ plans: any[] }>("subscriptions/plans")
       setPlans(plansRes.plans || [])
     } catch (error) {
-      console.error("Error loading subscription data:", error)
+      log.error("error loading subscription data", error)
     } finally {
       setLoading(false)
     }
@@ -94,7 +97,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
 
         return false
       } catch (err) {
-        console.error("Polling error:", err)
+        log.error("polling error", err)
         return false
       }
     }
@@ -163,7 +166,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
         throw new Error(result.message || "Payment initiation failed")
       }
     } catch (error: any) {
-      console.error("Error upgrading subscription:", error)
+      log.error("error upgrading subscription", error)
       toast({
         title: "Payment Failed",
         description: error.message || "Failed to initiate payment. Please try again.",

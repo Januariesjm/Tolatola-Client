@@ -10,6 +10,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { clientApiPut } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("vendor.edit-vendor-profile-dialog")
 
 interface EditVendorProfileDialogProps {
   open: boolean
@@ -50,7 +53,7 @@ export function EditVendorProfileDialog({ open, onOpenChange, vendor, onSuccess 
       onSuccess()
       onOpenChange(false)
     } catch (error: any) {
-      console.error("Error updating vendor profile:", error)
+      log.error("error updating vendor profile", error)
       toast({
         title: "Update Failed",
         description: error.message || "Failed to update business profile.",

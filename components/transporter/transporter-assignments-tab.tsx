@@ -10,6 +10,9 @@ import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Na
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("transporter.transporter-assignments-tab")
 
 interface TransporterAssignmentsTabProps {
   assignments: any[]
@@ -92,7 +95,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
 
       router.refresh()
     } catch (error: any) {
-      console.error("Error updating assignment:", error)
+      log.error("error updating assignment", error)
       alert(error.response?.data?.error || "Failed to update assignment status")
     } finally {
       setUpdating(null)
@@ -115,7 +118,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       setDeliveryPin("")
       router.refresh()
     } catch (error: any) {
-      console.error("Error verifying PIN:", error)
+      log.error("error verifying PIN", error)
       alert(error.response?.data?.error || "Failed to verify Delivery PIN. Please check and try again.")
     } finally {
       setUpdating(null)

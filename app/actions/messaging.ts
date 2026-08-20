@@ -1,6 +1,9 @@
 "use server"
 
 import { createClient, createAdminClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.actions.messaging")
 
 export async function getOrCreateConversation(
   shopId?: string,
@@ -89,14 +92,14 @@ export async function getOrCreateConversation(
         .single()
 
       if (shopError) {
-        console.error("[Messaging] Error fetching shop:", shopError)
+        log.error("error fetching shop", shopError)
         return { error: `Could not find shop: ${shopError.message}` }
       }
 
       const vendorUserId = shop?.vendors?.user_id
 
       if (!vendorUserId) {
-        console.error("[Messaging] Vendor user not found for shop ID:", shopId)
+        log.error("vendor user not found for shop ID", shopId)
         return { error: "Shop owner not found" }
       }
 
@@ -132,7 +135,7 @@ export async function getOrCreateConversation(
         .single()
 
       if (error) {
-        console.error("[Messaging] Error creating shop conversation:", error)
+        log.error("error creating shop conversation", error)
         return { error: `Failed to start conversation: ${error.message}` }
       }
 
@@ -174,7 +177,7 @@ export async function getOrCreateConversation(
         .single()
 
       if (error) {
-        console.error("[Messaging] Error creating direct conversation:", error)
+        log.error("error creating direct conversation", error)
         return { error: `Failed to create direct conversation: ${error.message}` }
       }
 
@@ -184,7 +187,7 @@ export async function getOrCreateConversation(
 
     return { error: "Missing parameters for conversation" }
   } catch (err: any) {
-    console.error("[Messaging] Panic in getOrCreateConversation:", err)
+    log.error("panic in getOrCreateConversation", err)
     return { error: err.message || "An unexpected error occurred" }
   }
 }
@@ -222,7 +225,7 @@ export async function sendMessage(
       customerId = conv.customer_id
     }
   } catch (e) {
-    console.error("[Messaging] Error checking conversation type:", e)
+    log.error("error checking conversation type", e)
   }
 
   let dbClient: any
@@ -262,7 +265,7 @@ export async function sendMessage(
   const { data, error } = await (dbClient as any).from("messages").insert(payload).select().single()
 
   if (error) {
-    console.error("[Messaging] Error inserting message:", error)
+    log.error("error inserting message", error)
     return { error: error.message }
   }
 
@@ -287,7 +290,7 @@ export async function uploadChatFile(formData: FormData) {
     const { data, error } = await supabase.storage.from("messaging").upload(filePath, file)
 
     if (error) {
-      console.error("[Messaging] Upload error:", error)
+      log.error("upload error", error)
       return { error: error.message }
     }
 
@@ -297,7 +300,7 @@ export async function uploadChatFile(formData: FormData) {
 
     return { url: publicUrl, type: file.type }
   } catch (err: any) {
-    console.error("[Messaging] Panic in uploadChatFile:", err)
+    log.error("panic in uploadChatFile", err)
     return { error: err.message || "Upload failed" }
   }
 }
@@ -329,7 +332,7 @@ export async function getConversationMessages(conversationId: string) {
       .order("created_at", { ascending: true })
 
     if (error) {
-      console.warn("[getConversationMessages] Select with sender FK failed, falling back to simple select:", error)
+      log.warn("select with sender FK failed, falling back to simple select", error)
       const fallback = await (supabase as any)
         .from("messages")
         .select("*")
@@ -342,13 +345,13 @@ export async function getConversationMessages(conversationId: string) {
     }
 
     if (error) {
-      console.error("[getConversationMessages] Error fetching messages:", error)
+      log.error("error fetching messages", error)
       return { error: error.message }
     }
 
     return { messages: data }
   } catch (err: any) {
-    console.error("[getConversationMessages] Exception:", err)
+    log.error("exception", err)
     return { error: err.message || "Failed to fetch messages" }
   }
 }

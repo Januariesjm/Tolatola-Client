@@ -1,6 +1,9 @@
 import { createHash, timingSafeEqual } from "crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.setup.create-admin")
 
 /**
  * Constant-time comparison of two secrets of arbitrary length.
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     const setupKeySecret = process.env.ADMIN_SETUP_KEY
 
     if (!setupKeySecret) {
-      console.error("[setup/create-admin] ADMIN_SETUP_KEY is not set; refusing request")
+      log.error("aDMIN_SETUP_KEY is not set; refusing request")
       return NextResponse.json({ error: "Admin setup is not configured on this deployment." }, { status: 503 })
     }
 
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
     const { data: existingAdmins, error: checkError } = await supabase.from("users").select("id").eq("user_type", "admin").limit(1)
 
     if (checkError) {
-      console.error("[v0] Error checking existing admins:", checkError)
+      log.error("error checking existing admins", checkError)
       return NextResponse.json({ error: "Failed to check existing admins" }, { status: 500 })
     }
 
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (authError) {
-      console.error("[v0] Error creating admin user:", authError)
+      log.error("error creating admin user", authError)
       return NextResponse.json({ error: authError.message || "Failed to create admin user" }, { status: 500 })
     }
 
@@ -84,7 +87,7 @@ export async function POST(request: NextRequest) {
       .eq("id", authData.user.id)
 
     if (updateError) {
-      console.error("[v0] Error updating user profile:", updateError)
+      log.error("error updating user profile", updateError)
       // Don't fail the request, the trigger should have set it
     }
 
@@ -94,7 +97,7 @@ export async function POST(request: NextRequest) {
       userId: authData.user.id,
     })
   } catch (error: any) {
-    console.error("[v0] Error in create-admin route:", error)
+    log.error("error in create-admin route", error)
     return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
   }
 }

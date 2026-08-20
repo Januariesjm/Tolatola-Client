@@ -4,6 +4,9 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies, headers } from "next/headers"
 import type { Database } from "@/lib/types"
 import { AgentDashboardContent } from "@/components/agent/agent-dashboard-content"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.agent")
 
 export const dynamic = "force-dynamic"
 
@@ -23,7 +26,7 @@ export default async function AgentDashboardPage() {
   try {
     myRoleData = await serverApiGet<any>("agents/my-role")
   } catch (err) {
-    console.error("[AGENT DASHBOARD] Error checking agent role:", err)
+    log.error("error checking agent role", err)
   }
 
   if (!myRoleData || !myRoleData.allowed || !myRoleData.agent) {
@@ -66,19 +69,19 @@ export default async function AgentDashboardPage() {
   try {
     const [dashRes, regsRes, commsRes, leaderRes] = await Promise.all([
       serverApiGet<any>("agents/dashboard").catch((e) => {
-        console.error("Error dash:", e)
+        log.error("error dash", e)
         return null
       }),
       serverApiGet<{ data: any[] }>("agents/registrations").catch((e) => {
-        console.error("Error regs:", e)
+        log.error("error regs", e)
         return { data: [] }
       }),
       serverApiGet<any>("agents/commissions").catch((e) => {
-        console.error("Error comms:", e)
+        log.error("error comms", e)
         return { data: [], summary: {} }
       }),
       serverApiGet<any>("agents/leaderboard").catch((e) => {
-        console.error("Error leaderboard:", e)
+        log.error("error leaderboard", e)
         return { leaderboard: [], myRank: null }
       }),
     ])
@@ -89,7 +92,7 @@ export default async function AgentDashboardPage() {
     commissionsSummary = commsRes.summary || {}
     leaderboardData = leaderRes
   } catch (err) {
-    console.error("[AGENT DASHBOARD] Error loading dashboard sub-data:", err)
+    log.error("error loading dashboard sub-data", err)
   }
 
   return (

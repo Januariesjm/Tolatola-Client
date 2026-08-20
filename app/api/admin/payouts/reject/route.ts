@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.admin.payouts.reject")
 
 export async function POST(request: Request) {
   try {
@@ -25,13 +28,13 @@ export async function POST(request: Request) {
 
     if (!backendRes.ok) {
       const errBody = await backendRes.text()
-      console.error("[v0] Backend payout rejection error:", errBody)
+      log.error("backend payout rejection error", errBody)
       return NextResponse.json({ error: "Failed to reject payout" }, { status: backendRes.status })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Payout rejection error:", error)
+    log.error("payout rejection error", error)
     return NextResponse.json({ error: "Failed to reject payout" }, { status: 500 })
   }
 }

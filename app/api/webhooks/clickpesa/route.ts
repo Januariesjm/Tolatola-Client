@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.api.webhooks.clickpesa")
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error("[v0] Error updating order:", updateError)
+      log.error("error updating order", updateError)
       return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
     }
 
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("[v0] ClickPesa webhook error:", error)
+    log.error("clickPesa webhook error", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

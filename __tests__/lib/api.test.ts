@@ -6,11 +6,14 @@
  * - Auth header injection
  * - HTTP error handling with descriptive messages
  * - Malformed response handling
+ * - Error reporting through lib/logger
  * - URL construction from path + base URL
  */
 
 // We need to test the `api` object from lib/api.ts.
 // The module reads process.env.NEXT_PUBLIC_API_BASE_URL at call time.
+
+import { setErrorReporter, type LogRecord } from "@/lib/logger"
 
 const MOCK_BASE_URL = "http://localhost:4000/api"
 
@@ -191,8 +194,13 @@ describe("api utility (lib/api.ts)", () => {
       consoleSpy.mockRestore()
     })
 
-    it("logs the error details to console.error", async () => {
+    it("reports the error through the logger with request context", async () => {
+      // lib/api.ts logs via lib/logger, so assert on the record an error
+      // reporter receives rather than on console formatting.
       const consoleSpy = jest.spyOn(console, "error").mockImplementation()
+      const records: LogRecord[] = []
+      setErrorReporter((r) => records.push(r))
+
       global.fetch = jest.fn().mockResolvedValue({
         ok: false,
         status: 500,
@@ -201,13 +209,15 @@ describe("api utility (lib/api.ts)", () => {
 
       await expect(api.get("crash")).rejects.toThrow()
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "[API Error]",
-        expect.objectContaining({
-          status: 500,
-          method: "GET",
-        }),
-      )
+      expect(records).toHaveLength(1)
+      expect(records[0]).toMatchObject({
+        level: "error",
+        scope: "lib.api",
+        message: "API request failed",
+        context: expect.objectContaining({ status: 500, method: "GET" }),
+      })
+
+      setErrorReporter(null)
       consoleSpy.mockRestore()
     })
 

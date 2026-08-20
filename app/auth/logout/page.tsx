@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation"
 import { createClient } from "../../../lib/supabase/client"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("app.auth.logout")
 
 export default function LogoutPage() {
   const router = useRouter()
@@ -18,10 +21,10 @@ export default function LogoutPage() {
           const { clientApiPost } = await import("../../../lib/api-client")
           await clientApiPost("auth/logout")
         } catch (apiError) {
-          console.error("Backend logout error:", apiError)
+          log.error("backend logout error", apiError)
         }
       } catch (err) {
-        console.error("Logout error:", err)
+        log.error("logout error", err)
       } finally {
         router.replace("/")
       }

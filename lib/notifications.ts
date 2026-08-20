@@ -1,4 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.notifications")
 
 export type NotificationType = "order_placed" | "order_assigned" | "order_status_update" | "stock_low"
 
@@ -26,13 +29,13 @@ export async function createNotification(params: CreateNotificationParams) {
     })
 
     if (error) {
-      console.error("Error creating notification:", error)
+      log.error("error creating notification", error)
       return false
     }
 
     return true
   } catch (error) {
-    console.error("Exception creating notification:", error)
+    log.error("exception creating notification", error)
     return false
   }
 }

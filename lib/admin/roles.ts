@@ -1,4 +1,7 @@
 import { serverApiGet } from "@/lib/api-server"
+import { logger } from "@/lib/logger"
+
+const log = logger.child("lib.admin.roles")
 
 export const ALL_PERMISSIONS = [
   "view_dashboard",
@@ -86,7 +89,7 @@ export async function getUserAdminRole(_userId?: string) {
       }
     }
   } catch (error) {
-    console.error("[v0] Error fetching admin role via API:", error)
+    log.error("error fetching admin role via API", error)
   }
   return null
 }
