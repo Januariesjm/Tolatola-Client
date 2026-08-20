@@ -52,10 +52,10 @@ export async function POST(request: Request) {
           log.error("failed to initialize Supabase with Service Key", e)
         }
       } else {
-        log.warn("sUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT format). Falling back to user session.")
+        log.warn("SUPABASE_SERVICE_ROLE_KEY appears invalid (not a JWT); falling back to the user session")
       }
     } else {
-      log.warn("sUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing in environment.")
+      log.warn("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL missing from the environment")
     }
 
     if (!usingServiceKey) {

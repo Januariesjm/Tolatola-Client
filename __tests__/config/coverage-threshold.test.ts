@@ -30,11 +30,21 @@ describe("coverage threshold", () => {
     expect(threshold.global?.[metric]).toBeLessThanOrEqual(100)
   })
 
-  it("is wired into the Jest config rather than just sitting on disk", () => {
+  it("is declared in the Jest config", () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const raw = require("fs").readFileSync(require("path").join(__dirname, "../../jest.config.js"), "utf8")
 
     expect(raw).toContain("coverageThreshold")
-    expect(raw).toContain("jest.coverage-threshold")
+  })
+
+  it.each(METRICS)("matches the %s value declared inline in jest.config.js", (metric) => {
+    // The config declares the numbers inline so tooling can read them; this
+    // module mirrors them. Drift between the two would be silent otherwise.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const raw = require("fs").readFileSync(require("path").join(__dirname, "../../jest.config.js"), "utf8")
+    const inline = raw.match(new RegExp(`${metric}:\\s*(\\d+)`))
+
+    expect(inline).not.toBeNull()
+    expect(Number(inline?.[1])).toBe(threshold.global?.[metric])
   })
 })

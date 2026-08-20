@@ -295,13 +295,16 @@ describe("POST /api/setup/create-admin", () => {
     })
   })
 
-  it("returns 500 when the request body is not valid JSON", async () => {
+  it("returns 400 when the request body is not valid JSON", async () => {
+    // Previously this fell through to the catch-all and returned 500. A
+    // malformed body is the caller's error, so it is a 400 now.
     const response = await POST({
       json: async () => {
         throw new Error("Unexpected end of JSON input")
       },
     } as never)
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({ error: "Request body must be valid JSON" })
   })
 })

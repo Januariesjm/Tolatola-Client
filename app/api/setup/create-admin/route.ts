@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "crypto"
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
+import { createAdminSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.setup.create-admin")
 
@@ -25,25 +26,39 @@ export async function POST(request: NextRequest) {
     const setupKeySecret = process.env.ADMIN_SETUP_KEY
 
     if (!setupKeySecret) {
-      log.error("aDMIN_SETUP_KEY is not set; refusing request")
+      log.error("ADMIN_SETUP_KEY is not set; refusing request")
       return NextResponse.json({ error: "Admin setup is not configured on this deployment." }, { status: 503 })
     }
 
-    const { email, password, fullName, setupKey } = await request.json()
+    let rawBody: unknown
+    try {
+      rawBody = await request.json()
+    } catch {
+      return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 })
+    }
 
-    // Verify setup key
+    // The setup key is verified BEFORE the body is validated, and stays that
+    // way: validating first would let an unauthenticated caller probe this
+    // route's validation rules by reading the 400s.
+    const setupKey = (rawBody as { setupKey?: unknown } | null)?.setupKey
     if (typeof setupKey !== "string" || !secretsMatch(setupKey, setupKeySecret)) {
       return NextResponse.json({ error: "Invalid setup key" }, { status: 403 })
     }
 
-    // Validate input
-    if (!email || !password || !fullName) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    const parsed = createAdminSchema.safeParse(rawBody)
+    if (!parsed.success) {
+      // Keep the original two messages: "too short" only when a password was
+      // actually supplied, otherwise it reads as a missing-field error.
+      const suppliedPassword = (rawBody as { password?: unknown } | null)?.password
+      const passwordTooShort = typeof suppliedPassword === "string" && suppliedPassword.length > 0 && suppliedPassword.length < 8
+
+      return NextResponse.json(
+        { error: passwordTooShort ? "Password must be at least 8 characters" : "Missing required fields" },
+        { status: 400 },
+      )
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 })
-    }
+    const { email, password, fullName } = parsed.data
 
     const supabase = (await createClient()) as any
 

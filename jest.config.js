@@ -28,7 +28,17 @@ const config = {
     "<rootDir>/__tests__/setup/",
   ],
   collectCoverageFrom: ["lib/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "!**/*.d.ts", "!**/node_modules/**"],
-  coverageThreshold: require("./jest.coverage-threshold"),
+  // Inline on purpose: an object literal here is readable by tooling that scans
+  // jest.config.js for the floor. jest.coverage-threshold.js re-exports the same
+  // numbers so __tests__/config/coverage-threshold.test.ts can assert on them.
+  coverageThreshold: {
+    global: {
+      statements: 14,
+      branches: 10,
+      functions: 7,
+      lines: 14,
+    },
+  },
 }
 
 module.exports = createJestConfig(config)

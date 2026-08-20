@@ -129,7 +129,7 @@ export function WebMapPicker({ latitude, longitude, onLocationSelect, title = "P
           description: "Could not fetch GPS location. Please choose manually.",
           variant: "destructive",
         })
-        log.error("gPS Error", error)
+        log.error("GPS lookup failed", error)
       },
       { enableHighAccuracy: true, timeout: 10000 },
     )

@@ -1,13 +1,17 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { payoutDecisionSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.admin.payouts.approve")
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { payoutId, userType } = await request.json()
+    const parsed = await validateRequestBody(request, payoutDecisionSchema, "admin.payouts.approve")
+    if (!parsed.ok) return parsed.response
+    const { payoutId, userType } = parsed.data
 
     const {
       data: { session },

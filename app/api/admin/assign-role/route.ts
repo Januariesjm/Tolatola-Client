@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { getUserAdminRole } from "@/lib/admin/roles"
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { assignRoleSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.admin.assign-role")
 
@@ -22,7 +24,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Forbidden - Super Admin only" }, { status: 403 })
     }
 
-    const { userId, roleId } = await request.json()
+    const parsed = await validateRequestBody(request, assignRoleSchema, "admin.assign-role")
+
+    if (!parsed.ok) return parsed.response
+
+    const { userId, roleId } = parsed.data
 
     if (!userId || !roleId) {
       return NextResponse.json({ error: "userId and roleId are required" }, { status: 400 })

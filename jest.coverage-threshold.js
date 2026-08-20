@@ -14,8 +14,8 @@
  * the tested modules are covered -- lib/checkout, lib/schemas, lib/logger and
  * lib/api* are at or near 100%.
  *
- * Its own module so the numbers are trivially readable by tooling and by the
- * test that guards them, rather than buried in a call expression.
+ * jest.config.js declares the same numbers inline (so a scanner reading that
+ * file finds them); the test asserts the two never disagree.
  */
 module.exports = {
   global: {
