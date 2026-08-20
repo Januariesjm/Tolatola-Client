@@ -19,10 +19,15 @@ Frontend for **TOLA Tanzania** (tolatola.co): marketplace, vendor and transporte
 
 ## Prerequisites
 
-- **Node.js** 18.x or 20.x (LTS recommended)
-- **npm** or **yarn**
-- A running **backend API** (see your backend repo for how to run it)
-- **Supabase** project (for auth and optional DB usage from the client)
+- **Node.js** 20.x or 22.x (22.x matches CI and the production Docker image)
+- **npm** — the only supported package manager. `package-lock.json` is the
+  single source of truth for dependency versions; do not commit a `yarn.lock`
+  or `pnpm-lock.yaml`.
+- **Supabase** project — only needed to run the app against real auth. Not
+  required to install, build, lint, typecheck or test (see
+  [Verifying a fresh clone](#verifying-a-fresh-clone)).
+- A running **backend API** — only needed for live data. Not required for the
+  build or test suite.
 
 ---
 

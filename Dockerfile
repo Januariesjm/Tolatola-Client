@@ -3,14 +3,10 @@ FROM node:22-slim AS deps
 RUN apt-get update && apt-get install -y libc6 && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+# npm is the one supported package manager: package-lock.json is the only
+# lockfile in the repo, so installs here match CI and local development.
+COPY package.json package-lock.json ./
+RUN npm ci
 
 
 # Rebuild the source code only when needed
@@ -35,12 +31,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
-RUN \
-    if [ -f yarn.lock ]; then yarn build; \
-    elif [ -f package-lock.json ]; then npm run build; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM node:22-slim AS runner
