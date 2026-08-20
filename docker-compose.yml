@@ -1,0 +1,57 @@
+# One-command startup for the Tolatola client:
+#
+#   docker compose up --build
+#
+# Brings up the Next.js app on http://localhost:3000 together with a stub
+# backend, so the app runs with no real backend, no Supabase project and no
+# third-party accounts. Values below are placeholders on purpose -- nothing here
+# is a secret and nothing reaches a live service.
+#
+# To point the app at a real backend instead, override NEXT_PUBLIC_API_BASE_URL
+# and the Supabase variables in a .env file next to this one (docker compose
+# reads it automatically), or run `npm run dev` directly.
+
+services:
+  api-stub:
+    image: node:22-slim
+    working_dir: /srv
+    command: node server.js
+    environment:
+      PORT: 4000
+    volumes:
+      - ./docker/api-stub:/srv:ro
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* values are inlined at build time, so they must be
+        # supplied here rather than only at runtime.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://placeholder.supabase.co}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-placeholder-anon-key}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:4000/api}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        # Without this the support widget bakes in https://api.tolatola.co and
+        # the local stack would call the live API.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Server-side only; the browser never sees these.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-placeholder-service-role-key}
+      JWT_SECRET: ${JWT_SECRET:-placeholder-jwt-secret-for-local-only}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-uploads}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api-stub:
+        condition: service_healthy

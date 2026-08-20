@@ -8,6 +8,8 @@ Frontend for **TOLA Tanzania** (tolatola.co): marketplace, vendor and transporte
 
 - [Prerequisites](#prerequisites)
 - [Quick start (run locally)](#quick-start-run-locally)
+- [One-command startup with Docker](#one-command-startup-with-docker)
+- [Verifying a fresh clone](#verifying-a-fresh-clone)
 - [Environment variables](#environment-variables)
 - [Scripts](#scripts)
 - [Project structure](#project-structure)
@@ -63,6 +65,69 @@ Frontend for **TOLA Tanzania** (tolatola.co): marketplace, vendor and transporte
 
 ---
 
+## One-command startup with Docker
+
+Brings up the app plus a stub backend, with **no** real backend, Supabase
+project or third-party accounts:
+
+```bash
+docker compose up --build
+```
+
+- App: [http://localhost:3000](http://localhost:3000)
+- Stub API: [http://localhost:4000](http://localhost:4000)
+
+The stub (`docker/api-stub/server.js`) answers every route with an empty,
+well-shaped payload, which is enough for the UI to render its loading and empty
+states. All environment values in `docker-compose.yml` are placeholders — none
+of them is a secret and nothing reaches a live service.
+
+To run against a real backend instead, put overrides in a `.env` file next to
+`docker-compose.yml` (Compose reads it automatically):
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Stop the stack with `docker compose down`.
+
+---
+
+## Verifying a fresh clone
+
+Everything below works on a machine that has never seen this project, with no
+accounts and no `.env.local`:
+
+```bash
+git clone <repository-url> && cd Tolatola-Client
+npm ci
+npm run lint
+npm run typecheck
+npm test
+```
+
+`npm run build` additionally needs the Supabase and API variables to be *set*,
+but not to be real — placeholders are enough, and CI builds this way on every
+pull request:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co \
+NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder \
+NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api \
+NEXT_PUBLIC_APP_URL=http://localhost:3000 \
+JWT_SECRET=placeholder npm run build
+```
+
+The test suite never touches a live service: Supabase and `next/navigation` are
+mocked centrally in [`jest.setup.ts`](./jest.setup.ts), so no individual test
+needs credentials.
+
+Only `npm run dev` (running the app against real data) requires real values.
+
+---
+
 ## Environment variables
 
 Create a `.env.local` file in the project root. These are the main variables used by the client:
@@ -85,6 +150,8 @@ Create a `.env.local` file in the project root. These are the main variables use
 - For deployment (Vercel, Docker, etc.), set these in the platform’s environment/config.
 
 ---
+
+## Scripts
 
 | Command | Description |
 |---------|-------------|
