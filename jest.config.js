@@ -28,28 +28,7 @@ const config = {
     "<rootDir>/__tests__/setup/",
   ],
   collectCoverageFrom: ["lib/**/*.{ts,tsx}", "components/**/*.{ts,tsx}", "!**/*.d.ts", "!**/node_modules/**"],
-  /**
-   * Coverage floor, enforced in CI by `npm test`.
-   *
-   * A ratchet, not a target. These sit just under the current numbers
-   * (statements 13.3%, branches 8.4%, functions 7.3%, lines 13.5%) so an
-   * unrelated change cannot quietly delete coverage. Raise them as suites
-   * land; never lower them.
-   *
-   * The denominator is the whole of lib/ and components/, which is dominated by
-   * the remaining large untested UI components -- so the percentage understates how well
-   * the tested modules are covered (lib/checkout, lib/schemas, lib/logger and
-   * lib/api* are at or near 100%). Reaching the 30% checkpoint means testing
-   * those big components, not more lib tests.
-   */
-  coverageThreshold: {
-    global: {
-      statements: 13,
-      branches: 8,
-      functions: 7,
-      lines: 13,
-    },
-  },
+  coverageThreshold: require("./jest.coverage-threshold"),
 }
 
 module.exports = createJestConfig(config)
