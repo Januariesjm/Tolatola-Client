@@ -7,6 +7,75 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-21
+
+Second engineering-quality pass, on top of the CI/observability work below.
+
+### Added
+
+- **Prettier, enforced.** `.prettierrc.json`, `npm run format` /
+  `npm run format:check`, and a `format` job in CI. 297 files formatted.
+  `printWidth` is 140, chosen by measurement rather than taste: this codebase
+  has many 150-200 character Tailwind `className` lines, and at 120 the reformat
+  pushed 8 files past the `max-lines` rule versus 3 at 140.
+- **Dependency audit in CI.** An `audit` job that hard-fails on critical
+  advisories and reports high ones non-blocking.
+- **Shared modules** extracted from god files: `hooks/use-agent-management.ts`,
+  `hooks/use-vendor-orders.ts`, `hooks/use-site-header-state.ts`,
+  `lib/admin/validation-surveys-export.ts`, `lib/validation-survey-options.ts`,
+  `lib/validation-survey-form.ts`, `lib/types/product.ts`, and the
+  `components/admin/agents/`, `components/validation/` component groups.
+- **A user-visible fallback** when product recommendations fail to load.
+- **aria-labels** on the product page's icon-only quantity, colour and size
+  buttons, which previously had no accessible name at all.
+- **79 more tests** (276 -> 355), covering the product detail page, the survey
+  exporters, the extracted survey validators and the vendor orders hook.
+
+### Changed
+
+- **Four god files split**, none of them added to the `max-lines` allowlist:
+  `agent-management-tab.tsx` 950 -> 499, `validation-surveys-tab.tsx` 952 ->
+  ~400, `site-header.tsx` 509 -> 445, `vendor-orders-tab.tsx` 526 -> 449, plus
+  `app/validation/page.tsx`. The allowlist now has 21 entries, down from 23.
+- **`.eslintrc.json` is now strict JSON.** ESLint accepts JSON-with-comments but
+  `JSON.parse` does not, which is the likely reason external tooling reported no
+  `max-lines` rule while one was being enforced.
+- **`product-detail-content.tsx` is fully typed** — `product: any`,
+  `reviews: any[]` and three `useState<any>` replaced with `lib/types/product.ts`.
+- **51 + 2 `console.error` calls** replaced with the scoped logger; the last two
+  were outside `components/admin/` and missed by the first sweep.
+- **Coverage floor raised** to 13% statements / 8% branches.
+- **`typescript.ignoreBuildErrors` removed** from `next.config.mjs`.
+
+### Fixed
+
+- **Removed 8 unused runtime dependencies** (`@vercel/blob`,
+  `@vercel/analytics`, `@supabase/ssr`, `@hookform/resolvers`, `google-maps`,
+  `tailwindcss-animate`, `geist`, `server-only`); 58 -> 50 direct deps.
+  `@vercel/blob` mattered beyond tidiness: it was the only path to the undici
+  advisories (request smuggling, unbounded decompression). Advisories: 10 -> 5,
+  and none of the remaining are critical.
+- **`npm test` on Node >= 22.6.** Jest could not load `jest.config.ts`; it is now
+  `jest.config.js` (CommonJS). Verified on Node 20.9, 20.20 and 23.7.
+- **Duplicated region list.** The 31 Tanzanian regions were declared twice —
+  once in the public survey form, once in the admin tab. A region added to one
+  and not the other silently dropped rows from the admin filter.
+- **`src={undefined}` on the product page** when `selectedImageIndex` pointed
+  past the end of `product.images`.
+- **Two silent failures**: the empty `catch {}` around the recommendations fetch,
+  and the header profile load's bare `console.error`.
+
+### Known issues
+
+- The `lib/clickpesa.ts` provider-name bug below is still open.
+- Statement coverage is 13.3%. The denominator is all of `lib/` and
+  `components/`; the tested modules are at or near 100%.
+- 21 files remain in the `max-lines` allowlist.
+- 683 ESLint warnings remain (mostly `no-explicit-any`, `no-img-element` and
+  `react-hooks/exhaustive-deps`). Warnings do not fail the build.
+
+## [1.0.1] - 2026-08-20
+
 Engineering-quality pass: CI enforcement, observability, and a start on the
 god-file and `any` debt. No user-facing feature changes.
 

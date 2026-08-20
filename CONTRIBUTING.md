@@ -6,7 +6,7 @@ checks that must pass, and the conventions that keep the repo maintainable.
 ## Table of contents
 
 - [Getting set up](#getting-set-up)
-- [The four checks](#the-four-checks)
+- [The checks](#the-checks)
 - [Branching and pull requests](#branching-and-pull-requests)
 - [Commit conventions](#commit-conventions)
 - [Ship features with their tests](#ship-features-with-their-tests)
@@ -41,17 +41,27 @@ To run the app against a stub backend in one command:
 docker compose up --build
 ```
 
-## The four checks
+## The checks
 
-These run on every pull request via `.github/workflows/ci.yml`, and again as a
-gate in front of the Cloud Run deploy. Run them locally before pushing:
+These run on every pull request via `.github/workflows/ci.yml`, and lint,
+typecheck and test run again as a gate in front of the Cloud Run deploy. Run
+them locally before pushing:
 
 ```bash
 npm run lint
+npm run format:check
 npm run typecheck
 npm test
 npm run build
 ```
+
+`npm run format` fixes anything `format:check` reports. Prettier owns
+formatting, ESLint owns correctness — do not fight one with the other.
+
+CI also runs a `audit` job. It hard-fails on **critical** advisories and reports
+**high** ones without blocking, because every current high advisory is only
+fixable by upgrading Next 14 → 16. Promote it to a gate as part of that
+upgrade.
 
 - `npm test` enforces a **coverage floor** (`coverageThreshold` in
   `jest.config.js`). If your change lowers coverage below it, the job fails.
@@ -149,6 +159,14 @@ the list, delete its entry in the same commit.
 `components/admin/dashboard/` is the reference example: a 1156-line component
 became a 168-line shell plus a shared nav config that two views render from.
 
+Note that `max-lines` counts non-blank, non-comment lines *after* Prettier has
+formatted the file. A file that only passes because it packs logic into
+200-character lines is not actually under the limit — formatting will reveal it.
+
+Extracting a data layer into a hook (`hooks/use-vendor-orders.ts`,
+`hooks/use-agent-management.ts`) is usually the best first cut: it shrinks the
+component and makes the fetching testable in one move.
+
 ## Logging and error handling
 
 Use the structured logger in `lib/logger.ts`, not `console`:
@@ -175,7 +193,7 @@ log.error("failed to toggle status", error, { agentId })
 - Add with `npm install <package>`; commit the `package-lock.json` change.
 - Dependabot opens weekly update PRs (`.github/dependabot.yml`). Next and React
   majors are excluded from that cadence — they are coordinated upgrades.
-- Run all four checks after any dependency change.
+- Run all the checks after any dependency change.
 
 ## Security
 
