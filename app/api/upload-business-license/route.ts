@@ -3,28 +3,17 @@ import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { DOCUMENT_MIME_TYPES, validateUpload } from "@/lib/api/validate-upload"
 
 const log = logger.child("app.api.upload-business-license")
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 })
-    }
-
-    // Validate file type
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"]
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Only PDF, JPG, and PNG are allowed" }, { status: 400 })
-    }
+    // Same limits this route already enforced (5MB; PDF/JPEG/PNG), now from the
+    // shared validator so every upload route agrees.
+    const upload = await validateUpload(request, { allowedTypes: DOCUMENT_MIME_TYPES })
+    if (!upload.ok) return upload.response
+    const { file } = upload
 
     const bucketName = process.env.STORAGE_BUCKET || "uploads"
     let supabase: any

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
+import { DOCUMENT_MIME_TYPES, safeFileExtension, safePathSegment, validateUpload } from "@/lib/api/validate-upload"
 
 const log = logger.child("app.api.kyc.upload-document")
 
@@ -17,13 +18,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-    const documentType = formData.get("documentType") as string
+    const upload = await validateUpload(request, { allowedTypes: DOCUMENT_MIME_TYPES })
+    if (!upload.ok) return upload.response
+    const { file, formData } = upload
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
-    }
+    const documentType = formData.get("documentType")
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer()
@@ -32,7 +31,13 @@ export async function POST(request: Request) {
     // Upload to Supabase Storage with organized folder structure
     // Path format: {user_id}/{documentType}-{timestamp}-{filename}
     // This matches the RLS policy requirement: (storage.foldername(name))[1] = auth.uid()::text
-    const filename = `${user.id}/${documentType}-${Date.now()}-${file.name}`
+    // Both documentType and file.name arrive from the client and are
+    // concatenated into the bucket key, so each is reduced to a safe segment --
+    // otherwise a name containing "../" escapes the user's own folder, which is
+    // exactly what the RLS policy on this bucket relies on.
+    const typeSegment = safePathSegment(typeof documentType === "string" ? documentType : undefined, "document")
+    const extension = safeFileExtension(file.name)
+    const filename = `${user.id}/${typeSegment}-${Date.now()}.${extension}`
 
     const { data: uploadData, error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(filename, buffer, {
       contentType: file.type,

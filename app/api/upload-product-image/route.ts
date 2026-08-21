@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Buffer } from "buffer"
+import { createClient } from "@/lib/supabase/server"
+import { IMAGE_MIME_TYPES, validateUpload } from "@/lib/api/validate-upload"
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData()
-  const file = formData.get("file") as File | null
+  // This route had no authentication check, so it proxied uploads to the
+  // backend for anyone who could reach it.
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!file) {
-    return NextResponse.json({ error: "file is required" }, { status: 400 })
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
+
+  const upload = await validateUpload(req, { allowedTypes: IMAGE_MIME_TYPES })
+  if (!upload.ok) return upload.response
+  const { file } = upload
 
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
   if (!apiBase) {

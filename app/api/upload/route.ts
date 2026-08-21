@@ -2,22 +2,31 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { type NextRequest, NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { IMAGE_MIME_TYPES, safeFileExtension, validateUpload } from "@/lib/api/validate-upload"
 
 const log = logger.child("app.api.upload")
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
-    }
-
     const supabase = createRouteHandlerClient({ cookies })
 
-    // Generate a unique file name
-    const fileExt = file.name.split(".").pop()
+    // This route had NO authentication check: anyone who could reach it could
+    // write arbitrary files into the public "promotions" bucket.
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const upload = await validateUpload(request, { allowedTypes: IMAGE_MIME_TYPES })
+    if (!upload.ok) return upload.response
+    const { file } = upload
+
+    // Derived defensively: file.name is attacker-controlled and is concatenated
+    // into the bucket key below.
+    const fileExt = safeFileExtension(file.name, "png")
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${fileName}`
 

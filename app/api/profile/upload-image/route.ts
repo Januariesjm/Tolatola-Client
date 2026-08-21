@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { IMAGE_MIME_TYPES, validateUpload } from "@/lib/api/validate-upload"
 
 const log = logger.child("app.api.profile.upload-image")
 
@@ -17,12 +18,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const formData = await request.formData()
-    const file = formData.get("file") as File
-
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 })
-    }
+    // The image is stored inline as a base64 data URL on the users row, so an
+    // unbounded upload would bloat the row (and every read of it).
+    const upload = await validateUpload(request, { allowedTypes: IMAGE_MIME_TYPES })
+    if (!upload.ok) return upload.response
+    const { file } = upload
 
     // Convert file to base64 for storage (in production, use Vercel Blob or similar)
     const bytes = await file.arrayBuffer()
