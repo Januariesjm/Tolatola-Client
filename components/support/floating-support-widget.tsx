@@ -19,7 +19,16 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { sendMessage as sendLiveMessage, uploadChatFile } from "@/app/actions/messaging"
 import { toast } from "@/hooks/use-toast"
-import { logger } from "@/lib/logger"
+import { logger, normalizeError } from "@/lib/logger"
+import { useSupportChat } from "@/hooks/use-support-chat"
+import type {
+  AiChatRequestBody,
+  AiChatResponse,
+  ChatMessage,
+  EscalationResponse,
+  SelectedAttachment,
+  SupportTicket,
+} from "@/lib/support/chat-message"
 
 const log = logger.child("support.floating-support-widget")
 
@@ -36,35 +45,12 @@ const INITIAL_WELCOME_MSG: ChatMessage = {
 const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000 // 1 hour
 const TERMINATION_COUNTDOWN_SEC = 120 // 2 minutes
 
-interface ChatMessage {
-  id: string
-  sender: "bot" | "user" | "agent"
-  text: string
-  timestamp: string
-  showEscalationOption?: boolean
-  showInactivityPrompt?: boolean
-  attachmentUrl?: string
-  attachmentType?: string
-  attachmentName?: string
-}
-
-interface SelectedAttachment {
-  file: File
-  previewUrl: string
-  base64Data: string
-  mimeType: string
-  name: string
-  size: number
-  isPdf: boolean
-}
-
 export function FloatingSupportWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeTicket, setActiveTicket] = useState<any>(null)
+  const [activeTicket, setActiveTicket] = useState<SupportTicket | null>(null)
   const [liveConversationId, setLiveConversationId] = useState<string | null>(null)
 
   // AI Chat State
-  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_WELCOME_MSG])
   const [inputText, setInputText] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [isEscalating, setIsEscalating] = useState(false)
@@ -84,8 +70,13 @@ export function FloatingSupportWidget() {
   const [userToken, setUserToken] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
+  const { messages, setMessages, broadcastMessage } = useSupportChat({
+    conversationId: liveConversationId,
+    initialMessages: [INITIAL_WELCOME_MSG],
+    onActivity: () => resetActivityTimer(),
+  })
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const channelRef = useRef<any>(null)
 
   const resetActivityTimer = () => {
     lastActivityRef.current = Date.now()
@@ -131,68 +122,6 @@ export function FloatingSupportWidget() {
   }, [])
 
   // Subscribe to realtime messages from admin support agent when live conversation is active
-  useEffect(() => {
-    if (!liveConversationId) return
-
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`conversation:${liveConversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${liveConversationId}`,
-        },
-        (payload: any) => {
-          const newMsg = payload.new
-          if (newMsg && (newMsg.sender_type === "agent" || newMsg.sender_type === "bot")) {
-            const agentMsg: ChatMessage = {
-              id: `live-${newMsg.id}`,
-              sender: newMsg.sender_type === "bot" ? "bot" : "agent",
-              text: newMsg.message || (newMsg.attachment_url ? "[Attachment]" : ""),
-              timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-              attachmentUrl: newMsg.attachment_url,
-              attachmentType: newMsg.attachment_type,
-            }
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
-              return [...prev, agentMsg]
-            })
-            resetActivityTimer()
-          }
-        },
-      )
-      .on("broadcast", { event: "message" }, (payload: any) => {
-        console.log("[Support Widget] Broadcast message received:", payload)
-        const newMsg = payload.payload
-        if (newMsg && (newMsg.sender_type === "agent" || newMsg.sender_type === "bot")) {
-          const agentMsg: ChatMessage = {
-            id: `live-${newMsg.id}`,
-            sender: newMsg.sender_type === "bot" ? "bot" : "agent",
-            text: newMsg.message || (newMsg.attachment_url ? "[Attachment]" : ""),
-            timestamp: new Date(newMsg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-            attachmentUrl: newMsg.attachment_url,
-            attachmentType: newMsg.attachment_type,
-          }
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === agentMsg.id || m.id === `live-${newMsg.id}`)) return prev
-            return [...prev, agentMsg]
-          })
-          resetActivityTimer()
-        }
-      })
-      .subscribe()
-
-    channelRef.current = channel
-
-    return () => {
-      supabase.removeChannel(channel)
-      channelRef.current = null
-    }
-  }, [liveConversationId, currentUserId])
-
   // 1-Hour Inactivity Monitor
   useEffect(() => {
     const interval = setInterval(() => {
@@ -364,12 +293,8 @@ export function FloatingSupportWidget() {
           attachmentType,
           userToken ? "user" : "guest",
         )
-        if (result.message && channelRef.current) {
-          channelRef.current.send({
-            type: "broadcast",
-            event: "message",
-            payload: result.message,
-          })
+        if (result.message) {
+          broadcastMessage(result.message)
         }
       } catch (e) {
         log.error("error sending live message", e)
@@ -394,7 +319,7 @@ export function FloatingSupportWidget() {
         "https://api.tolatola.co/support/ai-chat",
       ]
 
-      const requestBody: any = {
+      const requestBody: AiChatRequestBody = {
         message: userMsgText,
         history: chatHistory,
         attachmentUrl: publicAttachmentUrl,
@@ -410,7 +335,7 @@ export function FloatingSupportWidget() {
         }
       }
 
-      let data: any = null
+      let data: AiChatResponse | null = null
       for (const url of endpoints) {
         try {
           const res = await fetch(url, {
@@ -519,7 +444,7 @@ export function FloatingSupportWidget() {
         headers["Authorization"] = `Bearer ${userToken}`
       }
 
-      let result: any = null
+      let result: EscalationResponse | null = null
       for (const url of endpoints) {
         try {
           console.log("[Support Escalation] Posting ticket to:", url)
@@ -554,10 +479,10 @@ export function FloatingSupportWidget() {
         throw new Error("Could not connect to support service. Please try again.")
       }
 
-      const ticket = result.ticket || result
+      const ticket: Partial<SupportTicket> = result.ticket || result
       const convId = result.conversation?.id || ticket.conversation_id
 
-      setActiveTicket({ ...ticket, conversation_id: convId })
+      setActiveTicket({ ...ticket, id: ticket.id ?? "", conversation_id: convId })
       if (convId) {
         setLiveConversationId(convId)
       }
@@ -568,19 +493,19 @@ export function FloatingSupportWidget() {
         const connectedMsg: ChatMessage = {
           id: `connected-${Date.now()}`,
           sender: "bot",
-          text: `✅ Connected to Tola Human Support!\n\nTicket #${ticket.id.substring(0, 8)} has been created and assigned to our support team. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
+          text: `✅ Connected to Tola Human Support!\n\nTicket #${(ticket.id ?? "").substring(0, 8)} has been created and assigned to our support team. A support agent will review your chat and respond shortly.\n\nYou can continue typing your messages here — the support team will see them in real-time.`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
         }
         return [...filtered, connectedMsg]
       })
-    } catch (e: any) {
-      log.error("error", e)
+    } catch (e) {
+      log.error("failed to escalate to human support", e)
       setMessages((prev) => {
         const filtered = prev.filter((m) => m.id !== connectingMsg.id)
         const errorMsg: ChatMessage = {
           id: `error-${Date.now()}`,
           sender: "bot",
-          text: `❌ Failed to connect to human support: ${e.message || "Unknown error"}. Please try again.`,
+          text: `❌ Failed to connect to human support: ${normalizeError(e).message || "Unknown error"}. Please try again.`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
           showEscalationOption: true,
         }

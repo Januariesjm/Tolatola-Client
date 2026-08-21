@@ -8,8 +8,8 @@
  * floor is present and non-zero, so deleting it fails the suite rather than
  * silently disabling enforcement.
  *
- * Current (2026-08-21): statements 14.5%, branches 10.2%, functions 7.9%,
- * lines 14.7%. The denominator is all of lib/ and components/, dominated by the
+ * Current (2026-08-21): statements 16.3%, branches 13.1%, functions 8.8%,
+ * lines 16.4%. The denominator is all of lib/ and components/, dominated by the
  * remaining large untested UI components, so the percentage understates how well
  * the tested modules are covered -- lib/checkout, lib/schemas, lib/logger and
  * lib/api* are at or near 100%.
@@ -19,9 +19,9 @@
  */
 module.exports = {
   global: {
-    statements: 14,
-    branches: 10,
-    functions: 7,
-    lines: 14,
+    statements: 16,
+    branches: 13,
+    functions: 8,
+    lines: 16,
   },
 }
