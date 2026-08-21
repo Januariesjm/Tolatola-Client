@@ -6,44 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Users,
-  Plus,
-  Search,
-  Trash2,
-  Loader2,
-  SlidersHorizontal,
-  RotateCcw,
-  Shield,
-  Calendar,
-  Pencil,
-  Building,
-  Briefcase,
-  Mail,
-  Phone,
-} from "lucide-react"
+import { HRStaffFormDialog } from "@/components/admin/hr-staff-form-dialog"
+import { Users, Plus, Search, Trash2, SlidersHorizontal, RotateCcw, Shield, Calendar, Pencil } from "lucide-react"
 import { clientApiPost, clientApiDelete } from "@/lib/api-client"
 import { logger } from "@/lib/logger"
+import { countStaffByStatus, distinctRoles, filterStaff, type HRStaff } from "@/lib/admin/hr-staff"
 
 const log = logger.child("admin.hr-staff-subtab")
-
-export interface HRStaff {
-  id: string
-  full_name: string
-  employee_id: string
-  role: string
-  department: string
-  email: string
-  phone: string
-  join_date: string
-  status: string
-  manager?: string
-  position?: string
-  created_at?: string
-}
 
 export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
   const [staffList, setStaffList] = useState<HRStaff[]>(initialStaff)
@@ -77,27 +48,9 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
     position: "",
   })
 
-  // Dynamic role list from current staff data
-  const uniqueRoles = useMemo(() => {
-    const roles = new Set(staffList.map((s) => s.role).filter(Boolean))
-    return Array.from(roles)
-  }, [staffList])
+  const uniqueRoles = useMemo(() => distinctRoles(staffList), [staffList])
+  const counts = useMemo(() => countStaffByStatus(staffList), [staffList])
 
-  // Count employees in each category
-  const counts = useMemo(() => {
-    return staffList.reduce(
-      (acc, s) => {
-        if (s.status === "active") acc.active++
-        else if (s.status === "suspended") acc.suspended++
-        else if (s.status === "inactive" || s.status === "exited") acc.exited++
-        else if (s.status === "terminated") acc.terminated++
-        return acc
-      },
-      { active: 0, suspended: 0, exited: 0, terminated: 0 },
-    )
-  }, [staffList])
-
-  // Reset all search and filters
   const handleResetFilters = () => {
     setSearch("")
     setFilterRole("all")
@@ -106,50 +59,17 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
     setActiveStatusTab("active")
   }
 
-  // Filtered staff list
-  const filtered = useMemo(() => {
-    return staffList.filter((s) => {
-      // 1. Status Tab filter
-      const tabMatch =
-        (activeStatusTab === "active" && s.status === "active") ||
-        (activeStatusTab === "suspended" && s.status === "suspended") ||
-        (activeStatusTab === "inactive" && (s.status === "inactive" || s.status === "exited")) ||
-        (activeStatusTab === "terminated" && s.status === "terminated")
-
-      if (!tabMatch) return false
-
-      // 2. Search filter (Name or Email)
-      if (search) {
-        const query = search.toLowerCase()
-        const nameMatch = s.full_name?.toLowerCase().includes(query)
-        const emailMatch = s.email?.toLowerCase().includes(query)
-        const idMatch = s.employee_id?.toLowerCase().includes(query)
-        if (!nameMatch && !emailMatch && !idMatch) return false
-      }
-
-      // 3. Advanced Role filter
-      if (filterRole !== "all" && s.role !== filterRole) {
-        return false
-      }
-
-      // 4. Date range filter
-      if (filterDateFrom) {
-        const fromDate = new Date(filterDateFrom)
-        const recordDate = s.created_at ? new Date(s.created_at) : new Date(s.join_date)
-        if (recordDate < fromDate) return false
-      }
-
-      if (filterDateTo) {
-        const toDate = new Date(filterDateTo)
-        // set to end of day
-        toDate.setHours(23, 59, 59, 999)
-        const recordDate = s.created_at ? new Date(s.created_at) : new Date(s.join_date)
-        if (recordDate > toDate) return false
-      }
-
-      return true
-    })
-  }, [staffList, search, filterRole, filterDateFrom, filterDateTo, activeStatusTab])
+  const filtered = useMemo(
+    () =>
+      filterStaff(staffList, {
+        statusTab: activeStatusTab,
+        query: search,
+        role: filterRole,
+        dateFrom: filterDateFrom,
+        dateTo: filterDateTo,
+      }),
+    [staffList, search, filterRole, filterDateFrom, filterDateTo, activeStatusTab],
+  )
 
   // Open Form for Adding
   const handleAddClick = () => {
@@ -457,135 +377,16 @@ export function HRStaffSubtab({ staff: initialStaff }: { staff: HRStaff[] }) {
       </CardContent>
 
       {/* Dialog for Add / Edit Employee */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-lg rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>{editingStaff ? "Edit Employee Details" : "Add New Employee"}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Full Name</Label>
-                <Input
-                  required
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="rounded-lg text-sm"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Employee ID</Label>
-                <Input
-                  required
-                  value={formData.employee_id}
-                  onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                  className="rounded-lg text-sm"
-                  placeholder="e.g. EMP-001"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Role (Job Level)</Label>
-                <Input
-                  required
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="rounded-lg text-sm"
-                  placeholder="e.g. Manager, Intern, Executive"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Position (Job Title)</Label>
-                <Input
-                  required
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="rounded-lg text-sm"
-                  placeholder="e.g. Human Resources Manager"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Department</Label>
-                <Select value={formData.department} onValueChange={(val) => setFormData({ ...formData, department: val })}>
-                  <SelectTrigger className="rounded-lg text-sm">
-                    <SelectValue placeholder="Select Department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Engineering">Engineering</SelectItem>
-                    <SelectItem value="Operations">Operations</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="HR">HR & Admin</SelectItem>
-                    <SelectItem value="Support">Customer Support</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label>Direct Manager</Label>
-                <Input
-                  value={formData.manager}
-                  onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                  className="rounded-lg text-sm"
-                  placeholder="Manager's Name"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="rounded-lg text-sm"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Phone</Label>
-                <Input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="rounded-lg text-sm"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Join Date</Label>
-                <Input
-                  type="date"
-                  required
-                  value={formData.join_date}
-                  onChange={(e) => setFormData({ ...formData, join_date: e.target.value })}
-                  className="rounded-lg text-sm"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Status</Label>
-                <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
-                  <SelectTrigger className="rounded-lg text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
-                    <SelectItem value="inactive">Exited (Inactive)</SelectItem>
-                    <SelectItem value="terminated">Terminated</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {error && <div className="p-3 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl">{error}</div>}
-
-            <div className="flex justify-end gap-2 pt-2 border-t mt-4">
-              <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)} className="rounded-xl">
-                Cancel
-              </Button>
-              <Button type="submit" className="rounded-xl" disabled={loading}>
-                {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Save Record
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <HRStaffFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        editingStaff={editingStaff}
+        formData={formData}
+        onFieldChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+        loading={loading}
+        error={error}
+        onSubmit={handleSubmit}
+      />
     </Card>
   )
 }

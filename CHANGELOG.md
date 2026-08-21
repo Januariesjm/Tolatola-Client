@@ -9,6 +9,15 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`hr-staff-subtab.tsx` split**: the staff type, status-tab/search/role/date
+  filtering and per-status counts into `lib/admin/hr-staff.ts`; the add/edit
+  form into `components/admin/hr-staff-form-dialog.tsx` (the form state stays a
+  single object in the parent; the dialog takes it plus a generic field
+  setter rather than one callback per field). 591 -> 392 lines, off the
+  max-lines allowlist. Verified DOM-identical across four states (table view,
+  advanced filters expanded, add-employee dialog open, edit dialog open for an
+  existing employee) before landing.
+
 - **`hr-applications-subtab.tsx` split**: the application type, search/filter
   rules and status counts into `lib/admin/career-applications.ts`; the status
   label/color/icon config into `components/admin/career-application-status.tsx`
