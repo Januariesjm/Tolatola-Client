@@ -29,10 +29,20 @@ import {
   type AgentCommissionRecord,
   type AgentCommissionSummary,
   type AgentLeaderboardEntry,
-  type AgentWalletResponse,
   type AgentWalletStats,
   type AgentWithdrawal,
 } from "@/lib/types/agent"
+import {
+  expectedPayout,
+  fetchAgentWallet,
+  formatTzs,
+  lifetimeEarnings,
+  paidBalance,
+  pendingBalance,
+  quickPercentAmount,
+  validateWithdrawal,
+  withdrawalFee,
+} from "@/lib/agent/wallet"
 
 const log = logger.child("agent.agent-commission-tab")
 
@@ -66,29 +76,17 @@ export function AgentCommissionTab({
   const [phoneNumber, setPhoneNumber] = useState("")
   const [period, setPeriod] = useState<DatePeriod>("all")
 
-  // Fetch real-time wallet details from backend
+  // Fetch real-time wallet details from the backend. A failure leaves the
+  // server-rendered balances in place rather than blanking them.
   const fetchWalletDetails = async () => {
     try {
       const { createClient } = await import("@/lib/supabase/client")
-      const supabase = createClient()
       const {
         data: { session },
-      } = await supabase.auth.getSession()
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api"
+      } = await createClient().auth.getSession()
 
-      const response = await fetch(`${apiBase}/agents/wallet`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-        },
-      })
-
-      if (response.ok) {
-        const data: AgentWalletResponse = await response.json()
-        if (data.success && data.wallet) {
-          setWalletStats(data.wallet)
-        }
-      }
+      const wallet = await fetchAgentWallet(session?.access_token)
+      if (wallet) setWalletStats(wallet)
     } catch (err) {
       log.error("failed to load wallet stats", err)
     } finally {
@@ -103,76 +101,32 @@ export function AgentCommissionTab({
   const dateFilteredCommissions = useMemo(() => filterByDateRange(walletStats.commissions || [], period), [walletStats.commissions, period])
   const dateFilteredWithdrawals = useMemo(() => filterByDateRange(walletStats.withdrawals || [], period), [walletStats.withdrawals, period])
 
-  const computedLifetimeEarnings = useMemo(() => {
-    return dateFilteredCommissions
-      .filter((c: AgentCommissionRecord) => c.status === "paid" || c.status === "approved")
-      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
-  }, [dateFilteredCommissions])
-
-  const computedPendingBalance = useMemo(() => {
-    return dateFilteredCommissions
-      .filter((c: AgentCommissionRecord) => c.status === "pending")
-      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
-  }, [dateFilteredCommissions])
-
-  const computedPaidBalance = useMemo(() => {
-    return dateFilteredCommissions
-      .filter((c: AgentCommissionRecord) => c.status === "paid")
-      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
-  }, [dateFilteredCommissions])
-
-  // Currency Formatter
-  /**
-   * Amounts arrive from the API as either numbers or numeric strings. This took
-   * `number` before, so a string amount reached `.toLocaleString()` as a string
-   * and rendered without thousands separators — "TZS 25000" instead of
-   * "TZS 25,000". Coercing first fixes that.
-   */
-  const formatTzs = (amount?: number | string | null) => {
-    return `TZS ${(Number(amount) || 0).toLocaleString()}`
-  }
+  const computedLifetimeEarnings = useMemo(() => lifetimeEarnings(dateFilteredCommissions), [dateFilteredCommissions])
+  const computedPendingBalance = useMemo(() => pendingBalance(dateFilteredCommissions), [dateFilteredCommissions])
+  const computedPaidBalance = useMemo(() => paidBalance(dateFilteredCommissions), [dateFilteredCommissions])
 
   // Handle Quick Percent Withdrawal
   const handleQuickPercent = (percent: number) => {
-    const balance = walletStats.withdrawableBalance || 0
-    if (balance <= 0) return
-    const calculated = Math.floor(balance * percent)
-    setWithdrawAmount(calculated.toString())
+    const amount = quickPercentAmount(walletStats.withdrawableBalance || 0, percent)
+    if (amount <= 0) return
+    setWithdrawAmount(amount.toString())
   }
 
   // Handle Payout Submission
   const handleWithdrawSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const amount = Number(withdrawAmount)
     const balance = walletStats.withdrawableBalance || 0
+    const rejection = validateWithdrawal({ amount: withdrawAmount, balance, phoneNumber })
 
-    if (!amount || isNaN(amount) || amount <= 0) {
-      toast({
-        variant: "destructive",
-        title: "Kosa la Uingizaji",
-        description: "Tafadhali weka kiasi sahihi cha kutoa.",
-      })
+    if (rejection) {
+      toast({ variant: "destructive", ...rejection })
       return
     }
 
-    if (amount > balance) {
-      toast({
-        variant: "destructive",
-        title: "Salio Halitoshi",
-        description: `Kiasi unachotaka kutoa kinazidi salio lako la sasa la kutoa la ${formatTzs(balance)}`,
-      })
-      return
-    }
-
-    if (!phoneNumber || phoneNumber.trim().length < 9) {
-      toast({
-        variant: "destructive",
-        title: "Namba ya Simu Inahitajika",
-        description: "Tafadhali weka namba sahihi ya simu ya kupokelea fedha.",
-      })
-      return
-    }
+    // Safe to coerce: validateWithdrawal has already rejected anything that is
+    // not a positive number within the balance.
+    const amount = Number(withdrawAmount)
 
     setIsSubmitLoading(true)
 
@@ -229,8 +183,8 @@ export function AgentCommissionTab({
   }
 
   // Fees calculation
-  const calculatedFee = withdrawAmount ? Math.round(Number(withdrawAmount) * 0.1) : 0
-  const expectedPayout = withdrawAmount ? Math.max(0, Number(withdrawAmount) - calculatedFee) : 0
+  const calculatedFee = withdrawAmount ? withdrawalFee(withdrawAmount) : 0
+  const payoutAfterFee = withdrawAmount ? expectedPayout(withdrawAmount) : 0
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -638,7 +592,7 @@ export function AgentCommissionTab({
                 </div>
                 <div className="flex justify-between border-t border-slate-200/60 pt-2.5 text-slate-800 font-black text-sm">
                   <span>Utapokea (Net):</span>
-                  <span className="text-emerald-600">{formatTzs(expectedPayout)}</span>
+                  <span className="text-emerald-600">{formatTzs(payoutAfterFee)}</span>
                 </div>
               </div>
 

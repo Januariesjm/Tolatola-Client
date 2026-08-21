@@ -7,6 +7,30 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Agent wallet arithmetic extracted to `lib/agent/wallet.ts`.** The balances an
+  agent sees, the 10% withdrawal fee, the net payout and the withdrawal
+  validation rules all lived inside a 679-line component with no tests. They are
+  now pure, typed functions with 48 unit tests, and
+  `components/agent/agent-commission-tab.tsx` (679 → 633 lines) has no `any`
+  left. Behaviour is unchanged.
+
+### Added
+
+- `__tests__/lib/agent/wallet.test.ts` and
+  `__tests__/components/agent/agent-commission-tab.test.tsx` — 61 tests covering
+  the wallet load (including keeping server-rendered balances when the request
+  fails), every withdrawal rejection branch, the fee preview, and a successful
+  withdrawal's request body.
+
+### Notes
+
+Two constraints the component relies on, now pinned by tests rather than
+implicit: the withdraw trigger is disabled until a withdrawable balance loads,
+and the phone field is `required`, so native form validation blocks submission
+before the insufficient-balance check can run.
+
 ## [v1.2.0] — 2026-08-22
 
 Security hardening of the upload boundary, plus the god-file and `any` debt in
