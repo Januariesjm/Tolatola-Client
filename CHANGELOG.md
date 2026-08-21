@@ -27,6 +27,12 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`SECURITY.md`** — a reporting policy: how to report privately (GitHub private
+  vulnerability reporting), what is in and out of scope for this repository as
+  opposed to the backend and Supabase, acknowledgement and fix targets, and what
+  the project already enforces so a report can skip it. It points at
+  `SECURITY_DEBT.md` for accepted risk and `CONTRIBUTING.md` for the rules code
+  must follow, rather than duplicating either.
 - `__tests__/lib/agent/wallet.test.ts` and
   `__tests__/components/agent/agent-commission-tab.test.tsx` — 61 tests covering
   the wallet load (including keeping server-rendered balances when the request
