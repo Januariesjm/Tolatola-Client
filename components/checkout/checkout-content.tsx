@@ -30,6 +30,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useCheckoutDelivery } from "@/hooks/use-checkout-delivery"
+import { isCard, isMobileMoney, validateCheckoutForm } from "@/lib/checkout/validate-checkout-form"
 import { useToast } from "@/hooks/use-toast"
 import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
 import { WebMapPicker } from "@/components/checkout/web-map-picker"
@@ -88,90 +89,22 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (paymentMethod === "m-pesa") {
-      toast({
-        title: "Maintenance",
-        description: "M-Pesa Vodacom is currently under maintenance. Please try another payment method.",
-        variant: "destructive",
-      })
+    const validationError = validateCheckoutForm({
+      paymentMethod,
+      fullName,
+      phone,
+      guestEmail,
+      isAuthenticated: Boolean(user),
+      addressData,
+      shopDeliveryCount: Object.keys(shopDeliveries).length,
+      selectedTransportId,
+      paymentPhoneNumber,
+      cardDetails,
+    })
+
+    if (validationError) {
+      toast({ ...validationError, variant: "destructive" })
       return
-    }
-
-    if (!fullName || fullName.trim() === "") {
-      toast({
-        title: "Name Required",
-        description: "Please enter your full name",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!phone || phone.trim() === "") {
-      toast({
-        title: "Phone Required",
-        description: "Please enter your phone number",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!user && (!guestEmail || !guestEmail.includes("@"))) {
-      toast({
-        title: "Email Required",
-        description: "Please enter a valid email address for order confirmation",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!addressData.region || !addressData.district || !addressData.ward || !addressData.street) {
-      toast({
-        title: "Address Required",
-        description: "Please search and select your location using the search box above",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (Object.keys(shopDeliveries).length === 0) {
-      toast({
-        title: "Logistics Required",
-        description: "Please select a delivery address using the autocomplete search to calculate shipping costs.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!selectedTransportId) {
-      toast({
-        title: "Transport Method Required",
-        description: "Please select a delivery method from the dropdown",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Validate payment details based on payment method
-    if (["airtel-money", "halopesa", "mixx-by-yas", "ezypesa"].includes(paymentMethod)) {
-      if (!paymentPhoneNumber || paymentPhoneNumber.trim() === "") {
-        toast({
-          title: "Phone Number Required",
-          description: "Please enter your phone number for mobile money payment",
-          variant: "destructive",
-        })
-        return
-      }
-    }
-
-    if (["visa", "mastercard", "unionpay"].includes(paymentMethod)) {
-      if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
-        toast({
-          title: "Card Details Required",
-          description: "Please enter your complete card details",
-          variant: "destructive",
-        })
-        return
-      }
     }
 
     setIsLoading(true)
@@ -225,12 +158,10 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         insuranceFee,
         paymentMethod,
         paymentDetails: {
-          phoneNumber: ["m-pesa", "airtel-money", "halopesa", "mixx-by-yas", "ezypesa"].includes(paymentMethod)
-            ? paymentPhoneNumber
-            : undefined,
-          cardNumber: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.number : undefined,
-          expiryDate: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.expiry : undefined,
-          cvv: ["visa", "mastercard", "unionpay"].includes(paymentMethod) ? cardDetails.cvv : undefined,
+          phoneNumber: isMobileMoney(paymentMethod) ? paymentPhoneNumber : undefined,
+          cardNumber: isCard(paymentMethod) ? cardDetails.number : undefined,
+          expiryDate: isCard(paymentMethod) ? cardDetails.expiry : undefined,
+          cvv: isCard(paymentMethod) ? cardDetails.cvv : undefined,
         },
         transportMethodId: Object.values(shopDeliveries)[0]?.transportMethodId || selectedTransportId || null,
         deliveryFee,
@@ -275,8 +206,7 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
         window.dispatchEvent(new Event("cartUpdated"))
 
         // For card payments, redirect to ClickPesa's secure hosted payment page
-        const isCard = ["visa", "mastercard", "unionpay"].includes(paymentMethod)
-        if (isCard && payRes.controlNumber && payRes.controlNumber.startsWith("http")) {
+        if (isCard(paymentMethod) && payRes.controlNumber && payRes.controlNumber.startsWith("http")) {
           window.location.href = payRes.controlNumber
         } else {
           router.push(`/checkout/success/${orderId}`)
