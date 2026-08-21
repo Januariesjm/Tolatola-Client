@@ -205,3 +205,6 @@ log.error("failed to toggle status", error, { agentId })
 - Compare secrets in constant time (`crypto.timingSafeEqual`), hashing both
   sides first so lengths cannot leak.
 - Report vulnerabilities privately to the maintainers, not in a public issue.
+- Known, accepted debt is recorded in [SECURITY_DEBT.md](./SECURITY_DEBT.md).
+  If you accept a new risk, add it there with the reason and the plan to
+  close it — do not leave it only in a code comment.

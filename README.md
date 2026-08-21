@@ -296,6 +296,7 @@ that lowers coverage fails the build.
 | Document | Purpose |
 |----------|---------|
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Workflow, required checks, commit and test conventions |
+| [SECURITY_DEBT.md](./SECURITY_DEBT.md) | Known, accepted security debt and what closing each item requires |
 | [CHANGELOG.md](./CHANGELOG.md) | Notable changes, plus current known issues |
 | [SEO_NEXT_STEPS.md](./SEO_NEXT_STEPS.md) | SEO checklist, Search Console, NAP, sitemap, performance tips |
 | [PERFORMANCE_CHECKLIST.md](./PERFORMANCE_CHECKLIST.md) | Next.js performance targets and what’s implemented |
