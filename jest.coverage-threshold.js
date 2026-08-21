@@ -8,20 +8,26 @@
  * floor is present and non-zero, so deleting it fails the suite rather than
  * silently disabling enforcement.
  *
- * Current (2026-08-21): statements 16.3%, branches 13.1%, functions 8.8%,
- * lines 16.4%. The denominator is all of lib/ and components/, dominated by the
- * remaining large untested UI components, so the percentage understates how well
- * the tested modules are covered -- lib/checkout, lib/schemas, lib/logger and
- * lib/api* are at or near 100%.
+ * Current (2026-08-21): statements 24.1%, branches 20.2%, functions 15.0%,
+ * lines 24.2% -- raised from 16/13/8/16 as the checkout, support-queue,
+ * admin-chat and header-tray suites landed.
+ *
+ * The denominator is all of lib/ and components/, dominated by the remaining
+ * large untested UI components, so the percentage understates how well the
+ * tested modules are covered -- lib/checkout, lib/schemas, lib/search,
+ * lib/messaging, lib/support, lib/logger and lib/api* are at or near 100%.
+ *
+ * The next meaningful jump needs the vendor, transporter and agent dashboard
+ * tabs, which are ~1,400 uncovered statements between them.
  *
  * jest.config.js declares the same numbers inline (so a scanner reading that
  * file finds them); the test asserts the two never disagree.
  */
 module.exports = {
   global: {
-    statements: 16,
-    branches: 13,
-    functions: 8,
-    lines: 16,
+    statements: 23,
+    branches: 19,
+    functions: 14,
+    lines: 23,
   },
 }

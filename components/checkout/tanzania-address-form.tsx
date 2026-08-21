@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Loader2, Search, Info, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { TANZANIA_REGIONS, placeToAddressData } from "@/lib/checkout/parse-google-place"
 import { getGoogleMapsScriptUrl } from "@/app/actions/maps"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
@@ -18,40 +19,6 @@ declare global {
     initGoogleMapsCallback?: () => void
   }
 }
-
-const TANZANIA_REGIONS = [
-  "Arusha",
-  "Dar es Salaam",
-  "Dodoma",
-  "Geita",
-  "Iringa",
-  "Kagera",
-  "Katavi",
-  "Kigoma",
-  "Kilimanjaro",
-  "Lindi",
-  "Manyara",
-  "Mara",
-  "Mbeya",
-  "Morogoro",
-  "Mtwara",
-  "Mwanza",
-  "Njombe",
-  "Pemba North",
-  "Pemba South",
-  "Pwani",
-  "Rukwa",
-  "Ruvuma",
-  "Shinyanga",
-  "Simiyu",
-  "Singida",
-  "Songwe",
-  "Tabora",
-  "Tanga",
-  "Zanzibar North",
-  "Zanzibar South and Central",
-  "Zanzibar West",
-]
 
 interface AddressData {
   country: string
@@ -138,31 +105,10 @@ export function TanzaniaAddressForm({ value, onChange, onAddressComplete, userId
 
         autocompleteRef.current.addListener("place_changed", () => {
           const place = autocompleteRef.current.getPlace()
-          if (!place.address_components) return
 
-          const addressData: AddressData = { country: "Tanzania", region: "", district: "", ward: "", village: "", street: "" }
-          const streetParts: string[] = []
+          const addressData = placeToAddressData(place)
+          if (!addressData) return
 
-          for (const component of place.address_components) {
-            const types = component.types
-            if (types.includes("administrative_area_level_1")) {
-              const regionName = component.long_name.replace(" Region", "")
-              const matchedRegion = TANZANIA_REGIONS.find((r) => r.toLowerCase() === regionName.toLowerCase())
-              addressData.region = matchedRegion || regionName
-            } else if (types.includes("administrative_area_level_2")) {
-              addressData.district = component.long_name.replace(" District", "")
-            } else if (types.includes("administrative_area_level_3") || types.includes("sublocality_level_1")) {
-              addressData.ward = component.long_name
-            } else if (types.includes("sublocality_level_2") || types.includes("neighborhood")) {
-              addressData.village = component.long_name
-            } else if (types.includes("route")) {
-              streetParts.push(component.long_name)
-            } else if (types.includes("street_number")) {
-              streetParts.unshift(component.short_name)
-            }
-          }
-
-          addressData.street = streetParts.join(" ") || place.formatted_address?.split(",")[0] || ""
           onChange(addressData)
           setSearchQuery(place.formatted_address || "")
 

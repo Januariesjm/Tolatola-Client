@@ -10,6 +10,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { logger } from "@/lib/logger"
+import { SEARCH_IMAGE_MAX_DIMENSION, SEARCH_IMAGE_QUALITY, scaleToFit } from "@/lib/search/image-scaling"
+import { buildProductSearchUrl, countActiveFilters } from "@/lib/search/search-url"
 
 const log = logger.child("layout.product-search")
 
@@ -32,23 +34,13 @@ interface Category {
   slug: string
 }
 
-const compressImageForSearch = (file: File, maxDim = 800, quality = 0.8): Promise<string> => {
+const compressImageForSearch = (file: File, maxDim = SEARCH_IMAGE_MAX_DIMENSION, quality = SEARCH_IMAGE_QUALITY): Promise<string> => {
   return new Promise((resolve) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       const img = document.createElement("img")
       img.onload = () => {
-        let width = img.width
-        let height = img.height
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width)
-            width = maxDim
-          } else {
-            width = Math.round((width * maxDim) / height)
-            height = maxDim
-          }
-        }
+        const { width, height } = scaleToFit(img.width, img.height, maxDim)
         const canvas = document.createElement("canvas")
         canvas.width = width
         canvas.height = height
@@ -154,15 +146,8 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     inputRef.current?.focus()
   }
 
-  // Build the full search URL with all active filters
-  const buildSearchUrl = () => {
-    const params = new URLSearchParams()
-    if (query.trim()) params.set("search", query.trim())
-    if (locationFilter.trim()) params.set("location", locationFilter.trim())
-    if (minPrice.trim()) params.set("minPrice", minPrice.trim())
-    if (maxPrice.trim()) params.set("maxPrice", maxPrice.trim())
-    return `/shop?${params.toString()}`
-  }
+  const searchFilters = { query, location: locationFilter, minPrice, maxPrice }
+  const buildSearchUrl = () => buildProductSearchUrl(searchFilters)
 
   const handleFullSearch = () => {
     setIsOpen(false)
@@ -191,7 +176,7 @@ export function ProductSearch({ categories = [] }: { categories?: Category[] }) 
     }
   }
 
-  const activeFilterCount = (locationFilter.trim() ? 1 : 0) + (minPrice.trim() ? 1 : 0) + (maxPrice.trim() ? 1 : 0)
+  const activeFilterCount = countActiveFilters(searchFilters)
 
   return (
     <div ref={searchRef} className="relative w-full max-w-2xl group">

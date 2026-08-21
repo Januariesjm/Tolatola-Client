@@ -99,10 +99,20 @@ jobs:
         run: npm audit --audit-level=critical
       # Visibility only. There are currently 5 high advisories (next, postcss,
       # glob, eslint-config-next, @next/eslint-plugin-next) and every one of
-      # them is only fixable by upgrading Next 14 -> 16, a breaking change that
-      # needs its own planned migration. Gating on `high` here would leave CI
-      # permanently red, so the findings are reported instead.
-      # Raise this to a gate as part of the Next 16 upgrade.
+      # them resolves to a single root cause: the advisory range for `next` is
+      # 9.3.4-canary.0 - 16.3.0-preview.10, which covers every published 14.x
+      # and 15.x release. There is no patched version in the 14 line, so this is
+      # not fixable by a patch bump, a minor bump or an override -- the only fix
+      # npm audit offers is next@16.3.1, flagged isSemVerMajor, which also drags
+      # React 18 -> 19 and ~40 Radix packages with it.
+      #
+      # Gating on `high` before that migration lands would leave CI permanently
+      # red, which is worse than reporting the findings, so they are reported.
+      # Suppressing them or lowering the level was rejected: the exposure is
+      # real.
+      #
+      # Turn this into a gate (and delete this step) as the last commit of the
+      # Next 16 upgrade. Plan and sequencing: docs/NEXT_16_UPGRADE_PLAN.md
       - name: Report high advisories (non-blocking)
         continue-on-error: true
         run: npm audit --audit-level=high
