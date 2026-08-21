@@ -25,6 +25,14 @@ global.IntersectionObserver = class IntersectionObserver {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any
 
+// jsdom implements no layout, so Element.scrollIntoView does not exist. Any
+// component that keeps a message list or a carousel pinned to the bottom calls
+// it, and without this the call throws from inside a setTimeout -- surfacing as
+// an unhandled error in whichever test happened to be running.
+if (typeof Element !== "undefined" && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = function scrollIntoView() {}
+}
+
 // Guarded: suites that opt into `@jest-environment node` (API route handlers)
 // have no `window`, and an unguarded reference here would fail the whole file
 // before any test runs.

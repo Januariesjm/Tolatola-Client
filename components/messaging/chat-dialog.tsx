@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
+import { parseHistoryText } from "@/lib/messaging/parse-history-text"
 import { Phone, Video, Send, Paperclip, ImageIcon, FileIcon, Loader2, ArrowDown, Bot, User, Headset, CheckCheck } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -41,65 +42,6 @@ interface Message {
     full_name: string
     profile_image_url?: string
   }
-}
-
-function parseHistoryText(text?: string): Message[] {
-  if (!text || !text.trim()) return []
-
-  const cleanText = text.replace(/^Escalated from Moureen Tyler AI Chat:\s*/i, "").trim()
-
-  // Match prefixes like BOT:, USER:, GUEST:, AGENT:
-  const prefixRegex = /(?:^|\n|\s)(BOT|USER|GUEST|AGENT):\s*/gi
-  const matches: Array<{ tag: string; index: number; contentStart: number }> = []
-
-  let match: RegExpExecArray | null
-  while ((match = prefixRegex.exec(cleanText)) !== null) {
-    matches.push({
-      tag: match[1].toUpperCase(),
-      index: match.index,
-      contentStart: match.index + match[0].length,
-    })
-  }
-
-  if (matches.length === 0) {
-    return [
-      {
-        id: "hist-0",
-        message: cleanText,
-        created_at: new Date().toISOString(),
-        sender_id: "",
-        sender_type: "user",
-        sender: { id: "", full_name: "Customer User" },
-      },
-    ]
-  }
-
-  const result: Message[] = []
-  for (let i = 0; i < matches.length; i++) {
-    const current = matches[i]
-    const nextIndex = i < matches.length - 1 ? matches[i + 1].index : cleanText.length
-    const content = cleanText.slice(current.contentStart, nextIndex).trim()
-
-    if (!content) continue
-
-    const isBot = current.tag === "BOT"
-    const isAgent = current.tag === "AGENT"
-    const senderType = isBot ? "bot" : isAgent ? "agent" : "user"
-
-    result.push({
-      id: `parsed-${i}-${Date.now()}`,
-      message: content,
-      created_at: new Date(Date.now() - (matches.length - i) * 60000).toISOString(),
-      sender_id: isBot ? "" : isAgent ? "agent" : "user",
-      sender_type: senderType,
-      sender: {
-        id: isBot ? "" : isAgent ? "agent" : "user",
-        full_name: isBot ? "Moureen Tyler (AI Agent)" : isAgent ? "Support Agent" : "Customer User",
-      },
-    })
-  }
-
-  return result
 }
 
 export function ChatDialog({
@@ -507,6 +449,7 @@ export function ChatDialog({
                 onClick={() => fileInputRef.current?.click()}
                 disabled={sending || uploading}
                 title="Attach file"
+                aria-label="Attach file"
               >
                 {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
               </Button>
@@ -531,6 +474,7 @@ export function ChatDialog({
                   handleSendMessage(e)
                 }}
                 disabled={sending || uploading || !newMessage.trim()}
+                aria-label="Send message"
                 className="h-10 w-10 bg-emerald-600 hover:bg-emerald-700 text-white shrink-0 shadow-sm"
               >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
