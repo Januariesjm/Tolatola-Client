@@ -9,6 +9,13 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`vendor-subscription-tab.tsx` now shares `hooks/use-subscription-payment-poll.ts`**
+  instead of carrying its own copy of the same polling logic (642 -> 609 lines).
+  Previously untested; 5 tests added covering plan load, opening the upgrade
+  dialog, the checkout request body, and the confirming-payment overlay. The
+  dialog and overlay markup in this file were not extracted into their own
+  components in this pass -- unlike the transporter tab, which was named
+  directly in the report driving this round of work.
 - **`transporter-subscription-tab.tsx` split**: the checkout-status polling
   into `hooks/use-subscription-payment-poll.ts` (also de-duplicating an
   identical copy in `vendor-subscription-tab.tsx` -- both now share it), the

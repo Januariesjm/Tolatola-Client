@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
+import { useSubscriptionPaymentPoll } from "@/hooks/use-subscription-payment-poll"
 import { cn } from "@/lib/utils"
 import { logger, normalizeError } from "@/lib/logger"
 import type { CurrentSubscription, SubscriptionCheckoutResult, SubscriptionPlan } from "@/lib/types/subscription"
@@ -66,61 +67,27 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     setShowUpgradeDialog(true)
   }
 
-  const pollSubscriptionStatus = async (subscriptionId: string) => {
-    let attempts = 0
-    const maxAttempts = 40 // ~2 minutes with 3s interval
-
-    const checkStatus = async () => {
-      try {
-        const res = await clientApiGet<{ data: { status: string; click_pesa_error?: string } }>(
-          `subscriptions/status/${subscriptionId}?type=vendor`,
-        )
-        const { status } = res.data
-
-        if (status === "active") {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Subscription Activated",
-            description: `You are now on the ${selectedPlan?.name} plan!`,
-          })
-          setShowUpgradeDialog(false)
-          loadSubscriptionData()
-          return true
-        }
-
-        if (status === "rejected" || status === "failed") {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Payment Failed",
-            description: res.data.click_pesa_error || "The transaction was unsuccessful. Please try again.",
-            variant: "destructive",
-          })
-          return true
-        }
-
-        return false
-      } catch (err) {
-        log.error("polling error", err)
-        return false
-      }
-    }
-
-    const interval = setInterval(async () => {
-      attempts++
-      const finished = await checkStatus()
-      if (finished || attempts >= maxAttempts) {
-        clearInterval(interval)
-        if (attempts >= maxAttempts) {
-          setIsAwaitingPayment(false)
-          toast({
-            title: "Payment Timeout",
-            description: "We haven't received confirmation yet. Please check your status later.",
-            variant: "destructive",
-          })
-        }
-      }
-    }, 3000)
-  }
+  const { startPolling } = useSubscriptionPaymentPoll({
+    accountType: "vendor",
+    onActive: () => {
+      setIsAwaitingPayment(false)
+      toast({ title: "Subscription Activated", description: `You are now on the ${selectedPlan?.name} plan!` })
+      setShowUpgradeDialog(false)
+      loadSubscriptionData()
+    },
+    onFailed: (message) => {
+      setIsAwaitingPayment(false)
+      toast({ title: "Payment Failed", description: message, variant: "destructive" })
+    },
+    onTimeout: () => {
+      setIsAwaitingPayment(false)
+      toast({
+        title: "Payment Timeout",
+        description: "We haven't received confirmation yet. Please check your status later.",
+        variant: "destructive",
+      })
+    },
+  })
 
   const handleUpgrade = async () => {
     if (!selectedPlan) return
@@ -158,12 +125,12 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
           } else {
             setPaymentStatusMessage("Control number generated! Please complete the transfer to activate your subscription.")
           }
-          pollSubscriptionStatus(result.subscription.id)
+          startPolling(result.subscription.id)
         } else {
           setPaymentStatusMessage(
             "Payment initiated! Please confirm on your device. Your subscription will activate automatically once confirmed.",
           )
-          pollSubscriptionStatus(result.subscription.id)
+          startPolling(result.subscription.id)
         }
       } else {
         throw new Error(result.message || "Payment initiation failed")
