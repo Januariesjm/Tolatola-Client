@@ -8,10 +8,11 @@
  * floor is present and non-zero, so deleting it fails the suite rather than
  * silently disabling enforcement.
  *
- * Current (2026-08-21): statements 28.0%, branches 24.1%, functions 18.1%,
- * lines 28.0% -- raised from 16/13/8/16 as the checkout, support-queue,
- * admin-chat, header-tray, careers, agent-wallet, error-tracking, order-status
- * and admin-vendor suites landed.
+ * Current (2026-08-21): statements 29.6%, branches 25.2%, functions 19.0%,
+ * lines 29.6% -- raised from 16/13/8/16 as the checkout, support-queue,
+ * admin-chat, header-tray, careers, agent-wallet, error-tracking, order-status,
+ * admin-vendor, order-service, admin-initialization, withdrawal-validation and
+ * language-context suites landed.
  *
  * The denominator is all of lib/ and components/, dominated by the remaining
  * large untested UI components, so the percentage understates how well the
@@ -26,9 +27,9 @@
  */
 module.exports = {
   global: {
-    statements: 27,
-    branches: 23,
-    functions: 17,
-    lines: 27,
+    statements: 29,
+    branches: 25,
+    functions: 18,
+    lines: 29,
   },
 }
