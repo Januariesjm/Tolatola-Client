@@ -35,7 +35,7 @@ describe("useProductVariants", () => {
   })
 
   it("seeds colors, sizes and size prices only once open", () => {
-    const product = { colors: [{ name: "Red" }], sizes: ["M"], size_prices: { M: 100 } }
+    const product = { colors: [{ name: "Red", image: "" }], sizes: ["M"], size_prices: { M: 100 } }
     const { result, rerender } = renderHook(({ open }) => useProductVariants(product, open, jest.fn()), {
       initialProps: { open: false },
     })
@@ -44,7 +44,7 @@ describe("useProductVariants", () => {
 
     rerender({ open: true })
 
-    expect(result.current.colors).toEqual([{ name: "Red" }])
+    expect(result.current.colors).toEqual([{ name: "Red", image: "" }])
     expect(result.current.sizes).toEqual(["M"])
     expect(result.current.sizePrices).toEqual({ M: 100 })
   })

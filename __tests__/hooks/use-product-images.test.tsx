@@ -21,13 +21,17 @@ function mockUpload(result: { ok: boolean; url?: string } | "reject") {
 }
 
 function fileList(files: File[]): FileList {
+  const indexed: Record<number, File> = {}
+  files.forEach((file, i) => {
+    indexed[i] = file
+  })
   return {
     length: files.length,
-    item: (i: number) => files[i],
+    item: (i: number) => files[i] ?? null,
     [Symbol.iterator]: function* () {
       yield* files
     },
-    ...files,
+    ...indexed,
   } as unknown as FileList
 }
 

@@ -84,13 +84,13 @@ export function ChatDialog({
 
   const loadMessages = async () => {
     if (!conversationId) return
-    console.log("[ChatDialog] Loading messages for:", conversationId)
+    log.debug("loading messages", { conversationId })
     const result = await getConversationMessages(conversationId)
     if (result.error) {
       log.error("error loading messages", result.error)
     }
     if (result.messages) {
-      console.log(`[ChatDialog] Loaded ${result.messages.length} messages`)
+      log.debug("loaded messages", { conversationId, count: result.messages.length })
       setMessages(result.messages)
       scrollToBottom(false)
     }
@@ -99,14 +99,14 @@ export function ChatDialog({
   // Load messages & setup realtime listener
   useEffect(() => {
     if (open && conversationId) {
-      console.log("[ChatDialog] Initializing for conversation:", conversationId)
+      log.debug("initializing for conversation", { conversationId })
       loadMessages()
       markMessagesAsRead(conversationId)
 
       // Get current user
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (user) {
-          console.log("[ChatDialog] Current user:", user.id)
+          log.debug("current user", { userId: user.id })
           setCurrentUserId(user.id)
         }
       })
@@ -123,12 +123,12 @@ export function ChatDialog({
             filter: `conversation_id=eq.${conversationId}`,
           },
           (payload) => {
-            console.log("[ChatDialog] Postgres Realtime message received:", payload)
+            log.debug("postgres realtime message received", { conversationId, payload })
             loadMessages()
           },
         )
         .on("broadcast", { event: "message" }, (payload: any) => {
-          console.log("[ChatDialog] Broadcast message received:", payload)
+          log.debug("broadcast message received", { conversationId, payload })
           const newMsg = payload.payload
           if (newMsg) {
             setMessages((prev) => {
@@ -139,13 +139,13 @@ export function ChatDialog({
           }
         })
         .subscribe((status) => {
-          console.log(`[ChatDialog] Realtime status for ${conversationId}:`, status)
+          log.debug("realtime status", { conversationId, status })
         })
 
       channelRef.current = channel
 
       return () => {
-        console.log("[ChatDialog] Cleaning up subscription for:", conversationId)
+        log.debug("cleaning up subscription", { conversationId })
         supabase.removeChannel(channel)
         channelRef.current = null
       }

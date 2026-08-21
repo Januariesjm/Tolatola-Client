@@ -72,6 +72,21 @@ beforeEach(() => {
   uploadChatFile.mockResolvedValue({ url: "https://cdn/file.pdf", type: "application/pdf" })
 })
 
+describe("ChatDialog logging", () => {
+  it("traces through the structured logger, not a raw console.log", async () => {
+    const consoleLog = jest.spyOn(console, "log").mockImplementation(() => {})
+
+    render(<ChatDialog {...BASE} />)
+    await waitFor(() => expect(getConversationMessages).toHaveBeenCalled())
+
+    const rawTrace = consoleLog.mock.calls.some(([arg]) => typeof arg === "string" && arg.includes("[ChatDialog]"))
+    expect(rawTrace).toBe(false)
+    expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining("[debug] messaging.chat-dialog:"))
+
+    consoleLog.mockRestore()
+  })
+})
+
 describe("ChatDialog open and closed", () => {
   it("renders nothing when closed", () => {
     render(<ChatDialog {...BASE} open={false} />)
