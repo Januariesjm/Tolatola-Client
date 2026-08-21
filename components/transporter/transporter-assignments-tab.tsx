@@ -7,15 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Navigation } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ComponentProps } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
 import { logger } from "@/lib/logger"
+import type { TransporterAssignment } from "@/lib/types/transporter"
 
 const log = logger.child("transporter.transporter-assignments-tab")
 
 interface TransporterAssignmentsTabProps {
-  assignments: any[]
+  assignments: TransporterAssignment[]
   transporterId: string
   initialOrderId?: string
 }
@@ -82,7 +83,7 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
         await clientApiPost(`assignments/accept/${orderId}`)
       } else {
         // Standard assignment update
-        const updateData: any = { status: newStatus }
+        const updateData: { status: string; picked_up_at?: string; delivered_at?: string } = { status: newStatus }
 
         if (newStatus === "picked_up") {
           updateData.picked_up_at = new Date().toISOString()
@@ -94,9 +95,9 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       }
 
       router.refresh()
-    } catch (error: any) {
+    } catch (error) {
       log.error("error updating assignment", error)
-      alert(error.response?.data?.error || "Failed to update assignment status")
+      alert("Failed to update assignment status")
     } finally {
       setUpdating(null)
     }
@@ -117,17 +118,19 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       setSelectedAssignmentId(null)
       setDeliveryPin("")
       router.refresh()
-    } catch (error: any) {
+    } catch (error) {
       log.error("error verifying PIN", error)
-      alert(error.response?.data?.error || "Failed to verify Delivery PIN. Please check and try again.")
+      alert("Failed to verify Delivery PIN. Please check and try again.")
     } finally {
       setUpdating(null)
     }
   }
 
-  const getStatusBadge = (assignment: any) => {
+  const getStatusBadge = (assignment: TransporterAssignment) => {
     const status = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
-    const variants: any = {
+    // "success" isn't in Badge's own variant set -- kept as-is (pre-existing,
+    // renders as an unstyled badge for "delivered") rather than changed here.
+    const variants: Record<string, string> = {
       assigned: "secondary",
       ready_for_pickup: "secondary",
       available: "secondary",
@@ -138,13 +141,13 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
       cancelled: "destructive",
     }
     return (
-      <Badge variant={variants[status] || "secondary"} className="capitalize">
+      <Badge variant={(variants[status] || "secondary") as ComponentProps<typeof Badge>["variant"]} className="capitalize">
         {status.replace("_", " ")}
       </Badge>
     )
   }
 
-  const renderList = (list: any[]) => {
+  const renderList = (list: TransporterAssignment[]) => {
     if (list.length === 0) {
       return (
         <Card>

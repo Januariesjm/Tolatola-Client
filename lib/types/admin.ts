@@ -113,7 +113,15 @@ export interface IncompleteRegistration {
   full_name?: string
   phone?: string
   role?: string
-  recovery_status: "pending" | "contacted" | "recovered" | "abandoned" | string
+  user_type: "customer" | "vendor" | "transporter" | string
+  recovery_status: "pending" | "contacted" | "completed" | "not_interested" | "recovered" | "abandoned" | string
+  last_step?: string
+  last_activity_at: string
+  session_id?: string
+  expires_at: string
+  contacted_at?: string
+  contact_notes?: string
+  form_data?: Record<string, unknown>
   created_at: string
   [key: string]: unknown
 }
@@ -139,5 +147,5 @@ export interface AdminDashboardContentProps {
   hrStaffRecords?: any[]
   hrContracts?: any[]
   hrAttendance?: any[]
-  incompleteRegistrations?: any[]
+  incompleteRegistrations?: IncompleteRegistration[]
 }

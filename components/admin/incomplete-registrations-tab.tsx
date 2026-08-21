@@ -36,9 +36,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { format, formatDistanceToNow } from "date-fns"
+import type { IncompleteRegistration } from "@/lib/types/admin"
 
 interface IncompleteRegistrationsTabProps {
-  registrations: any[]
+  registrations: IncompleteRegistration[]
 }
 
 export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistrationsTabProps) {
@@ -306,7 +307,7 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
                             {reg.phone && <span>{reg.phone}</span>}
                             <span className="flex items-center gap-1">
                               <AlertCircle className="h-3 w-3" />
-                              Step: {stepLabels[reg.last_step] || reg.last_step}
+                              Step: {stepLabels[reg.last_step ?? ""] || reg.last_step}
                             </span>
                           </div>
                           <p className="text-xs text-slate-400 mt-0.5">

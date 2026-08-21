@@ -62,7 +62,8 @@ describe("useProductImages", () => {
 
   it("appends uploaded images to the existing list", async () => {
     mockUpload({ ok: true, url: "new.jpg" })
-    const { result } = renderHook(() => useProductImages({ images: ["a.jpg"] }, true, jest.fn()))
+    const product = { images: ["a.jpg"] }
+    const { result } = renderHook(() => useProductImages(product, true, jest.fn()))
 
     await act(async () => {
       await result.current.handleImageUpload({

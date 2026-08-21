@@ -15,12 +15,6 @@
       }
     },
     {
-      "files": ["components/ui/sidebar.tsx", "lib/i18n/translations.ts"],
-      "rules": {
-        "max-lines": "off"
-      }
-    },
-    {
       "files": ["__tests__/**/*.[jt]s?(x)", "**/*.test.[jt]s?(x)"],
       "rules": {
         "max-lines": "off",

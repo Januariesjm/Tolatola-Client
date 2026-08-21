@@ -81,7 +81,10 @@ describe("ChatDialog logging", () => {
 
     const rawTrace = consoleLog.mock.calls.some(([arg]) => typeof arg === "string" && arg.includes("[ChatDialog]"))
     expect(rawTrace).toBe(false)
-    expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining("[debug] messaging.chat-dialog:"))
+    const tracedThroughLogger = consoleLog.mock.calls.some(
+      ([arg]) => typeof arg === "string" && arg.includes("[debug] messaging.chat-dialog:"),
+    )
+    expect(tracedThroughLogger).toBe(true)
 
     consoleLog.mockRestore()
   })

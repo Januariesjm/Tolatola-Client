@@ -86,11 +86,14 @@ export function useProductForm({ open, onOpenChange, onSuccess, mode, shopId, pr
   const [deliveryAvailable, setDeliveryAvailable] = useState(true)
   const [weightUnit, setWeightUnit] = useState("")
 
-  const { images, setImages, uploadingImage, handleImageUpload, handleRemoveImage, reset: resetImages } = useProductImages(
-    product,
-    open,
-    setError,
-  )
+  const {
+    images,
+    setImages,
+    uploadingImage,
+    handleImageUpload,
+    handleRemoveImage,
+    reset: resetImages,
+  } = useProductImages(product, open, setError)
   const {
     colors,
     newColorName,

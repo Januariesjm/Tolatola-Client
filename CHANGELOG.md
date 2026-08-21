@@ -9,6 +9,81 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Split the two remaining max-lines allowlist entries**, reversing the
+  earlier decision to leave them alone. `lib/i18n/translations.ts` (602 raw
+  lines) became `lib/i18n/translations/{en,sw,ar,zh}.ts` plus an `index.ts`
+  re-exporting the merged `translations` object, `getCategoryTranslation`,
+  and the `LanguageCode`/`TranslationKey` types — same public API, existing
+  imports of `@/lib/i18n/translations` and `./translations` resolve
+  unchanged. `components/ui/sidebar.tsx` (621 raw lines) became
+  `components/ui/sidebar/{sidebar-provider,sidebar,sidebar-menu}.tsx` plus an
+  `index.tsx` re-exporting every original export. The earlier reasoning (a
+  vendored shadcn primitive; a translation dictionary, large because of what
+  it is) was about avoiding a change without a reason — an external
+  code-quality scan flagging both as over its 500-line threshold is that
+  reason. The `.eslintrc.json` override that exempted the two old paths from
+  `max-lines` is removed, since neither exists any more and every new file is
+  well under the limit anyway. `components/ui/sidebar.tsx` has no
+  consumers or tests anywhere in the app (a scaffolded shadcn component that
+  was never wired in) — the split is verified only by a new smoke test, not
+  DOM-parity against real usage.
+
+- **`hooks/use-product-form.ts` split**: image upload/removal into
+  `hooks/use-product-images.ts`, and fashion-category colors/sizes into
+  `hooks/use-product-variants.ts`, each taking an `onError` callback rather
+  than owning error state so the form keeps its one shared error banner.
+  503 -> ~300 lines. `resetForm()` now delegates to each hook's own `reset()`;
+  the variants hook's reset deliberately does not clear `newColorName` or
+  `newSize`, matching the original's asymmetric scope.
+
+- **Shrank four more files past the raw-line-count threshold an external
+  scanner checks against** (which counts blank lines and comments that the
+  repo's own `max-lines` lint rule does not, so these passed lint while still
+  being flagged externally): `transporter-management-tab.tsx` (520 -> 298,
+  extracting `lib/admin/transporters.ts`, `hooks/use-admin-transporters.ts`,
+  `components/admin/transporter-details-dialog.tsx`), `app/validation/page.tsx`
+  (515 -> 126, extracting `respondent-info-step.tsx` and
+  `survey-answers-step.tsx`), `support-tickets-tab.tsx` (507 -> 292,
+  extracting `lib/admin/support-tickets.ts`, `support-ticket-card.tsx`,
+  `delete-all-resolved-dialog.tsx`), and `agent-management-tab.tsx`
+  (503 -> 161, extracting its three sub-tabs into `components/admin/agents/`).
+
+- **Replaced raw `console.log` tracing with the structured logger** in
+  `components/messaging/chat-dialog.tsx` and `chat-button.tsx` (both already
+  had a `logger.child(...)` instance sitting unused alongside the
+  `console.log` calls). A test now pins that the logger, not a raw
+  `console.log("[ChatDialog] ...")`, is what fires.
+
+- **Replaced `any` typing with real types** on
+  `components/transporter/transporter-assignments-tab.tsx` (new
+  `TransporterAssignment` type in `lib/types/transporter.ts`) and
+  `components/admin/incomplete-registrations-tab.tsx` (extended the existing
+  `IncompleteRegistration` type in `lib/types/admin.ts` with the fields the
+  component actually reads: `user_type`, `last_step`, `last_activity_at`,
+  `session_id`, `expires_at`, `contacted_at`, `contact_notes`, `form_data`).
+  One pre-existing latent bug surfaced by the stricter typing was left as-is
+  rather than "fixed": `getStatusBadge`'s `variants` map assigns `"success"`
+  for a delivered trip, which isn't one of `Badge`'s own variants and has
+  always rendered unstyled — preserved via a narrow cast at the one call
+  site instead of changing the visual result.
+
+### Added
+
+- **`hooks/use-careers-application.test.ts`**: the one hook with real
+  branching logic (required-document validation order, file
+  type/size checks, upload-then-submit, and both failure paths) that had no
+  coverage. 13 tests.
+
+- **Tests for the two `any`-typing fixes above**:
+  `__tests__/components/transporter/transporter-assignments-tab.test.tsx` and
+  `__tests__/components/admin/incomplete-registrations-tab.test.tsx`, neither
+  of which had any prior coverage.
+
+- **`__tests__/components/ui/sidebar.test.tsx`**: a smoke test for the split
+  above, since the component has no app usage to verify DOM-parity against.
+
+### Changed
+
 - **`checkout-success-content.tsx` split**: the order-status stepper (a
   horizontal summary plus a detailed vertical timeline, both driven by one
   status-to-step-index map that accepts several raw status spellings) into

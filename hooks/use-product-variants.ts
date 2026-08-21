@@ -22,7 +22,11 @@ interface ProductWithVariants {
   size_prices?: Record<string, number> | null
 }
 
-export function useProductVariants(product: ProductWithVariants | null | undefined, open: boolean, onColorImageUploadError: (message: string | null) => void) {
+export function useProductVariants(
+  product: ProductWithVariants | null | undefined,
+  open: boolean,
+  onColorImageUploadError: (message: string | null) => void,
+) {
   const [colors, setColors] = useState<ProductColorInput[]>([])
   const [newColorName, setNewColorName] = useState("")
   const [newColorPrice, setNewColorPrice] = useState("")
