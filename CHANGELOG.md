@@ -9,6 +9,14 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Route-level tests for five previously-untested `app/api` handlers**:
+  `admin/assign-role`, `admin/payouts/approve`, `profile/update`,
+  `registration-recovery/save`, `payouts/request`. Every mutating route that
+  accepts a body already validated it with zod before this round -- confirmed
+  by auditing all 26 -- so these add the missing coverage rather than new
+  validation: each asserts the reject-invalid-body path returns 400 without
+  reaching Supabase or the backend, alongside its main success path. 26 tests.
+
 - **Sentry wired behind `NEXT_PUBLIC_SENTRY_DSN`** (`lib/observability/sentry.ts`,
   new `@sentry/nextjs` dependency). Chains onto `lib/logger.ts`'s error
   reporter rather than replacing it, so it composes with the existing
