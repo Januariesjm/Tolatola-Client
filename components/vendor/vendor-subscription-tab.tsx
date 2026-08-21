@@ -4,17 +4,13 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Crown, Sparkles, Star, Zap, ShieldCheck, Building2, Loader2, Phone, CreditCard, Smartphone, ArrowRight } from "lucide-react"
+import { Check, Crown, Sparkles, Star, Zap } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { useSubscriptionPaymentPoll } from "@/hooks/use-subscription-payment-poll"
-import { cn } from "@/lib/utils"
+import { VendorPaymentStatusOverlay } from "@/components/vendor/payment-status-overlay"
+import { VendorSubscriptionUpgradeDialog } from "@/components/vendor/subscription-upgrade-dialog"
 import { logger, normalizeError } from "@/lib/logger"
 import type { CurrentSubscription, SubscriptionCheckoutResult, SubscriptionPlan } from "@/lib/types/subscription"
 
@@ -186,87 +182,15 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     <div className="space-y-6">
       {/* Payment Loading Overlay */}
       {isAwaitingPayment && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-          <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-300">
-            <div className="bg-primary p-8 text-white text-center space-y-4">
-              <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
-                {controlNumber ? <Building2 className="h-8 w-8 animate-bounce" /> : <Loader2 className="h-8 w-8 animate-spin" />}
-              </div>
-              <h2 className="text-2xl font-black tracking-tight">{controlNumber ? "Bank Settlement" : "Confirming Payment"}</h2>
-            </div>
-            <CardContent className="p-8 text-center space-y-6">
-              <div className="space-y-2">
-                <p className="text-stone-600 font-medium leading-relaxed">{paymentStatusMessage}</p>
-                {controlNumber && (
-                  <div className="mt-4 p-6 bg-stone-50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4">
-                    {controlNumber.startsWith("http") ? (
-                      <div className="space-y-4 text-center">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Payment Link</p>
-                        <Button
-                          size="lg"
-                          className="w-full rounded-xl bg-primary text-white font-bold h-12 text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
-                          onClick={() => window.open(controlNumber, "_blank")}
-                        >
-                          Complete Payment Now
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Control Number</p>
-                          <p className="text-3xl font-black text-primary tracking-tight tabular-nums select-all">{controlNumber}</p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="rounded-xl border-stone-200"
-                          onClick={() => {
-                            navigator.clipboard.writeText(controlNumber)
-                            toast({ title: "Copied!", description: "Control number copied to clipboard." })
-                          }}
-                        >
-                          Copy Number
-                        </Button>
-                        <div className="text-left space-y-2 bg-white p-4 rounded-xl border border-stone-100">
-                          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wide">Instructions</p>
-                          <ul className="text-xs text-stone-600 space-y-1 list-disc pl-4">
-                            <li>Dial *150*03# (CRDB SimBanking)</li>
-                            <li>Select 'Bill Payment'</li>
-                            <li>Enter this Control Number</li>
-                            <li>Follow prompts to complete</li>
-                          </ul>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {controlNumber ? (
-                  <Button
-                    className="w-full h-12 rounded-xl bg-stone-900 text-white font-bold"
-                    onClick={() => {
-                      setIsAwaitingPayment(false)
-                      setShowUpgradeDialog(false)
-                      loadSubscriptionData()
-                    }}
-                  >
-                    I have completed payment
-                  </Button>
-                ) : (
-                  <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
-                    <ShieldCheck className="h-5 w-5 text-green-600" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
-                      Encrypted secure transaction protocol active
-                    </span>
-                  </div>
-                )}
-              </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Do not refresh this page</p>
-            </CardContent>
-          </Card>
-        </div>
+        <VendorPaymentStatusOverlay
+          controlNumber={controlNumber}
+          statusMessage={paymentStatusMessage}
+          onDone={() => {
+            setIsAwaitingPayment(false)
+            setShowUpgradeDialog(false)
+            loadSubscriptionData()
+          }}
+        />
       )}
 
       {/* Current Plan Card */}
@@ -389,221 +313,23 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
       </div>
 
       {/* Upgrade Dialog */}
-      <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-        <DialogContent className="max-w-md w-[95vw] sm:w-full rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl animate-in zoom-in duration-300">
-          <div className="bg-primary p-6 py-8 text-white">
-            <DialogHeader className="space-y-1">
-              <DialogTitle className="text-2xl font-black text-white">Upgrade to {selectedPlan?.name}</DialogTitle>
-              <DialogDescription className="text-white/80 font-medium">Choose your payment method to upgrade</DialogDescription>
-            </DialogHeader>
-          </div>
-
-          <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-hide py-4 space-y-6">
-            <div className="bg-stone-50 p-6 rounded-[1.5rem] border border-stone-100">
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-bold text-stone-900">{selectedPlan?.name} Plan</span>
-                <span className="text-2xl font-black text-primary">{selectedPlan?.price?.toLocaleString()} TZS</span>
-              </div>
-              <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Billed monthly</p>
-            </div>
-
-            <div className="space-y-3">
-              <Label className="font-black text-stone-900 ml-1">Select Payment Method</Label>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
-                  <AccordionItem value="mobile-money" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-primary data-[state=open]:text-white transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <Smartphone className="h-5 w-5" />
-                        <span className="text-lg font-bold tracking-tight">Mobile Money</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 mt-2 space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                          Phone Number
-                        </Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                          placeholder="e.g. 2557..."
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {[
-                          { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
-                          { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
-                          { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
-                          { id: "ezypesa", name: "EzyPesa", provider: "Zantel" },
-                          { id: "m-pesa", name: "M-Pesa", provider: "Vodacom", maintenance: true },
-                        ].map((p) => (
-                          <Label
-                            key={p.id}
-                            htmlFor={p.id}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
-                              paymentMethod === p.id ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
-                              p.maintenance && "opacity-60 grayscale-[0.5]",
-                            )}
-                          >
-                            <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
-                            <div
-                              className={cn(
-                                "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                                paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
-                              )}
-                            >
-                              <Smartphone className="h-4 w-4" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <p className="font-bold text-stone-900 text-sm">{p.name}</p>
-                                {p.maintenance && (
-                                  <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">
-                                    Service Down
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
-                            </div>
-                          </Label>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="cards" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="text-lg font-bold tracking-tight">Card Payment</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 mt-4 space-y-6">
-                      <div className="grid grid-cols-3 gap-2">
-                        {["visa", "mastercard", "unionpay"].map((c) => (
-                          <Label
-                            key={c}
-                            htmlFor={c}
-                            className={cn(
-                              "flex flex-col items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
-                              paymentMethod === c ? "bg-primary/5 border-primary shadow-sm" : "border-stone-100 hover:border-stone-300",
-                            )}
-                          >
-                            <RadioGroupItem value={c} id={c} className="sr-only" />
-                            <div
-                              className={cn(
-                                "h-10 w-10 rounded-lg flex items-center justify-center transition-colors",
-                                paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
-                              )}
-                            >
-                              <CreditCard className="h-5 w-5" />
-                            </div>
-                            <span className="font-bold uppercase tracking-wide text-[10px] text-stone-900">{c}</span>
-                          </Label>
-                        ))}
-                      </div>
-                      <div className="space-y-3 pt-3 border-t border-stone-100">
-                        <div className="space-y-2">
-                          <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                            Card Number
-                          </Label>
-                          <Input
-                            id="cardNumber"
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                            placeholder="0000 0000 0000 0000"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-2">
-                            <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                              Expiry
-                            </Label>
-                            <Input
-                              id="expiry"
-                              value={expiryDate}
-                              onChange={(e) => setExpiryDate(e.target.value)}
-                              className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                              placeholder="MM/YY"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                              CVV / CVC
-                            </Label>
-                            <Input
-                              id="cvv"
-                              value={cvv}
-                              onChange={(e) => setCvv(e.target.value)}
-                              className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                              placeholder="123"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="bank" className="border-none">
-                    <AccordionTrigger className="hover:no-underline p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
-                      <div className="flex items-center gap-3">
-                        <Building2 className="h-5 w-5" />
-                        <span className="text-lg font-bold tracking-tight">Bank Transfer</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 space-y-3 mt-4">
-                      {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
-                        <Label
-                          key={b}
-                          htmlFor={b}
-                          className={cn(
-                            "flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                            paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300",
-                          )}
-                        >
-                          <RadioGroupItem value={b} id={b} className="sr-only" />
-                          <div
-                            className={cn(
-                              "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                              paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400",
-                            )}
-                          >
-                            <Building2 className="h-5 w-5" />
-                          </div>
-                          <span className="font-black text-stone-900 capitalize">{b.replace(/-/g, " ")}</span>
-                        </Label>
-                      ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </RadioGroup>
-            </div>
-          </div>
-
-          <DialogFooter className="p-6 pt-2 flex-col sm:flex-col gap-3">
-            <Button
-              onClick={handleUpgrade}
-              disabled={upgrading}
-              className="w-full h-14 rounded-2xl bg-primary text-white font-black text-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-            >
-              {upgrading ? "Processing..." : `Pay ${selectedPlan?.price?.toLocaleString()} TZS`}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowUpgradeDialog(false)}
-              disabled={upgrading}
-              className="w-full h-12 rounded-2xl border-stone-200 text-stone-500 font-bold"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <VendorSubscriptionUpgradeDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        selectedPlan={selectedPlan}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
+        phoneNumber={phoneNumber}
+        onPhoneNumberChange={setPhoneNumber}
+        cardNumber={cardNumber}
+        onCardNumberChange={setCardNumber}
+        expiryDate={expiryDate}
+        onExpiryDateChange={setExpiryDate}
+        cvv={cvv}
+        onCvvChange={setCvv}
+        upgrading={upgrading}
+        onUpgrade={handleUpgrade}
+      />
     </div>
   )
 }

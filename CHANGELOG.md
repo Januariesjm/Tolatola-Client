@@ -7,6 +7,21 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`vendor-subscription-tab.tsx` fully split**: the upgrade dialog into
+  `components/vendor/subscription-upgrade-dialog.tsx` and the
+  confirming-payment overlay into `components/vendor/payment-status-overlay.tsx`
+  (kept separate from the transporter tab's equivalents rather than
+  parameterized into one shared component, since the header copy, plan-summary
+  labels, and this tab's CRDB dial-in instructions all differ per tab).
+  609 -> 335 lines, off the max-lines allowlist. Verified DOM-identical across
+  four states (initial load, upgrade dialog open, bank transfer expanded, the
+  confirming-payment overlay after checkout) before landing. Also dropped two
+  stale allowlist entries (`checkout-content.tsx`, `floating-support-widget.tsx`)
+  that had already shrunk under 500 lines in earlier work but were never
+  removed from `.eslintrc.json`.
+
 ### Added
 
 - **Route-level tests for five previously-untested `app/api` handlers**:
