@@ -25,323 +25,54 @@ import {
   Building2,
   X,
 } from "lucide-react"
+import { JOBS, departmentColor, workModeIcon, type Job } from "@/lib/careers/jobs"
+import { useCareersApplication } from "@/hooks/use-careers-application"
 
-interface Job {
-  title: string
-  type: string
-  mode: string
-  location: string
-  desc: string
-  dept: string
+/** The signed-in viewer, as the careers server component passes it down. */
+interface CareersViewer {
+  id: string
+  email?: string | null
 }
 
-const jobs: Job[] = [
-  {
-    title: "Senior Software Engineer",
-    type: "FULL-TIME",
-    mode: "HYBRID",
-    location: "Dar es Salaam",
-    desc: "Help build and scale our digital trade and logistics platform.",
-    dept: "Engineering",
-  },
-  {
-    title: "Mobile App Developer (Android / iOS)",
-    type: "FULL-TIME",
-    mode: "HYBRID",
-    location: "Dar es Salaam",
-    desc: "Develop and maintain high-performance mobile applications.",
-    dept: "Engineering",
-  },
-  {
-    title: "UI/UX Designer",
-    type: "FULL-TIME",
-    mode: "HYBRID",
-    location: "Dar es Salaam",
-    desc: "Design intuitive and user-friendly digital experiences.",
-    dept: "Design",
-  },
-  {
-    title: "QA / Software Tester",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Ensure system quality through testing and performance checks.",
-    dept: "Engineering",
-  },
-  {
-    title: "Brand Marketing Lead",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Drive brand growth and digital marketing strategies.",
-    dept: "Marketing",
-  },
-  {
-    title: "Sales Executive",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Acquire customers and grow platform usage.",
-    dept: "Sales",
-  },
-  {
-    title: "Business Development Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Build partnerships and expand business opportunities.",
-    dept: "Business",
-  },
-  {
-    title: "Customer Success Manager",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Manage customer relationships and improve retention.",
-    dept: "Operations",
-  },
-  {
-    title: "Customer Support Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Handle user support and resolve issues efficiently.",
-    dept: "Operations",
-  },
-  {
-    title: "Operations Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Coordinate daily logistics and platform operations.",
-    dept: "Operations",
-  },
-  {
-    title: "Logistics Coordinator",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Manage deliveries, fleet, and supply chain flow.",
-    dept: "Logistics",
-  },
-  {
-    title: "Data Analyst",
-    type: "FULL-TIME",
-    mode: "HYBRID",
-    location: "Dar es Salaam",
-    desc: "Analyze data to support business decisions.",
-    dept: "Data",
-  },
-  {
-    title: "Finance & Admin Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Handle financial records and administrative tasks.",
-    dept: "Finance",
-  },
-  {
-    title: "HR Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Manage recruitment and employee relations.",
-    dept: "Human Resources",
-  },
-  {
-    title: "Compliance Officer",
-    type: "FULL-TIME",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Ensure regulatory and legal compliance.",
-    dept: "Legal",
-  },
-  {
-    title: "Internship Program",
-    type: "INTERNSHIP",
-    mode: "ON-SITE",
-    location: "Dar es Salaam",
-    desc: "Opportunities for students and fresh graduates.",
-    dept: "Various",
-  },
-  {
-    title: "Open Talent Pool (Always Hiring)",
-    type: "OPEN",
-    mode: "FLEXIBLE",
-    location: "Dar es Salaam",
-    desc: "Apply anytime—Engineering, Sales, Operations, or Support.",
-    dept: "Various",
-  },
-]
-
-// Department color mapping
-const deptColors: Record<string, string> = {
-  Engineering: "bg-blue-50 text-blue-700 border-blue-200",
-  Design: "bg-violet-50 text-violet-700 border-violet-200",
-  Marketing: "bg-pink-50 text-pink-700 border-pink-200",
-  Sales: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Business: "bg-amber-50 text-amber-700 border-amber-200",
-  Operations: "bg-slate-50 text-slate-700 border-slate-200",
-  Logistics: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  Data: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  Finance: "bg-green-50 text-green-700 border-green-200",
-  "Human Resources": "bg-rose-50 text-rose-700 border-rose-200",
-  Legal: "bg-orange-50 text-orange-700 border-orange-200",
-  Various: "bg-purple-50 text-purple-700 border-purple-200",
+/** The viewer's profile row, only used to prefill the form. */
+interface CareersProfile {
+  full_name?: string | null
+  phone?: string | null
 }
 
-const modeIcons: Record<string, string> = {
-  HYBRID: "🏠",
-  "ON-SITE": "🏢",
-  FLEXIBLE: "🌍",
-}
-
-export default function CareersPageClient({ user, profile, kycStatus }: { user: any; profile: any; kycStatus: any }) {
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [cvFile, setCvFile] = useState<File | null>(null)
-  const [certificatesFile, setCertificatesFile] = useState<File | null>(null)
-  const [applicationLetterFile, setApplicationLetterFile] = useState<File | null>(null)
-  const [formError, setFormError] = useState("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const certificatesInputRef = useRef<HTMLInputElement>(null)
-  const applicationLetterInputRef = useRef<HTMLInputElement>(null)
-
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    cover_letter: "",
-  })
-
-  const handleApply = (job: Job) => {
-    setSelectedJob(job)
-    setIsDialogOpen(true)
-    setIsSuccess(false)
-    setFormError("")
-    setCvFile(null)
-    setCertificatesFile(null)
-    setApplicationLetterFile(null)
-    setFormData({ full_name: "", email: "", phone: "", cover_letter: "" })
-  }
-
-  const docAllowedTypes = [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-  ]
-
-  const handleFileSelect = useCallback((file: File | undefined, setter: (f: File | null) => void, allowImages = false) => {
-    if (!file) return
-    if (file.size > 10 * 1024 * 1024) {
-      setFormError("File size must be less than 10MB")
-      return
-    }
-    const allowed = allowImages ? docAllowedTypes : docAllowedTypes.filter((t) => !t.startsWith("image/"))
-    if (!allowed.includes(file.type)) {
-      setFormError(allowImages ? "Please upload a PDF, Word document, or image" : "Please upload a PDF or Word document")
-      return
-    }
-    setter(file)
-    setFormError("")
-  }, [])
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileSelect(e.target.files?.[0], setCvFile)
-  }
-
-  const fileToBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedJob || !cvFile) {
-      setFormError("Please upload your CV")
-      return
-    }
-    if (!certificatesFile) {
-      setFormError("Please upload your Academic Certificates & IDs")
-      return
-    }
-    if (!applicationLetterFile) {
-      setFormError("Please upload your Letter of Application")
-      return
-    }
-    if (!formData.full_name.trim() || !formData.email.trim()) {
-      setFormError("Please fill in all required fields")
-      return
-    }
-
-    setIsSubmitting(true)
-    setFormError("")
-
-    try {
-      const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api").replace(/\/$/, "")
-
-      // Helper to upload a file
-      const uploadFile = async (file: File, endpoint: string) => {
-        const b64 = await fileToBase64(file)
-        const res = await fetch(`${baseUrl}${endpoint}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ filename: file.name, data: b64, contentType: file.type }),
-        })
-        if (!res.ok) throw new Error(`Failed to upload ${file.name}`)
-        return res.json()
-      }
-
-      // Upload all documents
-      const [cvData, certsData, letterData] = await Promise.all([
-        uploadFile(cvFile, "/uploads/careers"),
-        uploadFile(certificatesFile, "/uploads/career-documents"),
-        uploadFile(applicationLetterFile, "/uploads/career-documents"),
-      ])
-
-      // Submit application
-      const appRes = await fetch(`${baseUrl}/career-applications`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: formData.full_name.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim() || undefined,
-          position: selectedJob.title,
-          cover_letter: formData.cover_letter.trim() || undefined,
-          cv_url: cvData.url,
-          cv_filename: cvFile.name,
-          certificates_url: certsData.url,
-          certificates_filename: certificatesFile.name,
-          application_letter_url: letterData.url,
-          application_letter_filename: applicationLetterFile.name,
-        }),
-      })
-
-      if (!appRes.ok) {
-        const err = await appRes.json().catch(() => ({}))
-        throw new Error(err.error || "Failed to submit application")
-      }
-
-      setIsSuccess(true)
-    } catch (err: any) {
-      setFormError(err.message || "Something went wrong. Please try again.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const scrollToJobs = () => {
-    document.getElementById("job-listings")?.scrollIntoView({ behavior: "smooth" })
-  }
+export default function CareersPageClient({
+  user,
+  profile,
+  kycStatus,
+}: {
+  user: CareersViewer | null
+  profile: CareersProfile | null
+  kycStatus: string | null
+}) {
+  const {
+    selectedJob,
+    isDialogOpen,
+    setIsDialogOpen,
+    isSubmitting,
+    isSuccess,
+    cvFile,
+    setCvFile,
+    certificatesFile,
+    setCertificatesFile,
+    applicationLetterFile,
+    setApplicationLetterFile,
+    formError,
+    formData,
+    setFormData,
+    fileInputRef,
+    certificatesInputRef,
+    applicationLetterInputRef,
+    handleApply,
+    handleFileSelect,
+    handleFileChange,
+    handleSubmit,
+    scrollToJobs,
+  } = useCareersApplication()
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -421,14 +152,14 @@ export default function CareersPageClient({ user, profile, kycStatus }: { user: 
               <div>
                 <h2 className="text-4xl font-bold tracking-tighter mb-4">Open Positions</h2>
                 <p className="text-muted-foreground text-lg">
-                  Help us shape the future of African e-commerce. <span className="font-semibold text-primary">{jobs.length} roles</span>{" "}
+                  Help us shape the future of African e-commerce. <span className="font-semibold text-primary">{JOBS.length} roles</span>{" "}
                   available.
                 </p>
               </div>
             </div>
 
             <div className="space-y-4">
-              {jobs.map((job, i) => (
+              {JOBS.map((job, i) => (
                 <div
                   key={i}
                   className="group p-6 md:p-8 rounded-2xl bg-white border shadow-sm hover:shadow-xl transition-all duration-300 hover:border-primary/30 flex flex-col md:flex-row items-start md:items-center gap-6"
@@ -436,9 +167,9 @@ export default function CareersPageClient({ user, profile, kycStatus }: { user: 
                   <div className="flex-1">
                     <div className="flex flex-wrap gap-2 mb-3">
                       <span
-                        className={`px-2.5 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wider ${
-                          deptColors[job.dept] || "bg-muted text-muted-foreground"
-                        }`}
+                        className={`px-2.5 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wider ${departmentColor(
+                          job.dept,
+                        )}`}
                       >
                         {job.dept}
                       </span>
@@ -446,7 +177,7 @@ export default function CareersPageClient({ user, profile, kycStatus }: { user: 
                         {job.type}
                       </span>
                       <span className="px-2.5 py-0.5 rounded-md bg-muted text-[10px] font-black uppercase tracking-wider text-muted-foreground">
-                        {modeIcons[job.mode] || ""} {job.mode}
+                        {workModeIcon(job.mode)} {job.mode}
                       </span>
                     </div>
                     <h3 className="text-xl font-black mb-1.5 group-hover:text-primary transition-colors">{job.title}</h3>
