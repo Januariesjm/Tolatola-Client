@@ -116,6 +116,21 @@ jobs:
       - name: Report high advisories (non-blocking)
         continue-on-error: true
         run: npm audit --audit-level=high
+      # Same command, run again so its output lands in the workflow summary
+      # rather than only in this job's log -- visible on the run page without
+      # opening a step. `|| true`: a summary step must not fail the build even
+      # though the command above already reported the real exit code.
+      - name: Publish high-advisory summary
+        if: always()
+        run: |
+          {
+            echo "### Dependency audit: high-severity advisories"
+            echo "Non-blocking -- see [SECURITY_DEBT.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/SECURITY_DEBT.md) for accepted risk and [docs/NEXT_16_UPGRADE_PLAN.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/docs/NEXT_16_UPGRADE_PLAN.md) for the fix."
+            echo
+            echo '```text'
+            npm audit --audit-level=high 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build:
     name: Build

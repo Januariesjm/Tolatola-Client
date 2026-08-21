@@ -7,6 +7,13 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CI now publishes the non-blocking high-advisory audit as a workflow
+  summary** (`.github/workflows/ci.yml`), not only into the job log, with a link
+  to `SECURITY_DEBT.md` and the Next 16 upgrade plan. The gate itself is
+  unchanged: still hard-fails on critical, still reports high without blocking.
+
 ### Changed
 
 - **`order-detail-content.tsx` split**: three status banners into
