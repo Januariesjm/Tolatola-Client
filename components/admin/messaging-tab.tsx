@@ -7,49 +7,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import { format } from "date-fns"
-import { Send, Loader2, Search, User, Store, Truck, Mail, MessageSquare, Clock, CheckCircle2, XCircle, X, History } from "lucide-react"
+import { Send, Loader2, Search, User, Store, Truck, X } from "lucide-react"
 import { logger } from "@/lib/logger"
+import { MessagingHistoryCard } from "@/components/admin/messaging-history-card"
+import {
+  filterActivityLogs,
+  filterRecipients,
+  mapCustomers,
+  mapTransporters,
+  mapVendors,
+  type ActivityLog,
+  type RecipientRole,
+  type UserDetails,
+} from "@/lib/admin/messaging"
 
 const log = logger.child("admin.messaging-tab")
-
-type RecipientRole = "customer" | "vendor" | "transporter"
-
-interface UserDetails {
-  id: string
-  name: string
-  email: string
-  phone?: string
-  recipientId: string
-}
-
-interface ActivityLog {
-  id: string
-  admin_id: string
-  action: string
-  resource: string
-  details: {
-    recipient_user_id: string
-    recipient_email: string
-    recipient_name: string
-    subject: string
-    channels: {
-      sendEmail: boolean
-      sendInApp: boolean
-    }
-    results?: any
-  }
-  created_at: string
-  admin: {
-    full_name: string
-    email: string
-  }
-}
 
 export function MessagingTab() {
   const { toast } = useToast()
@@ -93,35 +69,14 @@ export function MessagingTab() {
     setLoadingUsers(true)
     try {
       if (targetRole === "customer") {
-        const response = await clientApiGet<{ data: any[] }>("admin/customers")
-        const list = (response.data || []).map((c: any) => ({
-          id: c.id,
-          name: c.full_name || "Unnamed Customer",
-          email: c.email,
-          phone: c.phone || "",
-          recipientId: c.id,
-        }))
-        setCustomers(list)
+        const response = await clientApiGet<{ data: Parameters<typeof mapCustomers>[0] }>("admin/customers")
+        setCustomers(mapCustomers(response.data || []))
       } else if (targetRole === "vendor") {
-        const response = await clientApiGet<{ data: any[] }>("admin/vendors")
-        const list = (response.data || []).map((v: any) => ({
-          id: v.id,
-          name: v.business_name || v.users?.full_name || "Unnamed Vendor",
-          email: v.users?.email || "",
-          phone: v.phone || v.users?.phone || "",
-          recipientId: v.user_id || v.id,
-        }))
-        setVendors(list)
+        const response = await clientApiGet<{ data: Parameters<typeof mapVendors>[0] }>("admin/vendors")
+        setVendors(mapVendors(response.data || []))
       } else if (targetRole === "transporter") {
-        const response = await clientApiGet<{ data: any[] }>("admin/transporters")
-        const list = (response.data || []).map((t: any) => ({
-          id: t.id,
-          name: t.users?.full_name || t.business_name || "Unnamed Transporter",
-          email: t.users?.email || "",
-          phone: t.phone || t.users?.phone || "",
-          recipientId: t.user_id,
-        }))
-        setTransporters(list)
+        const response = await clientApiGet<{ data: Parameters<typeof mapTransporters>[0] }>("admin/transporters")
+        setTransporters(mapTransporters(response.data || []))
       }
     } catch (error) {
       log.error("error loading recipients", error)
@@ -245,26 +200,8 @@ export function MessagingTab() {
     return transporters
   }
 
-  // Filter users based on query
-  const filteredUsers = getActiveUsers()
-    .filter((u) => {
-      if (!searchQuery.trim()) return false // Don't show options if search query is empty
-      const query = searchQuery.toLowerCase()
-      return u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query) || u.phone?.toLowerCase().includes(query)
-    })
-    .slice(0, 5) // limit to top 5 matches
-
-  // Filter logs based on query
-  const filteredLogs = logs.filter((log) => {
-    if (!logSearchQuery.trim()) return true
-    const query = logSearchQuery.toLowerCase()
-    return (
-      log.details?.recipient_name?.toLowerCase().includes(query) ||
-      log.details?.recipient_email?.toLowerCase().includes(query) ||
-      log.details?.subject?.toLowerCase().includes(query) ||
-      log.admin?.full_name?.toLowerCase().includes(query)
-    )
-  })
+  const filteredUsers = filterRecipients(getActiveUsers(), searchQuery)
+  const filteredLogs = filterActivityLogs(logs, logSearchQuery)
 
   const getRoleIcon = (roleType: string) => {
     switch (roleType) {
@@ -466,83 +403,13 @@ export function MessagingTab() {
           </CardContent>
         </Card>
 
-        {/* History Log Card */}
-        <Card className="border-slate-200 shadow-sm lg:col-span-5 bg-white">
-          <CardHeader className="pb-3 border-b">
-            <div className="flex justify-between items-center">
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5 text-slate-500" />
-                Sent Messages Log
-              </CardTitle>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400" onClick={fetchLogs}>
-                <Clock className="h-4 w-4" />
-              </Button>
-            </div>
-            <CardDescription>History of direct messages dispatched by admins.</CardDescription>
-            <div className="relative mt-3">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-              <Input
-                type="search"
-                placeholder="Search history logs..."
-                className="pl-8 bg-slate-50/50"
-                value={logSearchQuery}
-                onChange={(e) => setLogSearchQuery(e.target.value)}
-              />
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="max-h-[600px] overflow-y-auto divide-y divide-slate-100">
-              {loadingLogs ? (
-                <div className="p-8 text-center">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
-                  <p className="mt-2 text-xs text-slate-500">Loading delivery history...</p>
-                </div>
-              ) : filteredLogs.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-sm">No messaging activity logs found.</div>
-              ) : (
-                filteredLogs.map((log) => {
-                  const details = log.details || {}
-                  const ch = details.channels || {}
-                  return (
-                    <div key={log.id} className="p-4 hover:bg-slate-50/30 transition-colors space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="font-semibold text-sm text-slate-800">{details.recipient_name || "Unnamed"}</div>
-                          <div className="text-xs text-slate-400">{details.recipient_email}</div>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono whitespace-nowrap">
-                          {format(new Date(log.created_at), "MMM d, HH:mm")}
-                        </span>
-                      </div>
-
-                      <div className="text-sm text-slate-700 bg-slate-50 p-2 rounded border border-slate-100">
-                        <div className="font-semibold text-xs text-slate-500 mb-0.5">Subject: {details.subject}</div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs pt-1">
-                        <div className="text-slate-500">
-                          By: <span className="font-medium">{log.admin?.full_name || "Admin"}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {ch.sendEmail && (
-                            <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-sky-50 text-sky-700 border-sky-200">
-                              Email
-                            </Badge>
-                          )}
-                          {ch.sendInApp && (
-                            <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-indigo-50 text-indigo-700 border-indigo-200">
-                              In-App
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <MessagingHistoryCard
+          logs={filteredLogs}
+          loading={loadingLogs}
+          searchQuery={logSearchQuery}
+          onSearchQueryChange={setLogSearchQuery}
+          onRefresh={fetchLogs}
+        />
       </div>
     </div>
   )

@@ -16,7 +16,6 @@
     },
     {
       "files": [
-        "components/admin/messaging-tab.tsx",
         "components/checkout/checkout-success-content.tsx",
         "components/ui/sidebar.tsx",
         "lib/i18n/translations.ts"

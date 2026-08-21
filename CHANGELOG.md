@@ -9,6 +9,14 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`messaging-tab.tsx` split**: the recipient/activity-log types, the
+  per-role API row mappers, and both search predicates into
+  `lib/admin/messaging.ts`; the sent-messages history card into
+  `components/admin/messaging-history-card.tsx`. 549 -> 416 lines, off the
+  max-lines allowlist. Verified DOM-identical across three states (initial
+  render, after searching history logs, after searching for a recipient)
+  before landing.
+
 - **`hr-staff-subtab.tsx` split**: the staff type, status-tab/search/role/date
   filtering and per-status counts into `lib/admin/hr-staff.ts`; the add/edit
   form into `components/admin/hr-staff-form-dialog.tsx` (the form state stays a
