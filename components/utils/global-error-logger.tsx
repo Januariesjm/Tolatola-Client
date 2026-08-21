@@ -4,14 +4,18 @@ import { useEffect } from "react"
 import { EventEmitter } from "events"
 import { logger } from "@/lib/logger"
 import { initErrorTracking } from "@/lib/observability/error-tracking"
+import { initSentryReporting } from "@/lib/observability/sentry"
 
 const log = logger.child("global")
 
 export function GlobalErrorLogger() {
   useEffect(() => {
     // Registers the sink for every error-level record, including the two
-    // handlers below. A no-op unless NEXT_PUBLIC_ERROR_TRACKING_DSN is set.
+    // handlers below. Each is a no-op unless its own DSN is set, and Sentry
+    // chains onto whatever initErrorTracking already registered rather than
+    // replacing it -- see lib/observability/sentry.ts.
     const tracking = initErrorTracking()
+    const sentry = initSentryReporting()
 
     // Increase global EventEmitter max listeners limit to prevent MaxListenersExceededWarning
     try {
@@ -110,6 +114,9 @@ export function GlobalErrorLogger() {
       console.error = originalError
       window.removeEventListener("error", handleError)
       window.removeEventListener("unhandledrejection", handleRejection)
+      // Reverse of init order: un-chain Sentry first so tracking.shutdown()
+      // doesn't null out a reporter Sentry still holds a reference to.
+      sentry.shutdown()
       tracking.shutdown()
     }
   }, [])

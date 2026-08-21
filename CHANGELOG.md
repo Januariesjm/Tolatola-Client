@@ -7,6 +7,17 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Sentry wired behind `NEXT_PUBLIC_SENTRY_DSN`** (`lib/observability/sentry.ts`,
+  new `@sentry/nextjs` dependency). Chains onto `lib/logger.ts`'s error
+  reporter rather than replacing it, so it composes with the existing
+  DSN-based HTTP transport in `lib/observability/error-tracking.ts` -- a
+  deployment can run either, both, or neither. No DSN means disabled, matching
+  every other optional integration in this codebase. `GlobalErrorLogger`
+  initializes it alongside the existing transport and tears both down in
+  reverse order on unmount.
+
 ### Changed
 
 - **`product-management-tab.tsx` split**: the search/filter/sort predicate and
