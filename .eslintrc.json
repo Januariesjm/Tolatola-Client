@@ -24,7 +24,6 @@
         "components/agent/agent-commission-tab.tsx",
         "components/checkout/checkout-content.tsx",
         "components/checkout/checkout-success-content.tsx",
-        "components/orders/order-detail-content.tsx",
         "components/support/floating-support-widget.tsx",
         "components/transporter/transporter-subscription-tab.tsx",
         "components/ui/sidebar.tsx",

@@ -1,70 +1,26 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import {
-  CheckCircle,
-  Package,
-  Truck,
-  MapPin,
-  Store,
-  CheckCircle2,
-  Phone,
-  Home,
-  CreditCard,
-  Calendar,
-  ChevronLeft,
-  ArrowRight,
-  Wallet,
-  AlertTriangle,
-  Loader2,
-} from "lucide-react"
+import { Calendar, CheckCircle, CheckCircle2, ChevronLeft, Home, MapPin, Package, Phone, Store, Truck } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ChatButton } from "@/components/messaging/chat-button"
 import { OrderTrackingMap } from "@/components/orders/order-tracking-map"
 import { getPaymentStatusColor, getStatusColor } from "@/lib/orders/status-colors"
-import { logger } from "@/lib/logger"
+import { DeliveryConfirmationBanner, OrderPlacedBanner, VerifyReceiptBanner } from "@/components/orders/order-status-banners"
+import { OrderDetailSidebar } from "@/components/orders/order-detail-sidebar"
+import { useConfirmDelivery } from "@/hooks/use-confirm-delivery"
 import type { Order, OrderItem } from "@/lib/schemas/order"
-
-const log = logger.child("orders.detail")
 
 interface OrderDetailContentProps {
   order: Order
 }
 
 export function OrderDetailContent({ order }: OrderDetailContentProps) {
-  const [isConfirming, setIsConfirming] = useState(false)
-  const [confirmError, setConfirmError] = useState<string | null>(null)
-  const router = useRouter()
-
-  const handleConfirmDelivery = async () => {
-    setIsConfirming(true)
-    try {
-      const response = await fetch("/api/orders/confirm-delivery", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: order.id }),
-      })
-
-      if (!response.ok) {
-        // Previously a non-OK response was ignored entirely: no refresh, no
-        // error, no feedback -- indistinguishable from success.
-        throw new Error(`confirm-delivery failed with ${response.status}`)
-      }
-      setConfirmError(null)
-      router.refresh()
-    } catch (error) {
-      log.error("failed to confirm delivery", error, { orderId: order.id })
-      setConfirmError("We couldn't confirm delivery. Please try again.")
-    } finally {
-      setIsConfirming(false)
-    }
-  }
+  const { isConfirming, confirmError, confirmDelivery } = useConfirmDelivery(order.id)
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-20">
@@ -81,63 +37,10 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
         </div>
 
         {/* Success Banner */}
-        {order.status === "pending" && (
-          <div className="mb-8 rounded-xl border border-green-200 bg-green-50 p-6 flex items-start gap-4 shadow-sm">
-            <div className="flex-shrink-0 bg-green-100 p-2 rounded-full">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-green-900 mb-1">Order Placed Successfully!</h2>
-              <p className="text-green-700 text-sm">
-                Your order has been received and is being processed. You will receive updates via email.
-              </p>
-            </div>
-          </div>
-        )}
+        <OrderPlacedBanner order={order} />
 
         {/* Premium Alternative Confirmation Request Banner */}
-        {order.delivery_confirmation_requested && order.status !== "delivered" && order.status !== "completed" && (
-          <div className="mb-8 border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-blue-500/5 to-primary/5 p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-xl -mr-8 -mt-8" />
-            <div className="flex items-start gap-4 flex-1">
-              <div className="bg-primary/15 p-3 rounded-full flex-shrink-0">
-                <Truck className="h-6 w-6 text-primary animate-bounce" />
-              </div>
-              <div className="text-left">
-                <h2 className="text-lg font-extrabold text-foreground mb-1">Have you received your product? 🚚</h2>
-                <p className="text-muted-foreground text-sm max-w-xl">
-                  Your transporter has requested confirmation to complete the delivery. Please confirm only if you have physically received
-                  your items. This will finalize payments and close escrows.
-                </p>
-                {confirmError && (
-                  <p role="alert" className="mt-2 text-sm font-medium text-destructive">
-                    {confirmError}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto flex-shrink-0">
-              <Button
-                onClick={handleConfirmDelivery}
-                disabled={isConfirming}
-                className="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-bold px-6 h-11 rounded-xl"
-              >
-                {isConfirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                Confirm Delivery
-              </Button>
-              <Button
-                asChild
-                variant="destructive"
-                className="flex-1 md:flex-none bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 gap-2 font-bold px-6 h-11 rounded-xl"
-              >
-                <Link href={`/track/complaint?orderId=${order.id}`}>
-                  <AlertTriangle className="h-4 w-4" />
-                  Report Issue
-                </Link>
-              </Button>
-            </div>
-          </div>
-        )}
+        <DeliveryConfirmationBanner order={order} isConfirming={isConfirming} confirmError={confirmError} onConfirm={confirmDelivery} />
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -493,182 +396,11 @@ export function OrderDetailContent({ order }: OrderDetailContentProps) {
             })()}
 
             {/* Confirm Delivery Action */}
-            {order.status === "delivered" && (
-              <Card className="border-blue-200 bg-blue-50/50">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-bold text-lg text-blue-900">Verify Receipt</h3>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Please confirm you have received the order. This will release funds to the vendor and transporter.
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleConfirmDelivery}
-                      disabled={isConfirming}
-                      className="bg-blue-600 hover:bg-blue-700 text-white min-w-[150px]"
-                    >
-                      {isConfirming ? "Verifying..." : "Verify Receipt"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <VerifyReceiptBanner order={order} isConfirming={isConfirming} onConfirm={confirmDelivery} />
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Order Summary */}
-            <Card className="border-border/60 shadow-sm">
-              <CardHeader className="bg-gray-50/50 border-b pb-4">
-                <CardTitle className="text-lg">Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>TZS {order.subtotal?.toLocaleString() || order.total_amount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span>TZS {order.delivery_fee?.toLocaleString() || "0"}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax / VAT</span>
-                    <span>TZS 0</span>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span className="text-primary">TZS {order.total_amount.toLocaleString()}</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Shipping Address */}
-            <Card className="border-border/60 shadow-sm">
-              <CardHeader className="bg-gray-50/50 border-b pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <MapPin className="h-4 w-4" />
-                  Delivery Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex gap-3 mb-4">
-                  <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-4 w-4 text-gray-500" />
-                  </div>
-                  <div className="text-sm space-y-1">
-                    <p className="font-bold text-gray-900">{order.shipping_address?.full_name}</p>
-                    <p className="text-muted-foreground">{order.shipping_address?.address}</p>
-                    <p className="text-muted-foreground">
-                      {order.shipping_address?.city}, {order.shipping_address?.region}
-                    </p>
-                    <p className="text-muted-foreground mt-2 flex items-center gap-1.5">
-                      <Phone className="h-3 w-3" />
-                      {order.shipping_address?.phone}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Logistics */}
-            <Card className="border-border/60 shadow-sm">
-              <CardHeader className="bg-gray-50/50 border-b pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Truck className="h-4 w-4" />
-                  Logistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                {order.transport_methods ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
-                        <Home className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm">{order.transport_methods.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{order.transport_methods.provider_type || "Logistics"}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground italic flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    To be assigned
-                  </div>
-                )}
-
-                {/* Tracking Map */}
-                {["shipped", "delivered"].includes(order.status ?? "") && order.transporter_assignments?.[0] && (
-                  <div className="mt-6">
-                    <h4 className="font-medium mb-3 flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      Live Tracking
-                    </h4>
-                    <OrderTrackingMap
-                      origin={{
-                        lat: order.order_items?.[0]?.products?.shops?.latitude || -6.7924,
-                        lng: order.order_items?.[0]?.products?.shops?.longitude || 39.2083,
-                        address: order.order_items?.[0]?.products?.shops?.address ?? undefined,
-                      }}
-                      destination={{
-                        lat: order.shipping_address?.latitude || -6.7924, // Fallback if not available
-                        lng: order.shipping_address?.longitude || 39.2083,
-                        address: order.shipping_address?.address ?? undefined,
-                      }}
-                      transporterLocation={order.transporter_assignments?.[0]?.transporters?.current_location ?? undefined}
-                      className="w-full"
-                    />
-                    {order.transporter_assignments?.[0]?.transporters?.users && (
-                      <div className="mt-3 flex items-center justify-between bg-blue-50 p-3 rounded-lg border border-blue-100">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center border">
-                            <Truck className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm text-blue-900">
-                              {order.transporter_assignments[0].transporters.users.full_name}
-                            </p>
-                            <p className="text-xs text-blue-700">Your Transporter</p>
-                          </div>
-                        </div>
-                        <Button size="sm" variant="ghost" className="h-8 gap-2 text-blue-700 hover:text-blue-900 hover:bg-blue-100" asChild>
-                          <Link href={`tel:${order.transporter_assignments[0].transporters.users.phone}`}>
-                            <Phone className="h-3.5 w-3.5" />
-                            <span>Call</span>
-                          </Link>
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Payment Method */}
-            <Card className="border-border/60 shadow-sm">
-              <CardHeader className="bg-gray-50/50 border-b pb-4">
-                <CardTitle className=" text-lg">Payment</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-gray-100 border flex items-center justify-center">
-                    <Wallet className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <div>
-                    <span className="block font-medium capitalization text-sm">{order.payment_method || "Online Payment"}</span>
-                    <span className="text-xs text-muted-foreground">{order.payment_status}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <OrderDetailSidebar order={order} />
         </div>
       </div>
     </div>

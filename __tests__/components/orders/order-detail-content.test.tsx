@@ -174,7 +174,8 @@ describe("OrderDetailContent", () => {
       expect(mockRefresh).not.toHaveBeenCalled()
       expect(reported).toHaveLength(1)
       expect(reported[0]).toMatchObject({
-        scope: "orders.detail",
+        // The handler moved to hooks/use-confirm-delivery.ts; the scope moved with it.
+        scope: "orders.confirm-delivery",
         message: "failed to confirm delivery",
         context: { orderId: "ord-1" },
       })
