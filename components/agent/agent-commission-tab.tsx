@@ -24,13 +24,23 @@ import {
 } from "lucide-react"
 import { DateRangeFilter, filterByDateRange, type DatePeriod } from "../admin/date-range-filter"
 import { logger } from "@/lib/logger"
+import {
+  emptyWalletStats,
+  type AgentCommissionRecord,
+  type AgentCommissionSummary,
+  type AgentLeaderboardEntry,
+  type AgentWalletResponse,
+  type AgentWalletStats,
+  type AgentWithdrawal,
+} from "@/lib/types/agent"
 
 const log = logger.child("agent.agent-commission-tab")
 
 interface AgentCommissionTabProps {
-  commissions: any[]
-  summary: any
-  leaderboard: any[]
+  commissions: AgentCommissionRecord[]
+  summary: AgentCommissionSummary | null
+  /** Accepted for the dashboard's prop shape; this tab does not render them. */
+  leaderboard: AgentLeaderboardEntry[]
   myRank: number | null
 }
 
@@ -43,14 +53,7 @@ export function AgentCommissionTab({
   const { toast } = useToast()
 
   // Wallet State
-  const [walletStats, setWalletStats] = useState<any>({
-    lifetimeEarnings: initialSummary?.totalEarnings || 0,
-    pendingBalance: initialSummary?.pendingCommission || 0,
-    withdrawableBalance: 0,
-    paidBalance: initialSummary?.paidCommission || 0,
-    commissions: initialCommissions || [],
-    withdrawals: [],
-  })
+  const [walletStats, setWalletStats] = useState<AgentWalletStats>(() => emptyWalletStats(initialSummary, initialCommissions || []))
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitLoading, setIsSubmitLoading] = useState(false)
@@ -81,7 +84,7 @@ export function AgentCommissionTab({
       })
 
       if (response.ok) {
-        const data = await response.json()
+        const data: AgentWalletResponse = await response.json()
         if (data.success && data.wallet) {
           setWalletStats(data.wallet)
         }
@@ -102,21 +105,31 @@ export function AgentCommissionTab({
 
   const computedLifetimeEarnings = useMemo(() => {
     return dateFilteredCommissions
-      .filter((c: any) => c.status === "paid" || c.status === "approved")
-      .reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+      .filter((c: AgentCommissionRecord) => c.status === "paid" || c.status === "approved")
+      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
   }, [dateFilteredCommissions])
 
   const computedPendingBalance = useMemo(() => {
-    return dateFilteredCommissions.filter((c: any) => c.status === "pending").reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+    return dateFilteredCommissions
+      .filter((c: AgentCommissionRecord) => c.status === "pending")
+      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
   }, [dateFilteredCommissions])
 
   const computedPaidBalance = useMemo(() => {
-    return dateFilteredCommissions.filter((c: any) => c.status === "paid").reduce((sum: number, c: any) => sum + Number(c.amount), 0)
+    return dateFilteredCommissions
+      .filter((c: AgentCommissionRecord) => c.status === "paid")
+      .reduce((sum: number, c: AgentCommissionRecord) => sum + Number(c.amount), 0)
   }, [dateFilteredCommissions])
 
   // Currency Formatter
-  const formatTzs = (amount: number) => {
-    return `TZS ${(amount || 0).toLocaleString()}`
+  /**
+   * Amounts arrive from the API as either numbers or numeric strings. This took
+   * `number` before, so a string amount reached `.toLocaleString()` as a string
+   * and rendered without thousands separators — "TZS 25000" instead of
+   * "TZS 25,000". Coercing first fixes that.
+   */
+  const formatTzs = (amount?: number | string | null) => {
+    return `TZS ${(Number(amount) || 0).toLocaleString()}`
   }
 
   // Handle Quick Percent Withdrawal
@@ -377,7 +390,7 @@ export function AgentCommissionTab({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {dateFilteredCommissions.map((comm: any) => (
+                    {dateFilteredCommissions.map((comm: AgentCommissionRecord) => (
                       <tr key={comm.id} className="hover:bg-slate-50/40 transition-colors">
                         <td className="py-4 px-6 font-bold text-slate-900">
                           {comm.agent_registrations ? (
@@ -445,7 +458,7 @@ export function AgentCommissionTab({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {dateFilteredWithdrawals.map((wdraw: any) => (
+                  {dateFilteredWithdrawals.map((wdraw: AgentWithdrawal) => (
                     <tr key={wdraw.id} className="hover:bg-slate-50/40 transition-colors">
                       <td className="py-4 px-6">
                         <div className="flex flex-col">
