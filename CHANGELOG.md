@@ -7,6 +7,16 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`agent-commission-tab.tsx` split**: wallet load, date filtering and the
+  withdrawal submission into `hooks/use-agent-wallet.ts`; the transaction
+  history table into `components/agent/commission-history-card.tsx`; the
+  withdrawal form into `components/agent/withdraw-modal.tsx`. 633 -> 184 lines,
+  off the max-lines allowlist. Verified DOM-identical across four states
+  (initial load, modal open, amount entered showing the fee preview, payouts
+  tab) before landing.
+
 ### Added
 
 - **The withdrawal request is now validated by a zod schema**
