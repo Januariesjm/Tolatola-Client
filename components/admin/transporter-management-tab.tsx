@@ -1,164 +1,39 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { CheckCircle2, XCircle, Search, Mail, Phone, Calendar, User, Eye, Truck, ShieldCheck, Trash2, MessageSquare } from "lucide-react"
-import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
-import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
-import { logger } from "@/lib/logger"
-
-const log = logger.child("admin.transporter-management-tab")
-
-interface Transporter {
-  id: string
-  user_id: string
-  vehicle_type: string
-  vehicle_registration: string
-  license_number: string
-  kyc_status: string
-  availability_status: string
-  is_active?: boolean | null
-  created_at: string
-  updated_at: string
-  total_deliveries: number
-  users?: {
-    email: string
-    full_name: string
-    phone?: string
-  }
-  phone?: string
-  business_name?: string
-  region?: string
-  district?: string
-  driver_license_url?: string
-  id_document_url?: string
-  license_document_url?: string
-  vehicle_registration_document_url?: string
-}
+import { TransporterDetailsDialog } from "@/components/admin/transporter-details-dialog"
+import { useAdminTransporters } from "@/hooks/use-admin-transporters"
+import { isTransporterActive, type Transporter } from "@/lib/admin/transporters"
 
 export function TransporterManagementTab() {
-  const [transporters, setTransporters] = useState<Transporter[]>([])
-  const [filteredTransporters, setFilteredTransporters] = useState<Transporter[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  const { transporters, filteredTransporters, searchQuery, setSearchQuery, isLoading, toggleActive, deleteTransporter } =
+    useAdminTransporters()
   const [selectedTransporter, setSelectedTransporter] = useState<Transporter | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [messageTransporter, setMessageTransporter] = useState<Transporter | null>(null)
-  const { toast } = useToast()
-  const router = useRouter()
-
-  useEffect(() => {
-    fetchTransporters()
-  }, [])
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredTransporters(transporters)
-    } else {
-      const query = searchQuery.toLowerCase()
-      setFilteredTransporters(
-        transporters.filter(
-          (t) =>
-            t.users?.full_name?.toLowerCase().includes(query) ||
-            t.users?.email?.toLowerCase().includes(query) ||
-            t.vehicle_registration?.toLowerCase().includes(query) ||
-            t.license_number?.toLowerCase().includes(query) ||
-            t.phone?.toLowerCase().includes(query) ||
-            t.users?.phone?.toLowerCase().includes(query),
-        ),
-      )
-    }
-  }, [searchQuery, transporters])
-
-  const fetchTransporters = async () => {
-    try {
-      setIsLoading(true)
-      const response = await clientApiGet<{ data: Transporter[] }>("admin/transporters")
-      setTransporters(response.data || [])
-      setFilteredTransporters(response.data || [])
-    } catch (error) {
-      log.error("error fetching transporters", error)
-      toast({
-        title: "Error",
-        description: "Failed to load transporters",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleToggleActive = async (transporter: Transporter) => {
-    try {
-      const currentStatus = transporter.is_active ?? true
-      const newStatus = !currentStatus
-      await clientApiPost(`admin/transporters/${transporter.id}/${newStatus ? "activate" : "deactivate"}`)
-
-      toast({
-        title: newStatus ? "Transporter Activated" : "Transporter Deactivated",
-        description: `${transporter.users?.full_name || "Transporter"} has been ${newStatus ? "activated" : "deactivated"}`,
-      })
-
-      // Update local state
-      setTransporters(transporters.map((t) => (t.id === transporter.id ? { ...t, is_active: newStatus } : t)))
-      setFilteredTransporters(filteredTransporters.map((t) => (t.id === transporter.id ? { ...t, is_active: newStatus } : t)))
-      if (selectedTransporter?.id === transporter.id) {
-        setSelectedTransporter({ ...selectedTransporter, is_active: newStatus })
-      }
-    } catch (error) {
-      log.error("error toggling transporter status", error)
-      toast({
-        title: "Error",
-        description: "Failed to update transporter status",
-        variant: "destructive",
-      })
+    await toggleActive(transporter)
+    // Keep the open dialog in step with the row it was opened from.
+    if (selectedTransporter?.id === transporter.id) {
+      setSelectedTransporter({ ...selectedTransporter, is_active: !isTransporterActive(transporter) })
     }
   }
 
   const handleDeleteTransporter = async (transporterId: string) => {
-    try {
-      await clientApiDelete(`admin/transporters/${transporterId}`)
-      toast({
-        title: "Transporter Deleted",
-        description: "The transporter has been permanently deleted.",
-      })
-      // Update local state
-      setTransporters(transporters.filter((t) => t.id !== transporterId))
-      setFilteredTransporters(filteredTransporters.filter((t) => t.id !== transporterId))
-      setViewDialogOpen(false)
-    } catch (error) {
-      log.error("error deleting transporter", error)
-      toast({
-        title: "Error",
-        description: "Failed to delete transporter account",
-        variant: "destructive",
-      })
-    }
+    if (await deleteTransporter(transporterId)) setViewDialogOpen(false)
   }
 
   const handleViewDetails = (transporter: Transporter) => {
     setSelectedTransporter(transporter)
     setViewDialogOpen(true)
-  }
-
-  const getVehicleTypeBadge = (vehicleType: string) => {
-    const colors: Record<string, string> = {
-      bodaboda: "bg-blue-500",
-      bajaj: "bg-green-500",
-      car: "bg-purple-500",
-      canter: "bg-orange-500",
-      semi_trailer: "bg-red-500",
-      flight: "bg-indigo-500",
-    }
-    return colors[vehicleType] || "bg-gray-500"
   }
 
   if (isLoading) {
@@ -402,110 +277,13 @@ export function TransporterManagementTab() {
       )}
 
       {/* Details Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Transporter Details</DialogTitle>
-            <DialogDescription>Full information for {selectedTransporter?.users?.full_name}</DialogDescription>
-          </DialogHeader>
-          {selectedTransporter && (
-            <div className="grid md:grid-cols-2 gap-4 py-4">
-              <div>
-                <Label className="text-muted-foreground">Full Name</Label>
-                <p className="font-medium">{selectedTransporter.users?.full_name}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Email</Label>
-                <p className="font-medium">{selectedTransporter.users?.email}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Phone</Label>
-                <p className="font-medium">{selectedTransporter.phone || selectedTransporter.users?.phone || "N/A"}</p>
-              </div>
-              {selectedTransporter.business_name && (
-                <div>
-                  <Label className="text-muted-foreground">Business Name</Label>
-                  <p className="font-medium">{selectedTransporter.business_name}</p>
-                </div>
-              )}
-              <div>
-                <Label className="text-muted-foreground">Location</Label>
-                <p className="font-medium">
-                  {selectedTransporter.region || selectedTransporter.district
-                    ? `${selectedTransporter.region || ""}${selectedTransporter.region && selectedTransporter.district ? ", " : ""}${selectedTransporter.district || ""}`
-                    : "N/A"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Vehicle Type</Label>
-                <p className="font-medium">{selectedTransporter.vehicle_type}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Vehicle Registration</Label>
-                <p className="font-medium">{selectedTransporter.vehicle_registration}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">License Number</Label>
-                <p className="font-medium">{selectedTransporter.license_number}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">KYC Status</Label>
-                <Badge variant="outline">{selectedTransporter.kyc_status}</Badge>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Availability</Label>
-                <Badge variant="outline">{selectedTransporter.availability_status}</Badge>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Total Deliveries</Label>
-                <p className="font-medium">{selectedTransporter.total_deliveries || 0}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Member Since</Label>
-                <p className="font-medium">{new Date(selectedTransporter.created_at).toLocaleDateString()}</p>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="flex justify-between items-center w-full">
-            <div className="flex gap-2">
-              {selectedTransporter && (
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    if (
-                      confirm(
-                        `Are you absolutely sure you want to permanently delete this transporter? This action cannot be undone and will delete all their assignments, withdrawals, and user accounts.`,
-                      )
-                    ) {
-                      handleDeleteTransporter(selectedTransporter.id)
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Transporter
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {selectedTransporter && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMessageTransporter(selectedTransporter)
-                    setViewDialogOpen(false)
-                  }}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Send Message
-                </Button>
-              )}
-              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
-                Close
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <TransporterDetailsDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        transporter={selectedTransporter}
+        onDelete={handleDeleteTransporter}
+        onMessage={setMessageTransporter}
+      />
       {/* Admin Message Dialog */}
       {messageTransporter && (
         <AdminMessageDialog
