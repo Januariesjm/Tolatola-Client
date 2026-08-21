@@ -1,257 +1,89 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  Smartphone,
-  Truck,
-  MapPin,
-  Loader2,
-  CheckCircle2,
-  CreditCard,
-  Banknote,
-  Building2,
-  ChevronDown,
-  ShieldCheck,
-  Wallet,
-  ArrowRight,
-  ShoppingBag,
-  Zap,
-  Info,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { useState } from "react"
+import { ShieldCheck } from "lucide-react"
 import { useCheckoutDelivery } from "@/hooks/use-checkout-delivery"
-import { isCard, isMobileMoney, validateCheckoutForm } from "@/lib/checkout/validate-checkout-form"
-import { useToast } from "@/hooks/use-toast"
-import { TanzaniaAddressForm } from "@/components/checkout/tanzania-address-form"
-import { WebMapPicker } from "@/components/checkout/web-map-picker"
-import { clientApiGet, clientApiPost } from "@/lib/api-client"
-
+import { useCheckoutSubmit } from "@/hooks/use-checkout-submit"
+import { CheckoutShippingSection, type CheckoutAddressData } from "@/components/checkout/checkout-shipping-section"
+import { OrderSummaryCard } from "@/components/checkout/order-summary-card"
+import { PaymentMethodAccordion } from "@/components/checkout/payment-method-accordion"
+import { PaymentProcessingOverlay } from "@/components/checkout/payment-processing-overlay"
+import { TransportMethodSelect } from "@/components/checkout/transport-method-select"
 import { useLanguage } from "@/lib/i18n/language-context"
-import type { CheckoutContentProps, CartItem } from "@/lib/types/checkout"
+import type { CheckoutCardDetails } from "@/lib/checkout/validate-checkout-form"
+import type { CheckoutContentProps } from "@/lib/types/checkout"
 
+/** Wallet pre-selected when the page loads. */
+const DEFAULT_PAYMENT_METHOD = "airtel-money"
+
+const EMPTY_ADDRESS: CheckoutAddressData = {
+  country: "Tanzania",
+  region: "",
+  district: "",
+  ward: "",
+  village: "",
+  street: "",
+}
+
+const EMPTY_CARD: CheckoutCardDetails = { number: "", expiry: "", cvv: "" }
+
+/**
+ * The checkout page.
+ *
+ * This composes four sections and owns only the form fields that more than one
+ * of them needs. Everything else lives next to the thing that uses it:
+ *
+ *   - cart, quoting and totals      -> hooks/use-checkout-delivery
+ *   - validation, ordering, payment -> hooks/use-checkout-submit
+ *   - payload assembly              -> lib/checkout/build-order-payload
+ *   - the method lists              -> lib/checkout/payment-methods
+ *
+ * It was previously ~840 lines holding all of that inline.
+ */
 export function CheckoutContent({ user }: CheckoutContentProps) {
   const { t } = useLanguage()
-  const {
-    cartItems,
-    latitude,
-    longitude,
-    fullAddress,
-    transportMethods,
-    selectedTransportId,
-    setSelectedTransportId,
-    shopDeliveries,
-    isCalculatingDelivery,
-    deliveryError,
-    isNavigatingAway,
-    handleAddressComplete,
-    subtotal,
-    deliveryFee,
-    insuranceFee,
-    total,
-  } = useCheckoutDelivery()
+  const delivery = useCheckoutDelivery()
 
   const [fullName, setFullName] = useState(user?.full_name || "")
   const [phone, setPhone] = useState(user?.phone || "")
-  const [addressData, setAddressData] = useState({
-    country: "Tanzania",
-    region: "",
-    district: "",
-    ward: "",
-    village: "",
-    street: "",
-  })
   const [guestEmail, setGuestEmail] = useState("")
+  const [addressData, setAddressData] = useState<CheckoutAddressData>(EMPTY_ADDRESS)
 
-  const [paymentMethod, setPaymentMethod] = useState<string>("airtel-money")
+  const [paymentMethod, setPaymentMethod] = useState<string>(DEFAULT_PAYMENT_METHOD)
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState(user?.phone || "")
-  const [cardDetails, setCardDetails] = useState({
-    number: "",
-    expiry: "",
-    cvv: "",
+  const [cardDetails, setCardDetails] = useState<CheckoutCardDetails>(EMPTY_CARD)
+
+  const { handleSubmit, isLoading, error, isAwaitingPayment } = useCheckoutSubmit({
+    user,
+    cartItems: delivery.cartItems,
+    shopDeliveries: delivery.shopDeliveries,
+    fullName,
+    phone,
+    guestEmail,
+    fullAddress: delivery.fullAddress,
+    addressData,
+    latitude: delivery.latitude,
+    longitude: delivery.longitude,
+    deliveryFee: delivery.deliveryFee,
+    insuranceFee: delivery.insuranceFee,
+    total: delivery.total,
+    paymentMethod,
+    paymentPhoneNumber,
+    cardDetails,
+    selectedTransportId: delivery.selectedTransportId,
+    isNavigatingAway: delivery.isNavigatingAway,
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
 
-  const [isAwaitingPayment, setIsAwaitingPayment] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    const validationError = validateCheckoutForm({
-      paymentMethod,
-      fullName,
-      phone,
-      guestEmail,
-      isAuthenticated: Boolean(user),
-      addressData,
-      shopDeliveryCount: Object.keys(shopDeliveries).length,
-      selectedTransportId,
-      paymentPhoneNumber,
-      cardDetails,
-    })
-
-    if (validationError) {
-      toast({ ...validationError, variant: "destructive" })
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const shopAssignedFee: Record<string, boolean> = {}
-
-      const items = cartItems.map((item) => {
-        const sId = item.product.shop_id || "default_shop"
-        const dInfo = shopDeliveries[sId]
-
-        // Only assign the fee to the first item from this shop to avoid double counting in totals
-        const feeToAssign = !shopAssignedFee[sId] ? dInfo?.deliveryFee || 0 : 0
-        shopAssignedFee[sId] = true
-
-        return {
-          product_id: item.product_id || item.product?.id,
-          quantity: item.quantity,
-          price: item.product.price,
-          shop_id: sId,
-          delivery_fee: feeToAssign,
-          delivery_distance_km: dInfo?.distanceKm || 0,
-          pickup_latitude: dInfo?.shopLat,
-          pickup_longitude: dInfo?.shopLng,
-          selected_color: item.selected_color || null,
-          selected_size: item.selected_size || null,
-        }
-      })
-
-      const orderPayload = {
-        items,
-        shippingAddress: {
-          full_name: fullName,
-          phone,
-          address: fullAddress,
-          country: addressData.country,
-          region: addressData.region,
-          district: addressData.district,
-          ward: addressData.ward,
-          village: addressData.village,
-          street: addressData.street,
-          email: guestEmail || user?.email,
-          latitude: latitude,
-          longitude: longitude,
-          delivery_distance_km: deliveryFee > 0 ? Object.values(shopDeliveries).reduce((sum, d) => sum + d.distanceKm, 0) : 0,
-          delivery_fee: deliveryFee,
-        },
-
-        totalAmount: total,
-        insuranceFee,
-        paymentMethod,
-        paymentDetails: {
-          phoneNumber: isMobileMoney(paymentMethod) ? paymentPhoneNumber : undefined,
-          cardNumber: isCard(paymentMethod) ? cardDetails.number : undefined,
-          expiryDate: isCard(paymentMethod) ? cardDetails.expiry : undefined,
-          cvv: isCard(paymentMethod) ? cardDetails.cvv : undefined,
-        },
-        transportMethodId: Object.values(shopDeliveries)[0]?.transportMethodId || selectedTransportId || null,
-        deliveryFee,
-      }
-
-      const orderRes = await clientApiPost<{ order: any; success?: boolean }>("orders", orderPayload)
-      const orderId = (orderRes as any)?.order?.id || (orderRes as any)?.id
-
-      if (!orderId) {
-        throw new Error("Order ID not returned from API")
-      }
-
-      if (paymentMethod === "cash-on-delivery") {
-        isNavigatingAway.current = true
-        localStorage.removeItem("cart")
-        window.dispatchEvent(new Event("cartUpdated"))
-        router.push(`/checkout/success/${orderId}`)
-        return
-      }
-
-      // Initiate Payment
-      setIsAwaitingPayment(true)
-
-      const payRes = await clientApiPost<{ success: boolean; message: string; transactionId?: string; controlNumber?: string }>(
-        "payments/clickpesa/initiate",
-        {
-          orderId,
-          paymentMethod,
-          paymentDetails: {
-            phoneNumber: paymentPhoneNumber,
-            cardNumber: cardDetails.number,
-            expiryDate: cardDetails.expiry,
-            cvv: cardDetails.cvv,
-          },
-        },
-      )
-
-      if (payRes.success) {
-        // Payment initiated successfully — clear cart
-        isNavigatingAway.current = true
-        localStorage.removeItem("cart")
-        window.dispatchEvent(new Event("cartUpdated"))
-
-        // For card payments, redirect to ClickPesa's secure hosted payment page
-        if (isCard(paymentMethod) && payRes.controlNumber && payRes.controlNumber.startsWith("http")) {
-          window.location.href = payRes.controlNumber
-        } else {
-          router.push(`/checkout/success/${orderId}`)
-        }
-      } else {
-        throw new Error(payRes.message || "Failed to initiate payment")
-      }
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred during checkout")
-      setIsAwaitingPayment(false)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  if (cartItems.length === 0) return null
+  // useCheckoutDelivery redirects to /cart for an empty cart; render nothing
+  // rather than an empty summary while that navigation happens.
+  if (delivery.cartItems.length === 0) return null
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] pb-10">
-      {/* Payment Processing Overlay — brief spinner while redirecting */}
-      {isAwaitingPayment && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-          <Card className="max-w-md w-full mx-4 border-none shadow-2xl bg-white rounded-[2.5rem] overflow-hidden animate-in zoom-in duration-300">
-            <div className="bg-primary p-8 text-white text-center space-y-4">
-              <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
-                <Loader2 className="h-8 w-8 animate-spin" />
-              </div>
-              <h2 className="text-2xl font-black tracking-tight">Processing Payment</h2>
-            </div>
-            <CardContent className="p-8 text-center space-y-6">
-              <p className="text-stone-600 font-medium leading-relaxed">Please wait while we process your payment...</p>
-              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-green-600" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">
-                  Encrypted secure transaction protocol active
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      {isAwaitingPayment && <PaymentProcessingOverlay />}
 
       <div className="container mx-auto px-3 sm:px-4 py-4 md:py-12">
         <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-4">
             <div className="space-y-1.5 md:space-y-2">
               <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-wider text-[10px]">
@@ -265,570 +97,62 @@ export function CheckoutContent({ user }: CheckoutContentProps) {
             </div>
             <div className="hidden md:flex flex-col items-end gap-1 p-4 bg-white rounded-2xl shadow-xl shadow-stone-200/50 border border-stone-100">
               <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">{t("cart.total")}</p>
-              <p className="text-2xl font-black text-primary tracking-tight">TZS {total.toLocaleString()}</p>
+              <p className="text-2xl font-black text-primary tracking-tight">TZS {delivery.total.toLocaleString()}</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="grid lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-8 space-y-6 md:space-y-12">
               <div className="space-y-4">
-                {/* Shipping Section */}
-                <section className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                      1
-                    </div>
-                    <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">{t("checkout.shipping")}</h2>
-                  </div>
+                <CheckoutShippingSection
+                  heading={t("checkout.shipping")}
+                  fullName={fullName}
+                  onFullNameChange={setFullName}
+                  phone={phone}
+                  onPhoneChange={setPhone}
+                  showGuestEmail={!user}
+                  guestEmail={guestEmail}
+                  onGuestEmailChange={setGuestEmail}
+                  userId={user?.id}
+                  addressData={addressData}
+                  onAddressDataChange={setAddressData}
+                  onAddressComplete={delivery.handleAddressComplete}
+                  latitude={delivery.latitude}
+                  longitude={delivery.longitude}
+                  isCalculatingDelivery={delivery.isCalculatingDelivery}
+                  deliveryError={delivery.deliveryError}
+                  shopDeliveries={delivery.shopDeliveries}
+                />
 
-                  <Card className="border-none shadow-xl shadow-stone-200/40 rounded-2xl md:rounded-3xl bg-white group hover:shadow-2xl transition-all duration-300">
-                    <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 md:space-y-6">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="fullName" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
-                            Full Name *
-                          </Label>
-                          <Input
-                            id="fullName"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                            placeholder="Enter name"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
-                            Phone Number *
-                          </Label>
-                          <Input
-                            id="phone"
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            required
-                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                            placeholder="+255..."
-                          />
-                        </div>
-                      </div>
-
-                      {!user && (
-                        <div className="space-y-2">
-                          <Label htmlFor="guestEmail" className="text-xs font-bold uppercase tracking-wide text-stone-600 ml-1">
-                            Email Address *
-                          </Label>
-                          <Input
-                            id="guestEmail"
-                            type="email"
-                            value={guestEmail}
-                            onChange={(e) => setGuestEmail(e.target.value)}
-                            required
-                            className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                            placeholder="your@email.com"
-                          />
-                          <p className="text-[10px] text-stone-400 font-bold px-1 italic">
-                            We'll send your order confirmation and tracking details here.
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="pt-4 border-t border-stone-50 space-y-6">
-                        <TanzaniaAddressForm
-                          value={addressData}
-                          onChange={setAddressData}
-                          onAddressComplete={handleAddressComplete}
-                          userId={user?.id}
-                        />
-
-                        <WebMapPicker
-                          latitude={latitude}
-                          longitude={longitude}
-                          onLocationSelect={(coords) => {
-                            // handleAddressComplete sets latitude/longitude from
-                            // these same coords, so setting them here too was a
-                            // redundant duplicate write.
-                            const dummyAddress =
-                              [addressData.street, addressData.ward, addressData.district, addressData.region].filter(Boolean).join(", ") ||
-                              "Selected Pin"
-                            handleAddressComplete(dummyAddress, coords)
-                          }}
-                          title="Verify Delivery Location Pin"
-                        />
-                      </div>
-
-                      {isCalculatingDelivery && (
-                        <div className="flex items-center gap-3 p-4 bg-stone-900 rounded-xl text-white/90">
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          <span className="font-medium text-sm">Calculating delivery fee...</span>
-                        </div>
-                      )}
-
-                      {deliveryError && (
-                        <div className="flex items-center gap-3 p-4 md:p-6 bg-destructive/5 rounded-2xl md:rounded-[2rem] text-destructive border border-destructive/20">
-                          <Info className="h-5 w-5 shrink-0" />
-                          <span className="font-bold text-xs md:text-sm">{deliveryError}</span>
-                        </div>
-                      )}
-
-                      {Object.keys(shopDeliveries).length > 0 && (
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
-                            <MapPin className="h-3 w-3" />
-                            <span>Delivery Logistics Breakdown</span>
-                          </div>
-                          {Object.entries(shopDeliveries).map(([shopId, info]) => (
-                            <div
-                              key={shopId}
-                              className="p-3.5 sm:p-5 md:p-6 bg-stone-50 rounded-2xl md:rounded-[2rem] border border-stone-100 space-y-3 md:space-y-4 overflow-hidden"
-                            >
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="space-y-0.5 min-w-0">
-                                  <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#2563EB]">From Shop</p>
-                                  <p className="text-xs sm:text-sm font-black text-stone-900 truncate">TOLA Verified Vendor</p>
-                                </div>
-                                <div className="px-2 py-1 rounded-lg bg-white border border-stone-100 shadow-sm text-[9px] sm:text-[10px] font-black text-stone-500 uppercase shrink-0">
-                                  {info.transportMethod}
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                                <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
-                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">
-                                    Distance
-                                  </p>
-                                  <p className="text-[10px] sm:text-xs font-black text-stone-800 truncate">{info.distanceKm} KM</p>
-                                </div>
-                                <div className="p-2 sm:p-3 bg-white rounded-xl md:rounded-2xl border border-stone-50 space-y-0.5 min-w-0">
-                                  <p className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide text-stone-400 truncate">
-                                    Status
-                                  </p>
-                                  <p
-                                    className={cn(
-                                      "text-[10px] sm:text-xs font-black truncate",
-                                      info.deliveryAvailable !== false ? "text-stone-800" : "text-amber-600",
-                                    )}
-                                  >
-                                    {info.deliveryAvailable !== false ? info.duration || "Fast" : "Pickup"}
-                                  </p>
-                                </div>
-                                <div
-                                  className={cn(
-                                    "p-2 sm:p-3 rounded-xl md:rounded-2xl border space-y-0.5 min-w-0",
-                                    info.deliveryAvailable !== false
-                                      ? "bg-[#2563EB]/5 border-[#2563EB]/10"
-                                      : "bg-stone-100 border-stone-200",
-                                  )}
-                                >
-                                  <p
-                                    className={cn(
-                                      "text-[7.5px] sm:text-[8px] font-bold uppercase tracking-wide truncate",
-                                      info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-400",
-                                    )}
-                                  >
-                                    Fee
-                                  </p>
-                                  <p
-                                    className={cn(
-                                      "text-[10px] sm:text-xs font-black truncate",
-                                      info.deliveryAvailable !== false ? "text-[#2563EB]" : "text-stone-500",
-                                    )}
-                                  >
-                                    {info.deliveryAvailable !== false ? `TZS ${info.deliveryFee.toLocaleString()}` : "FREE"}
-                                  </p>
-                                </div>
-                              </div>
-                              {info.deliveryAvailable === false && (
-                                <p className="text-[10px] font-bold text-amber-600 bg-amber-50 p-2.5 sm:p-3 rounded-xl border border-amber-100">
-                                  Info: One or more items from this merchant are "Store Pickup Only". Please visit the shop location after
-                                  payment.
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </section>
-
-                {/* Transport Section */}
-                <section className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                      2
-                    </div>
-                    <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Delivery Method</h2>
-                  </div>
-
-                  <div className="w-full">
-                    <Select value={selectedTransportId} onValueChange={setSelectedTransportId}>
-                      <SelectTrigger className="w-full !h-auto py-4 md:!py-8 rounded-2xl md:rounded-[2.5rem] border-2 border-stone-200 bg-white px-4 md:px-8 focus:ring-primary/20 transition-all hover:bg-stone-50 hover:border-primary/40 shadow-sm hover:shadow-md group">
-                        <div className="flex items-center gap-3 md:gap-6 min-w-0 flex-1">
-                          <div className="h-10 w-10 md:h-14 md:w-14 shrink-0 rounded-xl md:rounded-[1.25rem] bg-primary/10 text-primary flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-inner">
-                            <Truck className="h-5 w-5 md:h-7 md:w-7" />
-                          </div>
-                          <div className="flex flex-col items-start text-left gap-0.5 md:gap-1.5 overflow-hidden min-w-0 flex-1">
-                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-stone-400">
-                              Delivery Method
-                            </span>
-                            <div className="font-black text-stone-900 text-base md:text-xl tracking-tight truncate w-full">
-                              <SelectValue placeholder="Please select delivery method" />
-                            </div>
-                          </div>
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-stone-200 shadow-2xl p-2 bg-white max-w-[92vw] sm:min-w-[300px] z-[150]">
-                        {transportMethods.map((method) => (
-                          <SelectItem
-                            key={method.id}
-                            value={method.id}
-                            className="rounded-xl md:rounded-[1.5rem] md:py-6 py-3 md:px-8 px-4 focus:bg-primary/5 cursor-pointer mb-2 md:mb-3 last:mb-0 transition-all border border-transparent hover:border-primary/10"
-                          >
-                            <div className="flex flex-col gap-1.5 md:gap-2.5 text-left w-full">
-                              <div className="flex items-center justify-between gap-3 md:gap-10 w-full">
-                                <span className="font-black text-stone-900 md:text-lg text-sm tracking-tight truncate">{method.name}</span>
-                                <div className="[[data-slot=select-value]_&]:hidden px-2.5 md:px-4 py-1 md:py-1.5 rounded-full bg-primary/5 border border-primary/20 flex-shrink-0">
-                                  <span className="text-primary font-black md:text-[11px] text-[9px] tracking-wider uppercase">
-                                    {method.rate_per_km
-                                      ? `TZS ${method.rate_per_km.toLocaleString()}/KM`
-                                      : `TZS ${method.rate_per_kg?.toLocaleString()}/KG`}
-                                  </span>
-                                </div>
-                              </div>
-                              <span className="md:text-sm text-xs text-stone-500 font-bold leading-relaxed pr-2 md:pr-12 line-clamp-2 [[data-slot=select-value]_&]:hidden">
-                                {method.description}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </section>
+                <TransportMethodSelect
+                  transportMethods={delivery.transportMethods}
+                  selectedTransportId={delivery.selectedTransportId}
+                  onSelectedTransportIdChange={delivery.setSelectedTransportId}
+                />
               </div>
 
-              {/* Payment Section */}
-              <section className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                    3
-                  </div>
-                  <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900">Choose Payment</h2>
-                </div>
-
-                <Card className="border-none shadow-xl shadow-stone-200/40 rounded-2xl md:rounded-3xl overflow-hidden bg-white">
-                  <CardContent className="p-4 sm:p-6 md:p-8">
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <Accordion type="single" collapsible defaultValue="mobile-money" className="w-full space-y-2">
-                        <AccordionItem value="mobile-money" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-[#22C55E] data-[state=open]:text-white transition-all duration-300">
-                            <div className="flex items-center gap-3">
-                              <Smartphone className="h-5 w-5" />
-                              <span className="text-base sm:text-lg font-bold tracking-tight">TOLA Pay</span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="p-2 sm:p-4 mt-2 space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="paymentPhone" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                                Phone Number
-                              </Label>
-                              <Input
-                                id="paymentPhone"
-                                type="tel"
-                                value={paymentPhoneNumber}
-                                onChange={(e) => setPaymentPhoneNumber(e.target.value)}
-                                className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                                placeholder="e.g. 2557..."
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
-                              {[
-                                { id: "airtel-money", name: "Airtel Money", provider: "Airtel" },
-                                { id: "mixx-by-yas", name: "Mixx by Yas", provider: "Tigo Pesa" },
-                                { id: "halopesa", name: "HaloPesa", provider: "Halotel" },
-                                { id: "ezypesa", name: "EzyPesa", provider: "Zantel" },
-                                { id: "m-pesa", name: "M-Pesa", provider: "Vodacom", maintenance: true },
-                              ].map((p) => (
-                                <Label
-                                  key={p.id}
-                                  htmlFor={p.id}
-                                  className={cn(
-                                    "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-300",
-                                    paymentMethod === p.id
-                                      ? "bg-primary/5 border-primary shadow-sm"
-                                      : "border-stone-100 hover:border-stone-300",
-                                    p.maintenance && "opacity-60 grayscale-[0.5]",
-                                  )}
-                                >
-                                  <RadioGroupItem value={p.id} id={p.id} className="sr-only" />
-                                  <div
-                                    className={cn(
-                                      "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                                      paymentMethod === p.id ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
-                                    )}
-                                  >
-                                    <Smartphone className="h-4 w-4" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                      <p className="font-bold text-stone-900 text-sm">{p.name}</p>
-                                      {p.maintenance && (
-                                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-black uppercase">
-                                          Service Down
-                                        </span>
-                                      )}
-                                    </div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wide text-stone-500">{p.provider}</p>
-                                  </div>
-                                </Label>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="cards" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
-                            <div className="flex items-center gap-3">
-                              <CreditCard className="h-5 w-5" />
-                              <span className="text-base sm:text-lg font-bold tracking-tight">Card Payment</span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="p-3.5 sm:p-6 mt-2 sm:mt-4 space-y-4 sm:space-y-6">
-                            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                              {["visa", "mastercard", "unionpay"].map((c) => (
-                                <Label
-                                  key={c}
-                                  htmlFor={c}
-                                  className={cn(
-                                    "flex flex-col items-center gap-1.5 sm:gap-2 p-2 sm:p-3 rounded-xl border-2 cursor-pointer transition-all duration-300 text-center",
-                                    paymentMethod === c
-                                      ? "bg-primary/5 border-primary shadow-sm"
-                                      : "border-stone-100 hover:border-stone-300",
-                                  )}
-                                >
-                                  <RadioGroupItem value={c} id={c} className="sr-only" />
-                                  <div
-                                    className={cn(
-                                      "h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center transition-colors",
-                                      paymentMethod === c ? "bg-primary text-white" : "bg-stone-100 text-stone-500",
-                                    )}
-                                  >
-                                    <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
-                                  </div>
-                                  <span className="font-bold uppercase tracking-wide text-[9px] sm:text-[10px] text-stone-900">{c}</span>
-                                </Label>
-                              ))}
-                            </div>
-                            <div className="space-y-3 pt-3 border-t border-stone-100">
-                              <div className="space-y-2">
-                                <Label htmlFor="cardNumber" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                                  Card Number
-                                </Label>
-                                <Input
-                                  id="cardNumber"
-                                  value={cardDetails.number}
-                                  onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
-                                  className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                                  placeholder="0000 0000 0000 0000"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                                <div className="space-y-2">
-                                  <Label htmlFor="expiry" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                                    Expiry
-                                  </Label>
-                                  <Input
-                                    id="expiry"
-                                    value={cardDetails.expiry}
-                                    onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
-                                    className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                                    placeholder="MM/YY"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="cvv" className="text-xs font-bold uppercase tracking-wide text-stone-500 ml-1">
-                                    CVV / CVC
-                                  </Label>
-                                  <Input
-                                    id="cvv"
-                                    value={cardDetails.cvv}
-                                    onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                                    className="h-12 rounded-xl border-stone-200 bg-white focus:ring-primary/20 transition-all font-medium text-base px-4 text-stone-900"
-                                    placeholder="123"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="bank" className="border-none">
-                          <AccordionTrigger className="hover:no-underline p-3.5 sm:p-4 bg-stone-50 rounded-2xl group data-[state=open]:bg-stone-900 data-[state=open]:text-white transition-all duration-300">
-                            <div className="flex items-center gap-3">
-                              <Building2 className="h-5 w-5" />
-                              <span className="text-base sm:text-lg font-bold tracking-tight">Bank Transfer</span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="p-3.5 sm:p-6 space-y-3 mt-2 sm:mt-4">
-                            {["crdb-simbanking", "crdb-internet-banking", "crdb-wakala", "crdb-branch-otc"].map((b) => (
-                              <Label
-                                key={b}
-                                htmlFor={b}
-                                className={cn(
-                                  "flex items-center gap-3 sm:gap-4 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all duration-300",
-                                  paymentMethod === b ? "bg-primary/5 border-primary shadow-lg" : "border-stone-100 hover:border-stone-300",
-                                )}
-                              >
-                                <RadioGroupItem value={b} id={b} className="sr-only" />
-                                <div
-                                  className={cn(
-                                    "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center transition-colors shrink-0",
-                                    paymentMethod === b ? "bg-primary text-white" : "bg-stone-50 text-stone-400",
-                                  )}
-                                >
-                                  <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </div>
-                                <span className="font-bold text-xs sm:text-sm text-stone-900 capitalize">{b.replace(/-/g, " ")}</span>
-                              </Label>
-                            ))}
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </RadioGroup>
-                  </CardContent>
-                </Card>
-              </section>
+              <PaymentMethodAccordion
+                paymentMethod={paymentMethod}
+                onPaymentMethodChange={setPaymentMethod}
+                paymentPhoneNumber={paymentPhoneNumber}
+                onPaymentPhoneNumberChange={setPaymentPhoneNumber}
+                cardDetails={cardDetails}
+                onCardDetailsChange={setCardDetails}
+              />
             </div>
 
-            {/* Sidebar / Summary */}
-            <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-              <Card className="border-none shadow-xl shadow-stone-200/50 rounded-2xl md:rounded-3xl overflow-hidden bg-white">
-                <div className="bg-[#22C55E] p-4 sm:p-6 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                  <h3 className="text-lg sm:text-xl font-black tracking-tight relative z-10">Order Summary</h3>
-                  <p className="text-white/60 text-[10px] font-bold uppercase tracking-wider mt-0.5 relative z-10">Your items</p>
-                </div>
-                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                  <div className="space-y-4 sm:space-y-6 max-h-[300px] overflow-y-auto scrollbar-hide pr-1">
-                    {cartItems.map((item) => {
-                      const itemId = `${item.product_id}-${item.selected_color?.name || ""}-${item.selected_size || ""}`
-                      return (
-                        <div key={itemId} className="flex gap-3 sm:gap-4">
-                          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-stone-50 overflow-hidden border border-stone-100 flex-shrink-0 animate-in fade-in zoom-in duration-500">
-                            {item.selected_color?.image || item.product.images?.[0] ? (
-                              <img
-                                src={item.selected_color?.image || item.product.images?.[0]}
-                                alt={item.product.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <ShoppingBag className="h-5 w-5 text-stone-200" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 space-y-1 min-w-0">
-                            <p className="font-bold text-xs sm:text-sm text-stone-900 leading-tight truncate">{item.product.name}</p>
-
-                            {/* Color & Size Variation Badges */}
-                            {(item.selected_color || item.selected_size) && (
-                              <div className="flex flex-wrap gap-1">
-                                {item.selected_color && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-                                    <span
-                                      className="w-1.5 h-1.5 rounded-full border border-stone-300"
-                                      style={{ backgroundColor: item.selected_color.name.toLowerCase() }}
-                                    />
-                                    {item.selected_color.name}
-                                  </span>
-                                )}
-                                {item.selected_size && (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-                                    {item.selected_size}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-stone-400 font-bold text-[11px]">Qty: {item.quantity}</span>
-                              <span className="text-stone-900 font-extrabold text-xs">
-                                {(item.product.price * item.quantity).toLocaleString()} TZS
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  <div className="pt-4 sm:pt-6 border-t border-stone-100 space-y-2">
-                    <div className="flex justify-between items-center text-xs sm:text-sm">
-                      <span className="text-stone-500 font-bold">Subtotal</span>
-                      <span className="text-stone-900 font-bold tracking-tight">{subtotal.toLocaleString()} TZS</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs sm:text-sm">
-                      <span className="text-stone-500 font-bold">Delivery</span>
-                      <span
-                        className={cn(
-                          "font-bold tracking-tight",
-                          Object.keys(shopDeliveries).length > 0 ? "text-stone-900" : "text-primary italic animate-pulse",
-                        )}
-                      >
-                        {Object.keys(shopDeliveries).length > 0 ? `${deliveryFee.toLocaleString()} TZS` : "Awaiting Address"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs sm:text-sm">
-                      <span className="text-stone-500 font-bold">Buyer Protection (1.5%)</span>
-                      <span className="text-stone-900 font-bold tracking-tight">{insuranceFee.toLocaleString()} TZS</span>
-                    </div>
-                    <div className="pt-3 border-t border-stone-100 flex justify-between items-end">
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Total Amount</p>
-                        <p className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-                          {total.toLocaleString()} <span className="text-[10px] uppercase">TZS</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full h-14 rounded-2xl bg-primary hover:bg-stone-900 text-white font-bold text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] group"
-                    disabled={isLoading || isCalculatingDelivery || paymentMethod === "m-pesa"}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        {paymentMethod === "m-pesa" ? "Service Unavailable" : "Complete Order"}
-                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </span>
-                    )}
-                  </Button>
-
-                  <div className="flex items-center justify-center gap-4 pt-2">
-                    <div className="flex items-center gap-1">
-                      <ShieldCheck className="h-3 w-3 text-green-600" />
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Protected</span>
-                    </div>
-                    <div className="w-1 h-1 rounded-full bg-stone-300" />
-                    <div className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3 text-primary" />
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-stone-500">Secure</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {error && (
-                <div className="p-6 bg-destructive/10 border-2 border-destructive/20 rounded-[2.5rem] text-destructive text-center space-y-2 animate-in slide-in-from-top-4 duration-500">
-                  <p className="text-xs font-black uppercase tracking-widest">Protocol Error</p>
-                  <p className="font-bold">{error}</p>
-                </div>
-              )}
-            </div>
+            <OrderSummaryCard
+              cartItems={delivery.cartItems}
+              subtotal={delivery.subtotal}
+              deliveryFee={delivery.deliveryFee}
+              insuranceFee={delivery.insuranceFee}
+              total={delivery.total}
+              hasDeliveryQuotes={Object.keys(delivery.shopDeliveries).length > 0}
+              isLoading={isLoading}
+              isCalculatingDelivery={delivery.isCalculatingDelivery}
+              paymentMethod={paymentMethod}
+              error={error}
+            />
           </form>
         </div>
       </div>

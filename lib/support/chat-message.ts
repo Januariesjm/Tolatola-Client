@@ -62,6 +62,55 @@ function formatTimestamp(createdAt?: string): string {
 }
 
 /**
+ * The clock label shown on a message.
+ *
+ * Every one of the widget's ten-odd message constructions repeated this same
+ * `toLocaleTimeString` call with the same options object.
+ */
+export function chatTimestamp(): string {
+  return formatTimestamp()
+}
+
+/**
+ * Builds a message from the bot, stamped with the current time.
+ *
+ * `id` is passed in rather than generated because several of the widget's flows
+ * need to find the message again afterwards -- the "Connecting..." notice is
+ * replaced once escalation resolves.
+ */
+export function createBotMessage(id: string, text: string, flags?: Pick<ChatMessage, "showEscalationOption" | "showInactivityPrompt">) {
+  return {
+    id,
+    sender: "bot",
+    text,
+    timestamp: chatTimestamp(),
+    ...flags,
+  } satisfies ChatMessage
+}
+
+/**
+ * Replaces a message by id, appending `replacement` at the end.
+ *
+ * The widget uses this to swap its optimistic "Connecting to support..." notice
+ * for the outcome. Appending rather than substituting in place is deliberate:
+ * messages that arrived over realtime while the request was in flight stay above
+ * the reply, so the transcript remains in chronological order.
+ */
+export function replaceMessage(messages: ChatMessage[], id: string, replacement: ChatMessage): ChatMessage[] {
+  return [...messages.filter((message) => message.id !== id), replacement]
+}
+
+/** Reduces the transcript to the prior-turn shape the AI endpoint expects. */
+export function toAiChatHistory(messages: ChatMessage[]): AiChatHistoryEntry[] {
+  return messages.map((message) => ({
+    sender: message.sender,
+    text: message.text,
+    attachmentUrl: message.attachmentUrl,
+    attachmentType: message.attachmentType,
+  }))
+}
+
+/**
  * Maps a realtime row to a ChatMessage, or null when it is not an incoming
  * message the widget should render (the buyer's own messages arrive optimistically
  * and would otherwise appear twice).
