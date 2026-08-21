@@ -7,7 +7,80 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.2.0] — 2026-08-22
+
+Security hardening of the upload boundary, plus the god-file and `any` debt in
+the largest remaining components. No user-facing feature changes.
+
+### Fixed
+
+- **Three file-upload routes had no authentication.** `POST /api/upload` wrote
+  straight into the public `promotions` bucket, and
+  `/api/upload-product-image` and `/api/upload-transporter-document` proxied
+  uploads to the backend, for anyone who could reach them. All three now
+  require a session.
+- **No upload had a consistent size or type limit.** Only
+  `upload-business-license` enforced one. Without it, an attacker could upload
+  HTML or SVG that is then served from a public URL, or exhaust storage with a
+  single large file. `lib/api/validate-upload.ts` now applies the same limits
+  (5MB; PDF/JPEG/PNG) to every upload route, answering 413 for oversized and
+  415 for a disallowed type.
+- **Path traversal in KYC uploads.** `/api/kyc/upload-document` built a storage
+  key from two client-controlled values (`documentType` and `file.name`). That
+  bucket's RLS policy relies on the first path segment being the caller's uid,
+  so a value containing `../` escaped the caller's own folder. Both are now
+  reduced to safe segments.
+- **`fetchNotifications` could return a non-array.** It declared
+  `AppNotification[]` but passed the raw payload through when truthy, so a `{}`
+  response came back as an object — and every caller maps over the result.
+- **Money rendered unformatted** on the agent commission tab: `formatTzs` took
+  `number` while the API returns numeric strings, so `TZS 25000` appeared
+  instead of `TZS 25,000`.
+- **`useState` used as a side effect** in the product detail page, setting state
+  during render; and a corrupt `localStorage` cart crashed that page outright.
+
+### Changed
+
+- **Six god files split**, each verified DOM-identical against the original
+  before landing:
+  `sign-up/page.tsx` 845 → 16, `blog-management-tab.tsx` 766 → 52,
+  `product-detail-content.tsx` 857 → 89, `hr-payroll-subtab.tsx` 804 → 35,
+  and the near-duplicate `add-product-dialog.tsx` / `edit-product-dialog.tsx`
+  (939 + 929) → shared form + two ~35-line shells. Files over 500 LOC: 22 → 18;
+  the `max-lines` allowlist: 21 → 15.
+- **`any` removed** from the support widget, the agent commission tab, the
+  product detail page, the HR payroll subtab and the whole service layer, backed
+  by new types in `lib/types/agent.ts`, `lib/support/chat-message.ts` and
+  `lib/vendor/product-form.ts`.
+- **Validated API boundaries: 19 → 25 of 26 mutating routes.** The remaining one
+  takes no body.
+- **Coverage floor 14% → 25%**, tracking real coverage; `lib/services` went from
+  0% to 74%.
+
 ### Added
+
+- `SECURITY_DEBT.md` recording accepted risk and what closing each item
+  requires, including the ClickPesa webhook's missing signature verification.
+- `lib/auth/country-codes.ts`, extracting a 122-entry dialling-code table that
+  had been inlined in the sign-up page, with the longest-prefix-first invariant
+  now tested.
+- Shared validators `lib/api/validate-request.ts` and
+  `lib/api/validate-upload.ts`.
+- Tests: 1173 → 1317.
+
+### Known issues
+
+- The 5 high-severity advisories from the Next 14 line remain; see
+  `SECURITY_DEBT.md`. CI gates on critical and reports high.
+- `PaymentService.handleWebhook` records a PENDING callback as
+  `payment_status: "failed"`; pinned by a test pending a product decision.
+- `lib/clickpesa.ts` sends `MIXX_BY-YAS` instead of `MIXX_BY_YAS`; needs
+  confirmation of the value ClickPesa expects.
+
+### Earlier in this cycle
+
+The same release, work that landed before the upload-security pass.
+#### Added
 
 - **Order schemas** (`lib/schemas/order.ts`) — zod, so the same definitions type
   the order detail page *and* validate the confirm-delivery request body. This
@@ -19,7 +92,7 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
   passing quietly.
 - **139 more tests** (328 → 467).
 
-### Changed
+#### Changed
 
 - **`blog-management-tab.tsx` 1022 → 766** and **`checkout-content.tsx`
   1039 → 1000** lines.
@@ -30,7 +103,7 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
   `components/utils/global-error-logger.tsx`.
 - **Coverage floor** raised to 14 / 10 / 7 / 14 (from 13 / 8 / 7 / 13).
 
-### Fixed
+#### Fixed
 
 - **Confirm-delivery failures were invisible.** `handleConfirmDelivery` only
   refreshed on `response.ok` and ignored every other outcome, so a 409 or 500
@@ -49,7 +122,7 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
   per-shop weights in two places — the address handler and the transport-method
   effect. Both now come from `shopWeights`.
 
-### Known issues
+#### Known issues
 
 - The Next 14 → 16 upgrade is still outstanding, so the 5 high-severity
   advisories remain and the CI audit job still gates on critical only.
