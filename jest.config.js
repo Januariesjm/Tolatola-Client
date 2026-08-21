@@ -33,10 +33,10 @@ const config = {
   // numbers so __tests__/config/coverage-threshold.test.ts can assert on them.
   coverageThreshold: {
     global: {
-      statements: 29,
-      branches: 25,
-      functions: 18,
-      lines: 29,
+      statements: 32,
+      branches: 28,
+      functions: 21,
+      lines: 32,
     },
   },
 }
