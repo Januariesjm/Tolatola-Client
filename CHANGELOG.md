@@ -9,6 +9,21 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **The withdrawal request is now validated by a zod schema**
+  (`lib/validation/withdrawal.ts`), matching every other input boundary in the
+  codebase instead of being the one hand-rolled `if` chain. `validateWithdrawal`
+  in `lib/agent/wallet.ts` now parses through it and translates the result into
+  the same Swahili-titled rejections it always returned -- the priority order
+  (amount, then balance, then phone) and every existing test are unchanged, only
+  now backed by a schema. There is no server route in this repo to wire it into:
+  `agents/withdrawals/request` is served by the separate backend behind
+  `NEXT_PUBLIC_API_BASE_URL`, so this is the client-side gate.
+- **Tests for four previously untested modules**: `lib/services/order.service.ts`
+  (order placement and transporter auto-assignment -- subtotal arithmetic, stock
+  decrement, and the subscription-tier-then-rating ranking rule), the two
+  functions in `lib/admin/initialization.ts`, the withdrawal schema itself, and
+  `lib/i18n/language-context.tsx` (the provider every page in the app renders
+  under, previously with no coverage at all). 98 tests.
 - **CI now publishes the non-blocking high-advisory audit as a workflow
   summary** (`.github/workflows/ci.yml`), not only into the job log, with a link
   to `SECURITY_DEBT.md` and the Next 16 upgrade plan. The gate itself is

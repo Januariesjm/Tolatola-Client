@@ -1,4 +1,5 @@
 import type { AgentCommissionRecord, AgentWalletStats } from "@/lib/types/agent"
+import { firstWithdrawalIssueCode, withdrawalRequestSchema } from "@/lib/validation/withdrawal"
 
 /**
  * Agent wallet arithmetic and withdrawal rules.
@@ -69,8 +70,11 @@ export function expectedPayout(amount: number | string): number {
   return Math.max(0, gross - withdrawalFee(gross))
 }
 
-/** Minimum digits for a mobile-money number to be worth submitting. */
-export const MIN_PHONE_DIGITS = 9
+export interface WithdrawalRequest {
+  amount: string
+  balance: number
+  phoneNumber: string
+}
 
 /** A rejection reason, ready to feed a toast. */
 export interface WithdrawalRejection {
@@ -78,43 +82,26 @@ export interface WithdrawalRejection {
   description: string
 }
 
-export interface WithdrawalRequest {
-  amount: string
-  balance: number
-  phoneNumber: string
+/** Swahili title and description for each schema rejection code. */
+const REJECTION_COPY: Record<Exclude<ReturnType<typeof firstWithdrawalIssueCode>, null>, (balance: number) => WithdrawalRejection> = {
+  invalid_amount: () => ({ title: "Kosa la Uingizaji", description: "Tafadhali weka kiasi sahihi cha kutoa." }),
+  insufficient_balance: (balance) => ({
+    title: "Salio Halitoshi",
+    description: `Kiasi unachotaka kutoa kinazidi salio lako la sasa la kutoa la ${formatTzs(balance)}`,
+  }),
+  invalid_phone: () => ({ title: "Namba ya Simu Inahitajika", description: "Tafadhali weka namba sahihi ya simu ya kupokelea fedha." }),
 }
 
 /**
  * Returns the first reason a withdrawal cannot be submitted, or null when it
- * can. Order matters: amount validity, then sufficient balance, then phone.
- *
- * Messages are Swahili, matching the rest of this tab.
+ * can. Order matters: amount validity, then sufficient balance, then phone --
+ * enforced by `withdrawalRequestSchema`, which this only translates into the
+ * Swahili-titled shape the withdrawal dialog renders.
  */
-export function validateWithdrawal({ amount, balance, phoneNumber }: WithdrawalRequest): WithdrawalRejection | null {
-  const value = Number(amount)
-
-  if (!value || Number.isNaN(value) || value <= 0) {
-    return {
-      title: "Kosa la Uingizaji",
-      description: "Tafadhali weka kiasi sahihi cha kutoa.",
-    }
-  }
-
-  if (value > balance) {
-    return {
-      title: "Salio Halitoshi",
-      description: `Kiasi unachotaka kutoa kinazidi salio lako la sasa la kutoa la ${formatTzs(balance)}`,
-    }
-  }
-
-  if (!phoneNumber || phoneNumber.trim().length < MIN_PHONE_DIGITS) {
-    return {
-      title: "Namba ya Simu Inahitajika",
-      description: "Tafadhali weka namba sahihi ya simu ya kupokelea fedha.",
-    }
-  }
-
-  return null
+export function validateWithdrawal(request: WithdrawalRequest): WithdrawalRejection | null {
+  const result = withdrawalRequestSchema.safeParse(request)
+  const code = firstWithdrawalIssueCode(result)
+  return code ? REJECTION_COPY[code](request.balance) : null
 }
 
 /** Envelope returned by `GET /agents/wallet`. */
