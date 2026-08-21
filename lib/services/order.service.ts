@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { logger } from "@/lib/logger"
+import type { ShippingAddress } from "@/lib/schemas/order"
+import { logger, normalizeError } from "@/lib/logger"
 
 const log = logger.child("lib.services.order.service")
 
@@ -7,6 +8,20 @@ const log = logger.child("lib.services.order.service")
  * Order Service - Handles all order-related business logic
  * This service can be extracted to a separate microservice when needed
  */
+/**
+ * A transporter row considered for auto-assignment, with the joined
+ * subscription used to rank them.
+ */
+interface EligibleTransporter {
+  id: string
+  rating?: number | string | null
+  transporter_subscriptions?: Array<{
+    status?: string | null
+    plan?: { display_order?: number | null } | null
+  }> | null
+  [key: string]: unknown
+}
+
 export class OrderService {
   async createOrder(params: {
     userId: string
@@ -16,7 +31,7 @@ export class OrderService {
       price: number
       shop_id: string
     }>
-    shippingAddress: any
+    shippingAddress: ShippingAddress
     totalAmount: number
     paymentMethod: string
     transportMethodId: string | null
@@ -98,9 +113,9 @@ export class OrderService {
       }
 
       return { success: true, order }
-    } catch (error: any) {
+    } catch (error) {
       log.error("order creation error", error)
-      return { success: false, error: error.message }
+      return { success: false, error: normalizeError(error).message }
     }
   }
 
@@ -129,7 +144,7 @@ export class OrderService {
       .single()
 
     if (error) {
-      throw new Error(`Failed to get order: ${error.message}`)
+      throw new Error(`Failed to get order: ${normalizeError(error).message}`)
     }
 
     return order
@@ -141,7 +156,7 @@ export class OrderService {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId)
 
     if (error) {
-      throw new Error(`Failed to update order status: ${error.message}`)
+      throw new Error(`Failed to update order status: ${normalizeError(error).message}`)
     }
 
     return { success: true }
@@ -180,18 +195,18 @@ export class OrderService {
       if (fetchError) throw fetchError
 
       if (!eligibleTransporters || eligibleTransporters.length === 0) {
-        console.log("[OrderService] No available transporter found for vehicle type:", transportMethod.vehicle_type)
+        log.info("no available transporter for vehicle type", { vehicleType: transportMethod.vehicle_type })
         return { success: false, message: "No available transporter" }
       }
 
       // 3. Sort by Subscription Tier (display_order) then Rating
       const sortedTransporters = eligibleTransporters
-        .map((t: any) => {
-          const activeSub = t.transporter_subscriptions?.find((s: any) => s.status === "active")
+        .map((t: EligibleTransporter) => {
+          const activeSub = t.transporter_subscriptions?.find((s) => s.status === "active")
           const planOrder = activeSub?.plan?.display_order ?? 999
           return { ...t, planOrder }
         })
-        .sort((a: any, b: any) => {
+        .sort((a, b) => {
           if (a.planOrder !== b.planOrder) return a.planOrder - b.planOrder
           return (Number(b.rating) || 5) - (Number(a.rating) || 5)
         })
@@ -210,9 +225,9 @@ export class OrderService {
       await supabase.from("transporters").update({ availability_status: "busy" }).eq("id", bestTransporter.id)
 
       return { success: true, transporter: bestTransporter }
-    } catch (error: any) {
+    } catch (error) {
       log.error("transporter assignment error", error)
-      return { success: false, error: error.message }
+      return { success: false, error: normalizeError(error).message }
     }
   }
 }

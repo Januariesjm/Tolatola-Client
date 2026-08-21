@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { ClickPesaClient, type PaymentMethod } from "@/lib/clickpesa"
+import { normalizeError } from "@/lib/logger"
 import { logger } from "@/lib/logger"
 
 const log = logger.child("lib.services.payment.service")
@@ -8,6 +9,19 @@ const log = logger.child("lib.services.payment.service")
  * Payment Service - Handles all payment-related business logic
  * This service can be extracted to a separate microservice when needed
  */
+/** Mobile money providers ClickPesa accepts for a USSD push. */
+type MobileMoneyMethod = "m-pesa" | "airtel-money" | "halopesa" | "mixx-by-yas" | "ezypesa"
+
+/** Card networks ClickPesa accepts. */
+type CardMethod = "visa" | "mastercard" | "unionpay"
+
+/** The ClickPesa webhook body, as far as this service reads it. */
+export interface PaymentWebhookPayload {
+  transaction_id?: string
+  status?: string
+  merchant_reference?: string
+}
+
 export class PaymentService {
   private clickpesa: ClickPesaClient
 
@@ -67,7 +81,7 @@ export class PaymentService {
         result = await this.clickpesa.initiateMobileMoneyPayment(
           order.total_amount,
           paymentDetails.phoneNumber,
-          paymentMethod as any,
+          paymentMethod as MobileMoneyMethod,
           merchantReference,
           callbackUrl,
         )
@@ -83,7 +97,7 @@ export class PaymentService {
           paymentDetails.cardNumber,
           paymentDetails.expiryDate,
           paymentDetails.cvv,
-          paymentMethod as any,
+          paymentMethod as CardMethod,
           merchantReference,
           callbackUrl,
         )
@@ -129,11 +143,11 @@ export class PaymentService {
         requiresPayment: true,
         controlNumber: result.control_number,
       }
-    } catch (error: any) {
+    } catch (error) {
       log.error("payment initiation error", error)
       return {
         success: false,
-        error: error.message || "Failed to initiate payment",
+        error: normalizeError(error).message || "Failed to initiate payment",
       }
     }
   }
@@ -146,23 +160,23 @@ export class PaymentService {
         status: result.status,
         data: result,
       }
-    } catch (error: any) {
+    } catch (error) {
       log.error("payment verification error", error)
       return {
         success: false,
-        error: error.message || "Failed to verify payment",
+        error: normalizeError(error).message || "Failed to verify payment",
       }
     }
   }
 
-  async handleWebhook(payload: any) {
+  async handleWebhook(payload: PaymentWebhookPayload) {
     const supabase = await createClient()
 
     try {
-      const { transaction_id, status, merchant_reference } = payload
+      const { status, merchant_reference } = payload
 
       // Extract order ID from merchant reference
-      const orderId = merchant_reference.replace("ORDER-", "")
+      const orderId = (merchant_reference ?? "").replace("ORDER-", "")
 
       // Update order status based on payment status
       const orderStatus = status === "COMPLETED" ? "confirmed" : status === "FAILED" ? "cancelled" : "pending"
@@ -176,9 +190,9 @@ export class PaymentService {
         .eq("id", orderId)
 
       return { success: true, message: "Webhook processed successfully" }
-    } catch (error: any) {
+    } catch (error) {
       log.error("webhook processing error", error)
-      return { success: false, error: error.message }
+      return { success: false, error: normalizeError(error).message }
     }
   }
 }
