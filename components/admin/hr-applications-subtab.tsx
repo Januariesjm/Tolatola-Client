@@ -7,71 +7,36 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Search,
   FileText,
   ExternalLink,
-  Eye,
   Trash2,
   CheckCircle2,
-  XCircle,
-  Clock,
-  Star,
   Loader2,
   Users,
   Briefcase,
   Download,
   GraduationCap,
   FileSignature,
-  Paperclip,
+  Eye,
+  Star,
+  XCircle,
+  Clock,
 } from "lucide-react"
 import { clientApiPost, clientApiDelete, clientApiGet } from "@/lib/api-client"
 import { logger } from "@/lib/logger"
+import { CareerApplicationDetailDialog } from "@/components/admin/career-application-detail-dialog"
+import { APPLICATION_STATUS_CONFIG } from "@/components/admin/career-application-status"
+import {
+  countApplicationsByStatus,
+  distinctPositions,
+  filterApplications,
+  formatApplicationDate,
+  type CareerApplication,
+} from "@/lib/admin/career-applications"
 
 const log = logger.child("admin.hr-applications-subtab")
-
-interface CareerApplication {
-  id: string
-  full_name: string
-  email: string
-  phone?: string
-  position: string
-  cover_letter?: string
-  cv_url: string
-  cv_filename?: string
-  certificates_url?: string
-  certificates_filename?: string
-  application_letter_url?: string
-  application_letter_filename?: string
-  status: "pending" | "reviewed" | "shortlisted" | "rejected"
-  admin_notes?: string
-  created_at: string
-  updated_at: string
-}
-
-const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  pending: {
-    label: "Pending",
-    color: "bg-amber-50 text-amber-700 border-amber-200",
-    icon: <Clock className="h-3 w-3" />,
-  },
-  reviewed: {
-    label: "Reviewed",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-    icon: <Eye className="h-3 w-3" />,
-  },
-  shortlisted: {
-    label: "Shortlisted",
-    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    icon: <Star className="h-3 w-3" />,
-  },
-  rejected: {
-    label: "Rejected",
-    color: "bg-red-50 text-red-700 border-red-200",
-    icon: <XCircle className="h-3 w-3" />,
-  },
-}
 
 export function HRApplicationsSubtab({ applications: initialApplications }: { applications: CareerApplication[] }) {
   const [applications, setApplications] = useState<CareerApplication[]>(initialApplications)
@@ -82,31 +47,9 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
-  // Get unique positions for filter
-  const positions = [...new Set(applications.map((a) => a.position))].sort()
-
-  // Filter applications
-  const filtered = applications.filter((app) => {
-    const matchesSearch =
-      !search ||
-      app.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      app.email.toLowerCase().includes(search.toLowerCase()) ||
-      app.position.toLowerCase().includes(search.toLowerCase())
-
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter
-    const matchesPosition = positionFilter === "all" || app.position === positionFilter
-
-    return matchesSearch && matchesStatus && matchesPosition
-  })
-
-  // Status counts
-  const statusCounts = {
-    all: applications.length,
-    pending: applications.filter((a) => a.status === "pending").length,
-    reviewed: applications.filter((a) => a.status === "reviewed").length,
-    shortlisted: applications.filter((a) => a.status === "shortlisted").length,
-    rejected: applications.filter((a) => a.status === "rejected").length,
-  }
+  const positions = distinctPositions(applications)
+  const filtered = filterApplications(applications, { query: search, statusFilter, positionFilter })
+  const statusCounts = countApplicationsByStatus(applications)
 
   const handleStatusChange = async (id: string, newStatus: string, notes?: string) => {
     setLoadingId(id)
@@ -134,6 +77,11 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
     }
   }
 
+  const handleDialogStatusChange = (id: string, newStatus: string) => {
+    handleStatusChange(id, newStatus)
+    if (selectedApp?.id === id) setSelectedApp({ ...selectedApp, status: newStatus as CareerApplication["status"] })
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this application?")) return
     setLoadingId(id)
@@ -149,14 +97,6 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
     } finally {
       setLoadingId(null)
     }
-  }
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
   }
 
   return (
@@ -279,7 +219,7 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
                 </TableHeader>
                 <TableBody>
                   {filtered.map((app, index) => {
-                    const status = statusConfig[app.status]
+                    const status = APPLICATION_STATUS_CONFIG[app.status]
                     return (
                       <TableRow
                         key={app.id}
@@ -300,7 +240,7 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
                           <span className="text-sm font-medium">{app.position}</span>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-muted-foreground">{formatDate(app.created_at)}</span>
+                          <span className="text-sm text-muted-foreground">{formatApplicationDate(app.created_at)}</span>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className={`${status.color} gap-1 text-[10px] font-bold uppercase tracking-wider`}>
@@ -439,143 +379,14 @@ export function HRApplicationsSubtab({ applications: initialApplications }: { ap
       </Card>
 
       {/* Detail Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          {selectedApp && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-xl font-black">{selectedApp.full_name}</DialogTitle>
-                <DialogDescription className="space-y-1">
-                  <span className="block">{selectedApp.email}</span>
-                  {selectedApp.phone && <span className="block">{selectedApp.phone}</span>}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 mt-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Position</p>
-                    <p className="font-semibold">{selectedApp.position}</p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={`${statusConfig[selectedApp.status].color} gap-1 text-xs font-bold uppercase tracking-wider`}
-                  >
-                    {statusConfig[selectedApp.status].icon}
-                    {statusConfig[selectedApp.status].label}
-                  </Badge>
-                </div>
-
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Applied On</p>
-                  <p className="text-sm">
-                    {new Date(selectedApp.created_at).toLocaleString("en-US", {
-                      dateStyle: "long",
-                      timeStyle: "short",
-                    })}
-                  </p>
-                </div>
-
-                {selectedApp.cover_letter && (
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Cover Letter</p>
-                    <p className="text-sm text-muted-foreground bg-muted/30 rounded-xl p-4 whitespace-pre-wrap">
-                      {selectedApp.cover_letter}
-                    </p>
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                    <Paperclip className="h-3.5 w-3.5 inline mr-1" />
-                    Uploaded Documents
-                  </p>
-                  <div className="space-y-2">
-                    <a
-                      href={selectedApp.cv_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 text-primary font-semibold text-sm hover:bg-primary/10 transition-colors"
-                    >
-                      <FileText className="h-5 w-5 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate">{selectedApp.cv_filename || "CV / Resume"}</p>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-primary/60">CV / Resume</p>
-                      </div>
-                      <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                    </a>
-                    {selectedApp.certificates_url && (
-                      <a
-                        href={selectedApp.certificates_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-sm hover:bg-emerald-100 transition-colors"
-                      >
-                        <GraduationCap className="h-5 w-5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate">{selectedApp.certificates_filename || "Certificates & IDs"}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/60">Academic Certificates & IDs</p>
-                        </div>
-                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                      </a>
-                    )}
-                    {selectedApp.application_letter_url && (
-                      <a
-                        href={selectedApp.application_letter_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-50 border border-violet-200 text-violet-700 font-semibold text-sm hover:bg-violet-100 transition-colors"
-                      >
-                        <FileSignature className="h-5 w-5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="truncate">{selectedApp.application_letter_filename || "Application Letter"}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600/60">Letter of Application</p>
-                        </div>
-                        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                <div className="border-t pt-4 flex flex-wrap gap-2">
-                  <p className="w-full text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Update Status</p>
-                  {["pending", "reviewed", "shortlisted", "rejected"].map((s) => (
-                    <Button
-                      key={s}
-                      variant={selectedApp.status === s ? "default" : "outline"}
-                      size="sm"
-                      className="rounded-full text-xs capitalize"
-                      disabled={loadingId === selectedApp.id || selectedApp.status === s}
-                      onClick={() => {
-                        handleStatusChange(selectedApp.id, s)
-                        setSelectedApp({ ...selectedApp, status: s as any })
-                      }}
-                    >
-                      {loadingId === selectedApp.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : statusConfig[s].icon}
-                      <span className="ml-1">{statusConfig[s].label}</span>
-                    </Button>
-                  ))}
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsDetailOpen(false)}>
-                    Close
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="rounded-xl"
-                    disabled={loadingId === selectedApp.id}
-                    onClick={() => handleDelete(selectedApp.id)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <CareerApplicationDetailDialog
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        application={selectedApp}
+        loadingId={loadingId}
+        onStatusChange={handleDialogStatusChange}
+        onDelete={handleDelete}
+      />
     </div>
   )
 }

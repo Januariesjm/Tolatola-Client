@@ -9,6 +9,15 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`hr-applications-subtab.tsx` split**: the application type, search/filter
+  rules and status counts into `lib/admin/career-applications.ts`; the status
+  label/color/icon config into `components/admin/career-application-status.tsx`
+  (shared by the table and the dialog, rather than each holding its own copy);
+  the detail dialog into `components/admin/career-application-detail-dialog.tsx`.
+  581 -> 392 lines, off the max-lines allowlist. Verified DOM-identical across
+  three states (table view, filtered by status, detail dialog open) before
+  landing.
+
 - **`vendor-subscription-tab.tsx` fully split**: the upgrade dialog into
   `components/vendor/subscription-upgrade-dialog.tsx` and the
   confirming-payment overlay into `components/vendor/payment-status-overlay.tsx`

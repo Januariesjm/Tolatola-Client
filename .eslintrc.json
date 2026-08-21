@@ -16,7 +16,6 @@
     },
     {
       "files": [
-        "components/admin/hr-applications-subtab.tsx",
         "components/admin/hr-staff-subtab.tsx",
         "components/admin/messaging-tab.tsx",
         "components/checkout/checkout-success-content.tsx",
