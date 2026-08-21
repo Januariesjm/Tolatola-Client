@@ -9,6 +9,18 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`transporter-subscription-tab.tsx` split**: the checkout-status polling
+  into `hooks/use-subscription-payment-poll.ts` (also de-duplicating an
+  identical copy in `vendor-subscription-tab.tsx` -- both now share it), the
+  upgrade dialog into `components/transporter/subscription-upgrade-dialog.tsx`,
+  and the "confirming payment" full-screen overlay into
+  `components/transporter/payment-status-overlay.tsx`. 630 -> 316 lines, off
+  the max-lines allowlist. Fixed a latent bug surfaced while writing the poll
+  hook's tests: the original inline version fired the timeout toast even when
+  the final polling attempt had just succeeded, if that attempt happened to
+  also be the last one allowed. Verified DOM-identical against the pre-split
+  component across three states (initial load, upgrade dialog open, and the
+  card-payment section expanded with details entered) before landing.
 - **`agent-commission-tab.tsx` split**: wallet load, date filtering and the
   withdrawal submission into `hooks/use-agent-wallet.ts`; the transaction
   history table into `components/agent/commission-history-card.tsx`; the
