@@ -1,22 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { CheckCircle, MessageSquare, Search, Sparkles, Clock, AlertCircle, User, MessageCircle, Trash2, Loader2 } from "lucide-react"
+import { AlertCircle, MessageSquare, Search, Sparkles, MessageCircle } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useTicketMessageCounts } from "@/hooks/use-ticket-message-counts"
 import { useRouter } from "next/navigation"
@@ -25,6 +13,9 @@ import { getOrCreateConversation } from "@/app/actions/messaging"
 import { deleteAllResolvedTickets, deleteTicketPermanently } from "@/app/actions/support"
 import { toast } from "@/hooks/use-toast"
 import { logger } from "@/lib/logger"
+import { DeleteAllResolvedDialog } from "@/components/admin/delete-all-resolved-dialog"
+import { SupportTicketCard } from "@/components/admin/support-ticket-card"
+import { countTicketsByStatus, filterTicketsByStatusAndQuery, scopeTicketsByDepartment } from "@/lib/admin/support-tickets"
 
 const log = logger.child("admin.support-tickets-tab")
 
@@ -137,78 +128,9 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
     }
   }
 
-  const statusColors: Record<string, string> = {
-    open: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800",
-    in_progress: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-    resolved: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-  }
-
-  const priorityColors: Record<string, string> = {
-    low: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-    medium: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-200",
-    high: "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-200",
-    urgent: "bg-red-600 text-white shadow-sm",
-  }
-
-  const departmentBadgeStyles: Record<string, { label: string; className: string }> = {
-    general: {
-      label: "General Support",
-      className: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
-    },
-    it: {
-      label: "IT Support",
-      className: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
-    },
-    finance: {
-      label: "Finance & Payouts",
-      className: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
-    },
-    hr: {
-      label: "Human Resources",
-      className: "bg-pink-100 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-800",
-    },
-    vendor: {
-      label: "Vendor Management",
-      className: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
-    },
-    logistics: {
-      label: "Logistics & Delivery",
-      className: "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800",
-    },
-  }
-
-  // Filter tickets by department (if scoped to department or filtered by Super Admin)
-  const scopedTickets = tickets.filter((ticket) => {
-    const dept = ticket.department || "general"
-    if (isSuperAdmin) {
-      if (departmentFilter !== "all") {
-        if (departmentFilter === "vendor") {
-          return dept === "vendor" || dept === "logistics"
-        }
-        return dept === departmentFilter
-      }
-      return true
-    }
-    if (department) {
-      const allowedDepts = department.split(",").map((d) => d.trim())
-      return allowedDepts.includes(dept)
-    }
-    return true
-  })
-
-  const filteredTickets = scopedTickets.filter((ticket) => {
-    const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
-    const name = ticket.users?.full_name || ticket.users?.email || ticket.guest_name || ""
-    const matchesQuery =
-      ticket.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      name.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesQuery
-  })
-
-  const openCount = scopedTickets.filter((t) => t.status === "open").length
-  const inProgressCount = scopedTickets.filter((t) => t.status === "in_progress").length
-  const resolvedCount = scopedTickets.filter((t) => t.status === "resolved" || t.status === "completed" || t.status === "closed").length
+  const scopedTickets = scopeTicketsByDepartment(tickets, { isSuperAdmin, departmentFilter, department })
+  const filteredTickets = filterTicketsByStatusAndQuery(scopedTickets, { statusFilter, query: searchQuery })
+  const { open: openCount, inProgress: inProgressCount, resolved: resolvedCount } = countTicketsByStatus(scopedTickets)
 
   return (
     <div className="space-y-6">
@@ -239,48 +161,13 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
 
           {/* Delete All Resolved Button */}
           {resolvedCount > 0 && (
-            <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold h-9 px-3.5 gap-1.5 shadow-sm"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete All Resolved ({resolvedCount})
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2 text-rose-600">
-                    <Trash2 className="h-5 w-5" /> Delete All Resolved Tickets?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action will <strong>permanently delete all {resolvedCount} resolved and completed tickets</strong> along with all
-                    associated chat messages and conversation records.
-                    <br />
-                    <br />
-                    <span className="text-rose-500 font-semibold">This action cannot be undone.</span>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deletingAllResolved}>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteAllResolved}
-                    disabled={deletingAllResolved}
-                    className="bg-rose-600 hover:bg-rose-700 text-white font-semibold"
-                  >
-                    {deletingAllResolved ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Deleting...
-                      </>
-                    ) : (
-                      "Yes, Delete Permanently"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteAllResolvedDialog
+              open={deleteConfirmOpen}
+              onOpenChange={setDeleteConfirmOpen}
+              resolvedCount={resolvedCount}
+              deleting={deletingAllResolved}
+              onConfirm={handleDeleteAllResolved}
+            />
           )}
         </div>
       </div>
@@ -371,121 +258,19 @@ export function SupportTicketsTab({ tickets, department, roleName = "Administrat
             const convId = ticket.conversation_id
             const msgCount = convId ? ticketMessageCounts[convId] || 0 : 0
             const hasNewUserMsg = convId ? unreadCount[convId] : false
-            const isResolved = ticket.status === "resolved" || ticket.status === "completed" || ticket.status === "closed"
-            const deptInfo = departmentBadgeStyles[ticket.department || "general"] || departmentBadgeStyles.general
 
             return (
-              <Card
+              <SupportTicketCard
                 key={ticket.id}
-                className={`transition-all hover:shadow-md border ${
-                  hasNewUserMsg
-                    ? "border-emerald-500/60 bg-emerald-500/5 dark:bg-emerald-950/10 shadow-emerald-500/5"
-                    : "border-slate-200 dark:border-slate-800"
-                }`}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                          #{index + 1}
-                        </span>
-                        <CardTitle className="text-base font-bold text-slate-900 dark:text-white">{ticket.subject}</CardTitle>
-                        <Badge variant="outline" className={`text-[11px] font-semibold ${deptInfo.className}`}>
-                          {deptInfo.label}
-                        </Badge>
-                        {hasNewUserMsg && (
-                          <Badge className="bg-emerald-500 text-white text-[10px] animate-pulse px-2 py-0.5">New Reply Received</Badge>
-                        )}
-                      </div>
-                      <CardDescription className="text-xs flex items-center gap-1.5 text-slate-500">
-                        <User className="h-3.5 w-3.5 text-slate-400" />
-                        <span>
-                          From: <strong>{ticket.users?.full_name || ticket.users?.email || ticket.guest_name || "Customer User"}</strong>
-                        </span>
-                      </CardDescription>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant="outline" className={`text-xs font-medium ${statusColors[ticket.status] || ""}`}>
-                        {ticket.status?.replace("_", " ")}
-                      </Badge>
-                      <Badge variant="outline" className={`text-xs font-medium ${priorityColors[ticket.priority] || ""}`}>
-                        {ticket.priority} priority
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4 pt-0">
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                    {ticket.description}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-800 pt-3">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1 text-slate-400">
-                        <Clock className="h-3.5 w-3.5" />
-                        {new Date(ticket.created_at).toLocaleDateString()} at{" "}
-                        {new Date(ticket.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                      {msgCount > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/50 text-[11px] flex items-center gap-1"
-                        >
-                          <MessageSquare className="h-3 w-3" />
-                          {msgCount} {msgCount === 1 ? "Message" : "Messages"}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant={hasNewUserMsg ? "default" : "outline"}
-                        onClick={() => openChat(ticket)}
-                        className={`text-xs h-8 ${
-                          hasNewUserMsg
-                            ? "bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
-                            : "hover:bg-slate-100 dark:hover:bg-slate-800"
-                        }`}
-                      >
-                        <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
-                        Open Live Chat {msgCount > 0 && `(${msgCount})`}
-                      </Button>
-
-                      {!isResolved && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleResolve(ticket.id)}
-                          className="text-xs h-8 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
-                        >
-                          <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
-                          Resolve
-                        </Button>
-                      )}
-
-                      {/* Individual Delete Button for Super Admin */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteSingleTicket(ticket.id)}
-                        disabled={deletingTicketId === ticket.id}
-                        className="text-xs h-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20"
-                        title="Delete ticket permanently"
-                      >
-                        {deletingTicketId === ticket.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                ticket={ticket}
+                index={index}
+                messageCount={msgCount}
+                hasUnreadReply={hasNewUserMsg}
+                isDeleting={deletingTicketId === ticket.id}
+                onOpenChat={() => openChat(ticket)}
+                onResolve={() => handleResolve(ticket.id)}
+                onDelete={() => handleDeleteSingleTicket(ticket.id)}
+              />
             )
           })}
         </div>
