@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { clientApiGet, clientApiPost, clientApiPut } from "@/lib/api-client"
 import { logger, normalizeError } from "@/lib/logger"
+import { useProductImages } from "@/hooks/use-product-images"
+import { useProductVariants } from "@/hooks/use-product-variants"
 import {
   buildCreateProductPayload,
   buildUpdateProductPayload,
@@ -79,21 +81,37 @@ export function useProductForm({ open, onOpenChange, onSuccess, mode, shopId, pr
   const [categories, setCategories] = useState<ProductCategory[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [images, setImages] = useState<string[]>([])
-  const [uploadingImage, setUploadingImage] = useState(false)
   const [qualityGrade, setQualityGrade] = useState("")
   const [moq, setMoq] = useState("1")
   const [deliveryAvailable, setDeliveryAvailable] = useState(true)
-  const [colors, setColors] = useState<{ name: string; image: string; price?: number }[]>([])
-  const [newColorName, setNewColorName] = useState("")
-  const [newColorPrice, setNewColorPrice] = useState("")
-  const [newColorImage, setNewColorImage] = useState("")
-  const [uploadingColorImage, setUploadingColorImage] = useState(false)
-  const [sizes, setSizes] = useState<string[]>([])
-  const [sizePrices, setSizePrices] = useState<Record<string, number>>({})
-  const [newSize, setNewSize] = useState("")
-  const [newSizePrice, setNewSizePrice] = useState("")
   const [weightUnit, setWeightUnit] = useState("")
+
+  const { images, setImages, uploadingImage, handleImageUpload, handleRemoveImage, reset: resetImages } = useProductImages(
+    product,
+    open,
+    setError,
+  )
+  const {
+    colors,
+    newColorName,
+    setNewColorName,
+    newColorPrice,
+    setNewColorPrice,
+    newColorImage,
+    uploadingColorImage,
+    handleColorImageUpload,
+    handleAddColor,
+    handleRemoveColor,
+    sizes,
+    sizePrices,
+    newSize,
+    setNewSize,
+    newSizePrice,
+    setNewSizePrice,
+    handleAddSize,
+    handleRemoveSize,
+    reset: resetVariants,
+  } = useProductVariants(product, open, setError)
 
   // Vehicles & Spare Parts state
   const [vehicleSection, setVehicleSection] = useState("")
@@ -133,13 +151,9 @@ export function useProductForm({ open, onOpenChange, onSuccess, mode, shopId, pr
       setPrice(product.price?.toString() || "")
       setStockQuantity(product.stock_quantity?.toString() || "")
       setCategoryId(product.category_id || "")
-      setImages(product.images || [])
       setQualityGrade(product.quality_grade || "")
       setMoq(product.moq?.toString() || "1")
       setDeliveryAvailable(product.delivery_available ?? true)
-      setColors(product.colors || [])
-      setSizes(product.sizes || [])
-      setSizePrices(product.size_prices || {})
       setWeightUnit(product.weight_unit || "")
       setVehicleSection(product.vehicle_section || "")
       setBrand(product.brand || "")
@@ -199,116 +213,6 @@ export function useProductForm({ open, onOpenChange, onSuccess, mode, shopId, pr
     }
   }, [isAgriculture])
 
-  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-
-    setUploadingColorImage(true)
-    setError(null)
-
-    try {
-      const file = files[0]
-      const formData = new FormData()
-      formData.append("file", file)
-
-      const response = await fetch("/api/upload-product-image", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image")
-      }
-
-      const data = await response.json()
-      setNewColorImage(data.url)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to upload color image")
-    } finally {
-      setUploadingColorImage(false)
-    }
-  }
-
-  const handleAddColor = () => {
-    if (!newColorName.trim()) return
-    const parsedPrice = Number.parseFloat(newColorPrice)
-    const colorObj: ProductColorInput = { name: newColorName.trim(), image: newColorImage }
-    if (!isNaN(parsedPrice) && parsedPrice > 0) {
-      colorObj.price = parsedPrice
-    }
-    setColors([...colors, colorObj])
-    setNewColorName("")
-    setNewColorImage("")
-    setNewColorPrice("")
-  }
-
-  const handleRemoveColor = (index: number) => {
-    setColors(colors.filter((_, i) => i !== index))
-  }
-
-  const handleAddSize = () => {
-    if (!newSize.trim()) return
-    const sizeFormatted = newSize.trim().toUpperCase()
-    if (!sizes.includes(sizeFormatted)) {
-      setSizes([...sizes, sizeFormatted])
-      const parsedPrice = Number.parseFloat(newSizePrice)
-      if (!isNaN(parsedPrice) && parsedPrice > 0) {
-        setSizePrices((prev) => ({ ...prev, [sizeFormatted]: parsedPrice }))
-      }
-    }
-    setNewSize("")
-    setNewSizePrice("")
-  }
-
-  const handleRemoveSize = (index: number) => {
-    const sizeToRemove = sizes[index]
-    setSizes(sizes.filter((_, i) => i !== index))
-    setSizePrices((prev) => {
-      const copy = { ...prev }
-      delete copy[sizeToRemove]
-      return copy
-    })
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-
-    setUploadingImage(true)
-    setError(null)
-
-    try {
-      const uploadedUrls: string[] = []
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const response = await fetch("/api/upload-product-image", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to upload image")
-        }
-
-        const data = await response.json()
-        uploadedUrls.push(data.url)
-      }
-
-      setImages([...images, ...uploadedUrls])
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to upload images")
-    } finally {
-      setUploadingImage(false)
-    }
-  }
-
-  const handleRemoveImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index))
-  }
-
   /** Current field values, in the shape the payload builders expect. */
   const formValues = (): ProductFormValues => ({
     name,
@@ -348,12 +252,8 @@ export function useProductForm({ open, onOpenChange, onSuccess, mode, shopId, pr
     setCategoryId("")
     setParentCategoryId("")
     setSubCategoryId("")
-    setImages([])
-    setColors([])
-    setSizes([])
-    setSizePrices({})
-    setNewSizePrice("")
-    setNewColorPrice("")
+    resetImages()
+    resetVariants()
     setWeightUnit("")
     setVehicleSection("")
     setBrand("")
