@@ -9,6 +9,20 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`order-detail-content.tsx` split**: three status banners into
+  `components/orders/order-status-banners.tsx`, the read-only sidebar into
+  `components/orders/order-detail-sidebar.tsx`, and the confirm-delivery request
+  into `hooks/use-confirm-delivery.ts`. 676 -> 419 lines, off the max-lines
+  allowlist. Verified DOM-identical across 15 order states before landing.
+- **`vendor-management-tab.tsx` split**: the vendor shape and search rules into
+  `lib/admin/vendors.ts`, loading/toggling/deleting into
+  `hooks/use-admin-vendors.ts`, and the details dialog into
+  `components/admin/vendor-details-dialog.tsx`. 631 -> 345 lines, off the
+  max-lines allowlist. The filtered list is now derived from a search query
+  instead of a second piece of state kept in sync by an effect and by hand in
+  three mutation handlers. Verified DOM-identical, including with the dialog
+  open, before landing.
+
 - **The last `any`-typed props and API envelopes in the dashboard tabs are
   typed.** `AdminProduct` (in `lib/types/admin.ts`) describes the admin product
   table's rows, and a new `lib/types/subscription.ts` describes the plan,

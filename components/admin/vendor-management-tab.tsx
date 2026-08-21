@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   CheckCircle2,
   XCircle,
@@ -21,153 +20,31 @@ import {
   Trash2,
   MessageSquare,
 } from "lucide-react"
-import { clientApiGet, clientApiPost, clientApiDelete } from "@/lib/api-client"
-import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import { AdminMessageDialog } from "@/components/admin/message-dialog"
-import { logger } from "@/lib/logger"
-
-const log = logger.child("admin.vendor-management-tab")
-
-interface Vendor {
-  id: string
-  user_id?: string
-  business_name: string
-  tin_number: string
-  nida_number: string
-  address: string
-  district: string
-  region: string
-  ward: string
-  kyc_status: string
-  is_active?: boolean | null
-  business_license_url?: string
-  created_at: string
-  updated_at: string
-  users?: {
-    email: string
-    full_name: string
-    phone?: string
-    vendor_type?: string
-  }
-  phone?: string
-  shops?: Array<{
-    id: string
-    name: string
-  }>
-}
-
-const vendorTypeLabels: Record<string, string> = {
-  producer: "Producer",
-  manufacturer: "Manufacturer",
-  supplier: "Supplier",
-  wholesaler: "Wholesaler",
-  retail_trader: "Retail Trader",
-}
+import { VendorDetailsDialog } from "@/components/admin/vendor-details-dialog"
+import { useAdminVendors } from "@/hooks/use-admin-vendors"
+import { vendorTypeLabel, type Vendor } from "@/lib/admin/vendors"
 
 export function VendorManagementTab() {
-  const [vendors, setVendors] = useState<Vendor[]>([])
-  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  const { vendors, filteredVendors, searchQuery, setSearchQuery, isLoading, toggleActive, deleteVendor } = useAdminVendors()
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
   const [documentUrl, setDocumentUrl] = useState("")
   const [messageVendor, setMessageVendor] = useState<Vendor | null>(null)
   const [viewDocumentDialog, setViewDocumentDialog] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
-
-  useEffect(() => {
-    fetchVendors()
-  }, [])
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredVendors(vendors)
-    } else {
-      const query = searchQuery.toLowerCase()
-      setFilteredVendors(
-        vendors.filter(
-          (v) =>
-            v.business_name?.toLowerCase().includes(query) ||
-            v.users?.email?.toLowerCase().includes(query) ||
-            v.users?.full_name?.toLowerCase().includes(query) ||
-            v.tin_number?.toLowerCase().includes(query) ||
-            v.nida_number?.toLowerCase().includes(query) ||
-            v.users?.phone?.toLowerCase().includes(query) ||
-            v.phone?.toLowerCase().includes(query),
-        ),
-      )
-    }
-  }, [searchQuery, vendors])
-
-  const fetchVendors = async () => {
-    try {
-      setIsLoading(true)
-      const response = await clientApiGet<{ data: Vendor[] }>("admin/vendors")
-      setVendors(response.data || [])
-      setFilteredVendors(response.data || [])
-    } catch (error) {
-      log.error("error fetching vendors", error)
-      toast({
-        title: "Error",
-        description: "Failed to load vendors",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleToggleActive = async (vendor: Vendor) => {
-    try {
-      const currentStatus = vendor.is_active ?? true
-      const newStatus = !currentStatus
-      await clientApiPost(`admin/vendors/${vendor.id}/${newStatus ? "activate" : "deactivate"}`)
-
-      toast({
-        title: newStatus ? "Vendor Activated" : "Vendor Deactivated",
-        description: `${vendor.business_name} has been ${newStatus ? "activated" : "deactivated"}`,
-      })
-
-      // Update local state
-      setVendors(vendors.map((v) => (v.id === vendor.id ? { ...v, is_active: newStatus } : v)))
-      setFilteredVendors(filteredVendors.map((v) => (v.id === vendor.id ? { ...v, is_active: newStatus } : v)))
-      if (selectedVendor?.id === vendor.id) {
-        setSelectedVendor({ ...selectedVendor, is_active: newStatus })
-      }
-    } catch (error) {
-      log.error("error toggling vendor status", error)
-      toast({
-        title: "Error",
-        description: "Failed to update vendor status",
-        variant: "destructive",
-      })
+    await toggleActive(vendor)
+    // Keep the open dialog in step with the row it was opened from.
+    if (selectedVendor?.id === vendor.id) {
+      setSelectedVendor({ ...selectedVendor, is_active: !(vendor.is_active ?? true) })
     }
   }
 
   const handleDeleteVendor = async (vendorId: string) => {
-    try {
-      await clientApiDelete(`admin/vendors/${vendorId}`)
-      toast({
-        title: "Vendor Deleted",
-        description: "The vendor and all related records have been permanently deleted.",
-      })
-      // Update local state
-      setVendors(vendors.filter((v) => v.id !== vendorId))
-      setFilteredVendors(filteredVendors.filter((v) => v.id !== vendorId))
-      setViewDialogOpen(false)
-    } catch (error) {
-      log.error("error deleting vendor", error)
-      toast({
-        title: "Error",
-        description: "Failed to delete vendor account",
-        variant: "destructive",
-      })
-    }
+    if (await deleteVendor(vendorId)) setViewDialogOpen(false)
   }
 
   const handleViewDetails = (vendor: Vendor) => {
@@ -338,7 +215,7 @@ export function VendorManagementTab() {
                   {vendor.users?.vendor_type && (
                     <div className="flex items-center gap-2.5 text-xs text-slate-600">
                       <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span>{vendorTypeLabels[vendor.users.vendor_type] || vendor.users.vendor_type}</span>
+                      <span>{vendorTypeLabel(vendor.users.vendor_type)}</span>
                     </div>
                   )}
                   {(vendor.users?.phone || vendor.phone) && (
@@ -433,178 +310,15 @@ export function VendorManagementTab() {
       )}
 
       {/* Vendor Details Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Vendor Details</DialogTitle>
-            <DialogDescription>Complete information for {selectedVendor?.business_name}</DialogDescription>
-          </DialogHeader>
-          {selectedVendor && (
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-muted-foreground">Business Name</Label>
-                  <p className="font-medium">{selectedVendor.business_name}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Email</Label>
-                  <p className="font-medium">{selectedVendor.users?.email}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Full Name</Label>
-                  <p className="font-medium">{selectedVendor.users?.full_name || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Phone</Label>
-                  <p className="font-medium">{selectedVendor.users?.phone || selectedVendor.phone || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Vendor Type</Label>
-                  <p className="font-medium">
-                    {selectedVendor.users?.vendor_type
-                      ? vendorTypeLabels[selectedVendor.users.vendor_type] || selectedVendor.users.vendor_type
-                      : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">TIN Number</Label>
-                  <p className="font-medium">{selectedVendor.tin_number}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">NIDA Number</Label>
-                  <p className="font-medium">{selectedVendor.nida_number}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">KYC Status</Label>
-                  <Badge
-                    className={
-                      selectedVendor.kyc_status === "approved"
-                        ? "bg-green-600"
-                        : selectedVendor.kyc_status === "pending"
-                          ? "bg-yellow-500"
-                          : "bg-red-600"
-                    }
-                  >
-                    {selectedVendor.kyc_status || "Pending"}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Account Status</Label>
-                  <Badge className={(selectedVendor.is_active ?? true) ? "bg-green-600" : "bg-gray-500"}>
-                    {(selectedVendor.is_active ?? true) ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Address</Label>
-                  <p className="font-medium">{selectedVendor.address || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">District</Label>
-                  <p className="font-medium">{selectedVendor.district || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Region</Label>
-                  <p className="font-medium">{selectedVendor.region || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Ward</Label>
-                  <p className="font-medium">{selectedVendor.ward || "N/A"}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Created At</Label>
-                  <p className="font-medium">{new Date(selectedVendor.created_at).toLocaleString()}</p>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Last Updated</Label>
-                  <p className="font-medium">{new Date(selectedVendor.updated_at).toLocaleString()}</p>
-                </div>
-                {selectedVendor.shops && selectedVendor.shops.length > 0 && (
-                  <div className="md:col-span-2">
-                    <Label className="text-muted-foreground">Shops</Label>
-                    <div className="mt-2 space-y-1">
-                      {selectedVendor.shops.map((shop) => (
-                        <Badge key={shop.id} variant="outline" className="mr-2">
-                          {shop.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {selectedVendor.business_license_url && (
-                  <div className="md:col-span-2">
-                    <Label className="text-muted-foreground">Business License</Label>
-                    <div className="mt-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewDocument(selectedVendor.business_license_url!)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Document
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          <DialogFooter className="flex justify-between items-center w-full">
-            <div className="flex gap-2">
-              {selectedVendor && (
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    if (
-                      confirm(
-                        `Are you absolutely sure you want to permanently delete "${selectedVendor.business_name}"? This action cannot be undone and will delete all their products, shops, payouts, and user accounts.`,
-                      )
-                    ) {
-                      handleDeleteVendor(selectedVendor.id)
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Vendor
-                </Button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {selectedVendor && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMessageVendor(selectedVendor)
-                    setViewDialogOpen(false)
-                  }}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Send Message
-                </Button>
-              )}
-              <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
-                Close
-              </Button>
-              {selectedVendor && (
-                <Button
-                  className={(selectedVendor.is_active ?? true) ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
-                  onClick={() => {
-                    handleToggleActive(selectedVendor)
-                    setViewDialogOpen(false)
-                  }}
-                >
-                  {(selectedVendor.is_active ?? true) ? (
-                    <>
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Deactivate Account
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Activate Account
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <VendorDetailsDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        vendor={selectedVendor}
+        onToggleActive={handleToggleActive}
+        onDelete={handleDeleteVendor}
+        onViewDocument={handleViewDocument}
+        onMessage={setMessageVendor}
+      />
 
       {/* Document Viewer Dialog */}
       <Dialog open={viewDocumentDialog} onOpenChange={setViewDocumentDialog}>

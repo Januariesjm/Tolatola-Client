@@ -15,7 +15,7 @@ const DSN = "https://collector.example/ingest"
 const ORIGINAL_DSN = process.env.NEXT_PUBLIC_ERROR_TRACKING_DSN
 const ORIGINAL_APP_ENV = process.env.NEXT_PUBLIC_APP_ENV
 
-const record: LogRecord = { level: "error", scope: "orders", message: "failed to confirm delivery" }
+const record = { level: "error", scope: "orders", message: "failed to confirm delivery" } satisfies LogRecord & { scope: string }
 
 /** A transport that resolves, and records what it was called with. */
 const okTransport = () => jest.fn(async () => ({ ok: true }) as Response) as unknown as jest.Mock
