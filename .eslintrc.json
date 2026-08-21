@@ -15,11 +15,7 @@
       }
     },
     {
-      "files": [
-        "components/checkout/checkout-success-content.tsx",
-        "components/ui/sidebar.tsx",
-        "lib/i18n/translations.ts"
-      ],
+      "files": ["components/ui/sidebar.tsx", "lib/i18n/translations.ts"],
       "rules": {
         "max-lines": "off"
       }

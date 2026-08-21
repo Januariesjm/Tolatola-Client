@@ -9,6 +9,16 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`checkout-success-content.tsx` split**: the order-status stepper (a
+  horizontal summary plus a detailed vertical timeline, both driven by one
+  status-to-step-index map that accepts several raw status spellings) into
+  `components/checkout/order-status-progress.tsx`. 535 -> 424 lines. This was
+  the last file on the max-lines allowlist besides the two that stay there
+  deliberately: `components/ui/sidebar.tsx` (a vendored shadcn primitive, not
+  application logic) and `lib/i18n/translations.ts` (a translation
+  dictionary, large because of what it is rather than because it mixes
+  concerns). All 29 pre-existing tests for this component pass unmodified.
+
 - **`messaging-tab.tsx` split**: the recipient/activity-log types, the
   per-role API row mappers, and both search predicates into
   `lib/admin/messaging.ts`; the sent-messages history card into
