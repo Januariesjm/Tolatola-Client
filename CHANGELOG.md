@@ -9,6 +9,15 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The last `any`-typed props and API envelopes in the dashboard tabs are
+  typed.** `AdminProduct` (in `lib/types/admin.ts`) describes the admin product
+  table's rows, and a new `lib/types/subscription.ts` describes the plan,
+  current-subscription and checkout shapes the vendor and transporter
+  subscription tabs share -- they consume the same endpoints, so they now share
+  one type instead of eight `any`s between them. Three `catch (err: any)` blocks
+  became `normalizeError`. Behaviour is unchanged; the types were derived from
+  the fields the components actually read.
+
 - **Agent wallet arithmetic extracted to `lib/agent/wallet.ts`.** The balances an
   agent sees, the 10% withdrawal fee, the net payout and the withdrawal
   validation rules all lived inside a 679-line component with no tests. They are

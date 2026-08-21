@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
-import { logger } from "@/lib/logger"
+import { logger, normalizeError } from "@/lib/logger"
+import type { CurrentSubscription, SubscriptionCheckoutResult, SubscriptionPlan } from "@/lib/types/subscription"
 
 const log = logger.child("vendor.vendor-subscription-tab")
 
@@ -24,11 +25,11 @@ interface VendorSubscriptionTabProps {
 
 export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) {
   const router = useRouter()
-  const [currentSubscription, setCurrentSubscription] = useState<any>(null)
-  const [plans, setPlans] = useState<any[]>([])
+  const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null)
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<any>(null)
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [paymentMethod, setPaymentMethod] = useState("airtel-money")
   const [upgrading, setUpgrading] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState("")
@@ -46,10 +47,12 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
 
   const loadSubscriptionData = async () => {
     try {
-      const vendorRes = await clientApiGet<{ vendor: any }>(`vendors/${vendorId}/subscription`)
+      const vendorRes = await clientApiGet<{ vendor: { current_subscription?: CurrentSubscription | null } }>(
+        `vendors/${vendorId}/subscription`,
+      )
       setCurrentSubscription(vendorRes.vendor?.current_subscription || null)
 
-      const plansRes = await clientApiGet<{ plans: any[] }>("subscriptions/plans")
+      const plansRes = await clientApiGet<{ plans: SubscriptionPlan[] }>("subscriptions/plans")
       setPlans(plansRes.plans || [])
     } catch (error) {
       log.error("error loading subscription data", error)
@@ -58,7 +61,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     }
   }
 
-  const handleUpgradeClick = (plan: any) => {
+  const handleUpgradeClick = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan)
     setShowUpgradeDialog(true)
   }
@@ -78,7 +81,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
           setIsAwaitingPayment(false)
           toast({
             title: "Subscription Activated",
-            description: `You are now on the ${selectedPlan.name} plan!`,
+            description: `You are now on the ${selectedPlan?.name} plan!`,
           })
           setShowUpgradeDialog(false)
           loadSubscriptionData()
@@ -133,7 +136,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
     setIsAwaitingPayment(true)
 
     try {
-      const result = await clientApiPost<any>("subscriptions", {
+      const result = await clientApiPost<SubscriptionCheckoutResult>("subscriptions", {
         planId: selectedPlan.id,
         vendorId,
         paymentMethod,
@@ -165,11 +168,11 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
       } else {
         throw new Error(result.message || "Payment initiation failed")
       }
-    } catch (error: any) {
+    } catch (error) {
       log.error("error upgrading subscription", error)
       toast({
         title: "Payment Failed",
-        description: error.message || "Failed to initiate payment. Please try again.",
+        description: normalizeError(error).message || "Failed to initiate payment. Please try again.",
         variant: "destructive",
       })
       setIsAwaitingPayment(false)
@@ -336,7 +339,7 @@ export function VendorSubscriptionTab({ vendorId }: VendorSubscriptionTabProps) 
         <h3 className="text-xl font-semibold mb-4">Available Plans</h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan) => {
-            const features = plan.features as any
+            const features = plan.features || {}
             const isCurrent = currentSubscription?.plan?.id === plan.id
 
             return (

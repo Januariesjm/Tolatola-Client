@@ -30,7 +30,8 @@ import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { clientApiGet, clientApiPost } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
-import { logger } from "@/lib/logger"
+import { logger, normalizeError } from "@/lib/logger"
+import type { CurrentSubscription, SubscriptionCheckoutResult, SubscriptionPlan } from "@/lib/types/subscription"
 
 const log = logger.child("transporter.transporter-subscription-tab")
 
@@ -41,11 +42,11 @@ interface TransporterSubscriptionTabProps {
 export function TransporterSubscriptionTab({ transporterId }: TransporterSubscriptionTabProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const [currentSubscription, setCurrentSubscription] = useState<any>(null)
-  const [plans, setPlans] = useState<any[]>([])
+  const [currentSubscription, setCurrentSubscription] = useState<CurrentSubscription | null>(null)
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<any>(null)
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [paymentMethod, setPaymentMethod] = useState("airtel-money")
   const [upgrading, setUpgrading] = useState(false)
 
@@ -66,11 +67,11 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
 
   const loadSubscriptionData = async () => {
     try {
-      const res = await clientApiGet<{ plans: any[] }>("subscriptions/plans?type=transporter")
+      const res = await clientApiGet<{ plans: SubscriptionPlan[] }>("subscriptions/plans?type=transporter")
       setPlans(res.plans || [])
 
       // Fetch transporter's current subscription
-      const transRes = await clientApiGet<{ transporter: any }>(`transporters/me`)
+      const transRes = await clientApiGet<{ transporter: { current_subscription?: CurrentSubscription | null } }>(`transporters/me`)
       setCurrentSubscription(transRes.transporter?.current_subscription || null)
     } catch (error) {
       log.error("error loading subscription data", error)
@@ -79,7 +80,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
     }
   }
 
-  const handleUpgradeClick = (plan: any) => {
+  const handleUpgradeClick = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan)
     setShowUpgradeDialog(true)
   }
@@ -99,7 +100,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
           setIsAwaitingPayment(false)
           toast({
             title: "Subscription Activated",
-            description: `You are now on the ${selectedPlan.name} plan!`,
+            description: `You are now on the ${selectedPlan?.name} plan!`,
           })
           setShowUpgradeDialog(false)
           loadSubscriptionData()
@@ -154,7 +155,7 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
     setIsAwaitingPayment(true)
 
     try {
-      const result = await clientApiPost<any>("subscriptions/transporters", {
+      const result = await clientApiPost<SubscriptionCheckoutResult>("subscriptions/transporters", {
         planId: selectedPlan.id,
         transporterId,
         paymentMethod,
@@ -186,11 +187,11 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
       } else {
         throw new Error(result.message || "Payment initiation failed")
       }
-    } catch (error: any) {
+    } catch (error) {
       log.error("error upgrading subscription", error)
       toast({
         title: "Payment Failed",
-        description: error.message || "Failed to initiate payment. Please try again.",
+        description: normalizeError(error).message || "Failed to initiate payment. Please try again.",
         variant: "destructive",
       })
       setIsAwaitingPayment(false)
@@ -343,7 +344,6 @@ export function TransporterSubscriptionTab({ transporterId }: TransporterSubscri
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const isCurrent = currentSubscription?.plan?.id === plan.id
-          const features = plan.features || {}
 
           return (
             <Card

@@ -1,3 +1,30 @@
+/**
+ * A catalogue row as the admin product table receives it from
+ * `GET admin/products`.
+ *
+ * Only the fields the table reads. Everything past `id` is optional because the
+ * list endpoint spans every category and includes the `shops`/`categories`
+ * joins only when the query selects them -- the UI already falls back for each.
+ */
+export interface AdminProduct {
+  id: string
+  name?: string | null
+  price?: number | null
+  description?: string | null
+  image_url?: string | null
+  stock_quantity?: number | null
+  /** "approved" | "pending" | "rejected" in practice, compared case-insensitively. */
+  status?: string | null
+  /** Drives the newest/oldest sort; missing rows sort as the epoch. */
+  created_at?: string | null
+  categories?: { name?: string | null } | null
+  /** Joined shop, itself carrying the joined vendor that owns it. */
+  shops?: {
+    name?: string | null
+    vendors?: { business_name?: string | null } | null
+  } | null
+}
+
 export interface AdminRolePermission {
   id: string
   role_name: string

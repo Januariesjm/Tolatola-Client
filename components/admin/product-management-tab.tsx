@@ -25,17 +25,18 @@ import {
 } from "lucide-react"
 import { clientApiDelete, clientApiGet } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
-import { logger } from "@/lib/logger"
+import { logger, normalizeError } from "@/lib/logger"
+import type { AdminProduct } from "@/lib/types/admin"
 
 const log = logger.child("admin.product-management-tab")
 
 interface ProductManagementTabProps {
-  initialProducts?: any[]
+  initialProducts?: AdminProduct[]
 }
 
 export function ProductManagementTab({ initialProducts = [] }: ProductManagementTabProps) {
   const router = useRouter()
-  const [products, setProducts] = useState<any[]>(initialProducts)
+  const [products, setProducts] = useState<AdminProduct[]>(initialProducts)
   const [loading, setLoading] = useState(false)
 
   // Filters & Controls
@@ -46,7 +47,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
 
   // Delete Modal State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [productToDelete, setProductToDelete] = useState<any | null>(null)
+  const [productToDelete, setProductToDelete] = useState<AdminProduct | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null)
@@ -62,7 +63,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
   const fetchProducts = async () => {
     setLoading(true)
     try {
-      const res = await clientApiGet<{ data: any[] }>("admin/products")
+      const res = await clientApiGet<{ data: AdminProduct[] }>("admin/products")
       if (res && Array.isArray(res.data)) {
         setProducts(res.data)
       }
@@ -133,7 +134,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
   }, [products])
 
   // Initiate Delete
-  const handleOpenDeleteDialog = (product: any) => {
+  const handleOpenDeleteDialog = (product: AdminProduct) => {
     setProductToDelete(product)
     setDeleteError(null)
     setDeleteDialogOpen(true)
@@ -159,15 +160,15 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
       setTimeout(() => {
         setDeleteSuccess(null)
       }, 5000)
-    } catch (err: any) {
-      log.error("error", err)
-      setDeleteError(err?.message || "Failed to delete product. Please try again.")
+    } catch (err) {
+      log.error("failed to delete product", err)
+      setDeleteError(normalizeError(err).message || "Failed to delete product. Please try again.")
     } finally {
       setIsDeleting(false)
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: string | null) => {
     const s = (status || "").toLowerCase()
     switch (s) {
       case "approved":
@@ -426,7 +427,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
                       <div className="h-12 w-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden relative">
                         <img
                           src={product.image_url || "/placeholder.svg"}
-                          alt={product.name}
+                          alt={product.name || ""}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             ;(e.target as HTMLElement).setAttribute("src", "/placeholder.svg")
@@ -491,7 +492,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
               <div className="aspect-video bg-slate-100 relative overflow-hidden">
                 <img
                   src={product.image_url || "/placeholder.svg"}
-                  alt={product.name}
+                  alt={product.name || ""}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     ;(e.target as HTMLElement).setAttribute("src", "/placeholder.svg")
@@ -558,7 +559,7 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
                 <div className="h-14 w-14 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0">
                   <img
                     src={productToDelete.image_url || "/placeholder.svg"}
-                    alt={productToDelete.name}
+                    alt={productToDelete.name || ""}
                     className="w-full h-full object-cover"
                   />
                 </div>
