@@ -117,17 +117,120 @@ const CONSOLE_METHOD: Record<LogLevel, "log" | "warn" | "error"> = {
   error: "error",
 }
 
+/**
+ * How a record is written to the console.
+ *
+ * `json` emits one machine-parseable line per record, which is what a log
+ * collector needs -- the app is deployed to Cloud Run, where stdout is ingested
+ * by Cloud Logging and a JSON line becomes a structured entry with queryable
+ * fields instead of an opaque string.
+ *
+ * `pretty` is the multi-argument console form, which is far easier to read in a
+ * terminal and lets a browser console expand the error and context objects.
+ */
+export type LogFormat = "pretty" | "json"
+
+/**
+ * Format to emit in.
+ *
+ * Read lazily for the same reason as `minLevel`. Defaults to `json` in
+ * production (where something is collecting the output) and `pretty` everywhere
+ * else (where a human is reading it).
+ */
+export function logFormat(): LogFormat {
+  const configured = process.env.NEXT_PUBLIC_LOG_FORMAT
+  if (configured === "json" || configured === "pretty") return configured
+  return process.env.NODE_ENV === "production" ? "json" : "pretty"
+}
+
+/**
+ * Cloud Logging severity per level.
+ *
+ * These exact strings matter: Cloud Logging promotes a JSON payload's
+ * `severity` field to the entry's own severity, so an error shows up as an
+ * error rather than as INFO text that happens to say "error".
+ */
+const SEVERITY: Record<LogLevel, string> = {
+  debug: "DEBUG",
+  info: "INFO",
+  warn: "WARNING",
+  error: "ERROR",
+}
+
+/**
+ * One log record as a JSON-serializable object.
+ *
+ * Field names follow the Cloud Logging structured-log convention
+ * (`severity`, `message`, `timestamp`) so no log-router mapping is needed;
+ * `module` carries the logger's scope.
+ */
+export interface StructuredLogEntry {
+  severity: string
+  message: string
+  /** The logger's dotted scope, omitted for the root logger. */
+  module?: string
+  /** ISO 8601, UTC. */
+  timestamp: string
+  context?: LogContext
+  error?: NormalizedError
+}
+
+/**
+ * Projects a record into its structured form.
+ *
+ * Exported so the error-tracking transport sends the same shape that is logged,
+ * and so the shape can be asserted directly in tests. Empty `context` and
+ * absent `error` are omitted rather than serialized as empty values, keeping
+ * lines small and queries simple.
+ */
+export function toStructuredEntry(record: LogRecord, now: Date = new Date()): StructuredLogEntry {
+  const entry: StructuredLogEntry = {
+    severity: SEVERITY[record.level],
+    message: record.message,
+    timestamp: now.toISOString(),
+  }
+
+  if (record.scope) entry.module = record.scope
+  if (record.context && Object.keys(record.context).length > 0) entry.context = record.context
+  if (record.error) entry.error = record.error
+
+  return entry
+}
+
+/**
+ * Serializes an entry to a single JSON line.
+ *
+ * A caller's `context` is arbitrary — a React event, a DOM node, an object with
+ * a cycle — and any of those make `JSON.stringify` throw. Losing the whole line
+ * because the metadata was awkward would be the wrong trade, so the message and
+ * severity are always emitted and only the unserializable part is replaced.
+ */
+export function serializeEntry(entry: StructuredLogEntry): string {
+  try {
+    return JSON.stringify(entry)
+  } catch {
+    return JSON.stringify({ ...entry, context: { unserializable: safeStringify(entry.context) } })
+  }
+}
+
 function emit(record: LogRecord): void {
   if (LEVEL_WEIGHT[record.level] < LEVEL_WEIGHT[minLevel()]) return
 
-  const prefix = record.scope ? `[${record.level}] ${record.scope}:` : `[${record.level}]`
+  const method = CONSOLE_METHOD[record.level]
 
-  const details: unknown[] = []
-  if (record.error) details.push(record.error)
-  if (record.context && Object.keys(record.context).length > 0) details.push(record.context)
+  if (logFormat() === "json") {
+    // eslint-disable-next-line no-console
+    console[method](serializeEntry(toStructuredEntry(record)))
+  } else {
+    const prefix = record.scope ? `[${record.level}] ${record.scope}:` : `[${record.level}]`
 
-  // eslint-disable-next-line no-console
-  console[CONSOLE_METHOD[record.level]](prefix, record.message, ...details)
+    const details: unknown[] = []
+    if (record.error) details.push(record.error)
+    if (record.context && Object.keys(record.context).length > 0) details.push(record.context)
+
+    // eslint-disable-next-line no-console
+    console[method](prefix, record.message, ...details)
+  }
 
   if (record.level === "error" && errorReporter) {
     try {
