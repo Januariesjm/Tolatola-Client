@@ -20,7 +20,6 @@
         "app/careers/careers-page-client.tsx",
         "components/admin/blog-management-tab.tsx",
         "components/admin/hr-applications-subtab.tsx",
-        "components/admin/hr-payroll-subtab.tsx",
         "components/admin/hr-staff-subtab.tsx",
         "components/admin/messaging-tab.tsx",
         "components/admin/product-management-tab.tsx",
