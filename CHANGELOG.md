@@ -9,6 +9,19 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`incomplete-registrations-tab.tsx`: extracted the recovery-status filter
+  state, per-status counts, and status-update mutation** into
+  `hooks/use-incomplete-registrations.ts`. The mutation now goes through
+  `clientApiPut` (`lib/api-client.ts`) instead of a raw
+  `fetch(..., { credentials: "include" })` — this was the one admin tab in
+  the whole codebase still doing that; every sibling admin tab's mutations
+  already used the shared client. The PUT verb, path and body are unchanged
+  from the original raw call, since the only other admin tabs that update a
+  "…/status" sub-resource use POST against a *different* backend route —
+  not evidence this one takes POST too, so switching verbs wasn't a safe
+  assumption to make blind. New test file (7 tests): filtering, counts, and
+  both the success and failure paths of `updateStatus`.
+
 - **Split the two remaining max-lines allowlist entries**, reversing the
   earlier decision to leave them alone. `lib/i18n/translations.ts` (602 raw
   lines) became `lib/i18n/translations/{en,sw,ar,zh}.ts` plus an `index.ts`

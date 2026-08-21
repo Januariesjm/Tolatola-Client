@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,43 +32,36 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
 import { format, formatDistanceToNow } from "date-fns"
 import type { IncompleteRegistration } from "@/lib/types/admin"
+import { useIncompleteRegistrations } from "@/hooks/use-incomplete-registrations"
 
 interface IncompleteRegistrationsTabProps {
   registrations: IncompleteRegistration[]
 }
 
 export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistrationsTabProps) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [typeFilter, setTypeFilter] = useState<string>("all")
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [contactModal, setContactModal] = useState<{ id: string; name: string } | null>(null)
-  const [contactNotes, setContactNotes] = useState("")
-  const [processing, setProcessing] = useState<string | null>(null)
-
-  const filtered = useMemo(() => {
-    return registrations.filter((r) => {
-      if (statusFilter !== "all" && r.recovery_status !== statusFilter) return false
-      if (typeFilter !== "all" && r.user_type !== typeFilter) return false
-      const q = searchQuery.toLowerCase()
-      const name = (r.full_name || "").toLowerCase()
-      const email = (r.email || "").toLowerCase()
-      const phone = (r.phone || "").toLowerCase()
-      return name.includes(q) || email.includes(q) || phone.includes(q)
-    })
-  }, [registrations, searchQuery, statusFilter, typeFilter])
-
-  // Counts
-  const pending = registrations.filter((r) => r.recovery_status === "pending").length
-  const contacted = registrations.filter((r) => r.recovery_status === "contacted").length
-  const completed = registrations.filter((r) => r.recovery_status === "completed").length
-  const notInterested = registrations.filter((r) => r.recovery_status === "not_interested").length
+  const {
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    expandedId,
+    setExpandedId,
+    contactModal,
+    setContactModal,
+    contactNotes,
+    setContactNotes,
+    processing,
+    filtered,
+    pending,
+    contacted,
+    completed,
+    notInterested,
+    updateStatus,
+  } = useIncompleteRegistrations(registrations)
 
   const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700 border-amber-200",
@@ -102,38 +94,6 @@ export function IncompleteRegistrationsTab({ registrations }: IncompleteRegistra
     location: "Location Details",
     documents: "Document Upload",
     submit: "Ready to Submit",
-  }
-
-  const updateStatus = async (id: string, status: string, notes?: string) => {
-    setProcessing(id)
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
-      const response = await fetch(`${apiBase}/admin/incomplete-registrations/${id}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ status, notes }),
-      })
-      if (response.ok) {
-        toast({
-          title: "Status updated",
-          description: `Registration marked as ${statusLabel[status] || status}.`,
-        })
-        router.refresh()
-      } else {
-        throw new Error("Failed to update status")
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to update status",
-        variant: "destructive",
-      })
-    } finally {
-      setProcessing(null)
-      setContactModal(null)
-      setContactNotes("")
-    }
   }
 
   return (
