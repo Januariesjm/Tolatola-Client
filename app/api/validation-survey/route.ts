@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { validationSurveySchema } from "@/lib/schemas/api"
 
 export async function POST(req: NextRequest) {
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -6,7 +8,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "NEXT_PUBLIC_API_BASE_URL is not set" }, { status: 500 })
   }
 
-  const body = await req.json()
+  const parsed = await validateRequestBody(req, validationSurveySchema, "validation-survey")
+  if (!parsed.ok) return parsed.response
+
+  const body = parsed.data
 
   const res = await fetch(`${apiBase}/validation-survey`, {
     method: "POST",

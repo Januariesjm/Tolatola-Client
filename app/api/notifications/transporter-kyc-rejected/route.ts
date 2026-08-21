@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { kycNotificationSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.notifications.transporter-kyc-rejected")
 
 export async function POST(request: Request) {
   try {
-    const { email, fullName, reason } = await request.json()
+    const parsed = await validateRequestBody(request, kycNotificationSchema, "notifications.transporter-kyc-rejected")
+    if (!parsed.ok) return parsed.response
+
+    const { email, fullName, reason } = parsed.data
 
     // TODO: Integrate with email service (Resend, SendGrid, etc.)
     // For now, log the notification

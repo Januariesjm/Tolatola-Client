@@ -1,19 +1,22 @@
 import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { clickpesaWebhookSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.webhooks.clickpesa")
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = await request.json()
+    const parsed = await validateRequestBody(request, clickpesaWebhookSchema, "webhooks.clickpesa")
+    if (!parsed.ok) return parsed.response
 
-    console.log("[v0] ClickPesa webhook received:", payload)
+    const { transaction_id, merchant_reference, status } = parsed.data
 
-    const { transaction_id, merchant_reference, status, amount, phone_number } = payload
+    log.info("clickpesa webhook received", { merchantReference: merchant_reference, status })
 
     // Extract order ID from merchant reference
-    const orderId = merchant_reference?.replace("ORDER-", "")
+    const orderId = merchant_reference.replace("ORDER-", "")
 
     if (!orderId) {
       return NextResponse.json({ error: "Invalid merchant reference" }, { status: 400 })
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
       const { data: orderItems } = await supabase.from("order_items").select("shop_id").eq("order_id", orderId)
 
       if (orderItems) {
-        const shopIds = [...new Set(orderItems.map((item: any) => item.shop_id))]
+        const shopIds = [...new Set(orderItems.map((item) => item.shop_id))]
 
         const { createNotification } = await import("@/lib/notifications")
 
@@ -87,7 +90,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log("[v0] Order updated successfully:", orderId, paymentStatus)
+    log.info("order payment status updated", { orderId, paymentStatus })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

@@ -2,13 +2,14 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { createNotification } from "@/lib/notifications"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { createOrderRequestSchema } from "@/lib/schemas/checkout"
 
 const log = logger.child("app.api.orders")
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    const { items, shippingAddress, totalAmount, paymentMethod, paymentDetails, transportMethodId, deliveryFee } = await request.json()
 
     const {
       data: { user },
@@ -17,6 +18,15 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    // Validated before the first insert. `items` was previously destructured
+    // straight out of request.json() and then mapped over, so a body without it
+    // threw after the order row was already written -- leaving an order with no
+    // line items behind an opaque 500.
+    const parsed = await validateRequestBody(request, createOrderRequestSchema, "orders.create")
+    if (!parsed.ok) return parsed.response
+
+    const { items, shippingAddress, totalAmount, paymentMethod, transportMethodId, deliveryFee } = parsed.data
 
     // 1. Create Order
     const { data: order, error: orderError } = await supabase
@@ -42,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Create Order Items
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item) => ({
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
@@ -69,7 +79,7 @@ export async function POST(request: NextRequest) {
     // Let's first get the shop owner IDs
 
     // Group items by shop_id to send one notification per shop
-    const shopIds = [...new Set(items.map((item: any) => item.shop_id))]
+    const shopIds = [...new Set(items.map((item) => item.shop_id))]
 
     for (const shopId of shopIds) {
       const { data: shop } = await supabase.from("shops").select("owner_id, name").eq("id", shopId).single()

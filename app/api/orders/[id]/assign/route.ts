@@ -2,18 +2,20 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { createNotification } from "@/lib/notifications"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { assignTransporterSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.orders.[id].assign")
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = await createClient()
-    const { transporterId } = await request.json()
     const orderId = params.id
 
-    if (!transporterId) {
-      return NextResponse.json({ error: "Transporter ID is required" }, { status: 400 })
-    }
+    const parsed = await validateRequestBody(request, assignTransporterSchema, "orders.assign")
+    if (!parsed.ok) return parsed.response
+
+    const { transporterId } = parsed.data
 
     // 1. Verify access (Admin only generally, or maybe a vendor assigning local helper)
     // For now, assuming authenticated user check is enough, ideally check role

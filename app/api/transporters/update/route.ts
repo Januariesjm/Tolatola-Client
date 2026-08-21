@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { transporterUpdateSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.transporters.update")
 
@@ -15,8 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { business_name, vehicle_type, license_plate } = body
+    const parsed = await validateRequestBody(request, transporterUpdateSchema, "transporters.update")
+    if (!parsed.ok) return parsed.response
+
+    const { business_name, vehicle_type, license_plate } = parsed.data
 
     const { error } = await supabase
       .from("transporters")

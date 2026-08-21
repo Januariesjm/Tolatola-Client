@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { customerKycSubmitSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.kyc.submit")
 
@@ -15,7 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
+    // The schema omits `user_id` and Zod strips unknown keys, so the column can
+    // only come from the session below. Previously the whole body was spread into
+    // the update, letting a caller reassign their KYC record to another user.
+    const parsed = await validateRequestBody(request, customerKycSubmitSchema, "kyc.submit")
+    if (!parsed.ok) return parsed.response
+
+    const body = parsed.data
 
     const { data: existingKyc } = await supabase.from("customer_kyc").select("id").eq("user_id", user.id).maybeSingle()
 
@@ -25,6 +33,7 @@ export async function POST(request: Request) {
         .from("customer_kyc")
         .update({
           ...body,
+          user_id: user.id,
           kyc_status: "pending",
           kyc_notes: null,
           updated_at: new Date().toISOString(),

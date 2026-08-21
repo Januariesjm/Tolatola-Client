@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { logger } from "@/lib/logger"
+import { validateRequestBody } from "@/lib/api/validate-request"
+import { profileUpdateSchema } from "@/lib/schemas/api"
 
 const log = logger.child("app.api.profile.update")
 
@@ -15,8 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { full_name, phone, address } = body
+    const parsed = await validateRequestBody(request, profileUpdateSchema, "profile.update")
+    if (!parsed.ok) return parsed.response
+
+    const { full_name, phone, address } = parsed.data
 
     const { error } = await supabase
       .from("users")
