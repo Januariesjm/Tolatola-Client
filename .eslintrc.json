@@ -33,8 +33,6 @@
         "components/support/floating-support-widget.tsx",
         "components/transporter/transporter-subscription-tab.tsx",
         "components/ui/sidebar.tsx",
-        "components/vendor/add-product-dialog.tsx",
-        "components/vendor/edit-product-dialog.tsx",
         "components/vendor/vendor-subscription-tab.tsx",
         "lib/i18n/translations.ts"
       ],
