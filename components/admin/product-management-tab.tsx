@@ -5,28 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Search,
-  Trash2,
-  AlertTriangle,
-  RefreshCw,
-  LayoutGrid,
-  List,
-  Package,
-  Store,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  X,
-  Filter,
-} from "lucide-react"
+import { Search, Trash2, RefreshCw, LayoutGrid, List, Package, Store, CheckCircle2, XCircle, Clock, X, Filter } from "lucide-react"
 import { clientApiDelete, clientApiGet } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
 import { logger, normalizeError } from "@/lib/logger"
+import { DeleteProductDialog } from "@/components/admin/delete-product-dialog"
 import type { AdminProduct } from "@/lib/types/admin"
+import { countProductsByStatus, filterAndSortProducts, type ProductSortOption } from "@/lib/admin/product-filters"
 
 const log = logger.child("admin.product-management-tab")
 
@@ -75,63 +62,12 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
   }
 
   // Filter and sort products
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((product) => {
-        // Status filter
-        if (statusFilter !== "all" && (product.status || "").toLowerCase() !== statusFilter.toLowerCase()) {
-          return false
-        }
+  const filteredProducts = useMemo(
+    () => filterAndSortProducts(products, { statusFilter, query: searchQuery, sortBy: sortBy as ProductSortOption }),
+    [products, searchQuery, statusFilter, sortBy],
+  )
 
-        // Search query filter
-        if (!searchQuery.trim()) return true
-
-        const q = searchQuery.toLowerCase()
-        const name = (product.name || "").toLowerCase()
-        const desc = (product.description || "").toLowerCase()
-        const id = (product.id || "").toLowerCase()
-        const shopName = (product.shops?.name || "").toLowerCase()
-        const vendorName = (product.shops?.vendors?.business_name || "").toLowerCase()
-        const categoryName = (product.categories?.name || "").toLowerCase()
-
-        return (
-          name.includes(q) ||
-          desc.includes(q) ||
-          id.includes(q) ||
-          shopName.includes(q) ||
-          vendorName.includes(q) ||
-          categoryName.includes(q)
-        )
-      })
-      .sort((a, b) => {
-        if (sortBy === "newest") {
-          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-        }
-        if (sortBy === "oldest") {
-          return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-        }
-        if (sortBy === "price_high") {
-          return (b.price || 0) - (a.price || 0)
-        }
-        if (sortBy === "price_low") {
-          return (a.price || 0) - (b.price || 0)
-        }
-        if (sortBy === "name_asc") {
-          return (a.name || "").localeCompare(b.name || "")
-        }
-        return 0
-      })
-  }, [products, searchQuery, statusFilter, sortBy])
-
-  // Count stats
-  const stats = useMemo(() => {
-    return {
-      total: products.length,
-      approved: products.filter((p) => (p.status || "").toLowerCase() === "approved").length,
-      pending: products.filter((p) => (p.status || "").toLowerCase() === "pending").length,
-      rejected: products.filter((p) => (p.status || "").toLowerCase() === "rejected").length,
-    }
-  }, [products])
+  const stats = useMemo(() => countProductsByStatus(products), [products])
 
   // Initiate Delete
   const handleOpenDeleteDialog = (product: AdminProduct) => {
@@ -540,84 +476,14 @@ export function ProductManagementTab({ initialProducts = [] }: ProductManagement
       )}
 
       {/* Confirmation Modal */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[480px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-rose-600 font-bold text-xl">
-              <AlertTriangle className="h-5 w-5" />
-              Delete Product Permanently?
-            </DialogTitle>
-            <DialogDescription className="text-slate-600 pt-1 text-sm">
-              This action cannot be undone. The product and all related marketplace data will be permanently purged from the system
-              database.
-            </DialogDescription>
-          </DialogHeader>
-
-          {productToDelete && (
-            <div className="space-y-4 py-3">
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="h-14 w-14 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0">
-                  <img
-                    src={productToDelete.image_url || "/placeholder.svg"}
-                    alt={productToDelete.name || ""}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-1 min-w-0 flex-1">
-                  <p className="font-bold text-slate-900 text-sm truncate">{productToDelete.name}</p>
-                  <p className="text-xs text-slate-500 truncate">
-                    Shop: {productToDelete.shops?.name || "No Shop"} ({productToDelete.shops?.vendors?.business_name || "Vendor"})
-                  </p>
-                  <p className="text-xs font-semibold text-slate-700">
-                    TZS {Number(productToDelete.price || 0).toLocaleString()} • ID: {productToDelete.id}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
-                <p className="font-semibold">Items that will be deleted:</p>
-                <ul className="list-disc list-inside space-y-0.5 text-rose-700">
-                  <li>Product images & media files</li>
-                  <li>Customer shopping cart entries containing this item</li>
-                  <li>User wishlist & product likes</li>
-                  <li>Customer product reviews and ratings</li>
-                </ul>
-              </div>
-
-              {deleteError && <div className="p-3 bg-red-100 border border-red-300 text-red-800 rounded-xl text-xs">{deleteError}</div>}
-            </div>
-          )}
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={isDeleting}
-              className="rounded-xl border-slate-200"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className="rounded-xl bg-rose-600 hover:bg-rose-700 gap-2 font-medium"
-            >
-              {isDeleting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="h-4 w-4" />
-                  Yes, Delete Permanently
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteProductDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        product={productToDelete}
+        isDeleting={isDeleting}
+        error={deleteError}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }

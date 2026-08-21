@@ -9,6 +9,12 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`product-management-tab.tsx` split**: the search/filter/sort predicate and
+  the status counts into `lib/admin/product-filters.ts`; the permanent-delete
+  confirmation dialog into `components/admin/delete-product-dialog.tsx`.
+  623 -> 489 lines, off the max-lines allowlist. Verified DOM-identical across
+  four states (table view, after searching, grid view, delete dialog open)
+  before landing.
 - **`vendor-subscription-tab.tsx` now shares `hooks/use-subscription-payment-poll.ts`**
   instead of carrying its own copy of the same polling logic (642 -> 609 lines).
   Previously untested; 5 tests added covering plan load, opening the upgrade
