@@ -2,9 +2,17 @@
 
 import { useEffect } from "react"
 import { EventEmitter } from "events"
+import { logger } from "@/lib/logger"
+import { initErrorTracking } from "@/lib/observability/error-tracking"
+
+const log = logger.child("global")
 
 export function GlobalErrorLogger() {
   useEffect(() => {
+    // Registers the sink for every error-level record, including the two
+    // handlers below. A no-op unless NEXT_PUBLIC_ERROR_TRACKING_DSN is set.
+    const tracking = initErrorTracking()
+
     // Increase global EventEmitter max listeners limit to prevent MaxListenersExceededWarning
     try {
       if (EventEmitter && typeof EventEmitter.defaultMaxListeners === "number") {
@@ -71,12 +79,12 @@ export function GlobalErrorLogger() {
         return
       }
       handleChunkError(event.error || event.message)
-      console.error("[Global Error]", {
-        message: event.message,
+      // Through the logger rather than console directly, so uncaught errors
+      // reach the error-tracking transport like every other error does.
+      log.error("uncaught error", event.error ?? event.message, {
         source: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        error: event.error,
       })
     }
 
@@ -91,9 +99,7 @@ export function GlobalErrorLogger() {
         return
       }
       handleChunkError(event.reason)
-      console.error("[Unhandled Promise Rejection]", {
-        reason: event.reason,
-      })
+      log.error("unhandled promise rejection", event.reason)
     }
 
     window.addEventListener("error", handleError)
@@ -104,6 +110,7 @@ export function GlobalErrorLogger() {
       console.error = originalError
       window.removeEventListener("error", handleError)
       window.removeEventListener("unhandledrejection", handleRejection)
+      tracking.shutdown()
     }
   }, [])
 
