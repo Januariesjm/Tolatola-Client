@@ -101,7 +101,10 @@ describe("CartContent empty state", () => {
 
 describe("CartContent line items", () => {
   it("renders each line's product name and quantity", async () => {
-    seedCart([cartItem({ quantity: 2 }), cartItem({ product_id: "p2", product: { id: "p2", name: "Batik Wrap", price: 8000, stock_quantity: 5 } })])
+    seedCart([
+      cartItem({ quantity: 2 }),
+      cartItem({ product_id: "p2", product: { id: "p2", name: "Batik Wrap", price: 8000, stock_quantity: 5 } }),
+    ])
     await renderCart()
 
     expect(screen.getByText("Kanga Fabric")).toBeInTheDocument()
@@ -111,7 +114,10 @@ describe("CartContent line items", () => {
 
   it("counts distinct lines rather than total units in the header count", async () => {
     // Two lines, six total units -- the header shows the line count (2), not 6.
-    seedCart([cartItem({ quantity: 3 }), cartItem({ product_id: "p2", quantity: 3, product: { id: "p2", name: "Batik Wrap", price: 8000 } })])
+    seedCart([
+      cartItem({ quantity: 3 }),
+      cartItem({ product_id: "p2", quantity: 3, product: { id: "p2", name: "Batik Wrap", price: 8000 } }),
+    ])
     await renderCart()
 
     expect(screen.getByText("2 cart.items_in_cart")).toBeInTheDocument()

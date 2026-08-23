@@ -188,21 +188,13 @@ describe("SupportMessageBubble attachments", () => {
 
 describe("SupportMessageBubble escalation action", () => {
   it("shows the escalation button when the message opts in and no human is live", () => {
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showEscalationOption: true }), isLiveConversation: false })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showEscalationOption: true }), isLiveConversation: false })} />)
 
     expect(screen.getByRole("button", { name: /connect to human support/i })).toBeInTheDocument()
   })
 
   it("hides the escalation button once a human is already on the conversation", () => {
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showEscalationOption: true }), isLiveConversation: true })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showEscalationOption: true }), isLiveConversation: true })} />)
 
     expect(screen.queryByRole("button", { name: /connect to human support/i })).not.toBeInTheDocument()
   })
@@ -215,11 +207,7 @@ describe("SupportMessageBubble escalation action", () => {
 
   it("calls onEscalate when clicked", async () => {
     const onEscalate = jest.fn()
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showEscalationOption: true }), onEscalate })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showEscalationOption: true }), onEscalate })} />)
 
     await userEvent.click(screen.getByRole("button", { name: /connect to human support/i }))
 
@@ -227,11 +215,7 @@ describe("SupportMessageBubble escalation action", () => {
   })
 
   it("shows a connecting label and disables the button while escalating", () => {
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showEscalationOption: true }), isEscalating: true })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showEscalationOption: true }), isEscalating: true })} />)
 
     const button = screen.getByRole("button", { name: /connecting to support/i })
     expect(button).toBeDisabled()
@@ -254,21 +238,13 @@ describe("SupportMessageBubble inactivity prompt", () => {
   })
 
   it("hides the countdown when the prompt is not active", () => {
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showInactivityPrompt: true }), inactivityPromptActive: false })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showInactivityPrompt: true }), inactivityPromptActive: false })} />)
 
     expect(screen.queryByText(/Ending automatically/)).not.toBeInTheDocument()
   })
 
   it("hides the countdown when the message does not carry the flag", () => {
-    render(
-      <SupportMessageBubble
-        {...baseProps({ message: message({ showInactivityPrompt: false }), inactivityPromptActive: true })}
-      />,
-    )
+    render(<SupportMessageBubble {...baseProps({ message: message({ showInactivityPrompt: false }), inactivityPromptActive: true })} />)
 
     expect(screen.queryByText(/Ending automatically/)).not.toBeInTheDocument()
   })

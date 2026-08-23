@@ -49,12 +49,7 @@ describe("CategoriesGrid", () => {
   })
 
   it("uses the translated category name when a translation key exists", () => {
-    render(
-      <CategoriesGrid
-        categories={[{ id: "1", name: "Raw DB Name", slug: "agriculture" }]}
-        categoryImages={categoryImages}
-      />,
-    )
+    render(<CategoriesGrid categories={[{ id: "1", name: "Raw DB Name", slug: "agriculture" }]} categoryImages={categoryImages} />)
 
     // category.agriculture -> "Agriculture" in the real English translations,
     // so the translated label wins over the raw DB name.
@@ -63,12 +58,7 @@ describe("CategoriesGrid", () => {
   })
 
   it("falls back to the raw name when no translation key matches", () => {
-    render(
-      <CategoriesGrid
-        categories={[{ id: "1", name: "Bespoke Widgets", slug: "not-a-real-slug" }]}
-        categoryImages={categoryImages}
-      />,
-    )
+    render(<CategoriesGrid categories={[{ id: "1", name: "Bespoke Widgets", slug: "not-a-real-slug" }]} categoryImages={categoryImages} />)
 
     expect(screen.getByText("Bespoke Widgets")).toBeInTheDocument()
   })
@@ -76,10 +66,7 @@ describe("CategoriesGrid", () => {
   it("excludes sub-categories that have a parent_id", () => {
     render(
       <CategoriesGrid
-        categories={[
-          ...baseCategories,
-          { id: "4", name: "Fruit", slug: "fruit", parent_id: "1" },
-        ]}
+        categories={[...baseCategories, { id: "4", name: "Fruit", slug: "fruit", parent_id: "1" }]}
         categoryImages={categoryImages}
       />,
     )
@@ -144,20 +131,13 @@ describe("CategoriesGrid", () => {
   })
 
   it("falls back to the default image when nothing matches", () => {
-    render(
-      <CategoriesGrid
-        categories={[{ id: "1", name: "Mystery Goods", slug: "mystery" }]}
-        categoryImages={categoryImages}
-      />,
-    )
+    render(<CategoriesGrid categories={[{ id: "1", name: "Mystery Goods", slug: "mystery" }]} categoryImages={categoryImages} />)
 
     expect(screen.getByRole("img")).toHaveAttribute("src", "/images/default.png")
   })
 
   it("falls back to the static placeholder image when no default image is configured either", () => {
-    render(
-      <CategoriesGrid categories={[{ id: "1", name: "Mystery Goods", slug: "mystery" }]} categoryImages={{}} />,
-    )
+    render(<CategoriesGrid categories={[{ id: "1", name: "Mystery Goods", slug: "mystery" }]} categoryImages={{}} />)
 
     expect(screen.getByRole("img")).toHaveAttribute("src", "/abstract-categories.png")
   })

@@ -85,13 +85,7 @@ describe("SupportChatHeader live support banner", () => {
   })
 
   it("shows the ticket id truncated to its first 8 characters", () => {
-    render(
-      <SupportChatHeader
-        onClose={jest.fn()}
-        liveConversationId="conv-1"
-        activeTicket={ticket({ id: "abcdefgh-1234-5678" })}
-      />,
-    )
+    render(<SupportChatHeader onClose={jest.fn()} liveConversationId="conv-1" activeTicket={ticket({ id: "abcdefgh-1234-5678" })} />)
 
     expect(screen.getByText("Ticket #abcdefgh · Messages sync in real-time")).toBeInTheDocument()
   })

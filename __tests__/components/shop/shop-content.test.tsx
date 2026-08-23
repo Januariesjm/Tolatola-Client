@@ -283,9 +283,7 @@ describe("ShopContent image search", () => {
     render(<ShopContent products={[]} categories={[]} trendingProducts={[]} />)
 
     await waitFor(() =>
-      expect(mockToast).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "Image search failed", variant: "destructive" }),
-      ),
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: "Image search failed", variant: "destructive" })),
     )
     expect(await screen.findByText("No similar products found")).toBeInTheDocument()
   })
