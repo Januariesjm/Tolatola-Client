@@ -8,27 +8,28 @@
  * floor is present and non-zero, so deleting it fails the suite rather than
  * silently disabling enforcement.
  *
- * Current (2026-08-21): statements 32.6%, branches 28.5%, functions 22.0%,
- * lines 32.8% -- raised from 16/13/8/16 as many suites landed; most recently
- * the agent-commission, transporter-subscription, vendor-subscription,
- * product-management and Sentry-adapter splits and their tests.
+ * Current (2026-08-23): statements 80.86%, branches 73.24%, functions 74.08%,
+ * lines 81.6% -- raised from 32/28/21/32 in one incremental push covering
+ * essentially every previously-untested component: cart/favorites/shop/
+ * profile content, the vendor and transporter dashboards and their dialogs,
+ * the full admin surface (HR, finance, KYC, blog, messaging, analytics,
+ * infra/ops), checkout's map/address/shipping components, and the
+ * messaging widgets. lib/ was already at ~96% going in.
  *
- * The denominator is all of lib/ and components/, dominated by the remaining
- * large untested UI components, so the percentage understates how well the
- * tested modules are covered -- lib/checkout, lib/schemas, lib/search,
- * lib/messaging, lib/support, lib/logger and lib/api* are at or near 100%.
- *
- * The next meaningful jump needs the vendor, transporter and agent dashboard
- * tabs, which are ~1,400 uncovered statements between them.
+ * Branches and functions sit below statements/lines because the remaining
+ * gap is concentrated in components/ui/* (many are unused vendored shadcn
+ * primitives, not application logic) and a handful of defensive branches
+ * confirmed dead by direct probing (documented in the relevant test files)
+ * rather than force-tested.
  *
  * jest.config.js declares the same numbers inline (so a scanner reading that
  * file finds them); the test asserts the two never disagree.
  */
 module.exports = {
   global: {
-    statements: 32,
-    branches: 28,
-    functions: 21,
-    lines: 32,
+    statements: 80,
+    branches: 73,
+    functions: 74,
+    lines: 81,
   },
 }

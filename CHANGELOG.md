@@ -7,6 +7,35 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Test coverage for essentially every previously-untested component**,
+  landed as several incremental batches: cart/favorites/shop/profile
+  content, the full vendor and transporter dashboards (shells, tabs,
+  dialogs, the `product-form/` section components), the entire admin
+  surface (HR subtabs and payroll, finance tabs, KYC/customer management,
+  blog, messaging, analytics, infra/ops, activity logs), checkout's
+  address/map/shipping components, the messaging widgets, and assorted
+  layout/home/seo components. lib/ was already at ~96% going in; the gap
+  was entirely in components/.
+  - Coverage: 32.6% -> 80.86% statements, 28.5% -> 73.24% branches, 22.0% ->
+    74.08% functions, 32.8% -> 81.6% lines. `jest.config.js` and
+    `jest.coverage-threshold.js`'s ratchet raised from 32/28/21/32 to
+    80/73/74/81 to match.
+  - A handful of real, pre-existing bugs surfaced along the way were
+    deliberately left alone rather than "fixed" mid coverage-push (each
+    documented as a comment in its test file): `payment-content.tsx`
+    treats every cash-on-delivery order as already paid, making its COD
+    confirmation card unreachable dead code; `search-filters-popover.tsx`'s
+    `clearFilters` reads not-yet-cleared state in the same tick, so
+    clicking Clear never actually clears an existing max price.
+  - Two defensive branches were confirmed genuinely dead (not just
+    untested) by direct probing rather than assumption:
+    `revoke-admin-dialog.tsx`'s short-reason alert guard is unreachable
+    because the button's own `disabled` condition already blocks the
+    click; `agent-dialogs.tsx`'s delete dialog never receives
+    `onOpenChange(true)` since it's fully controlled with no trigger.
+
 ### Changed
 
 - **`validation-surveys-tab.tsx`: extracted fetch/filter state and the stat
