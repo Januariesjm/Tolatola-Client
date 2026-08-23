@@ -9,6 +9,17 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`validation-surveys-tab.tsx`: extracted fetch/filter state and the stat
+  cards** into `hooks/use-validation-surveys.ts` and
+  `components/admin/validation-surveys-stat-cards.tsx`. 494 -> 390 lines.
+  Along the way, deleted seven state variables (`importStep`, `importError`,
+  `parsedRows`, `defaultAgentId`, `defaultAgentName`, `defaultSource`,
+  `defaultCollectionMethod`) that were dead: never read, never set, leftover
+  from before the bulk-import wizard became its own component
+  (`validation-surveys-import-wizard.tsx`). Verified DOM-identical against
+  the pre-extraction version, empty and with a row expanded, before landing.
+  17 new tests (hook + stat-cards component).
+
 - **`incomplete-registrations-tab.tsx`: extracted the recovery-status filter
   state, per-status counts, and status-update mutation** into
   `hooks/use-incomplete-registrations.ts`. The mutation now goes through
