@@ -7,6 +7,8 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.3.0] — 2026-08-23
+
 ### Added
 
 - **Test coverage for essentially every previously-untested component**,
