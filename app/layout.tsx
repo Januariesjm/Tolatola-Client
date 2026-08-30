@@ -4,6 +4,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/lib/i18n/language-context"
 import { JsonLd } from "@/components/seo/json-ld"
+import { GoogleAnalytics } from "@/components/seo/google-analytics"
 import { GlobalErrorLogger } from "@/components/utils/global-error-logger"
 
 const inter = Inter({
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body className="font-sans flex flex-col min-h-screen">
+        <GoogleAnalytics />
         <JsonLd />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <LanguageProvider>
