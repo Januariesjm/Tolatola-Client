@@ -98,9 +98,10 @@ distributed library — there is no backport branch, and fixes ship forward.
 
 So a report can skip what is covered:
 
-- **CI hard-gates on critical advisories** (`npm audit --audit-level=critical`)
-  and reports high ones. The 5 outstanding high advisories all trace to the
-  `next` 14.x line, which has no patched release — see `SECURITY_DEBT.md` and
+- **CI hard-gates on critical advisories** via
+  `scripts/check-critical-audit.mjs`, allowing only the three documented Next 14
+  RCE GHSAs, and reports high ones. The remaining critical and high advisories
+  trace to the `next` 14.x line and `zod` 3 — see `SECURITY_DEBT.md` and
   `docs/NEXT_16_UPGRADE_PLAN.md`.
 - **Every mutating API route validates its body** through
   `lib/api/validate-request.ts` (JSON) or `lib/api/validate-upload.ts`

@@ -94,25 +94,17 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      # Hard gate. Any critical advisory fails the build.
-      - name: Fail on critical advisories
-        run: npm audit --audit-level=critical
-      # Visibility only. There are currently 5 high advisories (next, postcss,
-      # glob, eslint-config-next, @next/eslint-plugin-next) and every one of
-      # them resolves to a single root cause: the advisory range for `next` is
-      # 9.3.4-canary.0 - 16.3.0-preview.10, which covers every published 14.x
-      # and 15.x release. There is no patched version in the 14 line, so this is
-      # not fixable by a patch bump, a minor bump or an override -- the only fix
-      # npm audit offers is next@16.3.1, flagged isSemVerMajor, which also drags
-      # React 18 -> 19 and ~40 Radix packages with it.
-      #
-      # Gating on `high` before that migration lands would leave CI permanently
-      # red, which is worse than reporting the findings, so they are reported.
-      # Suppressing them or lowering the level was rejected: the exposure is
-      # real.
-      #
-      # Turn this into a gate (and delete this step) as the last commit of the
-      # Next 16 upgrade. Plan and sequencing: docs/NEXT_16_UPGRADE_PLAN.md
+      # Hard gate. Any critical advisory fails unless it is one of the
+      # documented Next 14 advisories allowlisted in
+      # scripts/check-critical-audit.mjs. Next 14.2.35 is the final 14.x release
+      # and the critical RCE fixes only land in 15.5.28+/16.x, so that allowlist
+      # is the one exception until docs/NEXT_16_UPGRADE_PLAN.md lands.
+      - name: Fail on new critical advisories
+        run: node scripts/check-critical-audit.mjs
+      # Visibility only. High advisories are documented in SECURITY_DEBT.md:
+      # most are lint-time or transitive through Next 14, and the rest resolve
+      # only through the Next 16 / zod 4 migrations. Gating on `high` today
+      # would leave CI permanently red, which trains people to ignore it.
       - name: Report high advisories (non-blocking)
         continue-on-error: true
         run: npm audit --audit-level=high
@@ -120,12 +112,12 @@ jobs:
       # rather than only in this job's log -- visible on the run page without
       # opening a step. `|| true`: a summary step must not fail the build even
       # though the command above already reported the real exit code.
-      - name: Publish high-advisory summary
+      - name: Publish advisory summary
         if: always()
         run: |
           {
-            echo "### Dependency audit: high-severity advisories"
-            echo "Non-blocking -- see [SECURITY_DEBT.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/SECURITY_DEBT.md) for accepted risk and [docs/NEXT_16_UPGRADE_PLAN.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/docs/NEXT_16_UPGRADE_PLAN.md) for the fix."
+            echo "### Dependency audit summary"
+            echo "Critical advisories are gated by \`scripts/check-critical-audit.mjs\`; only the documented Next 14 exceptions are allowed. High advisories are non-blocking -- see [SECURITY_DEBT.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/SECURITY_DEBT.md) for accepted risk and [docs/NEXT_16_UPGRADE_PLAN.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/docs/NEXT_16_UPGRADE_PLAN.md) for the fix."
             echo
             echo '```text'
             npm audit --audit-level=high 2>&1 || true
