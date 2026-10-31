@@ -33,6 +33,11 @@ The high advisories fall into three groups:
 | `brace-expansion`, `browserslist`, `js-yaml`, `source-map-js` | Transitive dev/build tooling; non-breaking fixes are available | `npm audit fix` in a separate dependency-hygiene change |
 | `zod` | Memory-exhaustion advisory in the 3.x line | `zod@4` (major) |
 
+The `brace-expansion` / `browserslist` / `js-yaml` / `source-map-js` group can be
+cleared by `npm audit fix`, but that currently rewrites hundreds of unrelated
+lockfile entries (including a `glob` downgrade), so it belongs in its own
+dependency-hygiene PR rather than this CI-gate fix.
+
 **Exposure.** `next` and `postcss` are the production-relevant advisories. The
 Windows-only RCE does not apply to this Linux/Cloud Run deployment, but the
 Image Optimization RCEs do. The lint-time and dev-tooling advisories do not run
