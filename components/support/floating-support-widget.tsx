@@ -114,7 +114,8 @@ export function FloatingSupportWidget() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Below lg the sticky MobileBottomNav occupies the bottom of the screen, so the launcher sits above it. */}
+      <div className="fixed bottom-24 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-700 lg:bottom-6">
         <button
           onClick={() => {
             inactivity.registerActivity()
