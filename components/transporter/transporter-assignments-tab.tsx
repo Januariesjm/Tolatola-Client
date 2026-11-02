@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Navigation } from "lucide-react"
+import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Navigation, Home, ShoppingBag } from "lucide-react"
 import { useState, useEffect, type ComponentProps } from "react"
 import { useRouter } from "next/navigation"
 import { ChatButton } from "@/components/messaging/chat-button"
 import { logger } from "@/lib/logger"
+import { getProductPosition, productPositionDescription, productPositionLabel } from "@/lib/maps/navigation"
 import type { TransporterAssignment } from "@/lib/types/transporter"
 
 const log = logger.child("transporter.transporter-assignments-tab")
@@ -103,6 +104,14 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
     }
   }
 
+  /**
+   * Opens the in-app navigator. `auto` follows the trip status (pickup first,
+   * then drop-off); the explicit targets are used by the per-stop links.
+   */
+  const openNavigation = (assignment: TransporterAssignment, target: "pickup" | "dropoff" | "auto") => {
+    router.push(`/transporter/navigate?assignmentId=${encodeURIComponent(assignment.id)}&target=${target}`)
+  }
+
   const verifyDeliveryPin = async () => {
     if (!selectedAssignmentId || !deliveryPin || deliveryPin.trim().length !== 4) {
       alert("Please enter a valid 4-digit Delivery PIN.")
@@ -164,6 +173,8 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
           const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
           const isNotYetAccepted = ["assigned", "ready_for_pickup", "available"].includes(assignment.status) && !assignment.accepted_at
           const displayStatus = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
+          const productPosition = getProductPosition(displayStatus)
+          const delivered = displayStatus === "delivered"
 
           return (
             <Card key={assignment.id} id={`order-${assignment.order_id}`} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
@@ -191,15 +202,14 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                       <div className="space-y-1">
                         <p className="text-sm text-muted-foreground border-t pt-1 mt-1">{assignment.shops.address}</p>
                         {assignment.shops.latitude && assignment.shops.longitude && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${assignment.shops.latitude},${assignment.shops.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => openNavigation(assignment, "pickup")}
                             className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
                           >
-                            <MapPin className="h-3 w-3" />
-                            View Pickup Location
-                          </a>
+                            <Navigation className="h-3 w-3" />
+                            Navigate to pickup
+                          </button>
                         )}
                       </div>
                     )}
@@ -229,15 +239,14 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                           {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
                         </p>
                         {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
-                          <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+                          <button
+                            type="button"
+                            onClick={() => openNavigation(assignment, "dropoff")}
+                            className="text-xs text-violet-600 font-medium flex items-center gap-1 hover:underline"
                           >
-                            <MapPin className="h-3 w-3" />
-                            View Delivery Location
-                          </a>
+                            <Navigation className="h-3 w-3" />
+                            Navigate to drop-off
+                          </button>
                         )}
                       </div>
                     )}
@@ -249,6 +258,40 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                     )}
                   </div>
                 </div>
+
+                {isAccepted && (
+                  <div
+                    className={`flex items-start gap-3 rounded-lg border p-3 ${
+                      productPosition === "delivered"
+                        ? "border-green-200 bg-green-50"
+                        : productPosition === "with_driver"
+                          ? "border-violet-200 bg-violet-50"
+                          : "border-blue-200 bg-blue-50"
+                    }`}
+                  >
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                        productPosition === "delivered"
+                          ? "bg-green-100 text-green-700"
+                          : productPosition === "with_driver"
+                            ? "bg-violet-100 text-violet-700"
+                            : "bg-sky-100 text-sky-700"
+                      }`}
+                    >
+                      {productPosition === "delivered" ? (
+                        <CheckCircle className="h-4 w-4" />
+                      ) : productPosition === "with_driver" ? (
+                        <Package className="h-4 w-4" />
+                      ) : (
+                        <ShoppingBag className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-slate-900">Product: {productPositionLabel(productPosition)}</p>
+                      <p className="text-xs text-slate-600">{productPositionDescription(productPosition)}</p>
+                    </div>
+                  </div>
+                )}
 
                 {!isAccepted && (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
@@ -263,22 +306,29 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
                   <span className="text-lg font-bold text-green-700">{Number(assignment.delivery_fee).toLocaleString()} TZS</span>
                 </div>
 
-                {/* Navigation Directions */}
-                {isAccepted && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
+                {/* In-app navigation */}
+                {isAccepted && !delivered && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
                   <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
                     <div className="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
                       <Navigation className="h-3.5 w-3.5" />
                       <span>Navigation & Route Directions</span>
                     </div>
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&origin=${assignment.shops.latitude},${assignment.shops.longitude}&destination=${assignment.orders.shipping_address.latitude},${assignment.orders.shipping_address.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => openNavigation(assignment, "auto")}
                       className="w-full text-xs text-center bg-primary hover:bg-stone-900 text-white py-2.5 px-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
                       <Navigation className="h-3.5 w-3.5" />
-                      Open Route: Shop ➔ Customer Directions
-                    </a>
+                      {displayStatus === "accepted" ? "Start pickup navigation" : "Start delivery navigation"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openNavigation(assignment, "dropoff")}
+                      className="w-full text-xs text-center border border-violet-200 bg-white hover:bg-violet-50 text-violet-700 py-2 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all"
+                    >
+                      <Home className="h-3.5 w-3.5" />
+                      Preview drop-off destination
+                    </button>
                   </div>
                 )}
 

@@ -29,12 +29,18 @@ ARG NEXT_PUBLIC_APP_URL
 # https://api.tolatola.co in the bundle, which is right for production but must
 # be overridable so a local compose stack makes no external calls.
 ARG NEXT_PUBLIC_API_URL
+# In-app transporter navigator. A pk.* token is public by design; the value is
+# injected from a GitHub secret at build time so it never lands in git.
+ARG NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+ARG NEXT_PUBLIC_MAPBOX_STYLE_URL
 
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=$NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+ENV NEXT_PUBLIC_MAPBOX_STYLE_URL=$NEXT_PUBLIC_MAPBOX_STYLE_URL
 
 RUN npm run build
 
