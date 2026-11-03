@@ -36,59 +36,69 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
     <div className="space-y-6">
       {/* Balance Summary */}
       <div className="grid md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Available Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-green-600" />
-              <span className="text-2xl font-bold text-green-700">{availableBalance.toLocaleString()} TZS</span>
+        <Card className="rounded-2xl border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-card shadow-xs hover:shadow-md transition-all">
+          <CardHeader className="pb-2 px-4 sm:px-6 pt-4 sm:pt-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs sm:text-sm font-semibold text-emerald-800 dark:text-emerald-300">Available Balance</CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-600 flex items-center justify-center">
+                <DollarSign className="h-4 w-4" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Ready to withdraw</p>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{availableBalance.toLocaleString()} TZS</span>
+            </div>
+            <p className="text-xs text-muted-foreground font-medium">Ready to withdraw</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-yellow-600" />
-              <span className="text-2xl font-bold text-yellow-700">{pendingBalance.toLocaleString()} TZS</span>
+        <Card className="rounded-2xl border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-card to-card shadow-xs hover:shadow-md transition-all">
+          <CardHeader className="pb-2 px-4 sm:px-6 pt-4 sm:pt-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300">Pending Balance</CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-600 flex items-center justify-center">
+                <Clock className="h-4 w-4" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Being processed</p>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{pendingBalance.toLocaleString()} TZS</span>
+            </div>
+            <p className="text-xs text-muted-foreground font-medium">Being processed</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Payment History */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
+      <Card className="rounded-2xl border-border/80 shadow-xs">
+        <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b border-border/60">
+          <CardTitle className="text-base sm:text-lg font-bold text-foreground">Payment History</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 py-4 sm:py-5">
           {payments.length === 0 ? (
-            <div className="py-12 text-center">
-              <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No payments yet</p>
+            <div className="py-14 text-center space-y-3">
+              <div className="h-14 w-14 mx-auto rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground">
+                <DollarSign className="h-7 w-7" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">No payments yet</p>
             </div>
           ) : (
             <div className="space-y-3">
               {payments.map((payment) => (
                 <div
                   key={payment.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 p-3 sm:p-4 border rounded-lg"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border border-border/70 hover:border-border hover:bg-muted/30 transition-all"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{payment.description || `${payment.payment_type} payment`}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    <p className="font-semibold text-sm text-foreground truncate">{payment.description || `${payment.payment_type} payment`}</p>
+                    <p className="text-xs text-muted-foreground">
                       {new Date(payment.created_at).toLocaleDateString()} at {new Date(payment.created_at).toLocaleTimeString()}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-                    <span className="font-bold text-green-600 text-sm sm:text-base">+{Number(payment.amount).toLocaleString()} TZS</span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
+                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">+{Number(payment.amount).toLocaleString()} TZS</span>
                     {getStatusBadge(payment.status)}
                   </div>
                 </div>

@@ -1,18 +1,17 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { MapPin, Package, CheckCircle, Truck, Phone, MessageSquare, ListTodo, Navigation, Home, ShoppingBag } from "lucide-react"
+import { Truck, ListTodo } from "lucide-react"
 import { useState, useEffect, type ComponentProps } from "react"
 import { useRouter } from "next/navigation"
-import { ChatButton } from "@/components/messaging/chat-button"
 import { logger } from "@/lib/logger"
-import { getProductPosition, productPositionDescription, productPositionLabel } from "@/lib/maps/navigation"
 import type { TransporterAssignment } from "@/lib/types/transporter"
+import { TransporterAssignmentCard } from "./transporter-assignment-card"
 
 const log = logger.child("transporter.transporter-assignments-tab")
 
@@ -27,7 +26,7 @@ const TAB_ACCEPTED = "accepted"
 const TAB_IN_TRANSIT = "in_transit"
 const TAB_COMPLETED = "completed"
 
-export function TransporterAssignmentsTab({ assignments, transporterId, initialOrderId }: TransporterAssignmentsTabProps) {
+export function TransporterAssignmentsTab({ assignments, initialOrderId }: TransporterAssignmentsTabProps) {
   const router = useRouter()
 
   const initialAssignment = initialOrderId
@@ -137,8 +136,6 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
 
   const getStatusBadge = (assignment: TransporterAssignment) => {
     const status = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
-    // "success" isn't in Badge's own variant set -- kept as-is (pre-existing,
-    // renders as an unstyled badge for "delivered") rather than changed here.
     const variants: Record<string, string> = {
       assigned: "secondary",
       ready_for_pickup: "secondary",
@@ -159,271 +156,38 @@ export function TransporterAssignmentsTab({ assignments, transporterId, initialO
   const renderList = (list: TransporterAssignment[]) => {
     if (list.length === 0) {
       return (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Truck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No trips in this tab</p>
+        <Card className="rounded-2xl border-dashed border-border/80">
+          <CardContent className="py-16 text-center space-y-3">
+            <div className="h-16 w-16 mx-auto rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground shadow-xs">
+              <Truck className="h-8 w-8" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-base font-semibold text-foreground">No trips in this tab</p>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                When new trips are assigned to you or made available in your service area, they will appear right here.
+              </p>
+            </div>
           </CardContent>
         </Card>
       )
     }
     return (
       <div className="space-y-4">
-        {list.map((assignment) => {
-          const isAccepted = ["accepted", "picked_up", "in_transit", "delivered"].includes(assignment.status) || !!assignment.accepted_at
-          const isNotYetAccepted = ["assigned", "ready_for_pickup", "available"].includes(assignment.status) && !assignment.accepted_at
-          const displayStatus = assignment.status === "assigned" && assignment.accepted_at ? "accepted" : assignment.status
-          const productPosition = getProductPosition(displayStatus)
-          const delivered = displayStatus === "delivered"
-
-          return (
-            <Card key={assignment.id} id={`order-${assignment.order_id}`} className={!isAccepted ? "border-primary/20 bg-primary/5" : ""}>
-              <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2 sm:pb-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <CardTitle className="text-sm sm:text-lg truncate">Order #{assignment.orders?.order_number}</CardTitle>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                      {assignment.transport_methods?.name} • {assignment.distance_km} km
-                    </p>
-                  </div>
-                  {getStatusBadge(assignment)}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6 pb-3 sm:pb-6">
-                {/* Shop Info */}
-                <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                  <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1 space-y-1">
-                    <p className="font-medium text-sm">Pickup from: {assignment.shops?.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {assignment.shops?.district}, {assignment.shops?.region}
-                    </p>
-                    {isAccepted && assignment.shops?.address && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground border-t pt-1 mt-1">{assignment.shops.address}</p>
-                        {assignment.shops.latitude && assignment.shops.longitude && (
-                          <button
-                            type="button"
-                            onClick={() => openNavigation(assignment, "pickup")}
-                            className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
-                          >
-                            <Navigation className="h-3 w-3" />
-                            Navigate to pickup
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {isAccepted && assignment.shops?.phone && (
-                      <a href={`tel:${assignment.shops.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {assignment.shops.phone}
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {/* Customer Info */}
-                <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                  <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1 space-y-1">
-                    <p className="font-medium text-sm">
-                      Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
-                    </p>
-                    {isAccepted && assignment.orders?.shipping_address && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground border-t pt-1 mt-1">
-                          {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
-                          {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
-                        </p>
-                        {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
-                          <button
-                            type="button"
-                            onClick={() => openNavigation(assignment, "dropoff")}
-                            className="text-xs text-violet-600 font-medium flex items-center gap-1 hover:underline"
-                          >
-                            <Navigation className="h-3 w-3" />
-                            Navigate to drop-off
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {isAccepted && assignment.orders?.users?.phone && (
-                      <a href={`tel:${assignment.orders.users.phone}`} className="text-sm text-blue-600 flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {assignment.orders.users.phone}
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {isAccepted && (
-                  <div
-                    className={`flex items-start gap-3 rounded-lg border p-3 ${
-                      productPosition === "delivered"
-                        ? "border-green-200 bg-green-50"
-                        : productPosition === "with_driver"
-                          ? "border-violet-200 bg-violet-50"
-                          : "border-blue-200 bg-blue-50"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                        productPosition === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : productPosition === "with_driver"
-                            ? "bg-violet-100 text-violet-700"
-                            : "bg-sky-100 text-sky-700"
-                      }`}
-                    >
-                      {productPosition === "delivered" ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : productPosition === "with_driver" ? (
-                        <Package className="h-4 w-4" />
-                      ) : (
-                        <ShoppingBag className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-slate-900">Product: {productPositionLabel(productPosition)}</p>
-                      <p className="text-xs text-slate-600">{productPositionDescription(productPosition)}</p>
-                    </div>
-                  </div>
-                )}
-
-                {!isAccepted && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    Exact locations will be revealed after you accept this cargo.
-                  </div>
-                )}
-
-                {/* Delivery Fee */}
-                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <span className="text-sm font-medium">Delivery Fee</span>
-                  <span className="text-lg font-bold text-green-700">{Number(assignment.delivery_fee).toLocaleString()} TZS</span>
-                </div>
-
-                {/* In-app navigation */}
-                {isAccepted && !delivered && assignment.shops?.latitude && assignment.orders?.shipping_address?.latitude && (
-                  <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3">
-                    <div className="text-[10px] font-black uppercase tracking-wider text-blue-600 flex items-center gap-1.5">
-                      <Navigation className="h-3.5 w-3.5" />
-                      <span>Navigation & Route Directions</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => openNavigation(assignment, "auto")}
-                      className="w-full text-xs text-center bg-primary hover:bg-stone-900 text-white py-2.5 px-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
-                    >
-                      <Navigation className="h-3.5 w-3.5" />
-                      {displayStatus === "accepted" ? "Start pickup navigation" : "Start delivery navigation"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openNavigation(assignment, "dropoff")}
-                      className="w-full text-xs text-center border border-violet-200 bg-white hover:bg-violet-50 text-violet-700 py-2 px-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-all"
-                    >
-                      <Home className="h-3.5 w-3.5" />
-                      Preview drop-off destination
-                    </button>
-                  </div>
-                )}
-
-                {isAccepted && (
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {assignment.shops?.vendors?.user_id && (
-                      <div className="flex-1">
-                        <ChatButton
-                          receiverId={assignment.shops.vendors.user_id}
-                          orderId={assignment.order_id}
-                          shopName={assignment.shops?.name || "Vendor"}
-                          label="Chat with Shop"
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <ChatButton
-                        receiverId={assignment.orders?.customer_id}
-                        orderId={assignment.order_id}
-                        shopName={assignment.orders?.users?.full_name || "Customer"}
-                        label="Chat with Customer"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {isNotYetAccepted && (
-                  <div className="flex gap-3">
-                    {!assignment.is_available_order && (
-                      <Button
-                        variant="outline"
-                        className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                        onClick={() => updateStatus(assignment.id, "rejected", assignment.is_available_order, assignment.order_id)}
-                        disabled={updating === assignment.id}
-                      >
-                        Reject Cargo
-                      </Button>
-                    )}
-                    <Button
-                      className="flex-1 bg-primary hover:bg-primary/90"
-                      onClick={() => updateStatus(assignment.id, "accepted", assignment.is_available_order, assignment.order_id)}
-                      disabled={updating === assignment.id}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      {updating === assignment.id ? "Accepting..." : "Accept Cargo"}
-                    </Button>
-                  </div>
-                )}
-
-                {/* isAccepted covers ("accepted" status OR "assigned" with accepted_at) */}
-                {(displayStatus === "accepted" || displayStatus === "assigned") && isAccepted && (
-                  <Button className="w-full" onClick={() => updateStatus(assignment.id, "picked_up")} disabled={updating === assignment.id}>
-                    <Package className="h-4 w-4 mr-2" />
-                    {updating === assignment.id ? "Updating..." : "Mark as Picked Up"}
-                  </Button>
-                )}
-
-                {assignment.status === "picked_up" && (
-                  <Button
-                    className="w-full"
-                    onClick={() => updateStatus(assignment.id, "in_transit")}
-                    disabled={updating === assignment.id}
-                  >
-                    <Truck className="h-4 w-4 mr-2" />
-                    {updating === assignment.id ? "Updating..." : "Start Delivery"}
-                  </Button>
-                )}
-
-                {assignment.status === "in_transit" && (
-                  <Button
-                    className="w-full"
-                    variant="default"
-                    onClick={() => {
-                      setSelectedAssignmentId(assignment.id)
-                      setDeliveryPin("")
-                      setPinModalOpen(true)
-                    }}
-                    disabled={updating === assignment.id}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {updating === assignment.id ? "Completing..." : "Complete Delivery"}
-                  </Button>
-                )}
-
-                {assignment.status === "delivered" && assignment.delivered_at && (
-                  <div className="text-center py-2">
-                    <p className="text-sm text-green-600 font-medium">✓ Completed</p>
-                    <p className="text-xs text-muted-foreground">{new Date(assignment.delivered_at).toLocaleDateString()}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )
-        })}
+        {list.map((assignment) => (
+          <TransporterAssignmentCard
+            key={assignment.id}
+            assignment={assignment}
+            updating={updating}
+            onUpdateStatus={updateStatus}
+            onOpenNavigation={openNavigation}
+            onOpenPinModal={(id) => {
+              setSelectedAssignmentId(id)
+              setDeliveryPin("")
+              setPinModalOpen(true)
+            }}
+            getStatusBadge={getStatusBadge}
+          />
+        ))}
       </div>
     )
   }
