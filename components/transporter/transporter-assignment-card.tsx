@@ -321,9 +321,7 @@ export function TransporterAssignmentCard({
         {assignment.status === "delivered" && assignment.delivered_at && (
           <div className="text-center py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
             <p className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">✓ Completed</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Delivered on {new Date(assignment.delivered_at).toLocaleDateString()}
-            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">Delivered on {new Date(assignment.delivered_at).toLocaleDateString()}</p>
           </div>
         )}
       </CardContent>

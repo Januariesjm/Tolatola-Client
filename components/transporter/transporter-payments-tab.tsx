@@ -47,7 +47,9 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
           </CardHeader>
           <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{availableBalance.toLocaleString()} TZS</span>
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                {availableBalance.toLocaleString()} TZS
+              </span>
             </div>
             <p className="text-xs text-muted-foreground font-medium">Ready to withdraw</p>
           </CardContent>
@@ -64,7 +66,9 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
           </CardHeader>
           <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{pendingBalance.toLocaleString()} TZS</span>
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                {pendingBalance.toLocaleString()} TZS
+              </span>
             </div>
             <p className="text-xs text-muted-foreground font-medium">Being processed</p>
           </CardContent>
@@ -92,13 +96,17 @@ export function TransporterPaymentsTab({ payments, availableBalance, pendingBala
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3.5 sm:p-4 rounded-xl border border-border/70 hover:border-border hover:bg-muted/30 transition-all"
                 >
                   <div className="flex-1 min-w-0 space-y-0.5">
-                    <p className="font-semibold text-sm text-foreground truncate">{payment.description || `${payment.payment_type} payment`}</p>
+                    <p className="font-semibold text-sm text-foreground truncate">
+                      {payment.description || `${payment.payment_type} payment`}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(payment.created_at).toLocaleDateString()} at {new Date(payment.created_at).toLocaleTimeString()}
                     </p>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-1 sm:pt-0">
-                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">+{Number(payment.amount).toLocaleString()} TZS</span>
+                    <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm sm:text-base">
+                      +{Number(payment.amount).toLocaleString()} TZS
+                    </span>
                     {getStatusBadge(payment.status)}
                   </div>
                 </div>

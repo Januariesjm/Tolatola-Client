@@ -167,7 +167,13 @@ export function TransporterDashboardContent({ transporter, assignments, payments
       <header className="border-b bg-background/95 backdrop-blur-md sticky top-0 z-50 shadow-xs">
         <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 group">
-            <Image src="/logo-new.png" alt="TOLA" width={150} height={50} className="h-10 sm:h-14 md:h-16 w-auto transition-transform group-hover:scale-105" />
+            <Image
+              src="/logo-new.png"
+              alt="TOLA"
+              width={150}
+              height={50}
+              className="h-10 sm:h-14 md:h-16 w-auto transition-transform group-hover:scale-105"
+            />
             <span className="hidden sm:inline-block">
               <HeaderAnimatedText />
             </span>
@@ -181,7 +187,12 @@ export function TransporterDashboardContent({ transporter, assignments, payments
               <span className="capitalize">{transporter.vehicle_type || "Logistics"} Driver</span>
             </div>
             <NotificationPopover userType="transporter" />
-            <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm px-2.5 sm:px-3.5 rounded-lg border-border/80 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="text-xs sm:text-sm px-2.5 sm:px-3.5 rounded-lg border-border/80 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
+            >
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline font-medium">Logout</span>
             </Button>
@@ -199,9 +210,7 @@ export function TransporterDashboardContent({ transporter, assignments, payments
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">
-                    Transporter Dashboard
-                  </h1>
+                  <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">Transporter Dashboard</h1>
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
                     Verified Driver
@@ -323,14 +332,10 @@ export function TransporterDashboardContent({ transporter, assignments, payments
                 )}
               </Button>
               {locationStatus === "updated" && (
-                <p className="text-[11px] text-emerald-600 mt-2 text-center font-semibold animate-in fade-in">
-                  ✓ Location synced
-                </p>
+                <p className="text-[11px] text-emerald-600 mt-2 text-center font-semibold animate-in fade-in">✓ Location synced</p>
               )}
               {locationStatus === "error" && (
-                <p className="text-[11px] text-rose-600 mt-2 text-center font-semibold animate-in fade-in">
-                  Failed to sync location
-                </p>
+                <p className="text-[11px] text-rose-600 mt-2 text-center font-semibold animate-in fade-in">Failed to sync location</p>
               )}
             </CardContent>
           </Card>

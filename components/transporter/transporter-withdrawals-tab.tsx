@@ -104,7 +104,8 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
       completed: {
         variant: "default",
         icon: CheckCircle,
-        className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60",
+        className:
+          "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60",
       },
       rejected: {
         variant: "destructive",
@@ -155,7 +156,9 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">Available Balance</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
+                      Available Balance
+                    </p>
                   </div>
                   <p className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-300 tracking-tight">
                     {availableBalance.toLocaleString()} TZS
@@ -217,7 +220,9 @@ export function TransporterWithdrawalsTab({ withdrawals, availableBalance }: Tra
                 </div>
                 <div className="flex justify-between text-stone-600 dark:text-stone-400">
                   <span>Service Fee (10%):</span>
-                  <span className="font-medium text-amber-600 dark:text-amber-400">- TZS {(numericAmount * COMMISSION_RATE).toLocaleString()}</span>
+                  <span className="font-medium text-amber-600 dark:text-amber-400">
+                    - TZS {(numericAmount * COMMISSION_RATE).toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center font-bold text-base pt-2 border-t border-emerald-200/80 dark:border-emerald-800/60">
                   <span className="text-stone-900 dark:text-stone-100">You Receive:</span>
