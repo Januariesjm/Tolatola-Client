@@ -172,7 +172,7 @@ export function TransporterAssignmentsTab({ assignments, initialOrderId }: Trans
       )
     }
     return (
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
         {list.map((assignment) => (
           <TransporterAssignmentCard
             key={assignment.id}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { CheckCircle, Crosshair, Home, Info, Loader2, Maximize2, Navigation, Package, Phone, ShoppingBag, Truck } from "lucide-react"
+import { CheckCircle, Info, Package, ShoppingBag } from "lucide-react"
 import { clientApiGet, clientApiPatch } from "@/lib/api-client"
 import { useToast } from "@/hooks/use-toast"
 import { logger } from "@/lib/logger"
@@ -30,6 +30,8 @@ import { NavigationHeader } from "./navigation-header"
 import { NavigationLegPanel } from "./navigation-leg-panel"
 import { NavigationMapControls } from "./navigation-map-controls"
 import { NavigationTurnCard } from "./navigation-turn-card"
+import { NavigationPinDialog } from "./navigation-pin-dialog"
+import { NavigationActionPanel } from "./navigation-action-panel"
 
 const log = logger.child("transporter.transporter-navigation-screen")
 
@@ -68,6 +70,8 @@ export function TransporterNavigationScreen({ assignment, initialTarget = "auto"
   const [advancing, setAdvancing] = useState(false)
   const [mapMode, setMapMode] = useState<MapMode | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
+  const [arrivedManually, setArrivedManually] = useState(false)
+  const [pinDialogOpen, setPinDialogOpen] = useState(false)
 
   const lastPositionRef = useRef<NavigationPoint | null>(null)
   const lastFetchRef = useRef<{ key: string; origin: NavigationPoint; at: number } | null>(null)
@@ -235,6 +239,20 @@ export function TransporterNavigationScreen({ assignment, initialTarget = "auto"
   const progress = useMemo(() => getRouteProgress(route, driver), [route, driver])
   const nextStep = useMemo(() => getNextNavigationStep(route, driver), [route, driver])
 
+  const distanceToDestination = useMemo(() => {
+    if (!driver || !destination) return null
+    return haversineMeters(driver, destination)
+  }, [driver, destination])
+
+  const isArrivedAtDropoff = useMemo(() => {
+    if (arrivedManually) return true
+    if (target === "dropoff" && status === "in_transit") {
+      if (distanceToDestination !== null && distanceToDestination <= 80) return true
+      if (nextStep?.step.maneuver === "arrive" && nextStep.distanceToStepMeters <= 50) return true
+    }
+    return false
+  }, [arrivedManually, target, status, distanceToDestination, nextStep])
+
   const advanceStatus = useCallback(
     async (nextStatus: "picked_up" | "in_transit") => {
       if (advancing) return
@@ -387,95 +405,45 @@ export function TransporterNavigationScreen({ assignment, initialTarget = "auto"
 
         <NavigationLegPanel target={target} destination={destination} onSelectTarget={setTargetMode} onCall={callDestination} />
 
-        <div className="mt-3 flex gap-2.5">
-          <button
-            type="button"
-            disabled={!destination}
-            onClick={() => {
-              if (follow) {
-                setFollow(false)
-                setFitSignal((value) => value + 1)
-              } else {
-                setFollow(true)
-                setRecenterSignal((value) => value + 1)
-              }
-            }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-extrabold text-white shadow-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {follow ? <Maximize2 className="h-4 w-4" /> : <Navigation className="h-4 w-4" />}
-            {follow ? "Route overview" : "Start navigation"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
+        <NavigationActionPanel
+          status={status}
+          destination={destination}
+          follow={follow}
+          advancing={advancing}
+          isArrivedAtDropoff={isArrivedAtDropoff}
+          delivered={delivered}
+          locationDenied={locationDenied}
+          onToggleFollow={() => {
+            if (follow) {
+              setFollow(false)
+              setFitSignal((value) => value + 1)
+            } else {
               setFollow(true)
               setRecenterSignal((value) => value + 1)
-            }}
-            className="flex w-12 items-center justify-center rounded-xl bg-blue-50 text-primary hover:bg-blue-100"
-            aria-label="Recenter"
-          >
-            <Crosshair className="h-4 w-4" />
-          </button>
-        </div>
-
-        {(status === "accepted" || status === "assigned") && (
-          <button
-            type="button"
-            disabled={advancing}
-            onClick={() => advanceStatus("picked_up")}
-            className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl bg-sky-600 py-3 text-sm font-extrabold text-white transition-colors hover:bg-sky-700 disabled:opacity-60"
-          >
-            {advancing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="h-4 w-4" />}
-            Mark as picked up
-          </button>
-        )}
-
-        {status === "picked_up" && (
-          <button
-            type="button"
-            disabled={advancing}
-            onClick={() => advanceStatus("in_transit")}
-            className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 py-3 text-sm font-extrabold text-white transition-colors hover:bg-violet-700 disabled:opacity-60"
-          >
-            {advancing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
-            Start delivery
-          </button>
-        )}
-
-        {status === "in_transit" && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-blue-50 p-2.5 text-[11px] font-semibold text-slate-600">
-            <Info className="h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="flex-1">Finish with the customer PIN in Trips to release your payout.</span>
-            <button
-              type="button"
-              onClick={() =>
-                router.push(`/transporter/dashboard?tab=assignments&orderId=${encodeURIComponent(current.order_id || current.id)}`)
-              }
-              className="font-extrabold text-primary hover:underline"
-            >
-              Open Trips
-            </button>
-          </div>
-        )}
-
-        {delivered ? (
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-green-50 p-2.5 text-xs font-bold text-green-700">
-            <CheckCircle className="h-4 w-4" />
-            Delivery complete
-          </div>
-        ) : null}
-
-        {locationDenied ? (
-          <p className="mt-2.5 text-[10px] leading-relaxed text-slate-400">
-            Location is off — routing from the pickup point. Allow location access for live turn-by-turn.
-          </p>
-        ) : null}
-        {mapMode === "leaflet" && !process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN && process.env.NODE_ENV !== "production" ? (
-          <p className="mt-2 text-[10px] text-slate-400">
-            OpenStreetMap fallback — set NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN for Mapbox navigation roads.
-          </p>
-        ) : null}
+            }
+          }}
+          onRecenter={() => {
+            setFollow(true)
+            setRecenterSignal((value) => value + 1)
+          }}
+          onAdvanceStatus={advanceStatus}
+          onManualArrive={() => setArrivedManually(true)}
+          onCompleteDelivery={() => setPinDialogOpen(true)}
+          onOpenTrips={() =>
+            router.push(`/transporter/dashboard?tab=assignments&orderId=${encodeURIComponent(current.order_id || current.id)}`)
+          }
+        />
       </aside>
+
+      <NavigationPinDialog
+        open={pinDialogOpen}
+        onOpenChange={setPinDialogOpen}
+        assignmentId={current.id}
+        onSuccess={() => {
+          setStatusOverride("delivered")
+          setCurrent((prev) => ({ ...prev, status: "delivered" }))
+        }}
+      />
     </div>
   )
 }

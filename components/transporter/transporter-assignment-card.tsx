@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import { useMemo, type ReactNode } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MapPin, Package, CheckCircle, Truck, Phone, Navigation, Home, ShoppingBag } from "lucide-react"
@@ -14,7 +14,7 @@ interface TransporterAssignmentCardProps {
   onUpdateStatus: (assignmentId: string, newStatus: string, isAvailableOrder?: boolean, orderId?: string) => Promise<void>
   onOpenNavigation: (assignment: TransporterAssignment, target: "pickup" | "dropoff" | "auto") => void
   onOpenPinModal: (assignmentId: string) => void
-  getStatusBadge: (assignment: TransporterAssignment) => React.ReactNode
+  getStatusBadge: (assignment: TransporterAssignment) => ReactNode
 }
 
 export function TransporterAssignmentCard({
@@ -31,6 +31,26 @@ export function TransporterAssignmentCard({
   const productPosition = getProductPosition(displayStatus)
   const delivered = displayStatus === "delivered"
 
+  const dropoffAddress = useMemo(() => {
+    const addr = assignment.orders?.shipping_address
+    if (!addr) return null
+    const street = addr.street || addr.address
+    const ward = addr.ward || addr.village
+    const parts = [street, ward, addr.district, addr.region].filter((p): p is string =>
+      Boolean(p && String(p).trim() !== "" && String(p).trim() !== ","),
+    )
+    return parts.length > 0 ? parts.join(", ") : null
+  }, [assignment.orders?.shipping_address])
+
+  const shopAddress = useMemo(() => {
+    const s = assignment.shops
+    if (!s) return null
+    const parts = [s.address, s.district, s.region].filter((p): p is string =>
+      Boolean(p && String(p).trim() !== "" && String(p).trim() !== ","),
+    )
+    return parts.length > 0 ? parts.join(", ") : null
+  }, [assignment.shops])
+
   return (
     <Card
       id={`order-${assignment.order_id}`}
@@ -45,7 +65,7 @@ export function TransporterAssignmentCard({
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <CardTitle className="text-base sm:text-lg font-bold tracking-tight text-foreground truncate">
-                Order #{assignment.orders?.order_number}
+                Order #{assignment.orders?.order_number || assignment.order_id?.slice(0, 8) || assignment.id.slice(0, 8)}
               </CardTitle>
               {assignment.transport_methods?.name && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-secondary text-secondary-foreground border border-border/60">
@@ -72,7 +92,7 @@ export function TransporterAssignmentCard({
             <span className="absolute -left-6 sm:-left-7 top-1 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20 flex items-center justify-center">
               <span className="h-1.5 w-1.5 rounded-full bg-white" />
             </span>
-            <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-border/70 space-y-1.5 shadow-2xs">
+            <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-border/70 space-y-2 shadow-2xs">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <Package className="h-3 w-3" /> Pickup Stop
@@ -87,24 +107,19 @@ export function TransporterAssignmentCard({
                   </a>
                 )}
               </div>
-              <p className="font-semibold text-sm text-foreground">Pickup from: {assignment.shops?.name}</p>
-              <p className="text-xs text-muted-foreground font-medium">
-                {assignment.shops?.district}, {assignment.shops?.region}
-              </p>
-              {isAccepted && assignment.shops?.address && (
-                <div className="pt-2 border-t border-border/60 space-y-1.5">
-                  <p className="text-xs text-muted-foreground leading-relaxed">{assignment.shops.address}</p>
-                  {assignment.shops.latitude && assignment.shops.longitude && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenNavigation(assignment, "pickup")}
-                      className="text-xs text-primary font-bold inline-flex items-center gap-1.5 hover:underline pt-0.5"
-                    >
-                      <Navigation className="h-3.5 w-3.5" />
-                      Navigate to pickup
-                    </button>
-                  )}
-                </div>
+              <div>
+                <p className="font-semibold text-sm text-foreground">Pickup from: {assignment.shops?.name}</p>
+                {shopAddress && <p className="text-xs text-muted-foreground font-medium leading-relaxed mt-0.5">{shopAddress}</p>}
+              </div>
+              {isAccepted && assignment.shops?.latitude && assignment.shops?.longitude && (
+                <Button
+                  type="button"
+                  onClick={() => onOpenNavigation(assignment, "pickup")}
+                  className="w-full mt-2 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Navigate to pickup
+                </Button>
               )}
             </div>
           </div>
@@ -114,7 +129,7 @@ export function TransporterAssignmentCard({
             <span className="absolute -left-6 sm:-left-7 top-1 h-3.5 w-3.5 rounded-full bg-violet-500 ring-4 ring-violet-500/20 flex items-center justify-center">
               <span className="h-1.5 w-1.5 rounded-full bg-white" />
             </span>
-            <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-border/70 space-y-1.5 shadow-2xs">
+            <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-border/70 space-y-2 shadow-2xs">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> Drop-off Destination
@@ -129,29 +144,28 @@ export function TransporterAssignmentCard({
                   </a>
                 )}
               </div>
-              <p className="font-semibold text-sm text-foreground">
-                Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
-              </p>
-              <p className="text-xs text-muted-foreground font-medium">
-                {assignment.orders?.shipping_address?.district}, {assignment.orders?.shipping_address?.region}
-              </p>
-              {isAccepted && assignment.orders?.shipping_address && (
-                <div className="pt-2 border-t border-border/60 space-y-1.5">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {assignment.orders.shipping_address.street || assignment.orders.shipping_address.address},{" "}
-                    {assignment.orders.shipping_address.ward || assignment.orders.shipping_address.village}
+              <div>
+                <p className="font-semibold text-sm text-foreground">
+                  Deliver to: {assignment.orders?.users?.full_name || assignment.orders?.shipping_address?.full_name || "Customer"}
+                </p>
+                {dropoffAddress ? (
+                  <p className="text-xs text-muted-foreground font-medium leading-relaxed mt-0.5">{dropoffAddress}</p>
+                ) : assignment.orders?.shipping_address?.latitude ? (
+                  <p className="text-xs text-muted-foreground font-medium mt-0.5">
+                    GPS: {Number(assignment.orders.shipping_address.latitude).toFixed(4)},{" "}
+                    {Number(assignment.orders.shipping_address.longitude).toFixed(4)}
                   </p>
-                  {assignment.orders.shipping_address.latitude && assignment.orders.shipping_address.longitude && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenNavigation(assignment, "dropoff")}
-                      className="text-xs text-violet-600 font-bold inline-flex items-center gap-1.5 hover:underline pt-0.5"
-                    >
-                      <Navigation className="h-3.5 w-3.5" />
-                      Navigate to drop-off
-                    </button>
-                  )}
-                </div>
+                ) : null}
+              </div>
+              {isAccepted && assignment.orders?.shipping_address?.latitude && assignment.orders?.shipping_address?.longitude && (
+                <Button
+                  type="button"
+                  onClick={() => onOpenNavigation(assignment, "dropoff")}
+                  className="w-full mt-2 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Navigate to drop-off
+                </Button>
               )}
             </div>
           </div>
@@ -307,15 +321,24 @@ export function TransporterAssignmentCard({
         )}
 
         {assignment.status === "in_transit" && (
-          <Button
-            className="w-full rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs hover:shadow transition-all"
-            variant="default"
-            onClick={() => onOpenPinModal(assignment.id)}
-            disabled={updating === assignment.id}
-          >
-            <CheckCircle className="h-4 w-4 mr-2" />
-            {updating === assignment.id ? "Completing..." : "Complete Delivery"}
-          </Button>
+          <div className="space-y-2 pt-1">
+            <Button
+              className="w-full h-11 rounded-xl font-bold bg-violet-600 hover:bg-violet-700 text-white shadow-xs hover:shadow transition-all"
+              onClick={() => onOpenNavigation(assignment, "dropoff")}
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Navigate to customer
+            </Button>
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => onOpenPinModal(assignment.id)}
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground underline decoration-dotted transition-colors"
+              >
+                Already at customer? Enter delivery PIN
+              </button>
+            </div>
+          </div>
         )}
 
         {assignment.status === "delivered" && assignment.delivered_at && (
